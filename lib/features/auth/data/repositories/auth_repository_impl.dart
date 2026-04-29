@@ -42,17 +42,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Result<AuthSession, Failure>> register({
+  Future<Result<User, Failure>> register({
     required RegisterParams params,
   }) async {
     try {
       final dto = await _remote.register(params);
-      final session = AuthSession(
-        user: dto.data.toEntity(),
-        accessToken: dto.accessToken,
-      );
-      await _persist(session);
-      return Ok(session);
+      return Ok(dto.data.toEntity());
     } on DioException catch (e) {
       return Err(ExceptionMapper.fromDio(e));
     } catch (_) {
@@ -67,6 +62,31 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _remote.requestPasswordReset(email: email);
       return const Ok(null);
+    } on DioException catch (e) {
+      return Err(ExceptionMapper.fromDio(e));
+    } catch (_) {
+      return const Err(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Result<AuthSession, Failure>> resetPassword({
+    required String token,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    try {
+      final dto = await _remote.resetPassword(
+        token: token,
+        password: password,
+        passwordConfirmation: passwordConfirmation,
+      );
+      final session = AuthSession(
+        user: dto.data.toEntity(),
+        accessToken: dto.accessToken,
+      );
+      await _persist(session);
+      return Ok(session);
     } on DioException catch (e) {
       return Err(ExceptionMapper.fromDio(e));
     } catch (_) {

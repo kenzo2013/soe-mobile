@@ -1,11 +1,20 @@
 /// Toutes les routes nommées SOE — pas de magic strings ailleurs.
 abstract final class RouteNames {
-  // Public
+  // Public — flow auth
   static const String splash = '/';
   static const String onboarding = '/onboarding';
+  static const String roleChoice = '/role';
   static const String login = '/login';
   static const String register = '/register';
+  static const String registerStep1 = '/register/identity';
+  static const String registerStep2 = '/register/contact';
+  static const String registerStep3 = '/register/password';
+  static const String registerStep4 = '/register/address';
+  static const String emailSent = '/register/email-sent';
+  static const String emailConfirmed = '/auth/email-confirmed';
   static const String passwordForgot = '/password/forgot';
+  static const String passwordForgotSent = '/password/forgot-sent';
+  static const String passwordReset = '/password/reset';
   static const String emailConfirmation = '/email/confirm';
 
   // Parent shell

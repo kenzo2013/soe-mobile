@@ -1,13 +1,13 @@
 import '../../../../core/error/failure.dart';
 import '../../../../core/error/result.dart';
-import '../entities/auth_session.dart';
+import '../entities/user.dart';
 import '../repositories/auth_repository.dart';
 
 class Register {
   const Register(this._repo);
   final AuthRepository _repo;
 
-  Future<Result<AuthSession, Failure>> call({
+  Future<Result<User, Failure>> call({
     required RegisterParams params,
   }) {
     final errors = _validate(params);
@@ -22,8 +22,8 @@ class Register {
     if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(p.email)) {
       e['email'] = const ['Email invalide.'];
     }
-    if (p.password.length < 8) {
-      e['password'] = const ['Au moins 8 caractères.'];
+    if (p.password.length < 6) {
+      e['password'] = const ['Au moins 6 caractères.'];
     }
     if (p.password != p.passwordConfirmation) {
       e['password_confirmation'] = const [

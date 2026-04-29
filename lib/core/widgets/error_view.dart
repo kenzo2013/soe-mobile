@@ -54,6 +54,10 @@ class ErrorView extends StatelessWidget {
         NetworkFailure() => 'Pas de connexion réseau.',
         TimeoutFailure() => 'Le serveur met trop de temps à répondre.',
         UnauthorizedFailure() => 'Session expirée, veuillez vous reconnecter.',
+        InvalidCredentialsFailure() =>
+          'Email ou mot de passe incorrect.',
+        EmailNotConfirmedFailure() =>
+          'Veuillez confirmer votre email avant de vous connecter.',
         ForbiddenFailure() => 'Accès non autorisé.',
         NotFoundFailure() => 'Ressource introuvable.',
         ConflictFailure(:final message) => message ?? 'Conflit détecté.',

@@ -4,7 +4,10 @@ import 'failure.dart';
 
 /// Convertit une `DioException` en `Failure` typée.
 ///
-/// Référentiel des codes : voir cahier des charges §7.4.
+/// Formats observés sur l'API SOE (api.jeteste.site) :
+/// - `{"error": "..."}`              — Devise (login 401, register 401)
+/// - `{"status": {"code": N, "message": "..."}}` — pattern Rails standard (422, 409, 200)
+/// - body absent ou non-JSON → ServerFailure(code) générique
 abstract final class ExceptionMapper {
   static Failure fromDio(DioException e) {
     switch (e.type) {
@@ -26,40 +29,62 @@ abstract final class ExceptionMapper {
   }
 
   static Failure _fromStatus(int? code, Object? data) {
-    final msg = _extractMessage(data);
+    final message = _extractMessage(data);
     switch (code) {
       case 400:
-        return ServerFailure(400, msg);
+        return ServerFailure(400, message);
       case 401:
-        return const UnauthorizedFailure();
+        return _from401(message);
       case 403:
         return const ForbiddenFailure();
       case 404:
         return const NotFoundFailure();
       case 409:
-        return ConflictFailure(msg);
+        return ConflictFailure(message);
       case 422:
-        return ValidationFailure(_extractErrors(data), msg);
+        return ValidationFailure(_extractErrors(data), message);
       case null:
         return const UnknownFailure();
       default:
-        if (code >= 500) return ServerFailure(code, msg);
-        return ServerFailure(code, msg);
+        return ServerFailure(code, message);
     }
   }
 
+  static Failure _from401(String? message) {
+    if (message == null) return const UnauthorizedFailure();
+    final m = message.toLowerCase();
+    if (m.contains('confirm your email') ||
+        m.contains('confirmer votre email') ||
+        m.contains('confirm') && m.contains('email')) {
+      return const EmailNotConfirmedFailure();
+    }
+    if (m.contains('invalid') &&
+        (m.contains('password') || m.contains('e-mail'))) {
+      return const InvalidCredentialsFailure();
+    }
+    return const UnauthorizedFailure();
+  }
+
+  /// Cherche un message dans :
+  /// - `data["error"]` (Devise)
+  /// - `data["status"]["message"]` (Rails standard SOE)
+  /// - `data["message"]`
   static String? _extractMessage(Object? data) {
-    if (data is Map && data['status'] is Map) {
-      final s = data['status'] as Map;
-      final m = s['message'];
-      if (m is String) return m;
+    if (data is! Map) return null;
+    final err = data['error'];
+    if (err is String && err.isNotEmpty) return err;
+    final status = data['status'];
+    if (status is Map) {
+      final m = status['message'];
+      if (m is String && m.isNotEmpty) return m;
     }
-    if (data is Map && data['message'] is String) {
-      return data['message'] as String;
-    }
+    final m = data['message'];
+    if (m is String && m.isNotEmpty) return m;
     return null;
   }
 
+  /// L'API SOE concatène les erreurs en un seul message — pas de map détaillée.
+  /// On retourne une map vide ; le ViewModel affichera `message` directement.
   static Map<String, List<String>> _extractErrors(Object? data) {
     if (data is! Map) return const {};
     final errors = data['errors'];

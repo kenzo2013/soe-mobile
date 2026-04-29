@@ -17,6 +17,16 @@ class UnauthorizedFailure extends Failure {
   const UnauthorizedFailure();
 }
 
+/// Spécifique : login refusé parce que l'email n'a pas encore été confirmé.
+/// L'API renvoie `{"error":"You have to confirm your email address before continuing."}`.
+class EmailNotConfirmedFailure extends Failure {
+  const EmailNotConfirmedFailure();
+}
+
+class InvalidCredentialsFailure extends Failure {
+  const InvalidCredentialsFailure();
+}
+
 class ForbiddenFailure extends Failure {
   const ForbiddenFailure();
 }

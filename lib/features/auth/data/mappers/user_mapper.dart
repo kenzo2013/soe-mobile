@@ -4,13 +4,13 @@ import '../dtos/user_dto.dart';
 extension UserDtoX on UserDto {
   User toEntity() => User(
         id: id,
-        email: email,
-        firstName: firstName,
-        lastName: lastName,
-        role: UserRoleX.fromApi(role),
-        civility: civility,
-        phone: phone,
-        lang: lang,
-        photoUrl: photoUrl,
+        email: attributes.email,
+        firstName: attributes.firstName,
+        lastName: attributes.lastName,
+        role: UserRoleX.fromApi(attributes.role),
+        civility: attributes.civility,
+        phone: attributes.phone,
+        lang: attributes.lang,
+        photoUrl: attributes.avatarUrl,
       );
 }

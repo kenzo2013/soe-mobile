@@ -9,6 +9,7 @@ import '../domain/usecases/login.dart';
 import '../domain/usecases/logout.dart';
 import '../domain/usecases/register.dart';
 import '../domain/usecases/request_password_reset.dart';
+import '../domain/usecases/reset_password.dart';
 
 final authRemoteDatasourceProvider = Provider<AuthRemoteDatasource>(
   (ref) => AuthRemoteDatasource(ref.watch(dioProvider)),
@@ -35,6 +36,10 @@ final requestPasswordResetUsecaseProvider = Provider<RequestPasswordReset>(
 
 final logoutUsecaseProvider = Provider<Logout>(
   (ref) => Logout(ref.watch(authRepositoryProvider)),
+);
+
+final resetPasswordUsecaseProvider = Provider<ResetPassword>(
+  (ref) => ResetPassword(ref.watch(authRepositoryProvider)),
 );
 
 /// Side-effect : après login/register réussis, sync les providers globaux.

@@ -22,6 +22,7 @@ GoRouter buildRouter({required AuthGuard guard}) {
       // ...tutorRoutes(),
       // ...commonRoutes(),
     ],
+    errorBuilder: (context, state) => const _SplashPlaceholder(),
   );
 }
 

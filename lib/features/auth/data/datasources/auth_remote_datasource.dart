@@ -9,7 +9,7 @@ class AuthRemoteDatasource {
   const AuthRemoteDatasource(this._dio);
   final Dio _dio;
 
-  Future<AuthResponseDto> login({
+  Future<LoginResponseDto> login({
     required String email,
     required String password,
   }) async {
@@ -19,10 +19,10 @@ class AuthRemoteDatasource {
         'user': {'email': email, 'password': password},
       },
     );
-    return AuthResponseDto.fromJson(r.data!);
+    return LoginResponseDto.fromJson(r.data!);
   }
 
-  Future<AuthResponseDto> register(RegisterParams p) async {
+  Future<RegisterResponseDto> register(RegisterParams p) async {
     final body = <String, dynamic>{
       'user': {
         'email': p.email,
@@ -48,7 +48,7 @@ class AuthRemoteDatasource {
       ApiEndpoints.register,
       data: body,
     );
-    return AuthResponseDto.fromJson(r.data!);
+    return RegisterResponseDto.fromJson(r.data!);
   }
 
   Future<void> requestPasswordReset({required String email}) async {
@@ -58,6 +58,24 @@ class AuthRemoteDatasource {
         'user': {'email': email},
       },
     );
+  }
+
+  Future<LoginResponseDto> resetPassword({
+    required String token,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    final r = await _dio.patch<Map<String, dynamic>>(
+      ApiEndpoints.passwordReset,
+      data: {
+        'user': {
+          'reset_password_token': token,
+          'password': password,
+          'password_confirmation': passwordConfirmation,
+        },
+      },
+    );
+    return LoginResponseDto.fromJson(r.data!);
   }
 
   Future<void> logout() async {

@@ -1,0 +1,188 @@
+{
+  "common": {
+    "appName": "SOE",
+    "tagline": "Store of Excellence",
+    "next": "Suivant",
+    "skip": "Passer",
+    "back": "Retour",
+    "continue": "Continuer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "submit": "Envoyer",
+    "retry": "Réessayer",
+    "close": "Fermer",
+    "yes": "Oui",
+    "no": "Non",
+    "loading": "Chargement…",
+    "or": "OU",
+    "copyright": "© SOE 2025 · Store of Excellence"
+  },
+  "languages": {
+    "fr": "Français",
+    "en": "English"
+  },
+  "errors": {
+    "network": "Pas de connexion réseau.",
+    "timeout": "Le serveur met trop de temps à répondre.",
+    "unauthorized": "Session expirée, veuillez vous reconnecter.",
+    "invalidCredentials": "Email ou mot de passe incorrect.",
+    "emailNotConfirmed": "Veuillez confirmer votre email avant de vous connecter.",
+    "forbidden": "Accès non autorisé.",
+    "notFound": "Ressource introuvable.",
+    "validation": "Certains champs sont invalides.",
+    "server": "Erreur serveur, réessayez plus tard.",
+    "unknown": "Une erreur inattendue est survenue.",
+    "emailInvalid": "Format d'email invalide.",
+    "passwordTooShort": "Au moins 6 caractères.",
+    "passwordMismatch": "Les mots de passe ne correspondent pas.",
+    "required": "Ce champ est requis.",
+    "cguRequired": "Vous devez accepter les CGU."
+  },
+  "onboarding": {
+    "slide1": {
+      "title": "Trouvez le tuteur idéal",
+      "body": "Des tuteurs certifiés pour un accompagnement scolaire personnalisé à domicile."
+    },
+    "slide2": {
+      "title": "Suivez chaque séance",
+      "body": "Consultez les rapports, validez les séances et suivez la progression."
+    },
+    "slide3": {
+      "title": "Payez en toute sécurité",
+      "body": "Réglez vos séances facilement via MTN MoMo ou Orange Money."
+    }
+  },
+  "role": {
+    "title": "Comment souhaitez-vous utiliser SOE ?",
+    "subtitle": "Vous pourrez ajouter le second rôle plus tard depuis votre profil.",
+    "parent": {
+      "title": "Je suis parent",
+      "body": "Inscrivez vos enfants, demandez un devis et suivez les séances."
+    },
+    "tutor": {
+      "title": "Je suis tuteur",
+      "body": "Proposez vos compétences, enseignez et recevez vos rémunérations."
+    },
+    "alreadyAccount": "Déjà un compte ?",
+    "signIn": "Connectez-vous"
+  },
+  "login": {
+    "welcome": "Bon retour parmi nous 👋",
+    "title": "Connectez-vous",
+    "subtitleParent": "Accédez à votre espace parent",
+    "subtitleTutor": "Accédez à votre espace tuteur",
+    "subtitleGeneric": "Accédez à votre espace SOE",
+    "email": "Email",
+    "emailHint": "prenom@soe.com",
+    "password": "Mot de passe",
+    "passwordHint": "Votre mot de passe",
+    "forgotPassword": "Mot de passe oublié ?",
+    "submit": "Se connecter",
+    "loading": "Connexion en cours…",
+    "noAccount": "Pas encore de compte ?",
+    "signUp": "S'inscrire",
+    "errorTitle": "Identifiants incorrects",
+    "errorBody": "Email ou mot de passe invalide. Vérifiez vos informations."
+  },
+  "signup": {
+    "title": "Inscription",
+    "step": "{{current}} / {{total}}",
+    "step1": {
+      "heading": "Commençons par vous",
+      "subtitle": "Ces informations apparaîtront sur votre profil SOE.",
+      "civility": "Civilité",
+      "civilityMr": "Monsieur",
+      "civilityMme": "Madame",
+      "firstName": "Prénom",
+      "firstNameHint": "Jean",
+      "lastName": "Nom",
+      "lastNameHint": "Dupont",
+      "lang": "Langue préférée"
+    },
+    "step2": {
+      "heading": "Vos coordonnées",
+      "subtitle": "Nous enverrons un email de confirmation à l'adresse saisie.",
+      "email": "Email",
+      "emailHint": "parent@example.com",
+      "phone": "Téléphone",
+      "phoneHint": "699 00 00 00",
+      "phoneHelp": "Nous utiliserons ce numéro pour les notifications Mobile Money.",
+      "momoInfo": "Ce numéro sera utilisé pour les paiements Mobile Money (MTN / Orange). Il peut être modifié depuis votre profil."
+    },
+    "step3": {
+      "heading": "Sécurisez votre compte",
+      "subtitle": "Choisissez un mot de passe solide. Il sera hashé côté serveur.",
+      "password": "Mot de passe",
+      "passwordHint": "6 caractères minimum",
+      "confirm": "Confirmation",
+      "confirmHint": "Retapez le mot de passe",
+      "strengthLabel": "Force du mot de passe",
+      "rule6Chars": "6 caractères minimum",
+      "ruleMixCase": "Majuscule et minuscule",
+      "ruleDigitOrSymbol": "1 chiffre ou symbole",
+      "rule12Strong": "12 caractères pour un niveau fort"
+    },
+    "step4": {
+      "heading": "Votre adresse",
+      "subtitle": "Utilisée pour proposer des tuteurs proches de vous.",
+      "search": "Rechercher",
+      "searchHint": "Ex. Rue Bonamoussadi, Douala",
+      "neighborhood": "Quartier",
+      "city": "Ville",
+      "country": "Pays",
+      "cguPrefix": "J'accepte les ",
+      "cguTerms": "Conditions générales d'utilisation",
+      "cguAnd": " et la ",
+      "cguPrivacy": "politique de confidentialité",
+      "cguSuffix": ".",
+      "submit": "Créer mon compte"
+    }
+  },
+  "emailSent": {
+    "title": "Vérifiez votre email",
+    "subtitle": "Nous avons envoyé un lien de confirmation à :",
+    "expiry": "Cliquez sur le lien pour activer votre compte. Le lien expire dans 30 minutes.",
+    "openMail": "Ouvrir l'application email",
+    "resendIn": "Renvoyer le mail dans {{seconds}}s",
+    "resend": "Renvoyer"
+  },
+  "emailConfirmed": {
+    "title": "Bienvenue sur SOE !",
+    "subtitle": "Votre email a été confirmé. Nous préparons votre espace…",
+    "stepProfileCreated": "Profil créé",
+    "stepEmailVerified": "Email vérifié",
+    "stepDashboard": "Préparation du tableau de bord",
+    "primary": "Accéder à mon espace",
+    "errorTitle": "Lien invalide",
+    "errorBody": "Le lien de confirmation est invalide ou a expiré. Demandez-en un nouveau depuis l'écran de connexion."
+  },
+  "forgotPassword": {
+    "title": "Mot de passe oublié ?",
+    "subtitle": "Saisissez l'email associé à votre compte. Vous recevrez un lien pour réinitialiser votre mot de passe.",
+    "email": "Email",
+    "submit": "Envoyer le lien",
+    "back": "Revenu sur le bon compte ?",
+    "backLink": "Se connecter"
+  },
+  "forgotPasswordSent": {
+    "title": "Email envoyé",
+    "body": "Si un compte existe à l'adresse {{email}}, vous recevrez un lien de réinitialisation d'ici quelques minutes.",
+    "spamHint": "Vérifiez également votre dossier Spam / Promotions. Le lien est valable 1 heure.",
+    "back": "Retour à la connexion"
+  },
+  "resetPassword": {
+    "title": "Nouveau mot de passe",
+    "subtitle": "Choisissez un nouveau mot de passe pour sécuriser votre compte.",
+    "password": "Mot de passe",
+    "passwordHint": "6 caractères minimum",
+    "confirm": "Confirmation",
+    "confirmHint": "Retapez le mot de passe",
+    "info": "Une fois modifié, vous serez automatiquement reconnecté avec un nouveau jeton JWT valable 30 jours.",
+    "submit": "Enregistrer le mot de passe",
+    "successToast": "Mot de passe mis à jour. Vous pouvez vous reconnecter."
+  },
+  "deepLink": {
+    "confirmingEmail": "Confirmation de votre email…",
+    "preparingReset": "Chargement de la réinitialisation…"
+  }
+}

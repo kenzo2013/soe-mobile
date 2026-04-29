@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../core/theme/app_radius.dart';
+import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/lang_pill.dart';
+import '../../../../core/widgets/soe_brand_logo.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_text_field.dart';
 import '../../../../core/widgets/soe_toast.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/user.dart';
 import '../viewmodels/auth_state.dart';
 import '../viewmodels/login_viewmodel.dart';
@@ -34,6 +40,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final state = ref.watch(loginViewModelProvider);
 
     ref.listen<AuthState>(loginViewModelProvider, (prev, next) {
@@ -44,86 +51,165 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               : RouteNames.parentDashboard;
           context.go(dest);
         },
-        error: (failure) => _showError(context, failure),
+        error: (failure) => _showError(context, failure, tr),
       );
     });
 
     final isLoading = state.maybeWhen(loading: () => true, orElse: () => false);
 
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 24),
-                const Text('Bon retour !', style: AppTypography.h1),
-                const SizedBox(height: 8),
-                Text(
-                  'Connectez-vous pour accéder à votre espace.',
-                  style: AppTypography.bodySm.copyWith(color: AppPalette.n700),
-                ),
-                const SizedBox(height: 32),
-                SoeTextField(
-                  controller: _email,
-                  label: 'Email',
-                  hint: 'prenom@soe.com',
-                  leadingIcon: Icons.mail_outline,
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                  validator: (v) =>
-                      (v == null || !v.contains('@')) ? 'Email invalide' : null,
-                ),
-                const SizedBox(height: 16),
-                SoePasswordField(
-                  controller: _password,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) => _onSubmit(),
-                  validator: (v) =>
-                      (v == null || v.isEmpty) ? 'Mot de passe requis' : null,
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: SoeButton(
-                    label: 'Mot de passe oublié ?',
-                    variant: SoeButtonVariant.link,
-                    size: SoeButtonSize.sm,
-                    onPressed: () => context.push(RouteNames.passwordForgot),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SoeButton(
-                  label: 'Se connecter',
-                  size: SoeButtonSize.lg,
-                  fullWidth: true,
-                  loading: isLoading,
-                  onPressed: isLoading ? null : _onSubmit,
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Pas encore de compte ? ',
-                      style:
-                          AppTypography.bodySm.copyWith(color: AppPalette.n700),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        body: Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(color: AppPalette.teal),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 22),
+              child: Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(0, 12, 0, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [LangPill(dark: true)],
                     ),
-                    GestureDetector(
-                      onTap: () => context.push(RouteNames.register),
-                      child: Text(
-                        "S'inscrire",
-                        style: AppTypography.bodySm.copyWith(
-                          color: AppPalette.teal,
-                          fontWeight: FontWeight.w700,
-                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  const SoeBrandLogo(width: 150, onDark: true),
+                  const SizedBox(height: 14),
+                  Text(
+                    tr.login.welcome,
+                    style: AppTypography.h2
+                        .copyWith(color: AppPalette.white, height: 1.2),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 18),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(22),
+                    decoration: const BoxDecoration(
+                      color: AppPalette.white,
+                      borderRadius: AppRadius.rXl,
+                      boxShadow: AppShadows.lg,
+                    ),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            tr.login.title,
+                            textAlign: TextAlign.center,
+                            style: AppTypography.h3
+                                .copyWith(color: AppPalette.teal),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            tr.login.subtitleGeneric,
+                            textAlign: TextAlign.center,
+                            style: AppTypography.bodySm
+                                .copyWith(color: AppPalette.n700),
+                          ),
+                          const SizedBox(height: 18),
+                          SoeTextField(
+                            controller: _email,
+                            label: tr.login.email,
+                            hint: tr.login.emailHint,
+                            leadingIcon: Icons.mail_outline,
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.next,
+                            validator: (v) =>
+                                (v == null || !v.contains('@'))
+                                    ? tr.errors.emailInvalid
+                                    : null,
+                          ),
+                          const SizedBox(height: 12),
+                          SoePasswordField(
+                            controller: _password,
+                            label: tr.login.password,
+                            hint: tr.login.passwordHint,
+                            textInputAction: TextInputAction.done,
+                            onFieldSubmitted: (_) => _onSubmit(),
+                            validator: (v) => (v == null || v.isEmpty)
+                                ? tr.errors.required
+                                : null,
+                          ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: SoeButton(
+                              label: tr.login.forgotPassword,
+                              variant: SoeButtonVariant.link,
+                              size: SoeButtonSize.sm,
+                              onPressed: () =>
+                                  context.push(RouteNames.passwordForgot),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          SoeButton(
+                            label: isLoading
+                                ? tr.login.loading
+                                : tr.login.submit,
+                            size: SoeButtonSize.lg,
+                            fullWidth: true,
+                            loading: isLoading,
+                            onPressed: isLoading ? null : _onSubmit,
+                          ),
+                          const SizedBox(height: 18),
+                          Row(
+                            children: [
+                              const Expanded(
+                                child: Divider(color: AppPalette.n300),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                                child: Text(
+                                  tr.common.or,
+                                  style: AppTypography.caption
+                                      .copyWith(color: AppPalette.n500),
+                                ),
+                              ),
+                              const Expanded(
+                                child: Divider(color: AppPalette.n300),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            children: [
+                              Text(
+                                '${tr.login.noAccount} ',
+                                style: AppTypography.bodySm
+                                    .copyWith(color: AppPalette.n700),
+                              ),
+                              GestureDetector(
+                                onTap: () =>
+                                    context.go(RouteNames.roleChoice),
+                                child: Text(
+                                  tr.login.signUp,
+                                  style: AppTypography.bodySm.copyWith(
+                                    color: AppPalette.teal,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    tr.common.copyright,
+                    style: AppTypography.caption
+                        .copyWith(color: AppPalette.white.withValues(alpha: .7)),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -139,13 +225,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         );
   }
 
-  void _showError(BuildContext context, Failure f) {
+  void _showError(BuildContext context, Failure f, Translations tr) {
     final msg = switch (f) {
-      UnauthorizedFailure() => 'Email ou mot de passe incorrect.',
-      NetworkFailure() => 'Pas de connexion réseau.',
-      ValidationFailure(:final message) =>
-        message ?? 'Certains champs sont invalides.',
-      _ => 'Une erreur est survenue, réessayez.',
+      EmailNotConfirmedFailure() => tr.errors.emailNotConfirmed,
+      InvalidCredentialsFailure() ||
+      UnauthorizedFailure() =>
+        tr.errors.invalidCredentials,
+      NetworkFailure() => tr.errors.network,
+      ValidationFailure() => tr.errors.validation,
+      _ => tr.errors.unknown,
     };
     SoeToast.show(context, message: msg, tone: SoeToastTone.danger);
   }

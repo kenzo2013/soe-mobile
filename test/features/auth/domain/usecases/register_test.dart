@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:soe/core/error/failure.dart';
 import 'package:soe/core/error/result.dart';
-import 'package:soe/features/auth/domain/entities/auth_session.dart';
 import 'package:soe/features/auth/domain/entities/user.dart';
 import 'package:soe/features/auth/domain/repositories/auth_repository.dart';
 import 'package:soe/features/auth/domain/usecases/register.dart';
@@ -46,7 +45,7 @@ void main() {
         acceptCgu: true,
       ),
     );
-    final f = (r as Err<AuthSession, Failure>).failure as ValidationFailure;
+    final f = (r as Err<User, Failure>).failure as ValidationFailure;
     expect(f.errors.containsKey('email'), isTrue);
   });
 
@@ -62,7 +61,7 @@ void main() {
         acceptCgu: true,
       ),
     );
-    final f = (r as Err<AuthSession, Failure>).failure as ValidationFailure;
+    final f = (r as Err<User, Failure>).failure as ValidationFailure;
     expect(f.errors.containsKey('password_confirmation'), isTrue);
   });
 
@@ -78,39 +77,35 @@ void main() {
         acceptCgu: false,
       ),
     );
-    final f = (r as Err<AuthSession, Failure>).failure as ValidationFailure;
+    final f = (r as Err<User, Failure>).failure as ValidationFailure;
     expect(f.errors.containsKey('accept_cgu'), isTrue);
   });
 
-  test('returns Ok when repo succeeds with valid params', () async {
+  test('returns Ok with User when repo succeeds', () async {
     when(() => repo.register(params: any(named: 'params'))).thenAnswer(
       (_) async => const Ok(
-        AuthSession(
-          user: User(
-            id: '1',
-            email: 'a@b.com',
-            firstName: 'Jean',
-            lastName: 'Dupont',
-            role: UserRole.parent,
-          ),
-          accessToken: 'tok',
+        User(
+          id: '1',
+          email: 'a@b.com',
+          firstName: 'Jean',
+          lastName: 'Dupont',
+          role: UserRole.parent,
         ),
       ),
     );
 
     final r = await usecase(params: valid());
-    expect(r, isA<Ok<AuthSession, Failure>>());
+    expect(r, isA<Ok<User, Failure>>());
   });
 
   test('propagates ConflictFailure (email already used)', () async {
     when(() => repo.register(params: any(named: 'params'))).thenAnswer(
-      (_) async =>
-          const Err<AuthSession, Failure>(ConflictFailure('Email taken')),
+      (_) async => const Err<User, Failure>(ConflictFailure('Email taken')),
     );
 
     final r = await usecase(params: valid());
     expect(
-      (r as Err<AuthSession, Failure>).failure,
+      (r as Err<User, Failure>).failure,
       isA<ConflictFailure>(),
     );
   });

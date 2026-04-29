@@ -8,5 +8,6 @@ abstract final class StorageKeys {
   // Preferences (non sensible)
   static const String onboardingDone = 'onboarding_done';
   static const String preferredLang = 'preferred_lang';
+  static const String onboardingDoneFlag = 'onboarding_done_flag';
   static const String pushEnabled = 'push_enabled';
 }

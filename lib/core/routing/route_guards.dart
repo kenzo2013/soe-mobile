@@ -5,29 +5,46 @@ import 'route_names.dart';
 
 /// Garde simple basée sur la présence d'un token et le rôle courant.
 class AuthGuard {
-  AuthGuard({required this.isAuthenticated, required this.currentRole});
+  AuthGuard({
+    required this.isAuthenticated,
+    required this.currentRole,
+    required this.onboardingDone,
+  });
 
   final bool Function() isAuthenticated;
   final String? Function() currentRole;
+  final bool Function() onboardingDone;
 
-  static const Set<String> _publicRoutes = {
+  /// Routes publiques (préfixe).
+  static const Set<String> _publicPrefixes = {
     RouteNames.splash,
     RouteNames.onboarding,
+    RouteNames.roleChoice,
     RouteNames.login,
     RouteNames.register,
     RouteNames.passwordForgot,
+    RouteNames.passwordReset,
+    RouteNames.emailSent,
+    RouteNames.emailConfirmed,
     RouteNames.emailConfirmation,
   };
 
   String? redirect(BuildContext context, GoRouterState state) {
     final loc = state.matchedLocation;
-    final isPublic = _publicRoutes.any(loc.startsWith);
+
+    if (loc == RouteNames.splash) {
+      if (!onboardingDone()) return RouteNames.onboarding;
+      if (!isAuthenticated()) return RouteNames.login;
+      return _homeForRole(currentRole());
+    }
+
+    final isPublic = _publicPrefixes.any(loc.startsWith);
 
     if (!isAuthenticated()) {
       return isPublic ? null : RouteNames.login;
     }
 
-    if (loc == RouteNames.login || loc == RouteNames.register) {
+    if (loc == RouteNames.login || loc.startsWith(RouteNames.register)) {
       return _homeForRole(currentRole());
     }
 

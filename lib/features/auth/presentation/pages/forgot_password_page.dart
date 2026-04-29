@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/error/failure.dart';
+import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/soe_app_bar.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_text_field.dart';
 import '../../../../core/widgets/soe_toast.dart';
+import '../../../../i18n/translations.g.dart';
 import '../viewmodels/auth_state.dart';
 import '../viewmodels/forgot_password_viewmodel.dart';
 
@@ -30,21 +34,19 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final state = ref.watch(forgotPasswordViewModelProvider);
 
     ref.listen<AuthState>(forgotPasswordViewModelProvider, (prev, next) {
       next.whenOrNull(
-        passwordResetSent: (_) {
-          SoeToast.show(
-            context,
-            message: 'Un email vous a été envoyé.',
-            tone: SoeToastTone.success,
+        passwordResetSent: (email) {
+          context.go(
+            '${RouteNames.passwordForgotSent}?email=${Uri.encodeComponent(email)}',
           );
-          Navigator.of(context).maybePop();
         },
         error: (failure) => SoeToast.show(
           context,
-          message: _label(failure),
+          message: _label(failure, tr),
           tone: SoeToastTone.danger,
         ),
       );
@@ -53,39 +55,80 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
     final isLoading = state.maybeWhen(loading: () => true, orElse: () => false);
 
     return Scaffold(
-      appBar: const SoeAppBar(title: 'Mot de passe oublié'),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Saisissez votre email, nous vous enverrons un lien de réinitialisation.',
-                style: AppTypography.bodySm.copyWith(color: AppPalette.n700),
-              ),
-              const SizedBox(height: 24),
-              SoeTextField(
-                controller: _email,
-                label: 'Email',
-                hint: 'prenom@soe.com',
-                leadingIcon: Icons.mail_outline,
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.done,
-                onFieldSubmitted: (_) => _onSubmit(),
-                validator: (v) =>
-                    (v == null || !v.contains('@')) ? 'Email invalide' : null,
-              ),
-              const SizedBox(height: 24),
-              SoeButton(
-                label: 'Envoyer',
-                size: SoeButtonSize.lg,
-                fullWidth: true,
-                loading: isLoading,
-                onPressed: isLoading ? null : _onSubmit,
-              ),
-            ],
+      backgroundColor: AppPalette.white,
+      appBar: const SoeAppBar(title: ''),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: const BoxDecoration(
+                    color: AppPalette.n300,
+                    borderRadius: AppRadius.rLg,
+                  ),
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.lock_outline,
+                      size: 28, color: AppPalette.teal),
+                ),
+                const SizedBox(height: 18),
+                Text(tr.forgotPassword.title, style: AppTypography.h1),
+                const SizedBox(height: 8),
+                Text(
+                  tr.forgotPassword.subtitle,
+                  style:
+                      AppTypography.bodySm.copyWith(color: AppPalette.n700),
+                ),
+                const SizedBox(height: 24),
+                SoeTextField(
+                  controller: _email,
+                  label: tr.forgotPassword.email,
+                  hint: 'parent@example.com',
+                  leadingIcon: Icons.mail_outline,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _onSubmit(),
+                  validator: (v) => (v == null || !v.contains('@'))
+                      ? tr.errors.emailInvalid
+                      : null,
+                ),
+                const SizedBox(height: 22),
+                SoeButton(
+                  label: tr.forgotPassword.submit,
+                  size: SoeButtonSize.lg,
+                  fullWidth: true,
+                  loading: isLoading,
+                  onPressed: isLoading ? null : _onSubmit,
+                ),
+                const SizedBox(height: 24),
+                Center(
+                  child: Wrap(
+                    children: [
+                      Text(
+                        '${tr.forgotPassword.back} ',
+                        style: AppTypography.bodySm
+                            .copyWith(color: AppPalette.n700),
+                      ),
+                      GestureDetector(
+                        onTap: () => context.go(RouteNames.login),
+                        child: Text(
+                          tr.forgotPassword.backLink,
+                          style: AppTypography.bodySm.copyWith(
+                            color: AppPalette.teal,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -99,9 +142,11 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
         .submit(email: _email.text.trim());
   }
 
-  String _label(Failure f) => switch (f) {
-        NetworkFailure() => 'Pas de connexion réseau.',
-        ValidationFailure(:final message) => message ?? 'Email invalide.',
-        _ => 'Une erreur est survenue.',
+  String _label(Failure f, Translations tr) => switch (f) {
+        NetworkFailure() => tr.errors.network,
+        ValidationFailure(:final message) =>
+          message ?? tr.errors.emailInvalid,
+        NotFoundFailure() => tr.errors.notFound,
+        _ => tr.errors.unknown,
       };
 }

@@ -93,5 +93,42 @@ void main() {
       expect(f, isA<ServerFailure>());
       expect((f as ServerFailure).code, 500);
     });
+
+    test('401 with Devise email confirm message -> EmailNotConfirmedFailure',
+        () {
+      final f = ExceptionMapper.fromDio(_err(
+        code: 401,
+        data: {
+          'error': 'You have to confirm your email address before continuing.'
+        },
+      ));
+      expect(f, isA<EmailNotConfirmedFailure>());
+    });
+
+    test('401 with Devise invalid credentials -> InvalidCredentialsFailure',
+        () {
+      final f = ExceptionMapper.fromDio(_err(
+        code: 401,
+        data: {'error': 'Invalid E-mail or password.'},
+      ));
+      expect(f, isA<InvalidCredentialsFailure>());
+    });
+
+    test('401 generic -> UnauthorizedFailure', () {
+      final f = ExceptionMapper.fromDio(_err(code: 401));
+      expect(f, isA<UnauthorizedFailure>());
+    });
+
+    test('422 with status.message but no errors map → ValidationFailure', () {
+      final f = ExceptionMapper.fromDio(_err(
+        code: 422,
+        data: {
+          'status': {'code': 422, 'message': 'E-mail is invalid'}
+        },
+      ));
+      expect(f, isA<ValidationFailure>());
+      expect((f as ValidationFailure).message, 'E-mail is invalid');
+      expect(f.errors, isEmpty);
+    });
   });
 }

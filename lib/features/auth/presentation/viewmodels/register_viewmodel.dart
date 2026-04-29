@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/error/result.dart';
-import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../providers.dart';
 import 'auth_state.dart';
@@ -16,10 +15,7 @@ class RegisterViewModel extends StateNotifier<AuthState> {
     final result =
         await _ref.read(registerUsecaseProvider).call(params: params);
     state = switch (result) {
-      Ok(:final value) => () {
-          syncAuthState(_ref, value.accessToken, value.user.role.apiValue);
-          return AuthState.authenticated(value);
-        }(),
+      Ok(:final value) => AuthState.registered(value),
       Err(:final failure) => AuthState.error(failure),
     };
   }
