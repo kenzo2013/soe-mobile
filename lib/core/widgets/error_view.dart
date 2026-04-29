@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../error/failure.dart';
 import '../theme/app_palette.dart';
+import '../theme/app_typography.dart';
+import 'soe_button.dart';
 
 /// Vue d'erreur générique avec retry. À utiliser dans toutes les pages.
 class ErrorView extends StatelessWidget {
@@ -18,17 +20,29 @@ class ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 56, color: AppPalette.error),
+            Container(
+              width: 64,
+              height: 64,
+              decoration: const BoxDecoration(
+                color: AppPalette.dangerBg,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.error_outline,
+                size: 28,
+                color: AppPalette.danger,
+              ),
+            ),
             const SizedBox(height: 16),
             Text(
               _label(failure),
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge,
+              style: AppTypography.body,
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 16),
-              ElevatedButton(
-                  onPressed: onRetry, child: const Text('Réessayer')),
+              SoeButton(label: 'Réessayer', onPressed: onRetry),
             ],
           ],
         ),

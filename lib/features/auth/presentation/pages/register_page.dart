@@ -4,11 +4,16 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/routing/route_names.dart';
+import '../../../../core/theme/app_palette.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/soe_app_bar.dart';
+import '../../../../core/widgets/soe_button.dart';
+import '../../../../core/widgets/soe_text_field.dart';
+import '../../../../core/widgets/soe_toast.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../viewmodels/auth_state.dart';
 import '../viewmodels/register_viewmodel.dart';
-import '../widgets/auth_text_field.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
   const RegisterPage({super.key});
@@ -64,7 +69,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     final isLoading = state.maybeWhen(loading: () => true, orElse: () => false);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Inscription')),
+      appBar: const SoeAppBar(title: 'Inscription'),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -78,9 +83,18 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   onChanged: (r) => setState(() => _role = r),
                 ),
                 const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    'Civilité',
+                    style: AppTypography.label.copyWith(
+                      color: AppPalette.n700,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
                 DropdownButtonFormField<String>(
                   initialValue: _civility,
-                  decoration: const InputDecoration(labelText: 'Civilité'),
                   items: const [
                     DropdownMenuItem(value: 'Mr', child: Text('Monsieur')),
                     DropdownMenuItem(value: 'Mme', child: Text('Madame')),
@@ -88,46 +102,51 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   onChanged: (v) => setState(() => _civility = v ?? 'Mr'),
                 ),
                 const SizedBox(height: 16),
-                AuthTextField(
+                SoeTextField(
                   controller: _firstName,
                   label: 'Prénom',
+                  leadingIcon: Icons.person_outline,
+                  textInputAction: TextInputAction.next,
                   validator: (v) =>
                       (v == null || v.trim().isEmpty) ? 'Requis' : null,
                 ),
                 const SizedBox(height: 16),
-                AuthTextField(
+                SoeTextField(
                   controller: _lastName,
                   label: 'Nom',
+                  leadingIcon: Icons.person_outline,
+                  textInputAction: TextInputAction.next,
                   validator: (v) =>
                       (v == null || v.trim().isEmpty) ? 'Requis' : null,
                 ),
                 const SizedBox(height: 16),
-                AuthTextField(
+                SoeTextField(
                   controller: _email,
                   label: 'Email',
+                  leadingIcon: Icons.mail_outline,
                   keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
                   validator: (v) =>
                       (v == null || !v.contains('@')) ? 'Email invalide' : null,
                 ),
                 const SizedBox(height: 16),
-                AuthTextField(
+                SoeTextField(
                   controller: _phone,
                   label: 'Téléphone',
+                  leadingIcon: Icons.phone_outlined,
                   keyboardType: TextInputType.phone,
+                  textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 16),
-                AuthTextField(
+                SoePasswordField(
                   controller: _password,
-                  label: 'Mot de passe',
-                  obscureText: true,
-                  validator: (v) =>
-                      (v == null || v.length < 8) ? '8 caractères min.' : null,
+                  textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 16),
-                AuthTextField(
+                SoePasswordField(
                   controller: _passwordConfirm,
                   label: 'Confirmer le mot de passe',
-                  obscureText: true,
+                  hint: 'Identique au mot de passe',
                   validator: (v) =>
                       v != _password.text ? 'Ne correspond pas' : null,
                 ),
@@ -136,15 +155,17 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   contentPadding: EdgeInsets.zero,
                   value: _acceptCgu,
                   onChanged: (v) => setState(() => _acceptCgu = v ?? false),
-                  title: const Text('J\'accepte les CGU'),
+                  activeColor: AppPalette.teal,
+                  title: const Text("J'accepte les CGU"),
                   controlAffinity: ListTileControlAffinity.leading,
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(
+                SoeButton(
+                  label: 'Créer mon compte',
+                  size: SoeButtonSize.lg,
+                  fullWidth: true,
+                  loading: isLoading,
                   onPressed: isLoading ? null : _onSubmit,
-                  child: isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text('Créer mon compte'),
                 ),
               ],
             ),
@@ -157,8 +178,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   void _onSubmit() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (!_acceptCgu) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vous devez accepter les CGU.')),
+      SoeToast.show(
+        context,
+        message: 'Vous devez accepter les CGU.',
+        tone: SoeToastTone.warning,
       );
       return;
     }
@@ -185,7 +208,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       NetworkFailure() => 'Pas de connexion réseau.',
       _ => 'Une erreur est survenue.',
     };
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    SoeToast.show(context, message: msg, tone: SoeToastTone.danger);
   }
 }
 
@@ -197,6 +220,10 @@ class _RoleSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SegmentedButton<UserRole>(
+      style: SegmentedButton.styleFrom(
+        selectedBackgroundColor: AppPalette.teal,
+        selectedForegroundColor: AppPalette.white,
+      ),
       segments: const [
         ButtonSegment(value: UserRole.parent, label: Text('Parent')),
         ButtonSegment(value: UserRole.tutor, label: Text('Tuteur')),

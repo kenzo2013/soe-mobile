@@ -1,82 +1,59 @@
 import 'package:flutter/material.dart';
 
 import 'app_palette.dart';
+import 'app_radius.dart';
+import 'app_typography.dart';
 
 abstract final class AppTheme {
   static ThemeData light() {
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: AppPalette.secondary,
-      primary: AppPalette.primary,
-      secondary: AppPalette.secondary,
-      error: AppPalette.error,
-      surface: AppPalette.surface,
+      seedColor: AppPalette.teal,
+      primary: AppPalette.yellow,
+      secondary: AppPalette.teal,
+      error: AppPalette.danger,
+      surface: AppPalette.white,
     );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: AppPalette.background,
-      fontFamily: 'Poppins',
+      scaffoldBackgroundColor: AppPalette.n100,
+      fontFamily: AppTypography.fontFamily,
       textTheme: const TextTheme(
-        headlineLarge: TextStyle(
-          fontWeight: FontWeight.w700,
-          fontSize: 26,
-          color: AppPalette.textPrimary,
-        ),
-        headlineMedium: TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 21,
-          color: AppPalette.textPrimary,
-        ),
-        bodyLarge: TextStyle(
-          fontWeight: FontWeight.w400,
-          fontSize: 16,
-          color: AppPalette.textPrimary,
-        ),
-        bodyMedium: TextStyle(
-          fontWeight: FontWeight.w400,
-          fontSize: 14,
-          color: AppPalette.textSecondary,
-        ),
-        labelLarge: TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 14,
-        ),
+        displayLarge: AppTypography.display,
+        headlineLarge: AppTypography.h1,
+        headlineMedium: AppTypography.h2,
+        headlineSmall: AppTypography.h3,
+        titleLarge: AppTypography.h4,
+        titleMedium: AppTypography.subtitle,
+        bodyLarge: AppTypography.body,
+        bodyMedium: AppTypography.bodySm,
+        labelLarge: AppTypography.button,
+        labelMedium: AppTypography.label,
+        labelSmall: AppTypography.caption,
       ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppPalette.primary,
-          foregroundColor: AppPalette.textPrimary,
-          shape: const StadiumBorder(),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          textStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-          ),
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
+      inputDecorationTheme: const InputDecorationTheme(
         filled: true,
-        fillColor: AppPalette.surface,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        fillColor: AppPalette.white,
+        contentPadding: EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppPalette.textTertiary),
+          borderRadius: AppRadius.rSm,
+          borderSide: BorderSide(color: AppPalette.n300, width: 1.5),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppPalette.textTertiary),
+          borderRadius: AppRadius.rSm,
+          borderSide: BorderSide(color: AppPalette.n300, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppPalette.secondary, width: 1.5),
+          borderRadius: AppRadius.rSm,
+          borderSide: BorderSide(color: AppPalette.teal, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppPalette.error),
+          borderRadius: AppRadius.rSm,
+          borderSide: BorderSide(color: AppPalette.danger, width: 1.5),
         ),
-        hintStyle: const TextStyle(color: AppPalette.textTertiary),
+        hintStyle: TextStyle(color: AppPalette.n500),
+        labelStyle: TextStyle(color: AppPalette.n700),
       ),
     );
   }

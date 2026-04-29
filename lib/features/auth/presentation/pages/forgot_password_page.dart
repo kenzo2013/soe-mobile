@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/error/failure.dart';
+import '../../../../core/theme/app_palette.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/soe_app_bar.dart';
+import '../../../../core/widgets/soe_button.dart';
+import '../../../../core/widgets/soe_text_field.dart';
+import '../../../../core/widgets/soe_toast.dart';
 import '../viewmodels/auth_state.dart';
 import '../viewmodels/forgot_password_viewmodel.dart';
-import '../widgets/auth_text_field.dart';
 
 class ForgotPasswordPage extends ConsumerStatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -30,13 +35,17 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
     ref.listen<AuthState>(forgotPasswordViewModelProvider, (prev, next) {
       next.whenOrNull(
         passwordResetSent: (_) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Un email vous a été envoyé.')),
+          SoeToast.show(
+            context,
+            message: 'Un email vous a été envoyé.',
+            tone: SoeToastTone.success,
           );
           Navigator.of(context).maybePop();
         },
-        error: (failure) => ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_label(failure))),
+        error: (failure) => SoeToast.show(
+          context,
+          message: _label(failure),
+          tone: SoeToastTone.danger,
         ),
       );
     });
@@ -44,7 +53,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
     final isLoading = state.maybeWhen(loading: () => true, orElse: () => false);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Mot de passe oublié')),
+      appBar: const SoeAppBar(title: 'Mot de passe oublié'),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -54,22 +63,27 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
             children: [
               Text(
                 'Saisissez votre email, nous vous enverrons un lien de réinitialisation.',
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: AppTypography.bodySm.copyWith(color: AppPalette.n700),
               ),
               const SizedBox(height: 24),
-              AuthTextField(
+              SoeTextField(
                 controller: _email,
                 label: 'Email',
+                hint: 'prenom@soe.com',
+                leadingIcon: Icons.mail_outline,
                 keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.done,
+                onFieldSubmitted: (_) => _onSubmit(),
                 validator: (v) =>
                     (v == null || !v.contains('@')) ? 'Email invalide' : null,
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
+              SoeButton(
+                label: 'Envoyer',
+                size: SoeButtonSize.lg,
+                fullWidth: true,
+                loading: isLoading,
                 onPressed: isLoading ? null : _onSubmit,
-                child: isLoading
-                    ? const CircularProgressIndicator()
-                    : const Text('Envoyer'),
               ),
             ],
           ),

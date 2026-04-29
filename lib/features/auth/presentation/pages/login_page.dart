@@ -5,10 +5,13 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/soe_button.dart';
+import '../../../../core/widgets/soe_text_field.dart';
+import '../../../../core/widgets/soe_toast.dart';
 import '../../domain/entities/user.dart';
 import '../viewmodels/auth_state.dart';
 import '../viewmodels/login_viewmodel.dart';
-import '../widgets/auth_text_field.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -21,7 +24,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  bool _obscure = true;
 
   @override
   void dispose() {
@@ -37,7 +39,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     ref.listen<AuthState>(loginViewModelProvider, (prev, next) {
       next.whenOrNull(
         authenticated: (session) {
-          final dest = session.user.role.apiValue == 'tutor'
+          final dest = session.user.role == UserRole.tutor
               ? RouteNames.tutorDashboard
               : RouteNames.parentDashboard;
           context.go(dest);
@@ -58,67 +60,64 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 24),
-                Text(
-                  'Bon retour !',
-                  style: Theme.of(context).textTheme.headlineLarge,
-                ),
+                const Text('Bon retour !', style: AppTypography.h1),
                 const SizedBox(height: 8),
                 Text(
                   'Connectez-vous pour accéder à votre espace.',
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: AppTypography.bodySm.copyWith(color: AppPalette.n700),
                 ),
                 const SizedBox(height: 32),
-                AuthTextField(
+                SoeTextField(
                   controller: _email,
                   label: 'Email',
+                  hint: 'prenom@soe.com',
+                  leadingIcon: Icons.mail_outline,
                   keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
                   validator: (v) =>
                       (v == null || !v.contains('@')) ? 'Email invalide' : null,
                 ),
                 const SizedBox(height: 16),
-                AuthTextField(
+                SoePasswordField(
                   controller: _password,
-                  label: 'Mot de passe',
-                  obscureText: _obscure,
-                  suffix: IconButton(
-                    icon: Icon(
-                        _obscure ? Icons.visibility_off : Icons.visibility),
-                    onPressed: () => setState(() => _obscure = !_obscure),
-                  ),
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _onSubmit(),
                   validator: (v) =>
                       (v == null || v.isEmpty) ? 'Mot de passe requis' : null,
                 ),
                 Align(
                   alignment: Alignment.centerRight,
-                  child: TextButton(
+                  child: SoeButton(
+                    label: 'Mot de passe oublié ?',
+                    variant: SoeButtonVariant.link,
+                    size: SoeButtonSize.sm,
                     onPressed: () => context.push(RouteNames.passwordForgot),
-                    child: const Text('Mot de passe oublié ?'),
                   ),
                 ),
                 const SizedBox(height: 8),
-                ElevatedButton(
+                SoeButton(
+                  label: 'Se connecter',
+                  size: SoeButtonSize.lg,
+                  fullWidth: true,
+                  loading: isLoading,
                   onPressed: isLoading ? null : _onSubmit,
-                  child: isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2.5),
-                        )
-                      : const Text('Se connecter'),
                 ),
                 const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Pas encore de compte ? ',
-                        style: Theme.of(context).textTheme.bodyMedium),
+                    Text(
+                      'Pas encore de compte ? ',
+                      style:
+                          AppTypography.bodySm.copyWith(color: AppPalette.n700),
+                    ),
                     GestureDetector(
                       onTap: () => context.push(RouteNames.register),
-                      child: const Text(
-                        'S\'inscrire',
-                        style: TextStyle(
-                          color: AppPalette.secondary,
-                          fontWeight: FontWeight.w600,
+                      child: Text(
+                        "S'inscrire",
+                        style: AppTypography.bodySm.copyWith(
+                          color: AppPalette.teal,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
@@ -148,6 +147,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         message ?? 'Certains champs sont invalides.',
       _ => 'Une erreur est survenue, réessayez.',
     };
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    SoeToast.show(context, message: msg, tone: SoeToastTone.danger);
   }
 }
