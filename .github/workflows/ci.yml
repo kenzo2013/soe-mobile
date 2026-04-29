@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  analyze-test:
+    name: Analyze & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Pub get
+        run: flutter pub get
+
+      - name: Codegen
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Format check
+        run: dart format --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos
+
+      - name: Test with coverage
+        run: flutter test --coverage
+
+      - name: Coverage threshold (80%)
+        run: |
+          sudo apt-get update && sudo apt-get install -y lcov
+          lcov --remove coverage/lcov.info \
+            '*/*.g.dart' '*/*.freezed.dart' '*/i18n/*' \
+            -o coverage/lcov.cleaned.info
+          PCT=$(lcov --summary coverage/lcov.cleaned.info 2>&1 | grep -oP 'lines\.*: \K[0-9.]+')
+          echo "Coverage: $PCT%"
+          awk -v p="$PCT" 'BEGIN { exit (p+0 < 80) ? 1 : 0 }'
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-lcov
+          path: coverage/lcov.cleaned.info

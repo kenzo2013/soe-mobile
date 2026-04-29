@@ -1,0 +1,73 @@
+# SOE — Store of Excellence
+
+Application mobile Flutter (iOS + Android) de tutorat à domicile au Cameroun.
+
+Bundle ID : `cm.soe.mobile`.
+
+## Démarrage rapide
+
+```bash
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+```
+
+### Lancer en dev / staging / prod
+```bash
+flutter run --target=lib/main_dev.dart       --dart-define-from-file=env/dev.env
+flutter run --target=lib/main_staging.dart   --dart-define-from-file=env/staging.env
+flutter run --target=lib/main_prod.dart      --dart-define-from-file=env/prod.env
+```
+
+Les fichiers `env/*.env` sont gitignorés. Voir `env/example.env` pour la liste des variables.
+
+## Tests
+```bash
+flutter test --coverage
+```
+Couverture cible : **≥ 80 %** sur `lib/features` et `lib/core` (gardé par CI).
+
+## Lint & format
+```bash
+dart format --set-exit-if-changed .
+flutter analyze --fatal-infos
+```
+
+## Architecture
+
+Clean Architecture allégée — voir `REBUILD_SPEC.md`.
+
+```
+lib/
+├── app/          — bootstrap, MaterialApp.router
+├── core/         — env, network, error, storage, routing, theme, widgets, providers
+└── features/<x>/
+    ├── domain/        — entités pures, repositories abstract, usecases
+    ├── data/          — DTOs, mappers, datasources, repository impl
+    └── presentation/  — pages, widgets, viewmodels, routes, providers
+```
+
+**Règles dures :**
+- Domain n'importe ni Flutter, ni Dio, ni Riverpod.
+- Presentation ne dépend QUE de Domain.
+- Tous les UseCases retournent `Future<Result<S, Failure>>`.
+- Aucun `BuildContext` dans VM/UseCase/Repository/DataSource.
+
+## Ajouter une feature
+
+Voir les skills Claude Code dans `.claude/skills/` :
+- `soe-feature-scaffold` — squelette complet
+- `soe-usecase` — UseCase + test 100%
+- `soe-viewmodel` — ViewModel + state freezed + tests des 4 états
+- `soe-repository` — interface + impl + DTO + mapper + tests
+- `soe-page` — Page MVVM
+- `soe-route` — sous-route go_router
+- `soe-checklist-done` — Definition of Done
+- `soe-anti-patterns` — audit avant commit
+
+Toute déviation à `REBUILD_SPEC.md` doit faire l'objet d'un ADR dans `docs/adr/`.
+
+## CI
+
+`.github/workflows/ci.yml` : format + analyze + test + coverage ≥ 80% à chaque PR.
+
+`lefthook.yml` : pre-commit (format + analyze) + pre-push (test).

@@ -1,0 +1,54 @@
+name: soe
+description: "SOE - Store of Excellence : application mobile de tutorat à domicile (Cameroun)."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  go_router: ^14.6.2
+
+  dio: ^5.7.0
+
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+
+  flutter_secure_storage: ^9.2.2
+  shared_preferences: ^2.3.3
+
+  logger: ^2.5.0
+
+  intl: ^0.20.2
+
+  cupertino_icons: ^1.0.8
+  flutter_screenutil: ^5.9.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+
+  mocktail: ^1.0.4
+  golden_toolkit: ^0.15.0
+
+  build_runner: ^2.4.13
+  freezed: ^2.5.7
+  json_serializable: ^6.8.0
+  riverpod_generator: ^2.6.3
+
+  very_good_analysis: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  generate: true
