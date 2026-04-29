@@ -14,24 +14,26 @@ abstract final class AppTheme {
       surface: AppPalette.white,
     );
 
+    // Poppins via google_fonts — fetch + cache local au premier run.
+    final textTheme = TextTheme(
+      displayLarge: AppTypography.display,
+      headlineLarge: AppTypography.h1,
+      headlineMedium: AppTypography.h2,
+      headlineSmall: AppTypography.h3,
+      titleLarge: AppTypography.h4,
+      titleMedium: AppTypography.subtitle,
+      bodyLarge: AppTypography.body,
+      bodyMedium: AppTypography.bodySm,
+      labelLarge: AppTypography.button,
+      labelMedium: AppTypography.label,
+      labelSmall: AppTypography.caption,
+    );
+
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppPalette.n100,
-      fontFamily: AppTypography.fontFamily,
-      textTheme: const TextTheme(
-        displayLarge: AppTypography.display,
-        headlineLarge: AppTypography.h1,
-        headlineMedium: AppTypography.h2,
-        headlineSmall: AppTypography.h3,
-        titleLarge: AppTypography.h4,
-        titleMedium: AppTypography.subtitle,
-        bodyLarge: AppTypography.body,
-        bodyMedium: AppTypography.bodySm,
-        labelLarge: AppTypography.button,
-        labelMedium: AppTypography.label,
-        labelSmall: AppTypography.caption,
-      ),
+      textTheme: textTheme,
       inputDecorationTheme: const InputDecorationTheme(
         filled: true,
         fillColor: AppPalette.white,

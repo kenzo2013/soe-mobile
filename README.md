@@ -1,4 +1,4 @@
-# SOE — Store of Excellence
+# SOE — Solution of Education
 
 Application mobile Flutter (iOS + Android) de tutorat à domicile au Cameroun.
 
@@ -12,6 +12,7 @@ dart run build_runner build --delete-conflicting-outputs
 ```
 
 ### Lancer en dev / staging / prod
+
 ```bash
 flutter run --target=lib/main_dev.dart       --dart-define-from-file=env/dev.env
 flutter run --target=lib/main_staging.dart   --dart-define-from-file=env/staging.env
@@ -21,12 +22,15 @@ flutter run --target=lib/main_prod.dart      --dart-define-from-file=env/prod.en
 Les fichiers `env/*.env` sont gitignorés. Voir `env/example.env` pour la liste des variables.
 
 ## Tests
+
 ```bash
 flutter test --coverage
 ```
+
 Couverture cible : **≥ 80 %** sur `lib/features` et `lib/core` (gardé par CI).
 
 ## Lint & format
+
 ```bash
 dart format --set-exit-if-changed .
 flutter analyze --fatal-infos
@@ -47,6 +51,7 @@ lib/
 ```
 
 **Règles dures :**
+
 - Domain n'importe ni Flutter, ni Dio, ni Riverpod.
 - Presentation ne dépend QUE de Domain.
 - Tous les UseCases retournent `Future<Result<S, Failure>>`.
@@ -55,6 +60,7 @@ lib/
 ## Ajouter une feature
 
 Voir les skills Claude Code dans `.claude/skills/` :
+
 - `soe-feature-scaffold` — squelette complet
 - `soe-usecase` — UseCase + test 100%
 - `soe-viewmodel` — ViewModel + state freezed + tests des 4 états
@@ -72,38 +78,53 @@ Toute déviation à `REBUILD_SPEC.md` doit faire l'objet d'un ADR dans `docs/adr
 
 `lefthook.yml` : pre-commit (format + analyze) + pre-push (test).
 
-## Tests E2E (Patrol)
+## Tests E2E
 
-Patrol pilote l'app sur un simulateur réel et peut interagir avec l'OS
-(permissions natives, deep links, notifications).
+### ⚠️ Contrainte de chemin
 
-### Setup initial (une fois par machine)
+**Le projet doit vivre sur un chemin sans espaces ni tirets** (caractères
+non-identifier Dart). `_` est OK. Évite `Kevmax sarl/soe` ou `Kevmax-sarl/soe`,
+préfère `~/code/soe` ou `~/Documents/Kevmax_sarl/soe`. Bug connu de
+patrol_cli/Flutter dans la génération du `test_bundle.dart`.
+
+### Mode courant — `flutter test integration_test`
+
 ```bash
-dart pub global activate patrol_cli   # >= 4.x — `bootstrap` n'existe plus,
-                                       # les harness natifs sont générés au
-                                       # premier `patrol test`/`develop`.
-brew install ideviceinstaller          # uniquement si tu testes sur device iOS réel
-export ANDROID_HOME="$HOME/Library/Android/sdk"   # à mettre dans ~/.zshrc
-```
-
-### Lancer les tests
-```bash
-# Lister les devices disponibles
-patrol devices
+# Lister les devices
+flutter devices
 
 # Sur simulateur iOS booté
 open -a Simulator
-patrol test --target integration_test/auth_smoke_test.dart
+flutter test integration_test/auth_smoke_test.dart -d <device-id>
 
 # Sur émulateur Android
-patrol test --target integration_test/auth_smoke_test.dart -d <device-id>
-
-# Mode dev (hot restart, pratique pour itérer sur un test)
-patrol develop --target integration_test/auth_smoke_test.dart
+flutter test integration_test/auth_smoke_test.dart -d <android-id>
 ```
 
 Scénarios actuels (`integration_test/`) :
+
 - `auth_smoke_test.dart` — onboarding → role → 4 étapes signup ; login → forgot.
+
+### Mode `patrol test` natif (à activer plus tard)
+
+Patrol natif (interaction avec permissions OS, deep links système,
+biométrie) demande une cible Xcode `RunnerUITests` non encore configurée.
+À ajouter quand on aura besoin de tester la confirmation email via deep link
+sur device réel :
+
+1. Ouvrir `ios/Runner.xcworkspace` dans Xcode
+2. File → New → Target → UI Testing Bundle → `RunnerUITests`
+3. Suivre <https://patrol.leancode.co/documentation/patrol-cli/setup-ios>
+4. Workaround bug path : avant chaque run, `mkdir -p patrol_test && ln -snf /Users patrol_test/Users`
+5. `patrol test --target integration_test/auth_smoke_test.dart -d <device>`
+
+Setup CLI (déjà en place ici) :
+
+```bash
+dart pub global activate patrol_cli
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+brew install ideviceinstaller    # uniquement pour device iOS réel
+```
 
 ## MCP — pilotage du simulateur
 

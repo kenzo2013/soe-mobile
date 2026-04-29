@@ -22,10 +22,17 @@ class EmailSentPage extends ConsumerStatefulWidget {
 class _EmailSentPageState extends ConsumerState<EmailSentPage> {
   Timer? _timer;
   int _seconds = 60;
+  late final String _email;
 
   @override
   void initState() {
     super.initState();
+    // On capture l'email localement AVANT de vider le flow, sinon on
+    // perdrait la valeur en route.
+    _email = ref.read(registerFlowViewModelProvider).email;
+    Future.microtask(
+      () => ref.read(registerFlowViewModelProvider.notifier).reset(),
+    );
     _start();
   }
 
@@ -48,7 +55,7 @@ class _EmailSentPageState extends ConsumerState<EmailSentPage> {
   @override
   Widget build(BuildContext context) {
     final tr = Translations.of(context);
-    final email = ref.watch(registerFlowViewModelProvider).email;
+    final email = _email;
 
     return Scaffold(
       backgroundColor: AppPalette.white,

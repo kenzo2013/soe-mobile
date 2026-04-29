@@ -12,6 +12,7 @@ import '../../../../core/widgets/soe_toast.dart';
 import '../../../../i18n/translations.g.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../viewmodels/auth_state.dart';
+import '../viewmodels/register_flow_state.dart';
 import '../viewmodels/register_flow_viewmodel.dart';
 import '../viewmodels/register_viewmodel.dart';
 import '../widgets/signup_header.dart';
@@ -33,15 +34,30 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
   void initState() {
     super.initState();
     final s = ref.read(registerFlowViewModelProvider);
-    _neighborhood = TextEditingController(text: s.neighborhood);
-    _city = TextEditingController(text: s.city);
+    _neighborhood = TextEditingController(text: s.neighborhood)
+      ..addListener(_syncAddress);
+    _city = TextEditingController(text: s.city)..addListener(_syncAddress);
     _acceptCgu = s.acceptCgu;
+  }
+
+  void _syncAddress() {
+    final flow = ref.read(registerFlowViewModelProvider);
+    ref.read(registerFlowViewModelProvider.notifier).setAddress(
+          neighborhood: _neighborhood.text,
+          city: _city.text,
+          country: flow.country,
+          countryCode: flow.countryCode,
+        );
   }
 
   @override
   void dispose() {
-    _neighborhood.dispose();
-    _city.dispose();
+    _neighborhood
+      ..removeListener(_syncAddress)
+      ..dispose();
+    _city
+      ..removeListener(_syncAddress)
+      ..dispose();
     super.dispose();
   }
 
@@ -102,7 +118,12 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
                 const SizedBox(height: 16),
                 CheckboxListTile(
                   value: _acceptCgu,
-                  onChanged: (v) => setState(() => _acceptCgu = v ?? false),
+                  onChanged: (v) {
+                    setState(() => _acceptCgu = v ?? false);
+                    ref
+                        .read(registerFlowViewModelProvider.notifier)
+                        .setAcceptCgu(value: _acceptCgu);
+                  },
                   contentPadding: EdgeInsets.zero,
                   controlAffinity: ListTileControlAffinity.leading,
                   activeColor: AppPalette.teal,
@@ -150,7 +171,7 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
     );
   }
 
-  void _onSubmit(state, Translations tr) {
+  void _onSubmit(RegisterFlowState state, Translations tr) {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (!_acceptCgu) {
       SoeToast.show(
@@ -161,9 +182,7 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
       return;
     }
     final flow = ref.read(registerFlowViewModelProvider);
-    ref
-        .read(registerFlowViewModelProvider.notifier)
-        .setAddress(
+    ref.read(registerFlowViewModelProvider.notifier).setAddress(
           neighborhood: _neighborhood.text.trim(),
           city: _city.text.trim(),
           country: flow.country,
@@ -172,6 +191,25 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
     ref.read(registerFlowViewModelProvider.notifier).setAcceptCgu(value: true);
 
     final fresh = ref.read(registerFlowViewModelProvider);
+
+    // Préflight : on valide chaque étape AVANT d'appeler le repo. Si une étape
+    // précédente a un champ invalide (ex. email mal formé), on ramène l'utilisateur
+    // sur l'écran fautif avec un message clair, plutôt qu'un générique
+    // "champs invalides" sur l'étape 4.
+    final preflight = _findInvalidStep(fresh);
+    if (preflight != null) {
+      SoeToast.show(
+        context,
+        message: tr.errors.stepInvalid(
+          step: preflight.step,
+          field: preflight.fieldLabel(tr),
+        ),
+        tone: SoeToastTone.warning,
+      );
+      context.go(preflight.route);
+      return;
+    }
+
     ref.read(registerViewModelProvider.notifier).submit(
           RegisterParams(
             email: fresh.email,
@@ -194,6 +232,28 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
         );
   }
 
+  _StepIssue? _findInvalidStep(RegisterFlowState state) {
+    // Étape 1 — identité
+    if (state.firstName.trim().isEmpty) {
+      return const _StepIssue(1, RouteNames.registerStep1, _Field.firstName);
+    }
+    if (state.lastName.trim().isEmpty) {
+      return const _StepIssue(1, RouteNames.registerStep1, _Field.lastName);
+    }
+    // Étape 2 — contact
+    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(state.email)) {
+      return const _StepIssue(2, RouteNames.registerStep2, _Field.email);
+    }
+    // Étape 3 — mot de passe
+    if (state.password.length < 6) {
+      return const _StepIssue(3, RouteNames.registerStep3, _Field.password);
+    }
+    if (state.password != state.passwordConfirmation) {
+      return const _StepIssue(3, RouteNames.registerStep3, _Field.passwordConf);
+    }
+    return null;
+  }
+
   String _label(Failure f, Translations tr) => switch (f) {
         ConflictFailure(:final message) =>
           message ?? tr.errors.validation,
@@ -202,4 +262,25 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
         NetworkFailure() => tr.errors.network,
         _ => tr.errors.unknown,
       };
+}
+
+enum _Field { firstName, lastName, email, password, passwordConf }
+
+extension _FieldX on _Field {
+  String fieldLabel(Translations tr) => switch (this) {
+        _Field.firstName => tr.errors.fieldFirstName,
+        _Field.lastName => tr.errors.fieldLastName,
+        _Field.email => tr.errors.fieldEmail,
+        _Field.password => tr.errors.fieldPassword,
+        _Field.passwordConf => tr.errors.fieldPasswordConfirmation,
+      };
+}
+
+class _StepIssue {
+  const _StepIssue(this.step, this.route, this._field);
+  final int step;
+  final String route;
+  final _Field _field;
+
+  String fieldLabel(Translations tr) => _field.fieldLabel(tr);
 }

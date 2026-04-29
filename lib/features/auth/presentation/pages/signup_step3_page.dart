@@ -29,9 +29,10 @@ class _SignupStep3PageState extends ConsumerState<SignupStep3Page> {
   void initState() {
     super.initState();
     final s = ref.read(registerFlowViewModelProvider);
-    _password = TextEditingController(text: s.password);
-    _confirm = TextEditingController(text: s.passwordConfirmation);
-    _password.addListener(_syncFlow);
+    _password = TextEditingController(text: s.password)
+      ..addListener(_syncFlow);
+    _confirm = TextEditingController(text: s.passwordConfirmation)
+      ..addListener(_syncFlow);
   }
 
   void _syncFlow() {
@@ -43,9 +44,12 @@ class _SignupStep3PageState extends ConsumerState<SignupStep3Page> {
 
   @override
   void dispose() {
-    _password.removeListener(_syncFlow);
-    _password.dispose();
-    _confirm.dispose();
+    _password
+      ..removeListener(_syncFlow)
+      ..dispose();
+    _confirm
+      ..removeListener(_syncFlow)
+      ..dispose();
     super.dispose();
   }
 

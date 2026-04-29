@@ -14,13 +14,20 @@ abstract final class SoeToast {
     BuildContext context, {
     required String message,
     SoeToastTone tone = SoeToastTone.success,
+    Duration? duration,
   }) {
     final tone0 = _spec(tone);
+    // Erreurs / avertissements : 6 s (l'utilisateur doit lire le détail).
+    // Succès / info : 3 s.
+    final fallbackDuration =
+        (tone == SoeToastTone.danger || tone == SoeToastTone.warning)
+            ? const Duration(seconds: 6)
+            : const Duration(seconds: 3);
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          duration: const Duration(seconds: 3),
+          duration: duration ?? fallbackDuration,
           backgroundColor: Colors.transparent,
           elevation: 0,
           padding: EdgeInsets.zero,

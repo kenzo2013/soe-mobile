@@ -1,6 +1,6 @@
 name: soe
-description: "SOE - Store of Excellence : application mobile de tutorat à domicile (Cameroun)."
-publish_to: 'none'
+description: "SOE - Solution of Education : application mobile de tutorat à domicile (Cameroun)."
+publish_to: "none"
 
 version: 1.0.0+1
 
@@ -35,6 +35,8 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   flutter_screenutil: ^5.9.3
+  flutter_svg: ^2.0.16
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
@@ -57,6 +59,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    - assets/logo/
 
 patrol:
   app_name: SOE
@@ -65,4 +69,3 @@ patrol:
   ios:
     bundle_id: cm.soe.mobile
     app_name: Runner
-

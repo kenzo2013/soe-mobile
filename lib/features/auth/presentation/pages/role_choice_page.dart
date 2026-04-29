@@ -29,13 +29,11 @@ class _RoleChoicePageState extends ConsumerState<RoleChoicePage> {
     final tr = Translations.of(context);
     return Scaffold(
       backgroundColor: AppPalette.white,
-      appBar: SoeAppBar(
+      appBar: const SoeAppBar(
         title: '',
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppPalette.ink),
-          onPressed: () => Navigator.maybePop(context),
-        ),
-        actions: const [Padding(padding: EdgeInsets.only(right: 16), child: LangPill())],
+        actions: [
+          Padding(padding: EdgeInsets.only(right: 16), child: LangPill()),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(

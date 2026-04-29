@@ -28,14 +28,25 @@ class _SignupStep2PageState extends ConsumerState<SignupStep2Page> {
   void initState() {
     super.initState();
     final s = ref.read(registerFlowViewModelProvider);
-    _email = TextEditingController(text: s.email);
-    _phone = TextEditingController(text: s.phone);
+    _email = TextEditingController(text: s.email)..addListener(_syncFlow);
+    _phone = TextEditingController(text: s.phone)..addListener(_syncFlow);
+  }
+
+  void _syncFlow() {
+    ref.read(registerFlowViewModelProvider.notifier).setContact(
+          email: _email.text,
+          phone: _phone.text,
+        );
   }
 
   @override
   void dispose() {
-    _email.dispose();
-    _phone.dispose();
+    _email
+      ..removeListener(_syncFlow)
+      ..dispose();
+    _phone
+      ..removeListener(_syncFlow)
+      ..dispose();
     super.dispose();
   }
 
@@ -67,9 +78,11 @@ class _SignupStep2PageState extends ConsumerState<SignupStep2Page> {
                   leadingIcon: Icons.mail_outline,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
-                  validator: (v) => (v == null || !v.contains('@'))
-                      ? tr.errors.emailInvalid
-                      : null,
+                  validator: (v) =>
+                      (v == null ||
+                              !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(v))
+                          ? tr.errors.emailInvalid
+                          : null,
                 ),
                 const SizedBox(height: 14),
                 SoeTextField(

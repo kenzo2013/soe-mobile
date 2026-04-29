@@ -30,16 +30,34 @@ class _SignupStep1PageState extends ConsumerState<SignupStep1Page> {
   void initState() {
     super.initState();
     final s = ref.read(registerFlowViewModelProvider);
-    _firstName = TextEditingController(text: s.firstName);
-    _lastName = TextEditingController(text: s.lastName);
+    _firstName = TextEditingController(text: s.firstName)
+      ..addListener(_syncFlow);
+    _lastName = TextEditingController(text: s.lastName)
+      ..addListener(_syncFlow);
     _civility = s.civility;
     _lang = s.lang;
   }
 
+  /// Sync au fil de l'eau : chaque frappe met à jour le state, donc même
+  /// si l'utilisateur quitte la page sans cliquer "Continuer", les données
+  /// sont préservées.
+  void _syncFlow() {
+    ref.read(registerFlowViewModelProvider.notifier).setIdentity(
+          civility: _civility,
+          firstName: _firstName.text,
+          lastName: _lastName.text,
+          lang: _lang,
+        );
+  }
+
   @override
   void dispose() {
-    _firstName.dispose();
-    _lastName.dispose();
+    _firstName
+      ..removeListener(_syncFlow)
+      ..dispose();
+    _lastName
+      ..removeListener(_syncFlow)
+      ..dispose();
     super.dispose();
   }
 
@@ -73,7 +91,10 @@ class _SignupStep1PageState extends ConsumerState<SignupStep1Page> {
                       child: _PillOption(
                         label: tr.signup.step1.civilityMr,
                         selected: _civility == 'Mr',
-                        onTap: () => setState(() => _civility = 'Mr'),
+                        onTap: () {
+                          setState(() => _civility = 'Mr');
+                          _syncFlow();
+                        },
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -81,7 +102,10 @@ class _SignupStep1PageState extends ConsumerState<SignupStep1Page> {
                       child: _PillOption(
                         label: tr.signup.step1.civilityMme,
                         selected: _civility == 'Mme',
-                        onTap: () => setState(() => _civility = 'Mme'),
+                        onTap: () {
+                          setState(() => _civility = 'Mme');
+                          _syncFlow();
+                        },
                       ),
                     ),
                   ],
@@ -119,7 +143,10 @@ class _SignupStep1PageState extends ConsumerState<SignupStep1Page> {
                       child: _PillOption(
                         label: tr.languages.fr,
                         selected: _lang == 'fr',
-                        onTap: () => setState(() => _lang = 'fr'),
+                        onTap: () {
+                          setState(() => _lang = 'fr');
+                          _syncFlow();
+                        },
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -127,7 +154,10 @@ class _SignupStep1PageState extends ConsumerState<SignupStep1Page> {
                       child: _PillOption(
                         label: tr.languages.en,
                         selected: _lang == 'en',
-                        onTap: () => setState(() => _lang = 'en'),
+                        onTap: () {
+                          setState(() => _lang = 'en');
+                          _syncFlow();
+                        },
                       ),
                     ),
                   ],

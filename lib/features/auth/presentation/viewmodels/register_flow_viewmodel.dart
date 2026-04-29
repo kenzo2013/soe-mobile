@@ -66,9 +66,18 @@ class RegisterFlowViewModel extends StateNotifier<RegisterFlowState> {
   void back() {
     if (state.step > 1) state = state.copyWith(step: state.step - 1);
   }
+
+  /// Vide complètement le flow (à appeler après succès `emailSent` ou abandon).
+  void reset() {
+    state = const RegisterFlowState();
+  }
 }
 
+/// **Pas d'`autoDispose`** : on veut que le state du flow d'inscription
+/// survive aux navigations push/pop entre les 4 étapes ET au préflight
+/// `context.go(...)`. Reset explicite via `RegisterFlowViewModel.reset()`
+/// après `emailSent` (succès) ou si l'utilisateur quitte vers `/login`.
 final registerFlowViewModelProvider =
-    StateNotifierProvider.autoDispose<RegisterFlowViewModel, RegisterFlowState>(
+    StateNotifierProvider<RegisterFlowViewModel, RegisterFlowState>(
   (ref) => RegisterFlowViewModel(),
 );

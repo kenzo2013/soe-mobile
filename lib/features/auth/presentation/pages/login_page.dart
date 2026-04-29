@@ -60,11 +60,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        body: Container(
-          width: double.infinity,
-          decoration: const BoxDecoration(color: AppPalette.teal),
-          child: SafeArea(
-            child: SingleChildScrollView(
+        backgroundColor: AppPalette.teal,
+        body: SafeArea(
+          child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 22),
               child: Column(
                 children: [
@@ -213,8 +211,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   void _onSubmit() {

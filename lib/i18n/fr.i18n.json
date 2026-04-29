@@ -1,7 +1,7 @@
 {
   "common": {
     "appName": "SOE",
-    "tagline": "Store of Excellence",
+    "tagline": "Solution of Education",
     "next": "Suivant",
     "skip": "Passer",
     "back": "Retour",
@@ -15,7 +15,7 @@
     "no": "Non",
     "loading": "Chargement…",
     "or": "OU",
-    "copyright": "© SOE 2025 · Store of Excellence"
+    "copyright": "© SOE 2026 · Solution of Education"
   },
   "languages": {
     "fr": "Français",
@@ -36,7 +36,15 @@
     "passwordTooShort": "Au moins 6 caractères.",
     "passwordMismatch": "Les mots de passe ne correspondent pas.",
     "required": "Ce champ est requis.",
-    "cguRequired": "Vous devez accepter les CGU."
+    "cguRequired": "Vous devez accepter les CGU.",
+    "stepInvalid": "Étape {{step}} : {{field}}",
+    "fieldEmail": "email",
+    "fieldPassword": "mot de passe",
+    "fieldPasswordConfirmation": "confirmation du mot de passe",
+    "fieldFirstName": "prénom",
+    "fieldLastName": "nom",
+    "fieldCity": "ville",
+    "fieldAcceptCgu": "acceptation des CGU"
   },
   "onboarding": {
     "slide1": {
