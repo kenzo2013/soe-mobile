@@ -44,6 +44,8 @@ dev_dependencies:
 
   mocktail: ^1.0.4
   golden_toolkit: ^0.15.0
+  patrol: ^4.5.0
+  patrol_finders: ^3.2.0
 
   build_runner: ^2.4.13
   freezed: ^2.5.7
@@ -55,3 +57,12 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+
+patrol:
+  app_name: SOE
+  android:
+    package_name: cm.soe.mobile
+  ios:
+    bundle_id: cm.soe.mobile
+    app_name: Runner
+

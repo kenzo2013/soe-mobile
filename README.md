@@ -71,3 +71,44 @@ Toute déviation à `REBUILD_SPEC.md` doit faire l'objet d'un ADR dans `docs/adr
 `.github/workflows/ci.yml` : format + analyze + test + coverage ≥ 80% à chaque PR.
 
 `lefthook.yml` : pre-commit (format + analyze) + pre-push (test).
+
+## Tests E2E (Patrol)
+
+Patrol pilote l'app sur un simulateur réel et peut interagir avec l'OS
+(permissions natives, deep links, notifications).
+
+### Setup initial (une fois par machine)
+```bash
+dart pub global activate patrol_cli   # >= 4.x — `bootstrap` n'existe plus,
+                                       # les harness natifs sont générés au
+                                       # premier `patrol test`/`develop`.
+brew install ideviceinstaller          # uniquement si tu testes sur device iOS réel
+export ANDROID_HOME="$HOME/Library/Android/sdk"   # à mettre dans ~/.zshrc
+```
+
+### Lancer les tests
+```bash
+# Lister les devices disponibles
+patrol devices
+
+# Sur simulateur iOS booté
+open -a Simulator
+patrol test --target integration_test/auth_smoke_test.dart
+
+# Sur émulateur Android
+patrol test --target integration_test/auth_smoke_test.dart -d <device-id>
+
+# Mode dev (hot restart, pratique pour itérer sur un test)
+patrol develop --target integration_test/auth_smoke_test.dart
+```
+
+Scénarios actuels (`integration_test/`) :
+- `auth_smoke_test.dart` — onboarding → role → 4 étapes signup ; login → forgot.
+
+## MCP — pilotage du simulateur
+
+`.mcp.json` configure le serveur **mobile-mcp** (`@mobilenext/mobile-mcp`)
+qui permet à Claude de piloter directement l'iOS Simulator et l'émulateur
+Android (boot, lancer l'app, taper, screenshot, accessibility tree). Utile
+pour des smoke tests interactifs ; **complémentaire** à Patrol (qui reste
+le standard CI).
