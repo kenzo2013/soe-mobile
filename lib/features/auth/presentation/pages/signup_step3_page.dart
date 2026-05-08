@@ -7,6 +7,7 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/soe_button.dart';
+import '../../../../core/widgets/soe_field_label.dart';
 import '../../../../core/widgets/soe_text_field.dart';
 import '../../../../i18n/translations.g.dart';
 import '../viewmodels/register_flow_state.dart';
@@ -76,18 +77,20 @@ class _SignupStep3PageState extends ConsumerState<SignupStep3Page> {
                   style: AppTypography.bodySm.copyWith(color: AppPalette.n700),
                 ),
                 const SizedBox(height: 22),
+                SoeFieldLabel(tr.signup.step3.password),
                 SoePasswordField(
                   controller: _password,
-                  label: tr.signup.step3.password,
+                  label: '',
                   hint: tr.signup.step3.passwordHint,
                   textInputAction: TextInputAction.next,
                   validator: (v) =>
                       (v == null || v.length < 6) ? tr.errors.passwordTooShort : null,
                 ),
                 const SizedBox(height: 12),
+                SoeFieldLabel(tr.signup.step3.confirm),
                 SoePasswordField(
                   controller: _confirm,
-                  label: tr.signup.step3.confirm,
+                  label: '',
                   hint: tr.signup.step3.confirmHint,
                   validator: (v) => v != _password.text
                       ? tr.errors.passwordMismatch

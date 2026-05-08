@@ -23,7 +23,12 @@ mixin _$RegisterFlowState {
   String get lastName => throw _privateConstructorUsedError;
   String get lang => throw _privateConstructorUsedError; // Step 2 — contact
   String get email => throw _privateConstructorUsedError;
-  String get phone =>
+
+  /// Numéro de téléphone au format E.164 (avec indicatif), ex: « +237699000000 ».
+  String get phone => throw _privateConstructorUsedError;
+
+  /// Code ISO du pays choisi pour l'indicatif téléphonique (« CM » par défaut).
+  String get phoneCountryCode =>
       throw _privateConstructorUsedError; // Step 3 — mot de passe
   String get password => throw _privateConstructorUsedError;
   String get passwordConfirmation =>
@@ -56,6 +61,7 @@ abstract class $RegisterFlowStateCopyWith<$Res> {
       String lang,
       String email,
       String phone,
+      String phoneCountryCode,
       String password,
       String passwordConfirmation,
       String neighborhood,
@@ -88,6 +94,7 @@ class _$RegisterFlowStateCopyWithImpl<$Res, $Val extends RegisterFlowState>
     Object? lang = null,
     Object? email = null,
     Object? phone = null,
+    Object? phoneCountryCode = null,
     Object? password = null,
     Object? passwordConfirmation = null,
     Object? neighborhood = null,
@@ -128,6 +135,10 @@ class _$RegisterFlowStateCopyWithImpl<$Res, $Val extends RegisterFlowState>
       phone: null == phone
           ? _value.phone
           : phone // ignore: cast_nullable_to_non_nullable
+              as String,
+      phoneCountryCode: null == phoneCountryCode
+          ? _value.phoneCountryCode
+          : phoneCountryCode // ignore: cast_nullable_to_non_nullable
               as String,
       password: null == password
           ? _value.password
@@ -178,6 +189,7 @@ abstract class _$$RegisterFlowStateImplCopyWith<$Res>
       String lang,
       String email,
       String phone,
+      String phoneCountryCode,
       String password,
       String passwordConfirmation,
       String neighborhood,
@@ -208,6 +220,7 @@ class __$$RegisterFlowStateImplCopyWithImpl<$Res>
     Object? lang = null,
     Object? email = null,
     Object? phone = null,
+    Object? phoneCountryCode = null,
     Object? password = null,
     Object? passwordConfirmation = null,
     Object? neighborhood = null,
@@ -248,6 +261,10 @@ class __$$RegisterFlowStateImplCopyWithImpl<$Res>
       phone: null == phone
           ? _value.phone
           : phone // ignore: cast_nullable_to_non_nullable
+              as String,
+      phoneCountryCode: null == phoneCountryCode
+          ? _value.phoneCountryCode
+          : phoneCountryCode // ignore: cast_nullable_to_non_nullable
               as String,
       password: null == password
           ? _value.password
@@ -293,6 +310,7 @@ class _$RegisterFlowStateImpl extends _RegisterFlowState {
       this.lang = 'fr',
       this.email = '',
       this.phone = '',
+      this.phoneCountryCode = 'CM',
       this.password = '',
       this.passwordConfirmation = '',
       this.neighborhood = '',
@@ -325,9 +343,16 @@ class _$RegisterFlowStateImpl extends _RegisterFlowState {
   @override
   @JsonKey()
   final String email;
+
+  /// Numéro de téléphone au format E.164 (avec indicatif), ex: « +237699000000 ».
   @override
   @JsonKey()
   final String phone;
+
+  /// Code ISO du pays choisi pour l'indicatif téléphonique (« CM » par défaut).
+  @override
+  @JsonKey()
+  final String phoneCountryCode;
 // Step 3 — mot de passe
   @override
   @JsonKey()
@@ -354,7 +379,7 @@ class _$RegisterFlowStateImpl extends _RegisterFlowState {
 
   @override
   String toString() {
-    return 'RegisterFlowState(step: $step, role: $role, civility: $civility, firstName: $firstName, lastName: $lastName, lang: $lang, email: $email, phone: $phone, password: $password, passwordConfirmation: $passwordConfirmation, neighborhood: $neighborhood, city: $city, country: $country, countryCode: $countryCode, acceptCgu: $acceptCgu)';
+    return 'RegisterFlowState(step: $step, role: $role, civility: $civility, firstName: $firstName, lastName: $lastName, lang: $lang, email: $email, phone: $phone, phoneCountryCode: $phoneCountryCode, password: $password, passwordConfirmation: $passwordConfirmation, neighborhood: $neighborhood, city: $city, country: $country, countryCode: $countryCode, acceptCgu: $acceptCgu)';
   }
 
   @override
@@ -373,6 +398,8 @@ class _$RegisterFlowStateImpl extends _RegisterFlowState {
             (identical(other.lang, lang) || other.lang == lang) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.phone, phone) || other.phone == phone) &&
+            (identical(other.phoneCountryCode, phoneCountryCode) ||
+                other.phoneCountryCode == phoneCountryCode) &&
             (identical(other.password, password) ||
                 other.password == password) &&
             (identical(other.passwordConfirmation, passwordConfirmation) ||
@@ -398,6 +425,7 @@ class _$RegisterFlowStateImpl extends _RegisterFlowState {
       lang,
       email,
       phone,
+      phoneCountryCode,
       password,
       passwordConfirmation,
       neighborhood,
@@ -426,6 +454,7 @@ abstract class _RegisterFlowState extends RegisterFlowState {
       final String lang,
       final String email,
       final String phone,
+      final String phoneCountryCode,
       final String password,
       final String passwordConfirmation,
       final String neighborhood,
@@ -449,8 +478,14 @@ abstract class _RegisterFlowState extends RegisterFlowState {
   String get lang; // Step 2 — contact
   @override
   String get email;
+
+  /// Numéro de téléphone au format E.164 (avec indicatif), ex: « +237699000000 ».
   @override
-  String get phone; // Step 3 — mot de passe
+  String get phone;
+
+  /// Code ISO du pays choisi pour l'indicatif téléphonique (« CM » par défaut).
+  @override
+  String get phoneCountryCode; // Step 3 — mot de passe
   @override
   String get password;
   @override

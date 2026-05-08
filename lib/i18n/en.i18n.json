@@ -192,5 +192,18 @@
   "deepLink": {
     "confirmingEmail": "Confirming your email…",
     "preparingReset": "Loading password reset…"
+  },
+  "countryPicker": {
+    "phoneTitle": "Country code",
+    "addressTitle": "Choose a country"
+  },
+  "dashboardPlaceholder": {
+    "parentTitle": "Welcome to SOE",
+    "tutorTitle": "Welcome to SOE",
+    "body": "Your dashboard is coming soon. You are signed in.",
+    "parentRole": "Signed in as parent",
+    "tutorRole": "Signed in as tutor",
+    "logout": "Sign out",
+    "loggedOut": "You have been signed out."
   }
 }

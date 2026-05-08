@@ -88,7 +88,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     padding: const EdgeInsets.all(22),
                     decoration: const BoxDecoration(
                       color: AppPalette.white,
-                      borderRadius: AppRadius.rXl,
+                      borderRadius: AppRadius.rXxl,
                       boxShadow: AppShadows.lg,
                     ),
                     child: Form(

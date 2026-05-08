@@ -23,8 +23,16 @@ class RegisterFlowViewModel extends StateNotifier<RegisterFlowState> {
     );
   }
 
-  void setContact({required String email, required String phone}) {
-    state = state.copyWith(email: email, phone: phone);
+  void setContact({
+    required String email,
+    required String phone,
+    String? phoneCountryCode,
+  }) {
+    state = state.copyWith(
+      email: email,
+      phone: phone,
+      phoneCountryCode: phoneCountryCode ?? state.phoneCountryCode,
+    );
   }
 
   void setPassword({

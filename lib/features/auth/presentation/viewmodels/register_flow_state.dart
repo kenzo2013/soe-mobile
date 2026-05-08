@@ -19,7 +19,12 @@ class RegisterFlowState with _$RegisterFlowState {
 
     // Step 2 — contact
     @Default('') String email,
+
+    /// Numéro de téléphone au format E.164 (avec indicatif), ex: « +237699000000 ».
     @Default('') String phone,
+
+    /// Code ISO du pays choisi pour l'indicatif téléphonique (« CM » par défaut).
+    @Default('CM') String phoneCountryCode,
 
     // Step 3 — mot de passe
     @Default('') String password,

@@ -192,5 +192,18 @@
   "deepLink": {
     "confirmingEmail": "Confirmation de votre email…",
     "preparingReset": "Chargement de la réinitialisation…"
+  },
+  "countryPicker": {
+    "phoneTitle": "Indicatif pays",
+    "addressTitle": "Choisir un pays"
+  },
+  "dashboardPlaceholder": {
+    "parentTitle": "Bienvenue sur SOE",
+    "tutorTitle": "Bienvenue sur SOE",
+    "body": "Votre tableau de bord arrive bientôt. Vous êtes bien connecté.",
+    "parentRole": "Connecté en tant que parent",
+    "tutorRole": "Connecté en tant que tuteur",
+    "logout": "Se déconnecter",
+    "loggedOut": "Vous avez été déconnecté."
   }
 }

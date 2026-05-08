@@ -50,35 +50,41 @@ class SoeButton extends StatelessWidget {
     final c = _variantSpec(variant);
     final iconColor = c.fg;
 
+    final labelWidget = Text(
+      label,
+      style: TextStyle(
+        color: c.fg,
+        fontSize: s.fontSize,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0.1,
+        decoration: variant == SoeButtonVariant.link
+            ? TextDecoration.underline
+            : null,
+      ),
+    );
+
     final child = Row(
       mainAxisSize: fullWidth ? MainAxisSize.max : MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (icon != null && !iconRight) ...[
-          Icon(icon, size: 16, color: iconColor),
-          const SizedBox(width: 8),
-        ],
-        if (loading)
+        if (loading) ...[
           SizedBox(
             width: 16,
             height: 16,
-            child: CircularProgressIndicator(strokeWidth: 2, color: c.fg),
-          )
-        else
-          Text(
-            label,
-            style: TextStyle(
-              color: c.fg,
-              fontSize: s.fontSize,
-              fontWeight: FontWeight.w600,
-              decoration: variant == SoeButtonVariant.link
-                  ? TextDecoration.underline
-                  : null,
-            ),
+            child: CircularProgressIndicator(strokeWidth: 2.2, color: c.fg),
           ),
-        if (icon != null && iconRight) ...[
-          const SizedBox(width: 8),
-          Icon(icon, size: 16, color: iconColor),
+          const SizedBox(width: 10),
+          labelWidget,
+        ] else ...[
+          if (icon != null && !iconRight) ...[
+            Icon(icon, size: 16, color: iconColor),
+            const SizedBox(width: 8),
+          ],
+          labelWidget,
+          if (icon != null && iconRight) ...[
+            const SizedBox(width: 8),
+            Icon(icon, size: 16, color: iconColor),
+          ],
         ],
       ],
     );

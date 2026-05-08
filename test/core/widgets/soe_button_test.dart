@@ -25,7 +25,8 @@ void main() {
     expect(opacity, lessThan(1));
   });
 
-  testWidgets('SoeButton in loading state shows spinner', (tester) async {
+  testWidgets('SoeButton in loading state shows spinner alongside label',
+      (tester) async {
     await pumpAppWith(
       tester,
       child: SoeButton(
@@ -35,6 +36,8 @@ void main() {
       ),
     );
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    expect(find.text('Saving'), findsNothing);
+    // Le design auth garde le libellé visible à côté du spinner
+    // (« Connexion en cours… »).
+    expect(find.text('Saving'), findsOneWidget);
   });
 }

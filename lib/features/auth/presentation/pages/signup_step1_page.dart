@@ -7,6 +7,7 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/soe_button.dart';
+import '../../../../core/widgets/soe_field_label.dart';
 import '../../../../core/widgets/soe_text_field.dart';
 import '../../../../i18n/translations.g.dart';
 import '../viewmodels/register_flow_viewmodel.dart';
@@ -83,8 +84,7 @@ class _SignupStep1PageState extends ConsumerState<SignupStep1Page> {
                       .copyWith(color: AppPalette.n700),
                 ),
                 const SizedBox(height: 24),
-                _Label(text: tr.signup.step1.civility),
-                const SizedBox(height: 6),
+                SoeFieldLabel(tr.signup.step1.civility),
                 Row(
                   children: [
                     Expanded(
@@ -111,11 +111,9 @@ class _SignupStep1PageState extends ConsumerState<SignupStep1Page> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                _Label(text: tr.signup.step1.firstName),
-                const SizedBox(height: 6),
+                SoeFieldLabel(tr.signup.step1.firstName),
                 SoeTextField(
                   controller: _firstName,
-                  label: '',
                   hint: tr.signup.step1.firstNameHint,
                   leadingIcon: Icons.person_outline,
                   textInputAction: TextInputAction.next,
@@ -123,11 +121,9 @@ class _SignupStep1PageState extends ConsumerState<SignupStep1Page> {
                       (v == null || v.trim().isEmpty) ? tr.errors.required : null,
                 ),
                 const SizedBox(height: 12),
-                _Label(text: tr.signup.step1.lastName),
-                const SizedBox(height: 6),
+                SoeFieldLabel(tr.signup.step1.lastName),
                 SoeTextField(
                   controller: _lastName,
-                  label: '',
                   hint: tr.signup.step1.lastNameHint,
                   leadingIcon: Icons.person_outline,
                   textInputAction: TextInputAction.done,
@@ -135,8 +131,7 @@ class _SignupStep1PageState extends ConsumerState<SignupStep1Page> {
                       (v == null || v.trim().isEmpty) ? tr.errors.required : null,
                 ),
                 const SizedBox(height: 14),
-                _Label(text: tr.signup.step1.lang),
-                const SizedBox(height: 6),
+                SoeFieldLabel(tr.signup.step1.lang),
                 Row(
                   children: [
                     Expanded(
@@ -187,20 +182,6 @@ class _SignupStep1PageState extends ConsumerState<SignupStep1Page> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _Label extends StatelessWidget {
-  const _Label({required this.text});
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: AppTypography.label
-          .copyWith(color: AppPalette.ink, fontWeight: FontWeight.w600),
     );
   }
 }

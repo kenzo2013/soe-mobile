@@ -52,9 +52,9 @@ abstract final class AppTypography {
         letterSpacing: -0.2,
       );
 
-  // H3 18/26 · 600 · -0.1
+  // H3 18/26 · 700 · -0.1
   static TextStyle get h3 => _poppins(
-        weight: FontWeight.w600,
+        weight: FontWeight.w700,
         size: 18,
         height: 26 / 18,
         letterSpacing: -0.1,

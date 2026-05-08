@@ -13,7 +13,7 @@ class SoeTextField extends StatelessWidget {
   const SoeTextField({
     super.key,
     required this.controller,
-    required this.label,
+    this.label,
     this.hint,
     this.leadingIcon,
     this.trailing,
@@ -32,7 +32,10 @@ class SoeTextField extends StatelessWidget {
   });
 
   final TextEditingController controller;
-  final String label;
+
+  /// Label intégré rendu au-dessus du champ. Si `null` ou vide, on ne rend
+  /// rien — laisser au parent le soin d'utiliser [SoeFieldLabel].
+  final String? label;
   final String? hint;
   final IconData? leadingIcon;
   final Widget? trailing;
@@ -54,20 +57,22 @@ class SoeTextField extends StatelessWidget {
     final hasError = errorText != null && errorText!.isNotEmpty;
     final borderColor = hasError ? AppPalette.danger : AppPalette.n300;
 
+    final showLabel = label != null && label!.isNotEmpty;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 6),
-          child: Text(
-            label,
-            style: AppTypography.label.copyWith(
-              color: AppPalette.n700,
-              fontWeight: FontWeight.w600,
+        if (showLabel)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Text(
+              label!,
+              style: AppTypography.label.copyWith(
+                color: AppPalette.n700,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
-        ),
         AnimatedContainer(
           duration: const Duration(milliseconds: 120),
           decoration: BoxDecoration(
@@ -107,7 +112,7 @@ class SoeTextField extends StatelessWidget {
               prefixIcon: leadingIcon == null
                   ? null
                   : Padding(
-                      padding: const EdgeInsets.only(left: 18, right: 8),
+                      padding: const EdgeInsets.only(left: 18, right: 12),
                       child:
                           Icon(leadingIcon, size: 18, color: AppPalette.n500),
                     ),

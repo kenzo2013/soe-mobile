@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/data/countries.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/soe_button.dart';
+import '../../../../core/widgets/soe_field_label.dart';
+import '../../../../core/widgets/soe_phone_field.dart';
 import '../../../../core/widgets/soe_text_field.dart';
 import '../../../../i18n/translations.g.dart';
 import '../viewmodels/register_flow_viewmodel.dart';
@@ -21,7 +24,8 @@ class SignupStep2Page extends ConsumerStatefulWidget {
 
 class _SignupStep2PageState extends ConsumerState<SignupStep2Page> {
   late final TextEditingController _email;
-  late final TextEditingController _phone;
+  late final TextEditingController _phoneLocal;
+  late Country _phoneCountry;
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -29,13 +33,38 @@ class _SignupStep2PageState extends ConsumerState<SignupStep2Page> {
     super.initState();
     final s = ref.read(registerFlowViewModelProvider);
     _email = TextEditingController(text: s.email)..addListener(_syncFlow);
-    _phone = TextEditingController(text: s.phone)..addListener(_syncFlow);
+    _phoneCountry = Countries.byCode(s.phoneCountryCode);
+    _phoneLocal = TextEditingController(text: _stripPrefix(s.phone))
+      ..addListener(_syncFlow);
+  }
+
+  String _stripPrefix(String fullPhone) {
+    if (fullPhone.isEmpty) return '';
+    // On essaie de retirer l'indicatif du pays courant ; à défaut, on tente
+    // tous les indicatifs connus pour récupérer la partie locale.
+    if (fullPhone.startsWith(_phoneCountry.callingCode)) {
+      return fullPhone.substring(_phoneCountry.callingCode.length).trim();
+    }
+    for (final c in Countries.all) {
+      if (fullPhone.startsWith(c.callingCode)) {
+        _phoneCountry = c;
+        return fullPhone.substring(c.callingCode.length).trim();
+      }
+    }
+    return fullPhone;
+  }
+
+  String _composeE164() {
+    final digits = _phoneLocal.text.replaceAll(RegExp(r'\s+'), '');
+    if (digits.isEmpty) return '';
+    return '${_phoneCountry.callingCode}$digits';
   }
 
   void _syncFlow() {
     ref.read(registerFlowViewModelProvider.notifier).setContact(
           email: _email.text,
-          phone: _phone.text,
+          phone: _composeE164(),
+          phoneCountryCode: _phoneCountry.code,
         );
   }
 
@@ -44,7 +73,7 @@ class _SignupStep2PageState extends ConsumerState<SignupStep2Page> {
     _email
       ..removeListener(_syncFlow)
       ..dispose();
-    _phone
+    _phoneLocal
       ..removeListener(_syncFlow)
       ..dispose();
     super.dispose();
@@ -71,9 +100,9 @@ class _SignupStep2PageState extends ConsumerState<SignupStep2Page> {
                   style: AppTypography.bodySm.copyWith(color: AppPalette.n700),
                 ),
                 const SizedBox(height: 22),
+                SoeFieldLabel(tr.signup.step2.email),
                 SoeTextField(
                   controller: _email,
-                  label: tr.signup.step2.email,
                   hint: tr.signup.step2.emailHint,
                   leadingIcon: Icons.mail_outline,
                   keyboardType: TextInputType.emailAddress,
@@ -85,13 +114,17 @@ class _SignupStep2PageState extends ConsumerState<SignupStep2Page> {
                           : null,
                 ),
                 const SizedBox(height: 14),
-                SoeTextField(
-                  controller: _phone,
-                  label: tr.signup.step2.phone,
+                SoeFieldLabel(tr.signup.step2.phone),
+                SoePhoneField(
+                  controller: _phoneLocal,
+                  country: _phoneCountry,
                   hint: tr.signup.step2.phoneHint,
-                  leadingIcon: Icons.phone_outlined,
-                  keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.done,
+                  pickerTitle: tr.countryPicker.phoneTitle,
+                  onCountryChanged: (c) {
+                    setState(() => _phoneCountry = c);
+                    _syncFlow();
+                  },
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 6, left: 14),
@@ -135,11 +168,7 @@ class _SignupStep2PageState extends ConsumerState<SignupStep2Page> {
                   fullWidth: true,
                   onPressed: () {
                     if (!(_formKey.currentState?.validate() ?? false)) return;
-                    ref
-                        .read(registerFlowViewModelProvider.notifier)
-                        .setContact(
-                            email: _email.text.trim(),
-                            phone: _phone.text.trim());
+                    _syncFlow();
                     context.push(RouteNames.registerStep3);
                   },
                 ),

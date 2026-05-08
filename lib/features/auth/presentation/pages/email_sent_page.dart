@@ -76,8 +76,8 @@ class _EmailSentPageState extends ConsumerState<EmailSentPage> {
                 clipBehavior: Clip.none,
                 children: [
                   Container(
-                    width: 120,
-                    height: 120,
+                    width: 110,
+                    height: 110,
                     decoration: const BoxDecoration(
                       color: AppPalette.infoBg,
                       shape: BoxShape.circle,

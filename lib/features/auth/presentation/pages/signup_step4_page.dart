@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/data/countries.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/soe_button.dart';
+import '../../../../core/widgets/soe_checkbox.dart';
+import '../../../../core/widgets/soe_country_field.dart';
+import '../../../../core/widgets/soe_field_label.dart';
 import '../../../../core/widgets/soe_text_field.dart';
 import '../../../../core/widgets/soe_toast.dart';
 import '../../../../i18n/translations.g.dart';
@@ -25,33 +29,37 @@ class SignupStep4Page extends ConsumerStatefulWidget {
 }
 
 class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
+  late final TextEditingController _search;
   late final TextEditingController _neighborhood;
   late final TextEditingController _city;
   bool _acceptCgu = false;
+  late Country _country;
   final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
     final s = ref.read(registerFlowViewModelProvider);
+    _search = TextEditingController();
     _neighborhood = TextEditingController(text: s.neighborhood)
       ..addListener(_syncAddress);
     _city = TextEditingController(text: s.city)..addListener(_syncAddress);
+    _country = Countries.byCode(s.countryCode);
     _acceptCgu = s.acceptCgu;
   }
 
   void _syncAddress() {
-    final flow = ref.read(registerFlowViewModelProvider);
     ref.read(registerFlowViewModelProvider.notifier).setAddress(
           neighborhood: _neighborhood.text,
           city: _city.text,
-          country: flow.country,
-          countryCode: flow.countryCode,
+          country: _country.name,
+          countryCode: _country.code,
         );
   }
 
   @override
   void dispose() {
+    _search.dispose();
     _neighborhood
       ..removeListener(_syncAddress)
       ..dispose();
@@ -100,37 +108,73 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
                       AppTypography.bodySm.copyWith(color: AppPalette.n700),
                 ),
                 const SizedBox(height: 18),
+                SoeFieldLabel(tr.signup.step4.search),
                 SoeTextField(
-                  controller: _neighborhood,
-                  label: tr.signup.step4.neighborhood,
-                  leadingIcon: Icons.location_on_outlined,
+                  controller: _search,
+                  hint: tr.signup.step4.searchHint,
+                  leadingIcon: Icons.search,
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 12),
+                SoeFieldLabel(tr.signup.step4.neighborhood),
                 SoeTextField(
-                  controller: _city,
-                  label: tr.signup.step4.city,
-                  leadingIcon: Icons.location_city_outlined,
-                  textInputAction: TextInputAction.done,
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? tr.errors.required : null,
+                  controller: _neighborhood,
+                  leadingIcon: Icons.public,
+                  textInputAction: TextInputAction.next,
                 ),
-                const SizedBox(height: 16),
-                CheckboxListTile(
+                const SizedBox(height: 12),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          SoeFieldLabel(tr.signup.step4.city),
+                          SoeTextField(
+                            controller: _city,
+                            hint: 'Douala',
+                            textInputAction: TextInputAction.done,
+                            validator: (v) =>
+                                (v == null || v.trim().isEmpty)
+                                    ? tr.errors.required
+                                    : null,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          SoeFieldLabel(tr.signup.step4.country),
+                          SoeCountryField(
+                            country: _country,
+                            pickerTitle: tr.countryPicker.addressTitle,
+                            onChanged: (c) {
+                              setState(() => _country = c);
+                              _syncAddress();
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                SoeCheckbox(
                   value: _acceptCgu,
                   onChanged: (v) {
-                    setState(() => _acceptCgu = v ?? false);
+                    setState(() => _acceptCgu = v);
                     ref
                         .read(registerFlowViewModelProvider.notifier)
-                        .setAcceptCgu(value: _acceptCgu);
+                        .setAcceptCgu(value: v);
                   },
-                  contentPadding: EdgeInsets.zero,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  activeColor: AppPalette.teal,
-                  title: RichText(
+                  label: RichText(
                     text: TextSpan(
-                      style: AppTypography.bodySm
-                          .copyWith(color: AppPalette.ink),
+                      style: AppTypography.caption
+                          .copyWith(color: AppPalette.ink, height: 1.5),
                       children: [
                         TextSpan(text: tr.signup.step4.cguPrefix),
                         TextSpan(
@@ -181,21 +225,19 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
       );
       return;
     }
-    final flow = ref.read(registerFlowViewModelProvider);
     ref.read(registerFlowViewModelProvider.notifier).setAddress(
           neighborhood: _neighborhood.text.trim(),
           city: _city.text.trim(),
-          country: flow.country,
-          countryCode: flow.countryCode,
+          country: _country.name,
+          countryCode: _country.code,
         );
     ref.read(registerFlowViewModelProvider.notifier).setAcceptCgu(value: true);
 
     final fresh = ref.read(registerFlowViewModelProvider);
 
     // Préflight : on valide chaque étape AVANT d'appeler le repo. Si une étape
-    // précédente a un champ invalide (ex. email mal formé), on ramène l'utilisateur
-    // sur l'écran fautif avec un message clair, plutôt qu'un générique
-    // "champs invalides" sur l'étape 4.
+    // précédente a un champ invalide, on ramène l'utilisateur sur l'écran fautif
+    // avec un message clair.
     final preflight = _findInvalidStep(fresh);
     if (preflight != null) {
       SoeToast.show(
@@ -226,25 +268,22 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
                 ? null
                 : _neighborhood.text.trim(),
             city: _city.text.trim(),
-            country: fresh.country,
-            countryCode: fresh.countryCode,
+            country: _country.name,
+            countryCode: _country.code,
           ),
         );
   }
 
   _StepIssue? _findInvalidStep(RegisterFlowState state) {
-    // Étape 1 — identité
     if (state.firstName.trim().isEmpty) {
       return const _StepIssue(1, RouteNames.registerStep1, _Field.firstName);
     }
     if (state.lastName.trim().isEmpty) {
       return const _StepIssue(1, RouteNames.registerStep1, _Field.lastName);
     }
-    // Étape 2 — contact
     if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(state.email)) {
       return const _StepIssue(2, RouteNames.registerStep2, _Field.email);
     }
-    // Étape 3 — mot de passe
     if (state.password.length < 6) {
       return const _StepIssue(3, RouteNames.registerStep3, _Field.password);
     }
