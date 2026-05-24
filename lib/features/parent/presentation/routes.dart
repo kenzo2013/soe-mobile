@@ -6,6 +6,9 @@ import 'pages/parent_child_form_page.dart';
 import 'pages/parent_children_list_page.dart';
 import 'pages/parent_dashboard_page.dart';
 import 'pages/parent_home_placeholder.dart';
+import 'pages/parent_new_reservation_page.dart';
+import 'pages/parent_reservation_detail_page.dart';
+import 'pages/parent_reservations_list_page.dart';
 import 'pages/parent_tutor_profile_page.dart';
 
 List<RouteBase> parentRoutes() => [
@@ -41,7 +44,17 @@ List<RouteBase> parentRoutes() => [
       ),
       GoRoute(
         path: RouteNames.parentReservations,
-        builder: (context, state) => const ParentHomePlaceholderPage(),
+        builder: (context, state) => const ParentReservationsListPage(),
+      ),
+      GoRoute(
+        path: '/parent/reservations/new',
+        builder: (context, state) => const ParentNewReservationPage(),
+      ),
+      GoRoute(
+        path: '/parent/reservations/:id',
+        builder: (context, state) => ParentReservationDetailPage(
+          id: state.pathParameters['id']!,
+        ),
       ),
       GoRoute(
         path: RouteNames.parentSessions,
