@@ -5,7 +5,7 @@ import 'pages/parent_child_detail_page.dart';
 import 'pages/parent_child_form_page.dart';
 import 'pages/parent_children_list_page.dart';
 import 'pages/parent_dashboard_page.dart';
-import 'pages/parent_home_placeholder.dart';
+import 'pages/parent_misc_pages.dart';
 import 'pages/parent_new_reservation_page.dart';
 import 'pages/parent_payment_receipt_page.dart';
 import 'pages/parent_payments_list_page.dart';
@@ -79,5 +79,21 @@ List<RouteBase> parentRoutes() => [
         builder: (context, state) => ParentPaymentReceiptPage(
           id: state.pathParameters['id']!,
         ),
+      ),
+      GoRoute(
+        path: '/parent/reviews',
+        builder: (context, state) => const ParentReviewsListPage(),
+      ),
+      GoRoute(
+        path: '/parent/programs',
+        builder: (context, state) => const ParentProgramsListPage(),
+      ),
+      GoRoute(
+        path: '/parent/invitations',
+        builder: (context, state) => const ParentInvitationsListPage(),
+      ),
+      GoRoute(
+        path: '/parent/contracts',
+        builder: (context, state) => const ParentContractsListPage(),
       ),
     ];

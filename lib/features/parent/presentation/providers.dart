@@ -3,18 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/core_providers.dart';
 import '../data/datasources/children_remote_datasource.dart';
 import '../data/datasources/parent_remote_datasource.dart';
+import '../data/datasources/misc_remote_datasource.dart';
 import '../data/datasources/payments_remote_datasource.dart';
 import '../data/datasources/reservations_remote_datasource.dart';
 import '../data/datasources/sessions_remote_datasource.dart';
 import '../data/datasources/tutor_profile_remote_datasource.dart';
 import '../data/repositories/children_repository_impl.dart';
 import '../data/repositories/parent_dashboard_repository_impl.dart';
+import '../data/repositories/misc_repositories_impl.dart';
 import '../data/repositories/payments_repository_impl.dart';
 import '../data/repositories/reservations_repository_impl.dart';
 import '../data/repositories/sessions_repository_impl.dart';
 import '../data/repositories/tutor_profile_repository_impl.dart';
 import '../domain/repositories/children_repository.dart';
 import '../domain/repositories/parent_dashboard_repository.dart';
+import '../domain/repositories/misc_repositories.dart';
 import '../domain/repositories/payments_repository.dart';
 import '../domain/repositories/reservations_repository.dart';
 import '../domain/repositories/sessions_repository.dart';
@@ -32,6 +35,7 @@ import 'viewmodels/children_list_state.dart';
 import 'viewmodels/children_list_viewmodel.dart';
 import 'viewmodels/parent_dashboard_state.dart';
 import 'viewmodels/parent_dashboard_viewmodel.dart';
+import 'viewmodels/misc_viewmodels.dart';
 import 'viewmodels/payments_states.dart';
 import 'viewmodels/payments_viewmodels.dart';
 import 'viewmodels/reservations_states.dart';
@@ -144,6 +148,49 @@ final reservationDetailViewModelProvider = StateNotifierProvider.autoDispose
 final newReservationViewModelProvider = StateNotifierProvider.autoDispose<
     NewReservationViewModel, NewReservationState>(
   (ref) => NewReservationViewModel(ref.watch(createReservationProvider)),
+);
+
+// ── Misc (reviews/programs/invitations/contracts) ────────────
+final miscRemoteDatasourceProvider = Provider<MiscRemoteDatasource>(
+  (ref) => MiscRemoteDatasource(ref.watch(dioProvider)),
+);
+
+final reviewsRepositoryProvider = Provider<ReviewsRepository>(
+  (ref) => ReviewsRepositoryImpl(ref.watch(miscRemoteDatasourceProvider)),
+);
+final programsRepositoryProvider = Provider<ProgramsRepository>(
+  (ref) => ProgramsRepositoryImpl(ref.watch(miscRemoteDatasourceProvider)),
+);
+final invitationsRepositoryProvider = Provider<InvitationsRepository>(
+  (ref) => InvitationsRepositoryImpl(ref.watch(miscRemoteDatasourceProvider)),
+);
+final contractsRepositoryProvider = Provider<ContractsRepository>(
+  (ref) => ContractsRepositoryImpl(ref.watch(miscRemoteDatasourceProvider)),
+);
+
+final reviewsListViewModelProvider = StateNotifierProvider.autoDispose
+    .family<ReviewsListViewModel, AsyncListState, Object?>(
+  (ref, _) =>
+      ReviewsListViewModel(ref.watch(reviewsRepositoryProvider))..load(),
+);
+
+final programsListViewModelProvider = StateNotifierProvider.autoDispose
+    .family<ProgramsListViewModel, AsyncListState, Object?>(
+  (ref, _) =>
+      ProgramsListViewModel(ref.watch(programsRepositoryProvider))..load(),
+);
+
+final invitationsListViewModelProvider = StateNotifierProvider.autoDispose
+    .family<InvitationsListViewModel, AsyncListState, Object?>(
+  (ref, _) =>
+      InvitationsListViewModel(ref.watch(invitationsRepositoryProvider))
+        ..load(),
+);
+
+final contractsListViewModelProvider = StateNotifierProvider.autoDispose
+    .family<ContractsListViewModel, AsyncListState, Object?>(
+  (ref, _) =>
+      ContractsListViewModel(ref.watch(contractsRepositoryProvider))..load(),
 );
 
 // ── Payments ─────────────────────────────────────────────────
