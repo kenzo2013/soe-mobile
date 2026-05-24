@@ -9,6 +9,8 @@ import 'pages/parent_home_placeholder.dart';
 import 'pages/parent_new_reservation_page.dart';
 import 'pages/parent_reservation_detail_page.dart';
 import 'pages/parent_reservations_list_page.dart';
+import 'pages/parent_session_detail_page.dart';
+import 'pages/parent_sessions_list_page.dart';
 import 'pages/parent_tutor_profile_page.dart';
 
 List<RouteBase> parentRoutes() => [
@@ -58,7 +60,13 @@ List<RouteBase> parentRoutes() => [
       ),
       GoRoute(
         path: RouteNames.parentSessions,
-        builder: (context, state) => const ParentHomePlaceholderPage(),
+        builder: (context, state) => const ParentSessionsListPage(),
+      ),
+      GoRoute(
+        path: '/parent/sessions/:id',
+        builder: (context, state) => ParentSessionDetailPage(
+          id: state.pathParameters['id']!,
+        ),
       ),
       GoRoute(
         path: RouteNames.parentPayments,
