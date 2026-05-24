@@ -11,15 +11,17 @@ abstract final class RouteNames {
   static const String registerStep3 = '/register/password';
   static const String registerStep4 = '/register/address';
   static const String emailSent = '/register/email-sent';
-  static const String emailConfirmed = '/auth/email-confirmed';
   static const String passwordForgot = '/password/forgot';
   static const String passwordForgotSent = '/password/forgot-sent';
   static const String passwordReset = '/password/reset';
-  static const String emailConfirmation = '/email/confirm';
 
   // Parent shell
   static const String parentDashboard = '/parent';
   static const String parentStudents = '/parent/students';
+  static const String parentStudentNew = '/parent/students/new';
+  static String parentStudentDetail(String id) => '/parent/students/$id';
+  static String parentStudentEdit(String id) => '/parent/students/$id/edit';
+  static String parentTutorProfile(String id) => '/parent/tutors/$id';
   static const String parentReservations = '/parent/reservations';
   static const String parentSessions = '/parent/sessions';
   static const String parentPayments = '/parent/payments';
