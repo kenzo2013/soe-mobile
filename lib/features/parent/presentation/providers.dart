@@ -3,22 +3,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/core_providers.dart';
 import '../data/datasources/children_remote_datasource.dart';
 import '../data/datasources/parent_remote_datasource.dart';
+import '../data/datasources/payments_remote_datasource.dart';
 import '../data/datasources/reservations_remote_datasource.dart';
 import '../data/datasources/sessions_remote_datasource.dart';
 import '../data/datasources/tutor_profile_remote_datasource.dart';
 import '../data/repositories/children_repository_impl.dart';
 import '../data/repositories/parent_dashboard_repository_impl.dart';
+import '../data/repositories/payments_repository_impl.dart';
 import '../data/repositories/reservations_repository_impl.dart';
 import '../data/repositories/sessions_repository_impl.dart';
 import '../data/repositories/tutor_profile_repository_impl.dart';
 import '../domain/repositories/children_repository.dart';
 import '../domain/repositories/parent_dashboard_repository.dart';
+import '../domain/repositories/payments_repository.dart';
 import '../domain/repositories/reservations_repository.dart';
 import '../domain/repositories/sessions_repository.dart';
 import '../domain/repositories/tutor_profile_repository.dart';
 import '../domain/usecases/get_parent_dashboard.dart';
 import '../domain/usecases/get_tutor_profile.dart';
 import '../domain/usecases/list_children.dart';
+import '../domain/usecases/payments_usecases.dart';
 import '../domain/usecases/reservations_usecases.dart';
 import '../domain/usecases/save_child.dart';
 import '../domain/usecases/sessions_usecases.dart';
@@ -28,6 +32,8 @@ import 'viewmodels/children_list_state.dart';
 import 'viewmodels/children_list_viewmodel.dart';
 import 'viewmodels/parent_dashboard_state.dart';
 import 'viewmodels/parent_dashboard_viewmodel.dart';
+import 'viewmodels/payments_states.dart';
+import 'viewmodels/payments_viewmodels.dart';
 import 'viewmodels/reservations_states.dart';
 import 'viewmodels/reservations_viewmodels.dart';
 import 'viewmodels/sessions_states.dart';
@@ -138,6 +144,43 @@ final reservationDetailViewModelProvider = StateNotifierProvider.autoDispose
 final newReservationViewModelProvider = StateNotifierProvider.autoDispose<
     NewReservationViewModel, NewReservationState>(
   (ref) => NewReservationViewModel(ref.watch(createReservationProvider)),
+);
+
+// ── Payments ─────────────────────────────────────────────────
+final paymentsRemoteDatasourceProvider = Provider<PaymentsRemoteDatasource>(
+  (ref) => PaymentsRemoteDatasource(ref.watch(dioProvider)),
+);
+
+final paymentsRepositoryProvider = Provider<PaymentsRepository>(
+  (ref) => PaymentsRepositoryImpl(ref.watch(paymentsRemoteDatasourceProvider)),
+);
+
+final listPaymentsProvider = Provider<ListPayments>(
+  (ref) => ListPayments(ref.watch(paymentsRepositoryProvider)),
+);
+
+final initiatePaymentProvider = Provider<InitiatePayment>(
+  (ref) => InitiatePayment(ref.watch(paymentsRepositoryProvider)),
+);
+
+final getPaymentReceiptProvider = Provider<GetPaymentReceipt>(
+  (ref) => GetPaymentReceipt(ref.watch(paymentsRepositoryProvider)),
+);
+
+final paymentsListViewModelProvider = StateNotifierProvider.autoDispose<
+    PaymentsListViewModel, PaymentsListState>(
+  (ref) => PaymentsListViewModel(ref.watch(listPaymentsProvider))..load(),
+);
+
+final checkoutViewModelProvider =
+    StateNotifierProvider.autoDispose<CheckoutViewModel, CheckoutState>(
+  (ref) => CheckoutViewModel(ref.watch(initiatePaymentProvider)),
+);
+
+final paymentReceiptViewModelProvider = StateNotifierProvider.autoDispose
+    .family<PaymentReceiptViewModel, PaymentReceiptState, String>(
+  (ref, id) =>
+      PaymentReceiptViewModel(ref.watch(getPaymentReceiptProvider))..load(id),
 );
 
 // ── Sessions ─────────────────────────────────────────────────

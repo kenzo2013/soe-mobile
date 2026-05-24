@@ -7,6 +7,8 @@ import 'pages/parent_children_list_page.dart';
 import 'pages/parent_dashboard_page.dart';
 import 'pages/parent_home_placeholder.dart';
 import 'pages/parent_new_reservation_page.dart';
+import 'pages/parent_payment_receipt_page.dart';
+import 'pages/parent_payments_list_page.dart';
 import 'pages/parent_reservation_detail_page.dart';
 import 'pages/parent_reservations_list_page.dart';
 import 'pages/parent_session_detail_page.dart';
@@ -70,6 +72,12 @@ List<RouteBase> parentRoutes() => [
       ),
       GoRoute(
         path: RouteNames.parentPayments,
-        builder: (context, state) => const ParentHomePlaceholderPage(),
+        builder: (context, state) => const ParentPaymentsListPage(),
+      ),
+      GoRoute(
+        path: '/parent/payments/:id',
+        builder: (context, state) => ParentPaymentReceiptPage(
+          id: state.pathParameters['id']!,
+        ),
       ),
     ];
