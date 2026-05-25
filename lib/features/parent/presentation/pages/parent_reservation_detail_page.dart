@@ -13,6 +13,7 @@ import '../../../../core/widgets/soe_toast.dart';
 import '../../domain/entities/reservation_detail.dart';
 import '../../domain/entities/reservation_summary.dart';
 import '../providers.dart';
+import '../viewmodels/reservations_viewmodels.dart';
 
 class ParentReservationDetailPage extends ConsumerWidget {
   const ParentReservationDetailPage({super.key, required this.id});
@@ -62,26 +63,23 @@ class ParentReservationDetailPage extends ConsumerWidget {
               .read(reservationDetailViewModelProvider(id).notifier)
               .load(id),
         ),
-        loaded: (d) => _DetailView(detail: d, id: id, ref: ref),
-        actionSuccess: (d) =>
-            _DetailView(detail: d, id: id, ref: ref),
+        loaded: (d) => _DetailView(detail: d, id: id),
+        actionSuccess: (d) => _DetailView(detail: d, id: id),
       ),
     );
   }
 }
 
-class _DetailView extends StatelessWidget {
+class _DetailView extends ConsumerWidget {
   const _DetailView({
     required this.detail,
     required this.id,
-    required this.ref,
   });
   final ReservationDetail detail;
   final String id;
-  final WidgetRef ref;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final vm = ref.read(reservationDetailViewModelProvider(id).notifier);
     final isQuote = detail.status == ReservationStatus.proposedPrice;
     return ListView(
@@ -173,7 +171,7 @@ class _DetailView extends StatelessWidget {
     );
   }
 
-  void _openNegotiate(BuildContext context, dynamic vm) {
+  void _openNegotiate(BuildContext context, ReservationDetailViewModel vm) {
     final controller = TextEditingController();
     showModalBottomSheet(
       context: context,
