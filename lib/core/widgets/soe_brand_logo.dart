@@ -25,12 +25,14 @@ class SoeBrandLogo extends StatelessWidget {
   static const String _whiteAsset = 'assets/logo/logo_white.svg';
   static const String _colorAsset = 'assets/logo/logo_color.svg';
   static const String _fullAsset = 'assets/logo/logo_full.svg';
-  static const String _fullWhiteAsset = 'assets/logo/logo_full_white.svg';
 
   @override
   Widget build(BuildContext context) {
+    // `full` garde toujours ses couleurs originales (SOE blanc + O jaune
+    // ampoule + sous-titre blanc) — fonctionne sur fond sombre comme clair
+    // sans modification.
     final asset = switch (variant) {
-      SoeBrandLogoVariant.full => onDark ? _fullWhiteAsset : _fullAsset,
+      SoeBrandLogoVariant.full => _fullAsset,
       SoeBrandLogoVariant.mark => onDark ? _whiteAsset : _colorAsset,
     };
     return SvgPicture.asset(
