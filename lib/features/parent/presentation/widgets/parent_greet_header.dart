@@ -18,10 +18,13 @@ class ParentGreetHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(gradient: AppPalette.brandGradient),
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 36),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 36),
+      child: SafeArea(
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 12),
           Row(
             children: [
               Builder(
@@ -108,6 +111,7 @@ class ParentGreetHeader extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }
