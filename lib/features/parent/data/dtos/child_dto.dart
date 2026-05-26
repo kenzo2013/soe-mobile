@@ -44,6 +44,9 @@ extension ChildDtoX on ChildDto {
 /// Payload pour POST/PATCH /parents/students.
 /// CDC §11.5 : valeurs `gender` = male|feminine, `education` = general|technic|primary.
 /// CDC §11.6 : avec photo, utiliser multipart/form-data (champ `student[photo]`).
+/// 422 observe : `city` est obligatoire dans address_attributes ;
+/// `class_name` est rejete (l'API attend un school_class_id UUID — TODO
+/// quand l'endpoint /references/school_classes sera disponible §7.7).
 Map<String, dynamic> childParamsToJson(ChildFormParams p) => {
       'first_name': p.firstName,
       'last_name': p.lastName,
@@ -51,11 +54,13 @@ Map<String, dynamic> childParamsToJson(ChildFormParams p) => {
       'gender': _serializeGender(p.gender),
       if (p.section != null) 'section': p.section,
       if (p.education != null) 'education': _serializeEducation(p.education!),
-      if (p.classe != null && p.classe!.isNotEmpty) 'class_name': p.classe,
-      if (p.address != null && p.address!.isNotEmpty)
-        'address_attributes': {
-          'neighborhood': p.address,
-        },
+      'address_attributes': {
+        if (p.neighborhood != null && p.neighborhood!.isNotEmpty)
+          'neighborhood': p.neighborhood,
+        'city': p.city,
+        'country': p.country,
+        'country_code': p.countryCode,
+      },
     };
 
 ChildGender _parseGender(String? raw) => switch (raw) {

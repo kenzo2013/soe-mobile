@@ -45,11 +45,14 @@ class ChildFormParams {
     required this.lastName,
     required this.age,
     required this.gender,
+    required this.city,
     this.classe,
     this.section,
     this.education,
     this.subjects = const [],
-    this.address,
+    this.neighborhood,
+    this.country = 'Cameroun',
+    this.countryCode = 'CM',
   });
 
   final String firstName;
@@ -60,5 +63,10 @@ class ChildFormParams {
   final String? section;
   final ChildEducation? education;
   final List<String> subjects;
-  final String? address;
+
+  /// Adresse — `city` est obligatoire côté API (CDC + 422).
+  final String city;
+  final String? neighborhood;
+  final String country;
+  final String countryCode;
 }

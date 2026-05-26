@@ -29,13 +29,16 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
   late final TextEditingController _firstName;
   late final TextEditingController _lastName;
   late final TextEditingController _age;
-  late final TextEditingController _address;
+  late final TextEditingController _neighborhood;
+  late final TextEditingController _city;
   ChildGender _gender = ChildGender.male;
   ChildEducation _education = ChildEducation.general;
   String _section = 'francophone';
   String? _classe;
   String? _avatarUrl;
   File? _avatarFile;
+  String _country = 'Cameroun';
+  String _countryCode = 'CM';
   bool _prefilled = false;
 
   static const _classesPrimary = [
@@ -69,7 +72,8 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
     _firstName = TextEditingController();
     _lastName = TextEditingController();
     _age = TextEditingController();
-    _address = TextEditingController();
+    _neighborhood = TextEditingController();
+    _city = TextEditingController();
   }
 
   @override
@@ -77,7 +81,8 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
     _firstName.dispose();
     _lastName.dispose();
     _age.dispose();
-    _address.dispose();
+    _neighborhood.dispose();
+    _city.dispose();
     super.dispose();
   }
 
@@ -92,7 +97,11 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
           _lastName.text = c.lastName;
           _age.text = c.age.toString();
           _classe = (c.classe ?? '').isEmpty ? null : c.classe;
-          _address.text = c.address ?? '';
+          // L'API renvoie l'adresse en string "neighborhood, city" — on
+          // tente une separation simple sur la virgule.
+          final addr = (c.address ?? '').split(',').map((s) => s.trim()).toList();
+          if (addr.isNotEmpty) _neighborhood.text = addr.first;
+          if (addr.length > 1) _city.text = addr[1];
           _gender = c.gender;
           _education = c.education;
           _avatarUrl = c.avatarUrl;
@@ -243,7 +252,7 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
               Padding(
                 padding: const EdgeInsets.only(left: 4, bottom: 5),
                 child: const Text(
-                  'Quartier · Ville',
+                  'Quartier',
                   style: TextStyle(
                     fontSize: 11,
                     color: AppPalette.n700,
@@ -252,12 +261,25 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
                 ),
               ),
               SoePlacesAutocompleteField(
-                controller: _address,
+                controller: _neighborhood,
                 client: ref.watch(googlePlacesClientProvider),
-                hint: 'Ex. Bastos, Yaoundé',
+                hint: 'Ex. Bastos',
                 onPlaceSelected: (p) {
-                  _address.text = p.formattedAddress;
+                  _neighborhood.text =
+                      p.neighborhood ?? p.formattedAddress;
+                  _city.text = p.city;
+                  _country = p.country;
+                  _countryCode = p.countryCode;
+                  setState(() {});
                 },
+              ),
+              const SizedBox(height: 10),
+              SoeTextField(
+                label: 'Ville *',
+                controller: _city,
+                hint: 'Ex. Yaoundé',
+                leadingIcon: Icons.location_city_outlined,
+                validator: _required,
               ),
             ]),
             const SizedBox(height: 22),
@@ -317,7 +339,11 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
       classe: _classe,
       section: _section,
       education: _education,
-      address: _address.text.trim().isEmpty ? null : _address.text.trim(),
+      city: _city.text.trim(),
+      neighborhood:
+          _neighborhood.text.trim().isEmpty ? null : _neighborhood.text.trim(),
+      country: _country,
+      countryCode: _countryCode,
     );
     ref
         .read(childFormViewModelProvider.notifier)
