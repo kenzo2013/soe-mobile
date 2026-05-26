@@ -25,20 +25,17 @@ class SoeBrandLogo extends StatelessWidget {
   static const String _whiteAsset = 'assets/logo/logo_white.svg';
   static const String _colorAsset = 'assets/logo/logo_color.svg';
   static const String _fullAsset = 'assets/logo/logo_full.svg';
+  static const String _fullWhiteAsset = 'assets/logo/logo_full_white.svg';
 
   @override
   Widget build(BuildContext context) {
     final asset = switch (variant) {
-      SoeBrandLogoVariant.full => _fullAsset,
+      SoeBrandLogoVariant.full => onDark ? _fullWhiteAsset : _fullAsset,
       SoeBrandLogoVariant.mark => onDark ? _whiteAsset : _colorAsset,
     };
-    final colorFilter = variant == SoeBrandLogoVariant.full && onDark
-        ? const ColorFilter.mode(Colors.white, BlendMode.srcIn)
-        : null;
     return SvgPicture.asset(
       asset,
       width: width,
-      colorFilter: colorFilter,
       semanticsLabel: 'SOE — Solution of Education',
       fit: BoxFit.contain,
     );

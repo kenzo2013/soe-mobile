@@ -124,6 +124,14 @@ class AuthRemoteDatasource {
     await _dio.delete<void>(ApiEndpoints.logout);
   }
 
+  /// Récupère le profil de l'utilisateur connecté via le JWT courant.
+  Future<UserDto> getCurrentUser() async {
+    final r = await _dio.get<Map<String, dynamic>>(ApiEndpoints.currentUser);
+    final body = r.data!;
+    final data = (body['data'] as Map<String, dynamic>?) ?? body;
+    return UserDto.fromJson(data);
+  }
+
   bool _hasAddress(RegisterParams p) =>
       p.address != null ||
       p.neighborhood != null ||

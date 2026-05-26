@@ -138,6 +138,22 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Result<User, Failure>> fetchCurrentUser() async {
+    try {
+      final dto = await _remote.getCurrentUser();
+      final user = dto.toEntity();
+      await _storage.write(StorageKeys.currentRole, user.role.apiValue);
+      await _storage.write(
+        StorageKeys.currentUser,
+        jsonEncode(_userToStorage(user)),
+      );
+      return Ok(user);
+    } on DioException catch (e) {
+      return Err(ExceptionMapper.fromDio(e));
+    }
+  }
+
+  @override
   Future<Result<void, Failure>> logout() async {
     try {
       await _remote.logout();

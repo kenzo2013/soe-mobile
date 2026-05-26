@@ -47,6 +47,10 @@ abstract class AuthRepository {
   });
 
   Future<Result<void, Failure>> logout();
+
+  /// Récupère le profil du user connecté via le JWT en storage.
+  /// Persiste le résultat pour les lectures suivantes.
+  Future<Result<User, Failure>> fetchCurrentUser();
 }
 
 class RegisterParams {
