@@ -4,6 +4,12 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>SOE a besoin d'accéder à la caméra pour prendre la photo de profil de votre enfant.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>SOE a besoin d'accéder à votre galerie pour choisir la photo de profil de votre enfant.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>SOE a besoin du micro pour enregistrer des vidéos courtes lors de l'inscription.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

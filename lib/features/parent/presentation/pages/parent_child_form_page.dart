@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/error/failure.dart';
+import '../../../../core/services/avatar_picker_service.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/soe_back_button.dart';
 import '../../../../core/widgets/soe_button.dart';
@@ -30,6 +33,7 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
   String _section = 'francophone';
   String? _classe;
   String? _avatarUrl;
+  File? _avatarFile;
   bool _prefilled = false;
 
   static const _classesPrimary = [
@@ -159,6 +163,7 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
             Center(
               child: _AvatarUploader(
                 imageUrl: _avatarUrl,
+                file: _avatarFile,
                 onTap: _pickAvatar,
               ),
             ),
@@ -256,13 +261,9 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
   }
 
   Future<void> _pickAvatar() async {
-    // Placeholder : upload réel d'image (image_picker) à brancher quand
-    // l'endpoint d'upload sera dispo côté API.
-    SoeToast.show(
-      context,
-      message: 'Upload photo bientôt disponible',
-      tone: SoeToastTone.info,
-    );
+    final file = await AvatarPickerService.pick(context);
+    if (file == null || !mounted) return;
+    setState(() => _avatarFile = file);
   }
 
   Widget _section_(String label, List<Widget> children) {
@@ -348,9 +349,22 @@ class _SaveActionButton extends StatelessWidget {
 }
 
 class _AvatarUploader extends StatelessWidget {
-  const _AvatarUploader({this.imageUrl, required this.onTap});
+  const _AvatarUploader({
+    this.imageUrl,
+    this.file,
+    required this.onTap,
+  });
   final String? imageUrl;
+  final File? file;
   final VoidCallback onTap;
+
+  bool get _hasImage => file != null || (imageUrl != null && imageUrl!.isNotEmpty);
+
+  ImageProvider? get _imageProvider {
+    if (file != null) return FileImage(file!);
+    if (imageUrl != null && imageUrl!.isNotEmpty) return NetworkImage(imageUrl!);
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -361,28 +375,33 @@ class _AvatarUploader extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           CustomPaint(
-            painter: _DashedCirclePainter(color: AppPalette.teal),
+            painter: _hasImage
+                ? null
+                : _DashedCirclePainter(color: AppPalette.teal),
             child: Container(
               width: 96,
               height: 96,
               decoration: BoxDecoration(
                 color: AppPalette.infoBg,
                 shape: BoxShape.circle,
-                image: imageUrl != null
-                    ? DecorationImage(
-                        image: NetworkImage(imageUrl!),
+                image: _imageProvider == null
+                    ? null
+                    : DecorationImage(
+                        image: _imageProvider!,
                         fit: BoxFit.cover,
-                      )
+                      ),
+                border: _hasImage
+                    ? Border.all(color: AppPalette.teal, width: 2)
                     : null,
               ),
               alignment: Alignment.center,
-              child: imageUrl == null
-                  ? const Icon(
+              child: _hasImage
+                  ? null
+                  : const Icon(
                       Icons.person_outline,
                       size: 38,
                       color: AppPalette.teal,
-                    )
-                  : null,
+                    ),
             ),
           ),
           Positioned(
