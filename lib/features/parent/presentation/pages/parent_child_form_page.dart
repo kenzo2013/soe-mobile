@@ -53,9 +53,8 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
 
   List<String> get _classOptions => switch (_education) {
         ChildEducation.primary => _classesPrimary,
-        ChildEducation.secondary => _classesSecondary,
         ChildEducation.general => [..._classesSecondary, ..._classesGeneral],
-        ChildEducation.technical => [..._classesSecondary, ..._classesTechnical],
+        ChildEducation.technic => [..._classesSecondary, ..._classesTechnical],
         ChildEducation.unknown => [
             ..._classesPrimary,
             ..._classesSecondary,
@@ -509,15 +508,11 @@ class _EducationPicker extends StatelessWidget {
           child: Text('Primaire'),
         ),
         DropdownMenuItem(
-          value: ChildEducation.secondary,
-          child: Text('Secondaire'),
-        ),
-        DropdownMenuItem(
           value: ChildEducation.general,
           child: Text('Général'),
         ),
         DropdownMenuItem(
-          value: ChildEducation.technical,
+          value: ChildEducation.technic,
           child: Text('Technique'),
         ),
       ],

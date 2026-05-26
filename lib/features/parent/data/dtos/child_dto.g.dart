@@ -13,15 +13,15 @@ _$ChildDtoImpl _$$ChildDtoImplFromJson(Map<String, dynamic> json) =>
       lastName: json['last_name'] as String,
       age: (json['age'] as num?)?.toInt() ?? 0,
       gender: json['gender'] as String?,
-      classe: json['classe'] as String?,
+      schoolClass: json['school_class'] as Map<String, dynamic>?,
       section: json['section'] as String?,
-      educationLevel: json['education_level'] as String?,
+      education: json['education'] as String?,
       subjects: (json['subjects'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           const <String>[],
       avatarUrl: json['avatar_url'] as String?,
-      address: json['address'] as String?,
+      address: json['address'] as Map<String, dynamic>?,
     );
 
 Map<String, dynamic> _$$ChildDtoImplToJson(_$ChildDtoImpl instance) =>
@@ -31,9 +31,9 @@ Map<String, dynamic> _$$ChildDtoImplToJson(_$ChildDtoImpl instance) =>
       'last_name': instance.lastName,
       'age': instance.age,
       'gender': instance.gender,
-      'classe': instance.classe,
+      'school_class': instance.schoolClass,
       'section': instance.section,
-      'education_level': instance.educationLevel,
+      'education': instance.education,
       'subjects': instance.subjects,
       'avatar_url': instance.avatarUrl,
       'address': instance.address,

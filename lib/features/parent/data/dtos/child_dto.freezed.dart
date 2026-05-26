@@ -27,14 +27,14 @@ mixin _$ChildDto {
   String get lastName => throw _privateConstructorUsedError;
   int get age => throw _privateConstructorUsedError;
   String? get gender => throw _privateConstructorUsedError;
-  String? get classe => throw _privateConstructorUsedError;
+  @JsonKey(name: 'school_class')
+  Map<String, dynamic>? get schoolClass => throw _privateConstructorUsedError;
   String? get section => throw _privateConstructorUsedError;
-  @JsonKey(name: 'education_level')
-  String? get educationLevel => throw _privateConstructorUsedError;
+  String? get education => throw _privateConstructorUsedError;
   List<String> get subjects => throw _privateConstructorUsedError;
   @JsonKey(name: 'avatar_url')
   String? get avatarUrl => throw _privateConstructorUsedError;
-  String? get address => throw _privateConstructorUsedError;
+  Map<String, dynamic>? get address => throw _privateConstructorUsedError;
 
   /// Serializes this ChildDto to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -57,12 +57,12 @@ abstract class $ChildDtoCopyWith<$Res> {
       @JsonKey(name: 'last_name') String lastName,
       int age,
       String? gender,
-      String? classe,
+      @JsonKey(name: 'school_class') Map<String, dynamic>? schoolClass,
       String? section,
-      @JsonKey(name: 'education_level') String? educationLevel,
+      String? education,
       List<String> subjects,
       @JsonKey(name: 'avatar_url') String? avatarUrl,
-      String? address});
+      Map<String, dynamic>? address});
 }
 
 /// @nodoc
@@ -85,9 +85,9 @@ class _$ChildDtoCopyWithImpl<$Res, $Val extends ChildDto>
     Object? lastName = null,
     Object? age = null,
     Object? gender = freezed,
-    Object? classe = freezed,
+    Object? schoolClass = freezed,
     Object? section = freezed,
-    Object? educationLevel = freezed,
+    Object? education = freezed,
     Object? subjects = null,
     Object? avatarUrl = freezed,
     Object? address = freezed,
@@ -113,17 +113,17 @@ class _$ChildDtoCopyWithImpl<$Res, $Val extends ChildDto>
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
               as String?,
-      classe: freezed == classe
-          ? _value.classe
-          : classe // ignore: cast_nullable_to_non_nullable
-              as String?,
+      schoolClass: freezed == schoolClass
+          ? _value.schoolClass
+          : schoolClass // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
       section: freezed == section
           ? _value.section
           : section // ignore: cast_nullable_to_non_nullable
               as String?,
-      educationLevel: freezed == educationLevel
-          ? _value.educationLevel
-          : educationLevel // ignore: cast_nullable_to_non_nullable
+      education: freezed == education
+          ? _value.education
+          : education // ignore: cast_nullable_to_non_nullable
               as String?,
       subjects: null == subjects
           ? _value.subjects
@@ -136,7 +136,7 @@ class _$ChildDtoCopyWithImpl<$Res, $Val extends ChildDto>
       address: freezed == address
           ? _value.address
           : address // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as Map<String, dynamic>?,
     ) as $Val);
   }
 }
@@ -155,12 +155,12 @@ abstract class _$$ChildDtoImplCopyWith<$Res>
       @JsonKey(name: 'last_name') String lastName,
       int age,
       String? gender,
-      String? classe,
+      @JsonKey(name: 'school_class') Map<String, dynamic>? schoolClass,
       String? section,
-      @JsonKey(name: 'education_level') String? educationLevel,
+      String? education,
       List<String> subjects,
       @JsonKey(name: 'avatar_url') String? avatarUrl,
-      String? address});
+      Map<String, dynamic>? address});
 }
 
 /// @nodoc
@@ -181,9 +181,9 @@ class __$$ChildDtoImplCopyWithImpl<$Res>
     Object? lastName = null,
     Object? age = null,
     Object? gender = freezed,
-    Object? classe = freezed,
+    Object? schoolClass = freezed,
     Object? section = freezed,
-    Object? educationLevel = freezed,
+    Object? education = freezed,
     Object? subjects = null,
     Object? avatarUrl = freezed,
     Object? address = freezed,
@@ -209,17 +209,17 @@ class __$$ChildDtoImplCopyWithImpl<$Res>
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
               as String?,
-      classe: freezed == classe
-          ? _value.classe
-          : classe // ignore: cast_nullable_to_non_nullable
-              as String?,
+      schoolClass: freezed == schoolClass
+          ? _value._schoolClass
+          : schoolClass // ignore: cast_nullable_to_non_nullable
+              as Map<String, dynamic>?,
       section: freezed == section
           ? _value.section
           : section // ignore: cast_nullable_to_non_nullable
               as String?,
-      educationLevel: freezed == educationLevel
-          ? _value.educationLevel
-          : educationLevel // ignore: cast_nullable_to_non_nullable
+      education: freezed == education
+          ? _value.education
+          : education // ignore: cast_nullable_to_non_nullable
               as String?,
       subjects: null == subjects
           ? _value._subjects
@@ -230,9 +230,9 @@ class __$$ChildDtoImplCopyWithImpl<$Res>
           : avatarUrl // ignore: cast_nullable_to_non_nullable
               as String?,
       address: freezed == address
-          ? _value.address
+          ? _value._address
           : address // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as Map<String, dynamic>?,
     ));
   }
 }
@@ -246,13 +246,15 @@ class _$ChildDtoImpl implements _ChildDto {
       @JsonKey(name: 'last_name') required this.lastName,
       this.age = 0,
       this.gender,
-      this.classe,
+      @JsonKey(name: 'school_class') final Map<String, dynamic>? schoolClass,
       this.section,
-      @JsonKey(name: 'education_level') this.educationLevel,
+      this.education,
       final List<String> subjects = const <String>[],
       @JsonKey(name: 'avatar_url') this.avatarUrl,
-      this.address})
-      : _subjects = subjects;
+      final Map<String, dynamic>? address})
+      : _schoolClass = schoolClass,
+        _subjects = subjects,
+        _address = address;
 
   factory _$ChildDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$ChildDtoImplFromJson(json);
@@ -270,13 +272,21 @@ class _$ChildDtoImpl implements _ChildDto {
   final int age;
   @override
   final String? gender;
+  final Map<String, dynamic>? _schoolClass;
   @override
-  final String? classe;
+  @JsonKey(name: 'school_class')
+  Map<String, dynamic>? get schoolClass {
+    final value = _schoolClass;
+    if (value == null) return null;
+    if (_schoolClass is EqualUnmodifiableMapView) return _schoolClass;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
+
   @override
   final String? section;
   @override
-  @JsonKey(name: 'education_level')
-  final String? educationLevel;
+  final String? education;
   final List<String> _subjects;
   @override
   @JsonKey()
@@ -289,12 +299,19 @@ class _$ChildDtoImpl implements _ChildDto {
   @override
   @JsonKey(name: 'avatar_url')
   final String? avatarUrl;
+  final Map<String, dynamic>? _address;
   @override
-  final String? address;
+  Map<String, dynamic>? get address {
+    final value = _address;
+    if (value == null) return null;
+    if (_address is EqualUnmodifiableMapView) return _address;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
 
   @override
   String toString() {
-    return 'ChildDto(id: $id, firstName: $firstName, lastName: $lastName, age: $age, gender: $gender, classe: $classe, section: $section, educationLevel: $educationLevel, subjects: $subjects, avatarUrl: $avatarUrl, address: $address)';
+    return 'ChildDto(id: $id, firstName: $firstName, lastName: $lastName, age: $age, gender: $gender, schoolClass: $schoolClass, section: $section, education: $education, subjects: $subjects, avatarUrl: $avatarUrl, address: $address)';
   }
 
   @override
@@ -309,14 +326,15 @@ class _$ChildDtoImpl implements _ChildDto {
                 other.lastName == lastName) &&
             (identical(other.age, age) || other.age == age) &&
             (identical(other.gender, gender) || other.gender == gender) &&
-            (identical(other.classe, classe) || other.classe == classe) &&
+            const DeepCollectionEquality()
+                .equals(other._schoolClass, _schoolClass) &&
             (identical(other.section, section) || other.section == section) &&
-            (identical(other.educationLevel, educationLevel) ||
-                other.educationLevel == educationLevel) &&
+            (identical(other.education, education) ||
+                other.education == education) &&
             const DeepCollectionEquality().equals(other._subjects, _subjects) &&
             (identical(other.avatarUrl, avatarUrl) ||
                 other.avatarUrl == avatarUrl) &&
-            (identical(other.address, address) || other.address == address));
+            const DeepCollectionEquality().equals(other._address, _address));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -328,12 +346,12 @@ class _$ChildDtoImpl implements _ChildDto {
       lastName,
       age,
       gender,
-      classe,
+      const DeepCollectionEquality().hash(_schoolClass),
       section,
-      educationLevel,
+      education,
       const DeepCollectionEquality().hash(_subjects),
       avatarUrl,
-      address);
+      const DeepCollectionEquality().hash(_address));
 
   /// Create a copy of ChildDto
   /// with the given fields replaced by the non-null parameter values.
@@ -358,12 +376,12 @@ abstract class _ChildDto implements ChildDto {
       @JsonKey(name: 'last_name') required final String lastName,
       final int age,
       final String? gender,
-      final String? classe,
+      @JsonKey(name: 'school_class') final Map<String, dynamic>? schoolClass,
       final String? section,
-      @JsonKey(name: 'education_level') final String? educationLevel,
+      final String? education,
       final List<String> subjects,
       @JsonKey(name: 'avatar_url') final String? avatarUrl,
-      final String? address}) = _$ChildDtoImpl;
+      final Map<String, dynamic>? address}) = _$ChildDtoImpl;
 
   factory _ChildDto.fromJson(Map<String, dynamic> json) =
       _$ChildDtoImpl.fromJson;
@@ -381,19 +399,19 @@ abstract class _ChildDto implements ChildDto {
   @override
   String? get gender;
   @override
-  String? get classe;
+  @JsonKey(name: 'school_class')
+  Map<String, dynamic>? get schoolClass;
   @override
   String? get section;
   @override
-  @JsonKey(name: 'education_level')
-  String? get educationLevel;
+  String? get education;
   @override
   List<String> get subjects;
   @override
   @JsonKey(name: 'avatar_url')
   String? get avatarUrl;
   @override
-  String? get address;
+  Map<String, dynamic>? get address;
 
   /// Create a copy of ChildDto
   /// with the given fields replaced by the non-null parameter values.

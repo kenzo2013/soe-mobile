@@ -1,6 +1,7 @@
 enum ChildGender { male, feminine, unknown }
 
-enum ChildEducation { primary, secondary, general, technical, unknown }
+/// Valeurs API officielles (CDC §11.5) : `general`, `technic`, `primary`.
+enum ChildEducation { primary, general, technic, unknown }
 
 class Child {
   const Child({
