@@ -5,6 +5,7 @@ import '../env/env.dart';
 import '../storage/secure_storage.dart';
 import 'interceptors/auth_interceptor.dart';
 import 'interceptors/error_interceptor.dart';
+import 'interceptors/locale_interceptor.dart';
 import 'interceptors/logging_interceptor.dart';
 import 'interceptors/retry_interceptor.dart';
 
@@ -31,6 +32,7 @@ class HttpClientFactory {
     );
 
     dio.interceptors.addAll([
+      const LocaleInterceptor(),
       AuthInterceptor(storage: storage, onUnauthorized: onUnauthorized),
       RetryInterceptor(dio),
       const ErrorInterceptor(),

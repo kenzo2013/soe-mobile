@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Palette SOE — sync avec lib/core/theme/app_palette.dart -->
+    <color name="soe_teal">#FF035E7B</color>
+    <color name="soe_teal_deep">#FF024A62</color>
+    <color name="soe_teal_dark">#FF01324A</color>
+    <color name="soe_yellow">#FFFFB000</color>
+    <color name="soe_ink">#FF010814</color>
+    <color name="soe_white">#FFFCFDFF</color>
+</resources>

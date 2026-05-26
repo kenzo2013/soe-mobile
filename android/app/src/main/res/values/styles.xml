@@ -15,4 +15,15 @@
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
         <item name="android:windowBackground">?android:colorBackground</item>
     </style>
+
+    <!-- Theme pour UCropActivity (image_cropper). Evite la collision
+         de la toolbar avec la status bar systeme + couleurs SOE. -->
+    <style name="Theme.Soe.UCrop" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:fitsSystemWindows">true</item>
+        <item name="android:statusBarColor">@color/soe_teal_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="colorPrimary">@color/soe_teal</item>
+        <item name="colorPrimaryDark">@color/soe_teal_dark</item>
+        <item name="colorAccent">@color/soe_yellow</item>
+    </style>
 </resources>

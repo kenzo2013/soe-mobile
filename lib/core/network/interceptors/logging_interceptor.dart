@@ -31,6 +31,19 @@ class LoggingInterceptor extends Interceptor {
         '✗ ${e.requestOptions.method} ${e.requestOptions.uri} '
         '→ ${e.response?.statusCode} ${e.message}',
       );
+      // Sur 4xx/5xx, on log aussi le body envoye + la reponse pour
+      // diagnostiquer les 422 (validation Rails) facilement.
+      final status = e.response?.statusCode ?? 0;
+      if (status >= 400) {
+        final reqBody = e.requestOptions.data;
+        if (reqBody != null) {
+          _logger.w('  request body  : $reqBody');
+        }
+        final respBody = e.response?.data;
+        if (respBody != null) {
+          _logger.w('  response body : $respBody');
+        }
+      }
     }
     h.next(e);
   }

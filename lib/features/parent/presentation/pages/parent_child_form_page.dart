@@ -5,9 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/services/avatar_picker_service.dart';
+import '../../../../core/services/places_service.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/soe_back_button.dart';
 import '../../../../core/widgets/soe_button.dart';
+import '../../../../core/widgets/soe_places_autocomplete_field.dart';
 import '../../../../core/widgets/soe_text_field.dart';
 import '../../../../core/widgets/soe_toast.dart';
 import '../../domain/entities/child.dart';
@@ -239,11 +241,24 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
               ),
             ]),
             _section_('Adresse', [
-              SoeTextField(
-                label: 'Quartier · Ville',
+              Padding(
+                padding: const EdgeInsets.only(left: 4, bottom: 5),
+                child: const Text(
+                  'Quartier · Ville',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppPalette.n700,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              SoePlacesAutocompleteField(
                 controller: _address,
+                client: ref.watch(googlePlacesClientProvider),
                 hint: 'Ex. Bastos, Yaoundé',
-                leadingIcon: Icons.public_outlined,
+                onPlaceSelected: (p) {
+                  _address.text = p.formattedAddress;
+                },
               ),
             ]),
             const SizedBox(height: 22),

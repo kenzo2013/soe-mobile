@@ -148,34 +148,38 @@
   },
   "emailSent": {
     "title": "Vérifiez votre email",
-    "subtitle": "Nous avons envoyé un lien de confirmation à :",
-    "expiry": "Cliquez sur le lien pour activer votre compte. Le lien expire dans 30 minutes.",
+    "subtitle": "Nous avons envoyé un code à 6 chiffres à :",
+    "expiry": "Saisissez le code reçu pour activer votre compte. Le code expire dans 15 minutes.",
     "openMail": "Ouvrir l'application email",
-    "resendIn": "Renvoyer le mail dans {{seconds}}s",
+    "resendIn": "Renvoyer le code dans {{seconds}}s",
     "resend": "Renvoyer"
   },
-  "emailConfirmed": {
-    "title": "Bienvenue sur SOE !",
-    "subtitle": "Votre email a été confirmé. Nous préparons votre espace…",
-    "stepProfileCreated": "Profil créé",
-    "stepEmailVerified": "Email vérifié",
-    "stepDashboard": "Préparation du tableau de bord",
-    "primary": "Accéder à mon espace",
-    "errorTitle": "Lien invalide",
-    "errorBody": "Le lien de confirmation est invalide ou a expiré. Demandez-en un nouveau depuis l'écran de connexion."
+  "otp": {
+    "confirmTitle": "Confirmez votre compte",
+    "confirmSubtitle": "Saisissez le code à 6 chiffres reçu à l'adresse :",
+    "confirmCta": "Confirmer mon compte",
+    "confirmSuccess": "Compte confirmé avec succès. Connectez-vous.",
+    "resetTitle": "Code de réinitialisation",
+    "resetSubtitle": "Saisissez le code à 6 chiffres envoyé à :",
+    "verifyCta": "Vérifier le code",
+    "expiry": "Le code expire dans 15 minutes. Vérifiez aussi vos spams.",
+    "resendIn": "Renvoyer le code dans {{seconds}}s",
+    "resend": "Renvoyer le code",
+    "resendSent": "Un nouveau code vient d'être envoyé.",
+    "invalidCode": "Code invalide ou expiré. Demandez un nouveau code."
   },
   "forgotPassword": {
     "title": "Mot de passe oublié ?",
-    "subtitle": "Saisissez l'email associé à votre compte. Vous recevrez un lien pour réinitialiser votre mot de passe.",
+    "subtitle": "Saisissez l'email associé à votre compte. Vous recevrez un code à 6 chiffres pour réinitialiser votre mot de passe.",
     "email": "Email",
-    "submit": "Envoyer le lien",
+    "submit": "Envoyer le code",
     "back": "Revenu sur le bon compte ?",
     "backLink": "Se connecter"
   },
   "forgotPasswordSent": {
-    "title": "Email envoyé",
-    "body": "Si un compte existe à l'adresse {{email}}, vous recevrez un lien de réinitialisation d'ici quelques minutes.",
-    "spamHint": "Vérifiez également votre dossier Spam / Promotions. Le lien est valable 1 heure.",
+    "title": "Code envoyé",
+    "body": "Si un compte existe à l'adresse {{email}}, vous recevrez un code de réinitialisation d'ici quelques minutes.",
+    "spamHint": "Vérifiez également votre dossier Spam / Promotions. Le code est valable 15 minutes.",
     "back": "Retour à la connexion"
   },
   "resetPassword": {
@@ -188,10 +192,6 @@
     "info": "Une fois modifié, vous serez automatiquement reconnecté avec un nouveau jeton JWT valable 30 jours.",
     "submit": "Enregistrer le mot de passe",
     "successToast": "Mot de passe mis à jour. Vous pouvez vous reconnecter."
-  },
-  "deepLink": {
-    "confirmingEmail": "Confirmation de votre email…",
-    "preparingReset": "Chargement de la réinitialisation…"
   },
   "countryPicker": {
     "phoneTitle": "Indicatif pays",

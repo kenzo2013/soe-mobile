@@ -15,6 +15,12 @@ abstract final class Env {
 
   static const String sentryDsn = String.fromEnvironment('SENTRY_DSN');
 
+  /// Clé Google Places (Maps + Places SDK).
+  /// À injecter au build : `--dart-define=GOOGLE_PLACES_API_KEY=...`.
+  static const String googlePlacesApiKey = String.fromEnvironment(
+    'GOOGLE_PLACES_API_KEY',
+  );
+
   static bool get isProd => flavor == 'prod';
   static bool get isStaging => flavor == 'staging';
   static bool get isDev => flavor == 'dev';
