@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../core/widgets/soe_back_button.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_text_field.dart';
 import '../../../../core/widgets/soe_toast.dart';
@@ -23,12 +24,39 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
   late final TextEditingController _firstName;
   late final TextEditingController _lastName;
   late final TextEditingController _age;
-  late final TextEditingController _classe;
   late final TextEditingController _address;
   ChildGender _gender = ChildGender.male;
   ChildEducation _education = ChildEducation.general;
   String _section = 'francophone';
+  String? _classe;
+  String? _avatarUrl;
   bool _prefilled = false;
+
+  static const _classesPrimary = [
+    'CP', 'CE1', 'CE2', 'CM1', 'CM2',
+  ];
+  static const _classesSecondary = [
+    '6ème', '5ème', '4ème', '3ème',
+  ];
+  static const _classesGeneral = [
+    '2nde', '1re L', '1re S', '1re ES', 'Tle L', 'Tle S', 'Tle ES',
+  ];
+  static const _classesTechnical = [
+    '2nde Pro', '1re STMG', '1re STI2D', 'Tle STMG', 'Tle STI2D',
+  ];
+
+  List<String> get _classOptions => switch (_education) {
+        ChildEducation.primary => _classesPrimary,
+        ChildEducation.secondary => _classesSecondary,
+        ChildEducation.general => [..._classesSecondary, ..._classesGeneral],
+        ChildEducation.technical => [..._classesSecondary, ..._classesTechnical],
+        ChildEducation.unknown => [
+            ..._classesPrimary,
+            ..._classesSecondary,
+            ..._classesGeneral,
+            ..._classesTechnical,
+          ],
+      };
 
   @override
   void initState() {
@@ -36,7 +64,6 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
     _firstName = TextEditingController();
     _lastName = TextEditingController();
     _age = TextEditingController();
-    _classe = TextEditingController();
     _address = TextEditingController();
   }
 
@@ -45,7 +72,6 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
     _firstName.dispose();
     _lastName.dispose();
     _age.dispose();
-    _classe.dispose();
     _address.dispose();
     super.dispose();
   }
@@ -60,10 +86,11 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
           _firstName.text = c.firstName;
           _lastName.text = c.lastName;
           _age.text = c.age.toString();
-          _classe.text = c.classe ?? '';
+          _classe = (c.classe ?? '').isEmpty ? null : c.classe;
           _address.text = c.address ?? '';
           _gender = c.gender;
           _education = c.education;
+          _avatarUrl = c.avatarUrl;
           if (c.section != null) _section = c.section!;
           _prefilled = true;
           setState(() {});
@@ -105,19 +132,37 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
         backgroundColor: AppPalette.n100,
         elevation: 0,
         scrolledUnderElevation: 0,
+        leading: const SoeBackButton(),
+        leadingWidth: 72,
         title: Text(isEdit ? 'Modifier l\'enfant' : 'Nouvel enfant'),
         titleTextStyle: const TextStyle(
           color: AppPalette.ink,
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
+          fontSize: 18,
+          fontWeight: FontWeight.w800,
         ),
-        iconTheme: const IconThemeData(color: AppPalette.ink),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 8, 16, 8),
+            child: _SaveActionButton(
+              loading: saving,
+              onTap: saving ? null : _submit,
+            ),
+          ),
+        ],
       ),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
+            const SizedBox(height: 8),
+            Center(
+              child: _AvatarUploader(
+                imageUrl: _avatarUrl,
+                onTap: _pickAvatar,
+              ),
+            ),
+            const SizedBox(height: 22),
             _section_('Identité', [
               Row(children: [
                 Expanded(
@@ -164,7 +209,13 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
                 Expanded(
                   child: _EducationPicker(
                     value: _education,
-                    onChanged: (e) => setState(() => _education = e),
+                    onChanged: (e) => setState(() {
+                      _education = e;
+                      // Reset classe si plus dans les options du nouveau niveau
+                      if (_classe != null && !_classOptions.contains(_classe)) {
+                        _classe = null;
+                      }
+                    }),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -176,13 +227,18 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
                 ),
               ]),
               const SizedBox(height: 10),
-              SoeTextField(label: 'Classe', controller: _classe),
+              _ClassPicker(
+                value: _classe,
+                options: _classOptions,
+                onChanged: (c) => setState(() => _classe = c),
+              ),
             ]),
             _section_('Adresse', [
               SoeTextField(
                 label: 'Quartier · Ville',
                 controller: _address,
                 hint: 'Ex. Bastos, Yaoundé',
+                leadingIcon: Icons.public_outlined,
               ),
             ]),
             const SizedBox(height: 22),
@@ -199,6 +255,16 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
     );
   }
 
+  Future<void> _pickAvatar() async {
+    // Placeholder : upload réel d'image (image_picker) à brancher quand
+    // l'endpoint d'upload sera dispo côté API.
+    SoeToast.show(
+      context,
+      message: 'Upload photo bientôt disponible',
+      tone: SoeToastTone.info,
+    );
+  }
+
   Widget _section_(String label, List<Widget> children) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 18),
@@ -210,8 +276,8 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
             child: Text(
               label.toUpperCase(),
               style: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
                 letterSpacing: 1.4,
                 color: AppPalette.teal,
               ),
@@ -233,7 +299,7 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
       lastName: _lastName.text.trim(),
       age: int.parse(_age.text),
       gender: _gender,
-      classe: _classe.text.trim().isEmpty ? null : _classe.text.trim(),
+      classe: _classe,
       section: _section,
       education: _education,
       address: _address.text.trim().isEmpty ? null : _address.text.trim(),
@@ -242,6 +308,138 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
         .read(childFormViewModelProvider.notifier)
         .submit(id: widget.editId, params: params);
   }
+}
+
+class _SaveActionButton extends StatelessWidget {
+  const _SaveActionButton({required this.loading, required this.onTap});
+  final bool loading;
+  final VoidCallback? onTap;
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppPalette.yellow,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+          child: loading
+              ? const SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppPalette.ink,
+                  ),
+                )
+              : const Text(
+                  'Enregistrer',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: AppPalette.ink,
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AvatarUploader extends StatelessWidget {
+  const _AvatarUploader({this.imageUrl, required this.onTap});
+  final String? imageUrl;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 96,
+      height: 96,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          CustomPaint(
+            painter: _DashedCirclePainter(color: AppPalette.teal),
+            child: Container(
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(
+                color: AppPalette.infoBg,
+                shape: BoxShape.circle,
+                image: imageUrl != null
+                    ? DecorationImage(
+                        image: NetworkImage(imageUrl!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
+              ),
+              alignment: Alignment.center,
+              child: imageUrl == null
+                  ? const Icon(
+                      Icons.person_outline,
+                      size: 38,
+                      color: AppPalette.teal,
+                    )
+                  : null,
+            ),
+          ),
+          Positioned(
+            right: -2,
+            bottom: -2,
+            child: Material(
+              color: AppPalette.yellow,
+              shape: const CircleBorder(
+                side: BorderSide(color: Colors.white, width: 2),
+              ),
+              elevation: 4,
+              child: InkWell(
+                onTap: onTap,
+                customBorder: const CircleBorder(),
+                child: const SizedBox(
+                  width: 30,
+                  height: 30,
+                  child: Icon(
+                    Icons.add,
+                    size: 16,
+                    color: AppPalette.ink,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DashedCirclePainter extends CustomPainter {
+  _DashedCirclePainter({required this.color});
+  final Color color;
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    final path = Path()..addOval(rect);
+    const dashWidth = 6.0;
+    const dashSpace = 5.0;
+    for (final metric in path.computeMetrics()) {
+      var dist = 0.0;
+      while (dist < metric.length) {
+        final next = (dist + dashWidth).clamp(0.0, metric.length);
+        canvas.drawPath(metric.extractPath(dist, next), paint);
+        dist = next + dashSpace;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_) => false;
 }
 
 class _GenderPicker extends StatelessWidget {
@@ -312,17 +510,43 @@ class _SectionPicker extends StatelessWidget {
   }
 }
 
+class _ClassPicker extends StatelessWidget {
+  const _ClassPicker({
+    required this.value,
+    required this.options,
+    required this.onChanged,
+  });
+  final String? value;
+  final List<String> options;
+  final ValueChanged<String?> onChanged;
+  @override
+  Widget build(BuildContext context) {
+    return _Dropdown<String?>(
+      label: 'Classe',
+      value: value,
+      hint: 'Sélectionnez la classe',
+      items: [
+        for (final c in options)
+          DropdownMenuItem<String?>(value: c, child: Text(c)),
+      ],
+      onChanged: onChanged,
+    );
+  }
+}
+
 class _Dropdown<T> extends StatelessWidget {
   const _Dropdown({
     required this.label,
     required this.value,
     required this.items,
     required this.onChanged,
+    this.hint,
   });
   final String label;
   final T value;
   final List<DropdownMenuItem<T>> items;
   final ValueChanged<T> onChanged;
+  final String? hint;
 
   @override
   Widget build(BuildContext context) {
@@ -351,6 +575,15 @@ class _Dropdown<T> extends StatelessWidget {
             child: DropdownButton<T>(
               value: value,
               isExpanded: true,
+              hint: hint == null
+                  ? null
+                  : Text(
+                      hint!,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppPalette.n500,
+                      ),
+                    ),
               items: items,
               onChanged: (v) {
                 if (v != null) onChanged(v);
