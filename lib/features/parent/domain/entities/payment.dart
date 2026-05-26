@@ -42,9 +42,14 @@ class InitiatePaymentParams {
     required this.method,
     required this.phone,
     required this.amount,
+    required this.paymentPeriod,
   });
   final String reservationId;
   final PaymentMethod method;
   final String phone;
   final int amount;
+
+  /// Période facturée au format ISO date (`yyyy-MM-dd`). Ex: 2026-05-01.
+  /// CDC §4.6 — paramètre `payment_period`.
+  final DateTime paymentPeriod;
 }

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 
 import '../../../../core/error/exception_mapper.dart';
@@ -34,6 +36,17 @@ class PaymentsRepositoryImpl implements PaymentsRepository {
           (await _ds.initiate(initiatePaymentToJson(params))).toEntity());
 
   @override
+  Future<Result<Payment, Failure>> checkStatus(String id) =>
+      _guard(() async => (await _ds.checkStatus(id)).toEntity());
+
+  @override
   Future<Result<PaymentReceipt, Failure>> receipt(String id) =>
-      _guard(() async => (await _ds.receipt(id)).toEntity());
+      _guard(() async {
+        final payment = (await _ds.get(id)).toEntity();
+        return PaymentReceipt(payment: payment);
+      });
+
+  @override
+  Future<Result<Uint8List, Failure>> downloadReceipt(String id) =>
+      _guard(() async => Uint8List.fromList(await _ds.downloadReceipt(id)));
 }

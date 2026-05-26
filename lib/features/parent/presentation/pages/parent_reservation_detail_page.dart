@@ -97,7 +97,7 @@ class _DetailView extends ConsumerWidget {
         if (detail.tutor != null) ...[
           const SizedBox(height: 16),
           _sectionTitle('Tuteur proposé'),
-          _TutorCard(tutor: detail.tutor!),
+          _TutorCard(tutor: detail.tutor!, studentId: detail.childId),
         ],
         const SizedBox(height: 16),
         _sectionTitle('Détails de la demande'),
@@ -370,8 +370,9 @@ class _AmountCard extends StatelessWidget {
 }
 
 class _TutorCard extends StatelessWidget {
-  const _TutorCard({required this.tutor});
+  const _TutorCard({required this.tutor, required this.studentId});
   final TutorMini tutor;
+  final String studentId;
   @override
   Widget build(BuildContext context) {
     return SoeCard(
@@ -413,8 +414,10 @@ class _TutorCard extends StatelessWidget {
             ),
           ),
           OutlinedButton(
-            onPressed: () =>
-                context.push(RouteNames.parentTutorProfile(tutor.id)),
+            onPressed: () => context.push(RouteNames.parentTutorProfile(
+              studentId: studentId,
+              tutorId: tutor.id,
+            )),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppPalette.teal,
               padding: const EdgeInsets.symmetric(horizontal: 12),

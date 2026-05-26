@@ -3,29 +3,31 @@ class ParentReview {
     required this.id,
     required this.tutorId,
     required this.tutorName,
-    required this.subject,
-    required this.score,
+    required this.rating,
     required this.comment,
     required this.createdAt,
+    this.subjects = const [],
   });
   final String id;
   final String tutorId;
   final String tutorName;
-  final String subject;
-  final int score;
+
+  /// Note 1..5 (entier) — CDC §11.5.
+  final int rating;
   final String comment;
   final DateTime createdAt;
+  final List<String> subjects;
 }
 
 class ReviewParams {
   const ReviewParams({
     required this.tutorId,
-    required this.score,
+    required this.rating,
     required this.comment,
-    this.subject,
+    this.subjectIds = const [],
   });
   final String tutorId;
-  final int score;
+  final int rating;
   final String comment;
-  final String? subject;
+  final List<String> subjectIds;
 }

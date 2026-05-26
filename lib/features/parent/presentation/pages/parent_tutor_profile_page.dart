@@ -13,7 +13,12 @@ import '../../domain/entities/tutor_profile.dart';
 import '../providers.dart';
 
 class ParentTutorProfilePage extends ConsumerStatefulWidget {
-  const ParentTutorProfilePage({super.key, required this.tutorId});
+  const ParentTutorProfilePage({
+    super.key,
+    required this.studentId,
+    required this.tutorId,
+  });
+  final String studentId;
   final String tutorId;
 
   @override
@@ -25,9 +30,12 @@ class _ParentTutorProfilePageState
     extends ConsumerState<ParentTutorProfilePage> {
   int _tab = 0;
 
+  TutorProfileKey get _key =>
+      (studentId: widget.studentId, tutorId: widget.tutorId);
+
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(tutorProfileViewModelProvider(widget.tutorId));
+    final state = ref.watch(tutorProfileViewModelProvider(_key));
     return Scaffold(
       backgroundColor: AppPalette.n100,
       body: state.when(
@@ -36,8 +44,8 @@ class _ParentTutorProfilePageState
         error: (f) => ErrorView(
           failure: f,
           onRetry: () => ref
-              .read(tutorProfileViewModelProvider(widget.tutorId).notifier)
-              .load(widget.tutorId),
+              .read(tutorProfileViewModelProvider(_key).notifier)
+              .load(studentId: widget.studentId, tutorId: widget.tutorId),
         ),
         loaded: (p) => _Body(
           profile: p,

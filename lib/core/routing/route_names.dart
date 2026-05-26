@@ -21,7 +21,11 @@ abstract final class RouteNames {
   static const String parentStudentNew = '/parent/students/new';
   static String parentStudentDetail(String id) => '/parent/students/$id';
   static String parentStudentEdit(String id) => '/parent/students/$id/edit';
-  static String parentTutorProfile(String id) => '/parent/tutors/$id';
+  static String parentTutorProfile({
+    required String studentId,
+    required String tutorId,
+  }) =>
+      '/parent/students/$studentId/tutors/$tutorId';
   static const String parentReservations = '/parent/reservations';
   static const String parentSessions = '/parent/sessions';
   static const String parentPayments = '/parent/payments';

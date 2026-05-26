@@ -54,6 +54,6 @@ class ContractsRepositoryImpl implements ContractsRepository {
   @override
   Future<Result<List<Contract>, Failure>> list() => _guard(_ds.listContracts);
   @override
-  Future<Result<Contract, Failure>> sign(String id) =>
-      _guard(() => _ds.signContract(id));
+  Future<Result<Contract, Failure>> sign(String id, List<int> signatureBytes) =>
+      _guard(() => _ds.signContract(id, signatureBytes));
 }

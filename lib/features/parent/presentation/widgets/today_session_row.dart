@@ -11,7 +11,14 @@ class TodaySessionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLive = session.status == SessionStatus.inProgress;
+    // Live = la seance est dans la fenetre [start, start + duration] et
+    // pas encore validee/refusee. Plus de SessionStatus.inProgress dans
+    // l'API (CDC §11.5 : pending|completed|approved|rejected).
+    final now = DateTime.now();
+    final endAt = session.startAt.add(Duration(minutes: session.durationMinutes));
+    final isLive = session.status == SessionStatus.pending &&
+        now.isAfter(session.startAt) &&
+        now.isBefore(endAt);
     final hh = session.startAt.hour.toString().padLeft(2, '0');
     final mm = session.startAt.minute.toString().padLeft(2, '0');
     final dur = _formatDuration(session.durationMinutes);

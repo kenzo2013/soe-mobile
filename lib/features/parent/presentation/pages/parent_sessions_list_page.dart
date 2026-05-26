@@ -110,10 +110,12 @@ class _SessionCard extends StatelessWidget {
   final SessionSummary session;
   @override
   Widget build(BuildContext context) {
-    final isLive = session.status == SessionStatus.inProgress;
+    final now = DateTime.now();
+    final endAt = session.startAt.add(Duration(minutes: session.durationMinutes));
+    final isLive = session.status == SessionStatus.pending &&
+        now.isAfter(session.startAt) &&
+        now.isBefore(endAt);
     final timeFmt = DateFormat.Hm('fr');
-    final endAt =
-        session.startAt.add(Duration(minutes: session.durationMinutes));
     return SoeCard(
       padding: EdgeInsets.zero,
       child: InkWell(

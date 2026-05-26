@@ -273,8 +273,11 @@ final getTutorProfileProvider = Provider<GetTutorProfile>(
   (ref) => GetTutorProfile(ref.watch(tutorProfileRepositoryProvider)),
 );
 
+/// Family key = `(studentId, tutorId)` — CDC §4.3 le profil est scopé enfant.
+typedef TutorProfileKey = ({String studentId, String tutorId});
+
 final tutorProfileViewModelProvider = StateNotifierProvider.autoDispose
-    .family<TutorProfileViewModel, TutorProfileState, String>(
-  (ref, tutorId) => TutorProfileViewModel(ref.watch(getTutorProfileProvider))
-    ..load(tutorId),
+    .family<TutorProfileViewModel, TutorProfileState, TutorProfileKey>(
+  (ref, key) => TutorProfileViewModel(ref.watch(getTutorProfileProvider))
+    ..load(studentId: key.studentId, tutorId: key.tutorId),
 );

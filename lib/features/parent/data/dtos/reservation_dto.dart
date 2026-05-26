@@ -77,19 +77,28 @@ extension ReservationDetailDtoX on ReservationDetailDto {
       );
 }
 
-Map<String, dynamic> newReservationParamsToJson(NewReservationParams p) => {
-      'child_id': p.childId,
-      'subject_ids': p.subjects,
-      'frequency': p.frequency,
-      'estimated_start_date':
-          '${p.estimatedStartDate.year.toString().padLeft(4, '0')}-${p.estimatedStartDate.month.toString().padLeft(2, '0')}-${p.estimatedStartDate.day.toString().padLeft(2, '0')}',
-      'preferred_tutor_gender': switch (p.preferredTutorGender) {
-        TutorGenderPref.male => 'male',
-        TutorGenderPref.female => 'female',
-        TutorGenderPref.noPreference => 'no_preference',
+/// Payload conforme CDC §4.4 :
+/// `{reservation: {tutoring_requests_attributes: [{...}]}}`
+Map<String, dynamic> newReservationParamsToJson(NewReservationParams p) {
+  final dateIso =
+      '${p.estimatedStartDate.year.toString().padLeft(4, '0')}-${p.estimatedStartDate.month.toString().padLeft(2, '0')}-${p.estimatedStartDate.day.toString().padLeft(2, '0')}';
+  return {
+    'tutoring_requests_attributes': [
+      {
+        'student_id': p.childId,
+        'estimated_start_date': dateIso,
+        'frequency': p.frequency,
+        'preferred_tutor_gender': switch (p.preferredTutorGender) {
+          TutorGenderPref.male => 'male',
+          TutorGenderPref.female => 'female',
+          TutorGenderPref.noPreference => 'no_preference',
+        },
+        'subject_ids': p.subjects,
       },
-      if (p.location != null) 'location': p.location,
-    };
+    ],
+    if (p.location != null) 'location': p.location,
+  };
+}
 
 ReservationStatus _parseReservationStatus(String? raw) => switch (raw) {
       'draft' => ReservationStatus.draft,

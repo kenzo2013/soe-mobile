@@ -18,9 +18,10 @@ class SessionsRemoteDatasource {
         .toList();
   }
 
+  // CDC §4.5 : detail complet via /:id/details
   Future<SessionDetailDto> get(String id) async {
     final r = await _dio.get<Map<String, dynamic>>(
-        '${ApiEndpoints.parentsSessions}/$id');
+        '${ApiEndpoints.parentsSessions}/$id/details');
     final data = (r.data!['data'] as Map<String, dynamic>?) ?? r.data!;
     return SessionDetailDto.fromJson(data);
   }

@@ -123,7 +123,7 @@ class _ReviewCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '${review.subject} · ${DateFormat('d MMM', "fr").format(review.createdAt)}',
+                      '${review.subjects.join(", ")} · ${DateFormat('d MMM', "fr").format(review.createdAt)}',
                       style: const TextStyle(
                         fontSize: 11,
                         color: AppPalette.n700,
@@ -138,7 +138,7 @@ class _ReviewCard extends StatelessWidget {
                     Icon(
                       Icons.star,
                       size: 12,
-                      color: n <= review.score
+                      color: n <= review.rating
                           ? AppPalette.yellow
                           : AppPalette.n300,
                     ),
@@ -397,27 +397,32 @@ class _InviteSheet extends ConsumerStatefulWidget {
 
 class _InviteSheetState extends ConsumerState<_InviteSheet> {
   final _email = TextEditingController();
-  final _name = TextEditingController();
-  final _relation = TextEditingController();
+  final _firstName = TextEditingController();
+  final _lastName = TextEditingController();
+  String _civility = 'Mr';
+  InvitationLink _link = InvitationLink.father;
   bool _sending = false;
 
   @override
   void dispose() {
     _email.dispose();
-    _name.dispose();
-    _relation.dispose();
+    _firstName.dispose();
+    _lastName.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
-    if (_email.text.trim().isEmpty) return;
+    if (_email.text.trim().isEmpty ||
+        _firstName.text.trim().isEmpty ||
+        _lastName.text.trim().isEmpty) return;
     setState(() => _sending = true);
     final repo = ref.read(invitationsRepositoryProvider);
     final r = await repo.invite(InviteParams(
       email: _email.text.trim(),
-      fullName: _name.text.trim().isEmpty ? null : _name.text.trim(),
-      relationship:
-          _relation.text.trim().isEmpty ? null : _relation.text.trim(),
+      civility: _civility,
+      firstName: _firstName.text.trim(),
+      lastName: _lastName.text.trim(),
+      linkWithChildren: _link,
     ));
     if (!mounted) return;
     setState(() => _sending = false);
@@ -445,7 +450,7 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Text(
-            'Inviter une personne',
+            'Inviter un proche',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -453,6 +458,42 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
             ),
           ),
           const SizedBox(height: 12),
+          Row(children: [
+            Expanded(
+              child: DropdownButtonFormField<String>(
+                value: _civility,
+                decoration: const InputDecoration(
+                  labelText: 'Civilité',
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'Mr', child: Text('Mr')),
+                  DropdownMenuItem(value: 'Mme', child: Text('Mme')),
+                ],
+                onChanged: (v) => setState(() => _civility = v ?? 'Mr'),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 2,
+              child: TextField(
+                controller: _firstName,
+                decoration: const InputDecoration(
+                  labelText: 'Prénom *',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ]),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _lastName,
+            decoration: const InputDecoration(
+              labelText: 'Nom *',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 10),
           TextField(
             controller: _email,
             keyboardType: TextInputType.emailAddress,
@@ -462,20 +503,19 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
             ),
           ),
           const SizedBox(height: 10),
-          TextField(
-            controller: _name,
+          DropdownButtonFormField<InvitationLink>(
+            value: _link,
             decoration: const InputDecoration(
-              labelText: 'Nom complet',
+              labelText: 'Lien avec les enfants',
               border: OutlineInputBorder(),
             ),
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: _relation,
-            decoration: const InputDecoration(
-              labelText: 'Relation (ex: co-parent, grand-parent)',
-              border: OutlineInputBorder(),
-            ),
+            items: const [
+              DropdownMenuItem(value: InvitationLink.father, child: Text('Père')),
+              DropdownMenuItem(value: InvitationLink.mother, child: Text('Mère')),
+              DropdownMenuItem(value: InvitationLink.guardian, child: Text('Tuteur légal')),
+            ],
+            onChanged: (v) =>
+                setState(() => _link = v ?? InvitationLink.father),
           ),
           const SizedBox(height: 16),
           FilledButton(

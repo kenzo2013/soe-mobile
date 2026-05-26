@@ -1,4 +1,5 @@
-enum SessionStatus { pending, inProgress, completed, cancelled, unknown }
+/// CDC §11.5 : enum API officiel = pending | completed | approved | rejected.
+enum SessionStatus { pending, completed, approved, rejected, unknown }
 
 class SessionSummary {
   const SessionSummary({

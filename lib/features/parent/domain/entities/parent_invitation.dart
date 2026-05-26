@@ -17,13 +17,23 @@ class ParentInvitation {
   final String? relationship;
 }
 
+/// CDC §11.5 : link_with_children ∈ { father, mother, guardian }.
+enum InvitationLink { father, mother, guardian }
+
+/// CDC §11.5 : civility ∈ { Mr, Mme }.
 class InviteParams {
   const InviteParams({
     required this.email,
-    this.fullName,
-    this.relationship,
+    required this.civility,
+    required this.firstName,
+    required this.lastName,
+    required this.linkWithChildren,
+    this.lang = 'fr',
   });
   final String email;
-  final String? fullName;
-  final String? relationship;
+  final String civility; // 'Mr' | 'Mme'
+  final String firstName;
+  final String lastName;
+  final InvitationLink linkWithChildren;
+  final String lang; // 'fr' | 'en'
 }

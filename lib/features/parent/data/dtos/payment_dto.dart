@@ -55,28 +55,36 @@ extension PaymentReceiptDtoX on PaymentReceiptDto {
       );
 }
 
-Map<String, dynamic> initiatePaymentToJson(InitiatePaymentParams p) => {
-      'reservation_id': p.reservationId,
-      'amount': p.amount,
-      'method': switch (p.method) {
-        PaymentMethod.mtnMomo => 'mtn_momo',
-        PaymentMethod.orangeMoney => 'orange_money',
-        PaymentMethod.unknown => 'unknown',
-      },
-      'phone': p.phone,
-    };
+/// Payload `POST /parents/payments/create_online` (CDC §4.6).
+/// Pas de wrapper `payment:` ici (à la différence des autres ressources).
+Map<String, dynamic> initiatePaymentToJson(InitiatePaymentParams p) {
+  final period =
+      '${p.paymentPeriod.year.toString().padLeft(4, '0')}-${p.paymentPeriod.month.toString().padLeft(2, '0')}-${p.paymentPeriod.day.toString().padLeft(2, '0')}';
+  return {
+    'reservation_id': p.reservationId,
+    'channel': switch (p.method) {
+      PaymentMethod.mtnMomo => 'cm.mtn',
+      PaymentMethod.orangeMoney => 'cm.orange',
+      PaymentMethod.unknown => 'cm.mtn',
+    },
+    'phone_number': p.phone,
+    'amount': p.amount,
+    'payment_period': period,
+  };
+}
 
+/// CDC §11.5 : payment_method = orange_money | mtn_money | bank_transfer | cash
 PaymentMethod _parseMethod(String? raw) => switch (raw) {
-      'mtn_momo' || 'MTN MoMo' || 'mtn' => PaymentMethod.mtnMomo,
-      'orange_money' || 'Orange Money' || 'orange' => PaymentMethod.orangeMoney,
+      'mtn_money' || 'mtn_momo' || 'cm.mtn' => PaymentMethod.mtnMomo,
+      'orange_money' || 'cm.orange' => PaymentMethod.orangeMoney,
       _ => PaymentMethod.unknown,
     };
 
+/// CDC §11.5 : payment.status = pending | processing | completed | failed
 PaymentStatus _parseStatus(String? raw) => switch (raw) {
       'pending' => PaymentStatus.pending,
       'processing' => PaymentStatus.processing,
       'completed' => PaymentStatus.completed,
       'failed' => PaymentStatus.failed,
-      'cancelled' => PaymentStatus.cancelled,
       _ => PaymentStatus.unknown,
     };

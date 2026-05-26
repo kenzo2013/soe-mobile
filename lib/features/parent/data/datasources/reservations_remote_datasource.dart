@@ -34,8 +34,9 @@ class ReservationsRemoteDatasource {
     return ReservationDetailDto.fromJson(data);
   }
 
+  // CDC §4.4 : actions devis = PATCH (pas POST)
   Future<ReservationDetailDto> accept(String id) async {
-    final r = await _dio.post<Map<String, dynamic>>(
+    final r = await _dio.patch<Map<String, dynamic>>(
       '${ApiEndpoints.parentsReservations}/$id/accept',
     );
     final data = (r.data!['data'] as Map<String, dynamic>?) ?? r.data!;
@@ -43,7 +44,7 @@ class ReservationsRemoteDatasource {
   }
 
   Future<ReservationDetailDto> reject(String id) async {
-    final r = await _dio.post<Map<String, dynamic>>(
+    final r = await _dio.patch<Map<String, dynamic>>(
       '${ApiEndpoints.parentsReservations}/$id/reject',
     );
     final data = (r.data!['data'] as Map<String, dynamic>?) ?? r.data!;
@@ -51,7 +52,7 @@ class ReservationsRemoteDatasource {
   }
 
   Future<ReservationDetailDto> negotiate(String id, int proposedAmount) async {
-    final r = await _dio.post<Map<String, dynamic>>(
+    final r = await _dio.patch<Map<String, dynamic>>(
       '${ApiEndpoints.parentsReservations}/$id/negotiate',
       data: {'proposed_amount': proposedAmount},
     );

@@ -222,9 +222,9 @@ class _Body extends StatelessWidget {
 
   String _statusLabel(SessionStatus s) => switch (s) {
         SessionStatus.pending => 'À venir',
-        SessionStatus.inProgress => 'En cours',
         SessionStatus.completed => 'Terminée',
-        SessionStatus.cancelled => 'Annulée',
+        SessionStatus.approved => 'Validée',
+        SessionStatus.rejected => 'Refusée',
         SessionStatus.unknown => '—',
       };
 }

@@ -130,8 +130,8 @@ ReservationStatus _parseReservationStatus(String? raw) => switch (raw) {
 
 SessionStatus _parseSessionStatus(String? raw) => switch (raw) {
       'pending' => SessionStatus.pending,
-      'in_progress' => SessionStatus.inProgress,
       'completed' => SessionStatus.completed,
-      'cancelled' => SessionStatus.cancelled,
+      'approved' => SessionStatus.approved,
+      'rejected' => SessionStatus.rejected,
       _ => SessionStatus.unknown,
     };

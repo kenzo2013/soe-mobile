@@ -41,9 +41,10 @@ List<RouteBase> parentRoutes() => [
         ),
       ),
       GoRoute(
-        path: '/parent/tutors/:id',
+        path: '/parent/students/:studentId/tutors/:tutorId',
         builder: (context, state) => ParentTutorProfilePage(
-          tutorId: state.pathParameters['id']!,
+          studentId: state.pathParameters['studentId']!,
+          tutorId: state.pathParameters['tutorId']!,
         ),
       ),
       GoRoute(

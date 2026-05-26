@@ -13,9 +13,12 @@ class TutorProfileRepositoryImpl implements TutorProfileRepository {
   final TutorProfileRemoteDatasource _ds;
 
   @override
-  Future<Result<TutorProfile, Failure>> getPublic(String tutorId) async {
+  Future<Result<TutorProfile, Failure>> getPublic({
+    required String studentId,
+    required String tutorId,
+  }) async {
     try {
-      final dto = await _ds.getPublic(tutorId);
+      final dto = await _ds.getPublic(studentId: studentId, tutorId: tutorId);
       return Ok(dto.toEntity());
     } on DioException catch (e) {
       return Err(ExceptionMapper.fromDio(e));
