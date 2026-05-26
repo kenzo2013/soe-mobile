@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 import '../../../../core/error/exception_mapper.dart';
@@ -56,6 +58,35 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Result<void, Failure>> resendConfirmationCode({
+    required String email,
+  }) async {
+    try {
+      await _remote.resendConfirmation(email: email);
+      return const Ok(null);
+    } on DioException catch (e) {
+      return Err(ExceptionMapper.fromDio(e));
+    } catch (_) {
+      return const Err(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Result<User, Failure>> verifyConfirmationCode({
+    required String email,
+    required String code,
+  }) async {
+    try {
+      final dto = await _remote.verifyConfirmationCode(email: email, code: code);
+      return Ok(dto.data.toEntity());
+    } on DioException catch (e) {
+      return Err(ExceptionMapper.fromDio(e));
+    } catch (_) {
+      return const Err(UnknownFailure());
+    }
+  }
+
+  @override
   Future<Result<void, Failure>> requestPasswordReset({
     required String email,
   }) async {
@@ -70,23 +101,35 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Result<AuthSession, Failure>> resetPassword({
-    required String token,
+  Future<Result<void, Failure>> verifyResetCode({
+    required String email,
+    required String code,
+  }) async {
+    try {
+      await _remote.verifyResetCode(email: email, code: code);
+      return const Ok(null);
+    } on DioException catch (e) {
+      return Err(ExceptionMapper.fromDio(e));
+    } catch (_) {
+      return const Err(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Result<void, Failure>> resetPasswordWithCode({
+    required String email,
+    required String code,
     required String password,
     required String passwordConfirmation,
   }) async {
     try {
-      final dto = await _remote.resetPassword(
-        token: token,
+      await _remote.resetPasswordWithCode(
+        email: email,
+        code: code,
         password: password,
         passwordConfirmation: passwordConfirmation,
       );
-      final session = AuthSession(
-        user: dto.data.toEntity(),
-        accessToken: dto.accessToken,
-      );
-      await _persist(session);
-      return Ok(session);
+      return const Ok(null);
     } on DioException catch (e) {
       return Err(ExceptionMapper.fromDio(e));
     } catch (_) {
@@ -110,5 +153,21 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> _persist(AuthSession s) async {
     await _storage.write(StorageKeys.authToken, s.accessToken);
     await _storage.write(StorageKeys.currentRole, s.user.role.apiValue);
+    await _storage.write(
+      StorageKeys.currentUser,
+      jsonEncode(_userToStorage(s.user)),
+    );
   }
+
+  Map<String, dynamic> _userToStorage(User u) => {
+        'id': u.id,
+        'email': u.email,
+        'first_name': u.firstName,
+        'last_name': u.lastName,
+        'role': u.role.apiValue,
+        if (u.civility != null) 'civility': u.civility,
+        if (u.phone != null) 'phone': u.phone,
+        if (u.lang != null) 'lang': u.lang,
+        if (u.photoUrl != null) 'photo_url': u.photoUrl,
+      };
 }

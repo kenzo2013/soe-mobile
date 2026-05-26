@@ -5,12 +5,16 @@ import 'user_dto.dart';
 part 'auth_response_dto.freezed.dart';
 part 'auth_response_dto.g.dart';
 
-/// Réponse `POST /users/login` — `{"data": <user>, "accessToken": "..."}`.
+/// Réponse `POST /users/login`.
+///
+/// L'API SOE renvoie le JWT dans l'en-tête `Authorization: Bearer <token>`.
+/// Le body contient le user (format JSONAPI). Le datasource compose ce DTO
+/// en récupérant le token côté headers.
 @freezed
 class LoginResponseDto with _$LoginResponseDto {
   const factory LoginResponseDto({
     required UserDto data,
-    @JsonKey(name: 'accessToken') required String accessToken,
+    required String accessToken,
   }) = _LoginResponseDto;
 
   factory LoginResponseDto.fromJson(Map<String, dynamic> json) =>
@@ -27,4 +31,15 @@ class RegisterResponseDto with _$RegisterResponseDto {
 
   factory RegisterResponseDto.fromJson(Map<String, dynamic> json) =>
       _$RegisterResponseDtoFromJson(json);
+}
+
+/// Réponse `POST /users/confirmation/verify_code`.
+@freezed
+class ConfirmationResponseDto with _$ConfirmationResponseDto {
+  const factory ConfirmationResponseDto({
+    required UserDto data,
+  }) = _ConfirmationResponseDto;
+
+  factory ConfirmationResponseDto.fromJson(Map<String, dynamic> json) =>
+      _$ConfirmationResponseDtoFromJson(json);
 }

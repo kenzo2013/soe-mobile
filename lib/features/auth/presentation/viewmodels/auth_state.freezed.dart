@@ -23,6 +23,7 @@ mixin _$AuthState {
     required TResult Function(AuthSession session) authenticated,
     required TResult Function(User user) registered,
     required TResult Function(String email) passwordResetSent,
+    required TResult Function() passwordResetCodeValidated,
     required TResult Function() passwordResetSucceeded,
     required TResult Function(Failure failure) error,
   }) =>
@@ -34,6 +35,7 @@ mixin _$AuthState {
     TResult? Function(AuthSession session)? authenticated,
     TResult? Function(User user)? registered,
     TResult? Function(String email)? passwordResetSent,
+    TResult? Function()? passwordResetCodeValidated,
     TResult? Function()? passwordResetSucceeded,
     TResult? Function(Failure failure)? error,
   }) =>
@@ -45,6 +47,7 @@ mixin _$AuthState {
     TResult Function(AuthSession session)? authenticated,
     TResult Function(User user)? registered,
     TResult Function(String email)? passwordResetSent,
+    TResult Function()? passwordResetCodeValidated,
     TResult Function()? passwordResetSucceeded,
     TResult Function(Failure failure)? error,
     required TResult orElse(),
@@ -57,6 +60,8 @@ mixin _$AuthState {
     required TResult Function(_Authenticated value) authenticated,
     required TResult Function(_Registered value) registered,
     required TResult Function(_PasswordResetSent value) passwordResetSent,
+    required TResult Function(_PasswordResetCodeValidated value)
+        passwordResetCodeValidated,
     required TResult Function(_PasswordResetSucceeded value)
         passwordResetSucceeded,
     required TResult Function(_Error value) error,
@@ -69,6 +74,8 @@ mixin _$AuthState {
     TResult? Function(_Authenticated value)? authenticated,
     TResult? Function(_Registered value)? registered,
     TResult? Function(_PasswordResetSent value)? passwordResetSent,
+    TResult? Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
     TResult? Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
     TResult? Function(_Error value)? error,
   }) =>
@@ -80,6 +87,8 @@ mixin _$AuthState {
     TResult Function(_Authenticated value)? authenticated,
     TResult Function(_Registered value)? registered,
     TResult Function(_PasswordResetSent value)? passwordResetSent,
+    TResult Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
     TResult Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
     TResult Function(_Error value)? error,
     required TResult orElse(),
@@ -153,6 +162,7 @@ class _$InitialImpl implements _Initial {
     required TResult Function(AuthSession session) authenticated,
     required TResult Function(User user) registered,
     required TResult Function(String email) passwordResetSent,
+    required TResult Function() passwordResetCodeValidated,
     required TResult Function() passwordResetSucceeded,
     required TResult Function(Failure failure) error,
   }) {
@@ -167,6 +177,7 @@ class _$InitialImpl implements _Initial {
     TResult? Function(AuthSession session)? authenticated,
     TResult? Function(User user)? registered,
     TResult? Function(String email)? passwordResetSent,
+    TResult? Function()? passwordResetCodeValidated,
     TResult? Function()? passwordResetSucceeded,
     TResult? Function(Failure failure)? error,
   }) {
@@ -181,6 +192,7 @@ class _$InitialImpl implements _Initial {
     TResult Function(AuthSession session)? authenticated,
     TResult Function(User user)? registered,
     TResult Function(String email)? passwordResetSent,
+    TResult Function()? passwordResetCodeValidated,
     TResult Function()? passwordResetSucceeded,
     TResult Function(Failure failure)? error,
     required TResult orElse(),
@@ -199,6 +211,8 @@ class _$InitialImpl implements _Initial {
     required TResult Function(_Authenticated value) authenticated,
     required TResult Function(_Registered value) registered,
     required TResult Function(_PasswordResetSent value) passwordResetSent,
+    required TResult Function(_PasswordResetCodeValidated value)
+        passwordResetCodeValidated,
     required TResult Function(_PasswordResetSucceeded value)
         passwordResetSucceeded,
     required TResult Function(_Error value) error,
@@ -214,6 +228,8 @@ class _$InitialImpl implements _Initial {
     TResult? Function(_Authenticated value)? authenticated,
     TResult? Function(_Registered value)? registered,
     TResult? Function(_PasswordResetSent value)? passwordResetSent,
+    TResult? Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
     TResult? Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
     TResult? Function(_Error value)? error,
   }) {
@@ -228,6 +244,8 @@ class _$InitialImpl implements _Initial {
     TResult Function(_Authenticated value)? authenticated,
     TResult Function(_Registered value)? registered,
     TResult Function(_PasswordResetSent value)? passwordResetSent,
+    TResult Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
     TResult Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
     TResult Function(_Error value)? error,
     required TResult orElse(),
@@ -289,6 +307,7 @@ class _$LoadingImpl implements _Loading {
     required TResult Function(AuthSession session) authenticated,
     required TResult Function(User user) registered,
     required TResult Function(String email) passwordResetSent,
+    required TResult Function() passwordResetCodeValidated,
     required TResult Function() passwordResetSucceeded,
     required TResult Function(Failure failure) error,
   }) {
@@ -303,6 +322,7 @@ class _$LoadingImpl implements _Loading {
     TResult? Function(AuthSession session)? authenticated,
     TResult? Function(User user)? registered,
     TResult? Function(String email)? passwordResetSent,
+    TResult? Function()? passwordResetCodeValidated,
     TResult? Function()? passwordResetSucceeded,
     TResult? Function(Failure failure)? error,
   }) {
@@ -317,6 +337,7 @@ class _$LoadingImpl implements _Loading {
     TResult Function(AuthSession session)? authenticated,
     TResult Function(User user)? registered,
     TResult Function(String email)? passwordResetSent,
+    TResult Function()? passwordResetCodeValidated,
     TResult Function()? passwordResetSucceeded,
     TResult Function(Failure failure)? error,
     required TResult orElse(),
@@ -335,6 +356,8 @@ class _$LoadingImpl implements _Loading {
     required TResult Function(_Authenticated value) authenticated,
     required TResult Function(_Registered value) registered,
     required TResult Function(_PasswordResetSent value) passwordResetSent,
+    required TResult Function(_PasswordResetCodeValidated value)
+        passwordResetCodeValidated,
     required TResult Function(_PasswordResetSucceeded value)
         passwordResetSucceeded,
     required TResult Function(_Error value) error,
@@ -350,6 +373,8 @@ class _$LoadingImpl implements _Loading {
     TResult? Function(_Authenticated value)? authenticated,
     TResult? Function(_Registered value)? registered,
     TResult? Function(_PasswordResetSent value)? passwordResetSent,
+    TResult? Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
     TResult? Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
     TResult? Function(_Error value)? error,
   }) {
@@ -364,6 +389,8 @@ class _$LoadingImpl implements _Loading {
     TResult Function(_Authenticated value)? authenticated,
     TResult Function(_Registered value)? registered,
     TResult Function(_PasswordResetSent value)? passwordResetSent,
+    TResult Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
     TResult Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
     TResult Function(_Error value)? error,
     required TResult orElse(),
@@ -452,6 +479,7 @@ class _$AuthenticatedImpl implements _Authenticated {
     required TResult Function(AuthSession session) authenticated,
     required TResult Function(User user) registered,
     required TResult Function(String email) passwordResetSent,
+    required TResult Function() passwordResetCodeValidated,
     required TResult Function() passwordResetSucceeded,
     required TResult Function(Failure failure) error,
   }) {
@@ -466,6 +494,7 @@ class _$AuthenticatedImpl implements _Authenticated {
     TResult? Function(AuthSession session)? authenticated,
     TResult? Function(User user)? registered,
     TResult? Function(String email)? passwordResetSent,
+    TResult? Function()? passwordResetCodeValidated,
     TResult? Function()? passwordResetSucceeded,
     TResult? Function(Failure failure)? error,
   }) {
@@ -480,6 +509,7 @@ class _$AuthenticatedImpl implements _Authenticated {
     TResult Function(AuthSession session)? authenticated,
     TResult Function(User user)? registered,
     TResult Function(String email)? passwordResetSent,
+    TResult Function()? passwordResetCodeValidated,
     TResult Function()? passwordResetSucceeded,
     TResult Function(Failure failure)? error,
     required TResult orElse(),
@@ -498,6 +528,8 @@ class _$AuthenticatedImpl implements _Authenticated {
     required TResult Function(_Authenticated value) authenticated,
     required TResult Function(_Registered value) registered,
     required TResult Function(_PasswordResetSent value) passwordResetSent,
+    required TResult Function(_PasswordResetCodeValidated value)
+        passwordResetCodeValidated,
     required TResult Function(_PasswordResetSucceeded value)
         passwordResetSucceeded,
     required TResult Function(_Error value) error,
@@ -513,6 +545,8 @@ class _$AuthenticatedImpl implements _Authenticated {
     TResult? Function(_Authenticated value)? authenticated,
     TResult? Function(_Registered value)? registered,
     TResult? Function(_PasswordResetSent value)? passwordResetSent,
+    TResult? Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
     TResult? Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
     TResult? Function(_Error value)? error,
   }) {
@@ -527,6 +561,8 @@ class _$AuthenticatedImpl implements _Authenticated {
     TResult Function(_Authenticated value)? authenticated,
     TResult Function(_Registered value)? registered,
     TResult Function(_PasswordResetSent value)? passwordResetSent,
+    TResult Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
     TResult Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
     TResult Function(_Error value)? error,
     required TResult orElse(),
@@ -623,6 +659,7 @@ class _$RegisteredImpl implements _Registered {
     required TResult Function(AuthSession session) authenticated,
     required TResult Function(User user) registered,
     required TResult Function(String email) passwordResetSent,
+    required TResult Function() passwordResetCodeValidated,
     required TResult Function() passwordResetSucceeded,
     required TResult Function(Failure failure) error,
   }) {
@@ -637,6 +674,7 @@ class _$RegisteredImpl implements _Registered {
     TResult? Function(AuthSession session)? authenticated,
     TResult? Function(User user)? registered,
     TResult? Function(String email)? passwordResetSent,
+    TResult? Function()? passwordResetCodeValidated,
     TResult? Function()? passwordResetSucceeded,
     TResult? Function(Failure failure)? error,
   }) {
@@ -651,6 +689,7 @@ class _$RegisteredImpl implements _Registered {
     TResult Function(AuthSession session)? authenticated,
     TResult Function(User user)? registered,
     TResult Function(String email)? passwordResetSent,
+    TResult Function()? passwordResetCodeValidated,
     TResult Function()? passwordResetSucceeded,
     TResult Function(Failure failure)? error,
     required TResult orElse(),
@@ -669,6 +708,8 @@ class _$RegisteredImpl implements _Registered {
     required TResult Function(_Authenticated value) authenticated,
     required TResult Function(_Registered value) registered,
     required TResult Function(_PasswordResetSent value) passwordResetSent,
+    required TResult Function(_PasswordResetCodeValidated value)
+        passwordResetCodeValidated,
     required TResult Function(_PasswordResetSucceeded value)
         passwordResetSucceeded,
     required TResult Function(_Error value) error,
@@ -684,6 +725,8 @@ class _$RegisteredImpl implements _Registered {
     TResult? Function(_Authenticated value)? authenticated,
     TResult? Function(_Registered value)? registered,
     TResult? Function(_PasswordResetSent value)? passwordResetSent,
+    TResult? Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
     TResult? Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
     TResult? Function(_Error value)? error,
   }) {
@@ -698,6 +741,8 @@ class _$RegisteredImpl implements _Registered {
     TResult Function(_Authenticated value)? authenticated,
     TResult Function(_Registered value)? registered,
     TResult Function(_PasswordResetSent value)? passwordResetSent,
+    TResult Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
     TResult Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
     TResult Function(_Error value)? error,
     required TResult orElse(),
@@ -795,6 +840,7 @@ class _$PasswordResetSentImpl implements _PasswordResetSent {
     required TResult Function(AuthSession session) authenticated,
     required TResult Function(User user) registered,
     required TResult Function(String email) passwordResetSent,
+    required TResult Function() passwordResetCodeValidated,
     required TResult Function() passwordResetSucceeded,
     required TResult Function(Failure failure) error,
   }) {
@@ -809,6 +855,7 @@ class _$PasswordResetSentImpl implements _PasswordResetSent {
     TResult? Function(AuthSession session)? authenticated,
     TResult? Function(User user)? registered,
     TResult? Function(String email)? passwordResetSent,
+    TResult? Function()? passwordResetCodeValidated,
     TResult? Function()? passwordResetSucceeded,
     TResult? Function(Failure failure)? error,
   }) {
@@ -823,6 +870,7 @@ class _$PasswordResetSentImpl implements _PasswordResetSent {
     TResult Function(AuthSession session)? authenticated,
     TResult Function(User user)? registered,
     TResult Function(String email)? passwordResetSent,
+    TResult Function()? passwordResetCodeValidated,
     TResult Function()? passwordResetSucceeded,
     TResult Function(Failure failure)? error,
     required TResult orElse(),
@@ -841,6 +889,8 @@ class _$PasswordResetSentImpl implements _PasswordResetSent {
     required TResult Function(_Authenticated value) authenticated,
     required TResult Function(_Registered value) registered,
     required TResult Function(_PasswordResetSent value) passwordResetSent,
+    required TResult Function(_PasswordResetCodeValidated value)
+        passwordResetCodeValidated,
     required TResult Function(_PasswordResetSucceeded value)
         passwordResetSucceeded,
     required TResult Function(_Error value) error,
@@ -856,6 +906,8 @@ class _$PasswordResetSentImpl implements _PasswordResetSent {
     TResult? Function(_Authenticated value)? authenticated,
     TResult? Function(_Registered value)? registered,
     TResult? Function(_PasswordResetSent value)? passwordResetSent,
+    TResult? Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
     TResult? Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
     TResult? Function(_Error value)? error,
   }) {
@@ -870,6 +922,8 @@ class _$PasswordResetSentImpl implements _PasswordResetSent {
     TResult Function(_Authenticated value)? authenticated,
     TResult Function(_Registered value)? registered,
     TResult Function(_PasswordResetSent value)? passwordResetSent,
+    TResult Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
     TResult Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
     TResult Function(_Error value)? error,
     required TResult orElse(),
@@ -892,6 +946,155 @@ abstract class _PasswordResetSent implements AuthState {
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$PasswordResetSentImplCopyWith<_$PasswordResetSentImpl> get copyWith =>
       throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$PasswordResetCodeValidatedImplCopyWith<$Res> {
+  factory _$$PasswordResetCodeValidatedImplCopyWith(
+          _$PasswordResetCodeValidatedImpl value,
+          $Res Function(_$PasswordResetCodeValidatedImpl) then) =
+      __$$PasswordResetCodeValidatedImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$PasswordResetCodeValidatedImplCopyWithImpl<$Res>
+    extends _$AuthStateCopyWithImpl<$Res, _$PasswordResetCodeValidatedImpl>
+    implements _$$PasswordResetCodeValidatedImplCopyWith<$Res> {
+  __$$PasswordResetCodeValidatedImplCopyWithImpl(
+      _$PasswordResetCodeValidatedImpl _value,
+      $Res Function(_$PasswordResetCodeValidatedImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of AuthState
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$PasswordResetCodeValidatedImpl implements _PasswordResetCodeValidated {
+  const _$PasswordResetCodeValidatedImpl();
+
+  @override
+  String toString() {
+    return 'AuthState.passwordResetCodeValidated()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$PasswordResetCodeValidatedImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(AuthSession session) authenticated,
+    required TResult Function(User user) registered,
+    required TResult Function(String email) passwordResetSent,
+    required TResult Function() passwordResetCodeValidated,
+    required TResult Function() passwordResetSucceeded,
+    required TResult Function(Failure failure) error,
+  }) {
+    return passwordResetCodeValidated();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(AuthSession session)? authenticated,
+    TResult? Function(User user)? registered,
+    TResult? Function(String email)? passwordResetSent,
+    TResult? Function()? passwordResetCodeValidated,
+    TResult? Function()? passwordResetSucceeded,
+    TResult? Function(Failure failure)? error,
+  }) {
+    return passwordResetCodeValidated?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(AuthSession session)? authenticated,
+    TResult Function(User user)? registered,
+    TResult Function(String email)? passwordResetSent,
+    TResult Function()? passwordResetCodeValidated,
+    TResult Function()? passwordResetSucceeded,
+    TResult Function(Failure failure)? error,
+    required TResult orElse(),
+  }) {
+    if (passwordResetCodeValidated != null) {
+      return passwordResetCodeValidated();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_Initial value) initial,
+    required TResult Function(_Loading value) loading,
+    required TResult Function(_Authenticated value) authenticated,
+    required TResult Function(_Registered value) registered,
+    required TResult Function(_PasswordResetSent value) passwordResetSent,
+    required TResult Function(_PasswordResetCodeValidated value)
+        passwordResetCodeValidated,
+    required TResult Function(_PasswordResetSucceeded value)
+        passwordResetSucceeded,
+    required TResult Function(_Error value) error,
+  }) {
+    return passwordResetCodeValidated(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_Initial value)? initial,
+    TResult? Function(_Loading value)? loading,
+    TResult? Function(_Authenticated value)? authenticated,
+    TResult? Function(_Registered value)? registered,
+    TResult? Function(_PasswordResetSent value)? passwordResetSent,
+    TResult? Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
+    TResult? Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
+    TResult? Function(_Error value)? error,
+  }) {
+    return passwordResetCodeValidated?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_Initial value)? initial,
+    TResult Function(_Loading value)? loading,
+    TResult Function(_Authenticated value)? authenticated,
+    TResult Function(_Registered value)? registered,
+    TResult Function(_PasswordResetSent value)? passwordResetSent,
+    TResult Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
+    TResult Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
+    TResult Function(_Error value)? error,
+    required TResult orElse(),
+  }) {
+    if (passwordResetCodeValidated != null) {
+      return passwordResetCodeValidated(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _PasswordResetCodeValidated implements AuthState {
+  const factory _PasswordResetCodeValidated() =
+      _$PasswordResetCodeValidatedImpl;
 }
 
 /// @nodoc
@@ -943,6 +1146,7 @@ class _$PasswordResetSucceededImpl implements _PasswordResetSucceeded {
     required TResult Function(AuthSession session) authenticated,
     required TResult Function(User user) registered,
     required TResult Function(String email) passwordResetSent,
+    required TResult Function() passwordResetCodeValidated,
     required TResult Function() passwordResetSucceeded,
     required TResult Function(Failure failure) error,
   }) {
@@ -957,6 +1161,7 @@ class _$PasswordResetSucceededImpl implements _PasswordResetSucceeded {
     TResult? Function(AuthSession session)? authenticated,
     TResult? Function(User user)? registered,
     TResult? Function(String email)? passwordResetSent,
+    TResult? Function()? passwordResetCodeValidated,
     TResult? Function()? passwordResetSucceeded,
     TResult? Function(Failure failure)? error,
   }) {
@@ -971,6 +1176,7 @@ class _$PasswordResetSucceededImpl implements _PasswordResetSucceeded {
     TResult Function(AuthSession session)? authenticated,
     TResult Function(User user)? registered,
     TResult Function(String email)? passwordResetSent,
+    TResult Function()? passwordResetCodeValidated,
     TResult Function()? passwordResetSucceeded,
     TResult Function(Failure failure)? error,
     required TResult orElse(),
@@ -989,6 +1195,8 @@ class _$PasswordResetSucceededImpl implements _PasswordResetSucceeded {
     required TResult Function(_Authenticated value) authenticated,
     required TResult Function(_Registered value) registered,
     required TResult Function(_PasswordResetSent value) passwordResetSent,
+    required TResult Function(_PasswordResetCodeValidated value)
+        passwordResetCodeValidated,
     required TResult Function(_PasswordResetSucceeded value)
         passwordResetSucceeded,
     required TResult Function(_Error value) error,
@@ -1004,6 +1212,8 @@ class _$PasswordResetSucceededImpl implements _PasswordResetSucceeded {
     TResult? Function(_Authenticated value)? authenticated,
     TResult? Function(_Registered value)? registered,
     TResult? Function(_PasswordResetSent value)? passwordResetSent,
+    TResult? Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
     TResult? Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
     TResult? Function(_Error value)? error,
   }) {
@@ -1018,6 +1228,8 @@ class _$PasswordResetSucceededImpl implements _PasswordResetSucceeded {
     TResult Function(_Authenticated value)? authenticated,
     TResult Function(_Registered value)? registered,
     TResult Function(_PasswordResetSent value)? passwordResetSent,
+    TResult Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
     TResult Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
     TResult Function(_Error value)? error,
     required TResult orElse(),
@@ -1106,6 +1318,7 @@ class _$ErrorImpl implements _Error {
     required TResult Function(AuthSession session) authenticated,
     required TResult Function(User user) registered,
     required TResult Function(String email) passwordResetSent,
+    required TResult Function() passwordResetCodeValidated,
     required TResult Function() passwordResetSucceeded,
     required TResult Function(Failure failure) error,
   }) {
@@ -1120,6 +1333,7 @@ class _$ErrorImpl implements _Error {
     TResult? Function(AuthSession session)? authenticated,
     TResult? Function(User user)? registered,
     TResult? Function(String email)? passwordResetSent,
+    TResult? Function()? passwordResetCodeValidated,
     TResult? Function()? passwordResetSucceeded,
     TResult? Function(Failure failure)? error,
   }) {
@@ -1134,6 +1348,7 @@ class _$ErrorImpl implements _Error {
     TResult Function(AuthSession session)? authenticated,
     TResult Function(User user)? registered,
     TResult Function(String email)? passwordResetSent,
+    TResult Function()? passwordResetCodeValidated,
     TResult Function()? passwordResetSucceeded,
     TResult Function(Failure failure)? error,
     required TResult orElse(),
@@ -1152,6 +1367,8 @@ class _$ErrorImpl implements _Error {
     required TResult Function(_Authenticated value) authenticated,
     required TResult Function(_Registered value) registered,
     required TResult Function(_PasswordResetSent value) passwordResetSent,
+    required TResult Function(_PasswordResetCodeValidated value)
+        passwordResetCodeValidated,
     required TResult Function(_PasswordResetSucceeded value)
         passwordResetSucceeded,
     required TResult Function(_Error value) error,
@@ -1167,6 +1384,8 @@ class _$ErrorImpl implements _Error {
     TResult? Function(_Authenticated value)? authenticated,
     TResult? Function(_Registered value)? registered,
     TResult? Function(_PasswordResetSent value)? passwordResetSent,
+    TResult? Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
     TResult? Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
     TResult? Function(_Error value)? error,
   }) {
@@ -1181,6 +1400,8 @@ class _$ErrorImpl implements _Error {
     TResult Function(_Authenticated value)? authenticated,
     TResult Function(_Registered value)? registered,
     TResult Function(_PasswordResetSent value)? passwordResetSent,
+    TResult Function(_PasswordResetCodeValidated value)?
+        passwordResetCodeValidated,
     TResult Function(_PasswordResetSucceeded value)? passwordResetSucceeded,
     TResult Function(_Error value)? error,
     required TResult orElse(),

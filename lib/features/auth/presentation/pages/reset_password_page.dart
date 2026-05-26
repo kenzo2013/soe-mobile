@@ -12,13 +12,19 @@ import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_text_field.dart';
 import '../../../../core/widgets/soe_toast.dart';
 import '../../../../i18n/translations.g.dart';
-import '../../domain/entities/user.dart';
 import '../viewmodels/auth_state.dart';
 import '../viewmodels/reset_password_viewmodel.dart';
 
+/// Étape 3 du flow reset par OTP : saisie du nouveau mot de passe.
+/// `email` + `code` viennent de la route précédente (forgot-sent).
 class ResetPasswordPage extends ConsumerStatefulWidget {
-  const ResetPasswordPage({super.key, required this.token});
-  final String token;
+  const ResetPasswordPage({
+    super.key,
+    required this.email,
+    required this.code,
+  });
+  final String email;
+  final String code;
 
   @override
   ConsumerState<ResetPasswordPage> createState() => _ResetPasswordPageState();
@@ -43,16 +49,13 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
 
     ref.listen<AuthState>(resetPasswordViewModelProvider, (prev, next) {
       next.whenOrNull(
-        authenticated: (session) {
+        passwordResetSucceeded: () {
           SoeToast.show(
             context,
             message: tr.resetPassword.successToast,
             tone: SoeToastTone.success,
           );
-          final dest = session.user.role == UserRole.tutor
-              ? RouteNames.tutorDashboard
-              : RouteNames.parentDashboard;
-          context.go(dest);
+          context.go(RouteNames.login);
         },
         error: (failure) => SoeToast.show(
           context,
@@ -62,7 +65,8 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
       );
     });
 
-    final isLoading = state.maybeWhen(loading: () => true, orElse: () => false);
+    final isLoading =
+        state.maybeWhen(loading: () => true, orElse: () => false);
 
     return Scaffold(
       backgroundColor: AppPalette.white,
@@ -91,8 +95,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                 const SizedBox(height: 8),
                 Text(
                   tr.resetPassword.subtitle,
-                  style:
-                      AppTypography.bodySm.copyWith(color: AppPalette.n700),
+                  style: AppTypography.bodySm.copyWith(color: AppPalette.n700),
                 ),
                 const SizedBox(height: 22),
                 SoePasswordField(
@@ -100,8 +103,9 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                   label: tr.resetPassword.password,
                   hint: tr.resetPassword.passwordHint,
                   textInputAction: TextInputAction.next,
-                  validator: (v) =>
-                      (v == null || v.length < 6) ? tr.errors.passwordTooShort : null,
+                  validator: (v) => (v == null || v.length < 6)
+                      ? tr.errors.passwordTooShort
+                      : null,
                 ),
                 const SizedBox(height: 12),
                 SoePasswordField(
@@ -146,8 +150,11 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                           if (!(_formKey.currentState?.validate() ?? false)) {
                             return;
                           }
-                          ref.read(resetPasswordViewModelProvider.notifier).submit(
-                                token: widget.token,
+                          ref
+                              .read(resetPasswordViewModelProvider.notifier)
+                              .submit(
+                                email: widget.email,
+                                code: widget.code,
                                 password: _password.text,
                                 passwordConfirmation: _confirm.text,
                               );

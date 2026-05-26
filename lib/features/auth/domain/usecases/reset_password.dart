@@ -1,23 +1,26 @@
 import '../../../../core/error/failure.dart';
 import '../../../../core/error/result.dart';
-import '../entities/auth_session.dart';
 import '../repositories/auth_repository.dart';
 
-/// Réinitialise le mot de passe à partir du token reçu par email.
+/// Réinitialise le mot de passe à partir du code OTP reçu par email.
 ///
-/// PATCH /api/v1/users/password
+/// `PATCH /users/password/reset_with_code`
 class ResetPassword {
   const ResetPassword(this._repo);
   final AuthRepository _repo;
 
-  Future<Result<AuthSession, Failure>> call({
-    required String token,
+  Future<Result<void, Failure>> call({
+    required String email,
+    required String code,
     required String password,
     required String passwordConfirmation,
   }) {
     final errors = <String, List<String>>{};
-    if (token.trim().isEmpty) {
-      errors['reset_password_token'] = const ['Token manquant.'];
+    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
+      errors['email'] = const ['Email invalide.'];
+    }
+    if (code.trim().length != 6) {
+      errors['code'] = const ['Code à 6 chiffres requis.'];
     }
     if (password.length < 6) {
       errors['password'] = const ['Au moins 6 caractères.'];
@@ -30,8 +33,9 @@ class ResetPassword {
     if (errors.isNotEmpty) {
       return Future.value(Err(ValidationFailure(errors)));
     }
-    return _repo.resetPassword(
-      token: token,
+    return _repo.resetPasswordWithCode(
+      email: email,
+      code: code,
       password: password,
       passwordConfirmation: passwordConfirmation,
     );

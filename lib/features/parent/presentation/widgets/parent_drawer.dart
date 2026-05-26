@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_brand_logo.dart';
+import '../../../auth/presentation/providers/current_user_provider.dart';
 
-class ParentDrawer extends StatelessWidget {
+class ParentDrawer extends ConsumerWidget {
   const ParentDrawer({
     super.key,
     required this.activeRoute,
-    this.parentName,
-    this.parentCity,
   });
 
   final String activeRoute;
-  final String? parentName;
-  final String? parentCity;
 
   static const _items = <_DrawerItem>[
     _DrawerItem(
@@ -67,7 +65,13 @@ class ParentDrawer extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userAsync = ref.watch(currentUserProvider);
+    final user = userAsync.asData?.value;
+    final name = user == null ? '' : '${user.firstName} ${user.lastName}'.trim();
+    final roleLine = user == null
+        ? 'Non connecté'
+        : 'Compte ${user.role.name == "parent" ? "parent" : "tuteur"}';
     return Drawer(
       width: 296,
       backgroundColor: Colors.transparent,
@@ -79,7 +83,14 @@ class ParentDrawer extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 24, 20, 18),
-                child: const SoeBrandLogo(width: 108, onDark: true),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: const SoeBrandLogo(
+                    width: 96,
+                    onDark: true,
+                    variant: SoeBrandLogoVariant.full,
+                  ),
+                ),
               ),
               Container(
                 height: 1,
@@ -90,7 +101,8 @@ class ParentDrawer extends StatelessWidget {
                 child: Row(
                   children: [
                     SoeAvatar(
-                      name: parentName ?? '?',
+                      name: name.isEmpty ? '?' : name,
+                      imageUrl: user?.photoUrl,
                       size: SoeAvatarSize.list,
                     ),
                     const SizedBox(width: 12),
@@ -99,7 +111,7 @@ class ParentDrawer extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            parentName ?? '—',
+                            name.isEmpty ? '—' : name,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
@@ -110,13 +122,13 @@ class ParentDrawer extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            parentCity != null
-                                ? 'Compte parent · $parentCity'
-                                : 'Compte parent',
+                            user?.email ?? roleLine,
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.65),
                               fontSize: 11,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),

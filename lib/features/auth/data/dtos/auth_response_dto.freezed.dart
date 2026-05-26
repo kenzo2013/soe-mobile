@@ -21,7 +21,6 @@ LoginResponseDto _$LoginResponseDtoFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$LoginResponseDto {
   UserDto get data => throw _privateConstructorUsedError;
-  @JsonKey(name: 'accessToken')
   String get accessToken => throw _privateConstructorUsedError;
 
   /// Serializes this LoginResponseDto to a JSON map.
@@ -40,7 +39,7 @@ abstract class $LoginResponseDtoCopyWith<$Res> {
           LoginResponseDto value, $Res Function(LoginResponseDto) then) =
       _$LoginResponseDtoCopyWithImpl<$Res, LoginResponseDto>;
   @useResult
-  $Res call({UserDto data, @JsonKey(name: 'accessToken') String accessToken});
+  $Res call({UserDto data, String accessToken});
 
   $UserDtoCopyWith<$Res> get data;
 }
@@ -94,7 +93,7 @@ abstract class _$$LoginResponseDtoImplCopyWith<$Res>
       __$$LoginResponseDtoImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({UserDto data, @JsonKey(name: 'accessToken') String accessToken});
+  $Res call({UserDto data, String accessToken});
 
   @override
   $UserDtoCopyWith<$Res> get data;
@@ -132,9 +131,7 @@ class __$$LoginResponseDtoImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$LoginResponseDtoImpl implements _LoginResponseDto {
-  const _$LoginResponseDtoImpl(
-      {required this.data,
-      @JsonKey(name: 'accessToken') required this.accessToken});
+  const _$LoginResponseDtoImpl({required this.data, required this.accessToken});
 
   factory _$LoginResponseDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$LoginResponseDtoImplFromJson(json);
@@ -142,7 +139,6 @@ class _$LoginResponseDtoImpl implements _LoginResponseDto {
   @override
   final UserDto data;
   @override
-  @JsonKey(name: 'accessToken')
   final String accessToken;
 
   @override
@@ -183,9 +179,8 @@ class _$LoginResponseDtoImpl implements _LoginResponseDto {
 
 abstract class _LoginResponseDto implements LoginResponseDto {
   const factory _LoginResponseDto(
-          {required final UserDto data,
-          @JsonKey(name: 'accessToken') required final String accessToken}) =
-      _$LoginResponseDtoImpl;
+      {required final UserDto data,
+      required final String accessToken}) = _$LoginResponseDtoImpl;
 
   factory _LoginResponseDto.fromJson(Map<String, dynamic> json) =
       _$LoginResponseDtoImpl.fromJson;
@@ -193,7 +188,6 @@ abstract class _LoginResponseDto implements LoginResponseDto {
   @override
   UserDto get data;
   @override
-  @JsonKey(name: 'accessToken')
   String get accessToken;
 
   /// Create a copy of LoginResponseDto
@@ -368,4 +362,175 @@ abstract class _RegisterResponseDto implements RegisterResponseDto {
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$RegisterResponseDtoImplCopyWith<_$RegisterResponseDtoImpl> get copyWith =>
       throw _privateConstructorUsedError;
+}
+
+ConfirmationResponseDto _$ConfirmationResponseDtoFromJson(
+    Map<String, dynamic> json) {
+  return _ConfirmationResponseDto.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ConfirmationResponseDto {
+  UserDto get data => throw _privateConstructorUsedError;
+
+  /// Serializes this ConfirmationResponseDto to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ConfirmationResponseDto
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ConfirmationResponseDtoCopyWith<ConfirmationResponseDto> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ConfirmationResponseDtoCopyWith<$Res> {
+  factory $ConfirmationResponseDtoCopyWith(ConfirmationResponseDto value,
+          $Res Function(ConfirmationResponseDto) then) =
+      _$ConfirmationResponseDtoCopyWithImpl<$Res, ConfirmationResponseDto>;
+  @useResult
+  $Res call({UserDto data});
+
+  $UserDtoCopyWith<$Res> get data;
+}
+
+/// @nodoc
+class _$ConfirmationResponseDtoCopyWithImpl<$Res,
+        $Val extends ConfirmationResponseDto>
+    implements $ConfirmationResponseDtoCopyWith<$Res> {
+  _$ConfirmationResponseDtoCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ConfirmationResponseDto
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? data = null,
+  }) {
+    return _then(_value.copyWith(
+      data: null == data
+          ? _value.data
+          : data // ignore: cast_nullable_to_non_nullable
+              as UserDto,
+    ) as $Val);
+  }
+
+  /// Create a copy of ConfirmationResponseDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $UserDtoCopyWith<$Res> get data {
+    return $UserDtoCopyWith<$Res>(_value.data, (value) {
+      return _then(_value.copyWith(data: value) as $Val);
+    });
+  }
+}
+
+/// @nodoc
+abstract class _$$ConfirmationResponseDtoImplCopyWith<$Res>
+    implements $ConfirmationResponseDtoCopyWith<$Res> {
+  factory _$$ConfirmationResponseDtoImplCopyWith(
+          _$ConfirmationResponseDtoImpl value,
+          $Res Function(_$ConfirmationResponseDtoImpl) then) =
+      __$$ConfirmationResponseDtoImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({UserDto data});
+
+  @override
+  $UserDtoCopyWith<$Res> get data;
+}
+
+/// @nodoc
+class __$$ConfirmationResponseDtoImplCopyWithImpl<$Res>
+    extends _$ConfirmationResponseDtoCopyWithImpl<$Res,
+        _$ConfirmationResponseDtoImpl>
+    implements _$$ConfirmationResponseDtoImplCopyWith<$Res> {
+  __$$ConfirmationResponseDtoImplCopyWithImpl(
+      _$ConfirmationResponseDtoImpl _value,
+      $Res Function(_$ConfirmationResponseDtoImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of ConfirmationResponseDto
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? data = null,
+  }) {
+    return _then(_$ConfirmationResponseDtoImpl(
+      data: null == data
+          ? _value.data
+          : data // ignore: cast_nullable_to_non_nullable
+              as UserDto,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ConfirmationResponseDtoImpl implements _ConfirmationResponseDto {
+  const _$ConfirmationResponseDtoImpl({required this.data});
+
+  factory _$ConfirmationResponseDtoImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ConfirmationResponseDtoImplFromJson(json);
+
+  @override
+  final UserDto data;
+
+  @override
+  String toString() {
+    return 'ConfirmationResponseDto(data: $data)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ConfirmationResponseDtoImpl &&
+            (identical(other.data, data) || other.data == data));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, data);
+
+  /// Create a copy of ConfirmationResponseDto
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ConfirmationResponseDtoImplCopyWith<_$ConfirmationResponseDtoImpl>
+      get copyWith => __$$ConfirmationResponseDtoImplCopyWithImpl<
+          _$ConfirmationResponseDtoImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ConfirmationResponseDtoImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _ConfirmationResponseDto implements ConfirmationResponseDto {
+  const factory _ConfirmationResponseDto({required final UserDto data}) =
+      _$ConfirmationResponseDtoImpl;
+
+  factory _ConfirmationResponseDto.fromJson(Map<String, dynamic> json) =
+      _$ConfirmationResponseDtoImpl.fromJson;
+
+  @override
+  UserDto get data;
+
+  /// Create a copy of ConfirmationResponseDto
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ConfirmationResponseDtoImplCopyWith<_$ConfirmationResponseDtoImpl>
+      get copyWith => throw _privateConstructorUsedError;
 }

@@ -9,6 +9,7 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
+import '../../../auth/presentation/providers/current_user_provider.dart';
 import '../../domain/entities/parent_dashboard.dart';
 import '../providers.dart';
 import '../widgets/child_avatars_row.dart';
@@ -25,7 +26,8 @@ class ParentDashboardPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(parentDashboardViewModelProvider);
-    const firstName = 'Parent';
+    final user = ref.watch(currentUserProvider).asData?.value;
+    final firstName = (user?.firstName.isNotEmpty ?? false) ? user!.firstName : 'Parent';
 
     return Scaffold(
       backgroundColor: AppPalette.n100,

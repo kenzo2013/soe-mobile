@@ -11,8 +11,10 @@ import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_checkbox.dart';
 import '../../../../core/widgets/soe_country_field.dart';
 import '../../../../core/widgets/soe_field_label.dart';
+import '../../../../core/widgets/soe_places_autocomplete_field.dart';
 import '../../../../core/widgets/soe_text_field.dart';
 import '../../../../core/widgets/soe_toast.dart';
+import '../../../../core/services/places_service.dart';
 import '../../../../i18n/translations.g.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../viewmodels/auth_state.dart';
@@ -40,7 +42,7 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
   void initState() {
     super.initState();
     final s = ref.read(registerFlowViewModelProvider);
-    _search = TextEditingController();
+    _search = TextEditingController(text: s.address);
     _neighborhood = TextEditingController(text: s.neighborhood)
       ..addListener(_syncAddress);
     _city = TextEditingController(text: s.city)..addListener(_syncAddress);
@@ -50,10 +52,32 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
 
   void _syncAddress() {
     ref.read(registerFlowViewModelProvider.notifier).setAddress(
+          address: _search.text.trim().isEmpty ? null : _search.text.trim(),
           neighborhood: _neighborhood.text,
           city: _city.text,
           country: _country.name,
           countryCode: _country.code,
+        );
+  }
+
+  void _onPlaceSelected(SoePlaceResult place) {
+    setState(() {
+      _search.text = place.formattedAddress;
+      if (place.city.isNotEmpty) _city.text = place.city;
+      if (place.neighborhood?.isNotEmpty ?? false) {
+        _neighborhood.text = place.neighborhood!;
+      }
+      if (place.countryCode.isNotEmpty) {
+        _country = Countries.byCode(place.countryCode);
+      }
+    });
+    ref.read(registerFlowViewModelProvider.notifier).setAddressFromPlace(
+          address: place.formattedAddress,
+          city: place.city.isEmpty ? _city.text : place.city,
+          country: place.country.isEmpty ? _country.name : place.country,
+          countryCode:
+              place.countryCode.isEmpty ? _country.code : place.countryCode,
+          neighborhood: place.neighborhood,
         );
   }
 
@@ -109,11 +133,11 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
                 ),
                 const SizedBox(height: 18),
                 SoeFieldLabel(tr.signup.step4.search),
-                SoeTextField(
+                SoePlacesAutocompleteField(
                   controller: _search,
+                  client: ref.watch(googlePlacesClientProvider),
                   hint: tr.signup.step4.searchHint,
-                  leadingIcon: Icons.search,
-                  textInputAction: TextInputAction.next,
+                  onPlaceSelected: _onPlaceSelected,
                 ),
                 const SizedBox(height: 12),
                 SoeFieldLabel(tr.signup.step4.neighborhood),
@@ -226,6 +250,7 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
       return;
     }
     ref.read(registerFlowViewModelProvider.notifier).setAddress(
+          address: _search.text.trim().isEmpty ? null : _search.text.trim(),
           neighborhood: _neighborhood.text.trim(),
           city: _city.text.trim(),
           country: _country.name,
@@ -264,6 +289,7 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
             civility: fresh.civility,
             phone: fresh.phone.isEmpty ? null : fresh.phone,
             lang: fresh.lang,
+            address: _search.text.trim().isEmpty ? null : _search.text.trim(),
             neighborhood: _neighborhood.text.trim().isEmpty
                 ? null
                 : _neighborhood.text.trim(),

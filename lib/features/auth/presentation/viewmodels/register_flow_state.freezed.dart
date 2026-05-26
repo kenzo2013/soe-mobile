@@ -33,6 +33,7 @@ mixin _$RegisterFlowState {
   String get password => throw _privateConstructorUsedError;
   String get passwordConfirmation =>
       throw _privateConstructorUsedError; // Step 4 — adresse + CGU
+  String get address => throw _privateConstructorUsedError;
   String get neighborhood => throw _privateConstructorUsedError;
   String get city => throw _privateConstructorUsedError;
   String get country => throw _privateConstructorUsedError;
@@ -64,6 +65,7 @@ abstract class $RegisterFlowStateCopyWith<$Res> {
       String phoneCountryCode,
       String password,
       String passwordConfirmation,
+      String address,
       String neighborhood,
       String city,
       String country,
@@ -97,6 +99,7 @@ class _$RegisterFlowStateCopyWithImpl<$Res, $Val extends RegisterFlowState>
     Object? phoneCountryCode = null,
     Object? password = null,
     Object? passwordConfirmation = null,
+    Object? address = null,
     Object? neighborhood = null,
     Object? city = null,
     Object? country = null,
@@ -148,6 +151,10 @@ class _$RegisterFlowStateCopyWithImpl<$Res, $Val extends RegisterFlowState>
           ? _value.passwordConfirmation
           : passwordConfirmation // ignore: cast_nullable_to_non_nullable
               as String,
+      address: null == address
+          ? _value.address
+          : address // ignore: cast_nullable_to_non_nullable
+              as String,
       neighborhood: null == neighborhood
           ? _value.neighborhood
           : neighborhood // ignore: cast_nullable_to_non_nullable
@@ -192,6 +199,7 @@ abstract class _$$RegisterFlowStateImplCopyWith<$Res>
       String phoneCountryCode,
       String password,
       String passwordConfirmation,
+      String address,
       String neighborhood,
       String city,
       String country,
@@ -223,6 +231,7 @@ class __$$RegisterFlowStateImplCopyWithImpl<$Res>
     Object? phoneCountryCode = null,
     Object? password = null,
     Object? passwordConfirmation = null,
+    Object? address = null,
     Object? neighborhood = null,
     Object? city = null,
     Object? country = null,
@@ -274,6 +283,10 @@ class __$$RegisterFlowStateImplCopyWithImpl<$Res>
           ? _value.passwordConfirmation
           : passwordConfirmation // ignore: cast_nullable_to_non_nullable
               as String,
+      address: null == address
+          ? _value.address
+          : address // ignore: cast_nullable_to_non_nullable
+              as String,
       neighborhood: null == neighborhood
           ? _value.neighborhood
           : neighborhood // ignore: cast_nullable_to_non_nullable
@@ -313,6 +326,7 @@ class _$RegisterFlowStateImpl extends _RegisterFlowState {
       this.phoneCountryCode = 'CM',
       this.password = '',
       this.passwordConfirmation = '',
+      this.address = '',
       this.neighborhood = '',
       this.city = '',
       this.country = 'Cameroun',
@@ -363,6 +377,9 @@ class _$RegisterFlowStateImpl extends _RegisterFlowState {
 // Step 4 — adresse + CGU
   @override
   @JsonKey()
+  final String address;
+  @override
+  @JsonKey()
   final String neighborhood;
   @override
   @JsonKey()
@@ -379,7 +396,7 @@ class _$RegisterFlowStateImpl extends _RegisterFlowState {
 
   @override
   String toString() {
-    return 'RegisterFlowState(step: $step, role: $role, civility: $civility, firstName: $firstName, lastName: $lastName, lang: $lang, email: $email, phone: $phone, phoneCountryCode: $phoneCountryCode, password: $password, passwordConfirmation: $passwordConfirmation, neighborhood: $neighborhood, city: $city, country: $country, countryCode: $countryCode, acceptCgu: $acceptCgu)';
+    return 'RegisterFlowState(step: $step, role: $role, civility: $civility, firstName: $firstName, lastName: $lastName, lang: $lang, email: $email, phone: $phone, phoneCountryCode: $phoneCountryCode, password: $password, passwordConfirmation: $passwordConfirmation, address: $address, neighborhood: $neighborhood, city: $city, country: $country, countryCode: $countryCode, acceptCgu: $acceptCgu)';
   }
 
   @override
@@ -404,6 +421,7 @@ class _$RegisterFlowStateImpl extends _RegisterFlowState {
                 other.password == password) &&
             (identical(other.passwordConfirmation, passwordConfirmation) ||
                 other.passwordConfirmation == passwordConfirmation) &&
+            (identical(other.address, address) || other.address == address) &&
             (identical(other.neighborhood, neighborhood) ||
                 other.neighborhood == neighborhood) &&
             (identical(other.city, city) || other.city == city) &&
@@ -428,6 +446,7 @@ class _$RegisterFlowStateImpl extends _RegisterFlowState {
       phoneCountryCode,
       password,
       passwordConfirmation,
+      address,
       neighborhood,
       city,
       country,
@@ -457,6 +476,7 @@ abstract class _RegisterFlowState extends RegisterFlowState {
       final String phoneCountryCode,
       final String password,
       final String passwordConfirmation,
+      final String address,
       final String neighborhood,
       final String city,
       final String country,
@@ -490,6 +510,8 @@ abstract class _RegisterFlowState extends RegisterFlowState {
   String get password;
   @override
   String get passwordConfirmation; // Step 4 — adresse + CGU
+  @override
+  String get address;
   @override
   String get neighborhood;
   @override

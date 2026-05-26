@@ -6,26 +6,42 @@ import '../entities/user.dart';
 /// Contrat d'accès aux services d'auth — implémenté côté Data.
 abstract class AuthRepository {
   /// Connecte l'utilisateur. L'API renvoie 401 + EmailNotConfirmedFailure
-  /// tant que l'email n'a pas été activé via le lien de confirmation.
+  /// tant que l'email n'a pas été confirmé via OTP.
   Future<Result<AuthSession, Failure>> login({
     required String email,
     required String password,
   });
 
-  /// Inscrit l'utilisateur. L'API SOE NE retourne PAS de jeton après register :
-  /// le user doit confirmer son email puis appeler `login`. On expose donc
-  /// uniquement le `User` créé.
+  /// Inscrit l'utilisateur en mode mobile (code OTP envoyé par email).
+  /// Pas de session retournée : on attend la confirmation par code.
   Future<Result<User, Failure>> register({
     required RegisterParams params,
   });
 
-  /// Demande l'envoi d'un email de réinitialisation.
+  /// Renvoie un nouveau code de confirmation par email.
+  Future<Result<void, Failure>> resendConfirmationCode({
+    required String email,
+  });
+
+  /// Vérifie le code de confirmation et active le compte.
+  Future<Result<User, Failure>> verifyConfirmationCode({
+    required String email,
+    required String code,
+  });
+
+  /// Demande un code de réinitialisation par email.
   Future<Result<void, Failure>> requestPasswordReset({required String email});
 
-  /// Confirme la réinitialisation depuis le lien email.
-  /// `token` provient du deep link `?reset_password_token=...`.
-  Future<Result<AuthSession, Failure>> resetPassword({
-    required String token,
+  /// Vérifie qu'un code de reset est valide (sans le consommer).
+  Future<Result<void, Failure>> verifyResetCode({
+    required String email,
+    required String code,
+  });
+
+  /// Consomme le code et change le mot de passe.
+  Future<Result<void, Failure>> resetPasswordWithCode({
+    required String email,
+    required String code,
     required String password,
     required String passwordConfirmation,
   });
@@ -45,6 +61,7 @@ class RegisterParams {
     this.civility,
     this.phone,
     this.lang = 'fr',
+    this.address,
     this.neighborhood,
     this.city,
     this.country,
@@ -61,6 +78,7 @@ class RegisterParams {
   final String? civility;
   final String? phone;
   final String lang;
+  final String? address;
   final String? neighborhood;
   final String? city;
   final String? country;

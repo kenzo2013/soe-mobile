@@ -17,6 +17,8 @@ sealed class AuthState with _$AuthState {
   const factory AuthState.registered(User user) = _Registered;
 
   const factory AuthState.passwordResetSent(String email) = _PasswordResetSent;
+  const factory AuthState.passwordResetCodeValidated() =
+      _PasswordResetCodeValidated;
   const factory AuthState.passwordResetSucceeded() = _PasswordResetSucceeded;
   const factory AuthState.error(Failure failure) = _Error;
 }

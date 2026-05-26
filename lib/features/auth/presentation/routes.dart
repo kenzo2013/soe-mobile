@@ -1,7 +1,6 @@
 import 'package:go_router/go_router.dart';
 
 import '../../../core/routing/route_names.dart';
-import 'pages/email_confirmed_page.dart';
 import 'pages/email_sent_page.dart';
 import 'pages/forgot_password_page.dart';
 import 'pages/forgot_password_sent_page.dart';
@@ -48,13 +47,6 @@ List<RouteBase> authRoutes() => [
         builder: (context, state) => const EmailSentPage(),
       ),
       GoRoute(
-        path: RouteNames.emailConfirmed,
-        builder: (context, state) {
-          final ok = state.uri.queryParameters['confirmed'] != 'false';
-          return EmailConfirmedPage(success: ok);
-        },
-      ),
-      GoRoute(
         path: RouteNames.passwordForgot,
         builder: (context, state) => const ForgotPasswordPage(),
       ),
@@ -66,11 +58,9 @@ List<RouteBase> authRoutes() => [
       ),
       GoRoute(
         path: RouteNames.passwordReset,
-        builder: (context, state) {
-          final token = state.uri.queryParameters['reset_password_token'] ??
-              state.uri.queryParameters['token'] ??
-              '';
-          return ResetPasswordPage(token: token);
-        },
+        builder: (context, state) => ResetPasswordPage(
+          email: state.uri.queryParameters['email'] ?? '',
+          code: state.uri.queryParameters['code'] ?? '',
+        ),
       ),
     ];

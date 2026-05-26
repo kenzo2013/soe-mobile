@@ -31,3 +31,15 @@ Map<String, dynamic> _$$RegisterResponseDtoImplToJson(
     <String, dynamic>{
       'data': instance.data,
     };
+
+_$ConfirmationResponseDtoImpl _$$ConfirmationResponseDtoImplFromJson(
+        Map<String, dynamic> json) =>
+    _$ConfirmationResponseDtoImpl(
+      data: UserDto.fromJson(json['data'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$$ConfirmationResponseDtoImplToJson(
+        _$ConfirmationResponseDtoImpl instance) =>
+    <String, dynamic>{
+      'data': instance.data,
+    };

@@ -46,16 +46,35 @@ class RegisterFlowViewModel extends StateNotifier<RegisterFlowState> {
   }
 
   void setAddress({
+    String? address,
     required String neighborhood,
     required String city,
     required String country,
     required String countryCode,
   }) {
     state = state.copyWith(
+      address: address ?? state.address,
       neighborhood: neighborhood,
       city: city,
       country: country,
       countryCode: countryCode,
+    );
+  }
+
+  /// Hydrate l'adresse depuis un Place Google sélectionné dans l'autocomplete.
+  void setAddressFromPlace({
+    required String address,
+    required String city,
+    required String country,
+    required String countryCode,
+    String? neighborhood,
+  }) {
+    state = state.copyWith(
+      address: address,
+      city: city,
+      country: country,
+      countryCode: countryCode,
+      neighborhood: neighborhood ?? state.neighborhood,
     );
   }
 

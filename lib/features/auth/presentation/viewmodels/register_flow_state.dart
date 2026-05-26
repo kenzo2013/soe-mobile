@@ -31,6 +31,7 @@ class RegisterFlowState with _$RegisterFlowState {
     @Default('') String passwordConfirmation,
 
     // Step 4 — adresse + CGU
+    @Default('') String address,
     @Default('') String neighborhood,
     @Default('') String city,
     @Default('Cameroun') String country,

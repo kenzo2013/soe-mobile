@@ -3,24 +3,42 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 /// Logo SOE — assets officiels téléchargés depuis app.jeteste.site.
 ///
-/// - `onDark: true`  → version monochrome blanche (`assets/logo/logo_white.svg`),
+/// - `onDark: true`  → version monochrome blanche (`logo_white.svg`),
 ///   à poser directement sur surface marque (teal / gradient).
-/// - `onDark: false` → version couleur officielle (`assets/logo/logo_color.svg`),
-///   pour fonds clairs.
+/// - `onDark: false` → version couleur officielle (`logo_color.svg`).
+/// - `variant: SoeBrandLogoVariant.full` → version logo + texte « Solution
+///   of Education » (`logo_full.svg`), pour drawer / écrans de marque.
+enum SoeBrandLogoVariant { mark, full }
+
 class SoeBrandLogo extends StatelessWidget {
-  const SoeBrandLogo({super.key, this.width = 110, this.onDark = false});
+  const SoeBrandLogo({
+    super.key,
+    this.width = 110,
+    this.onDark = false,
+    this.variant = SoeBrandLogoVariant.mark,
+  });
 
   final double width;
   final bool onDark;
+  final SoeBrandLogoVariant variant;
 
   static const String _whiteAsset = 'assets/logo/logo_white.svg';
   static const String _colorAsset = 'assets/logo/logo_color.svg';
+  static const String _fullAsset = 'assets/logo/logo_full.svg';
 
   @override
   Widget build(BuildContext context) {
+    final asset = switch (variant) {
+      SoeBrandLogoVariant.full => _fullAsset,
+      SoeBrandLogoVariant.mark => onDark ? _whiteAsset : _colorAsset,
+    };
+    final colorFilter = variant == SoeBrandLogoVariant.full && onDark
+        ? const ColorFilter.mode(Colors.white, BlendMode.srcIn)
+        : null;
     return SvgPicture.asset(
-      onDark ? _whiteAsset : _colorAsset,
+      asset,
       width: width,
+      colorFilter: colorFilter,
       semanticsLabel: 'SOE — Solution of Education',
       fit: BoxFit.contain,
     );
