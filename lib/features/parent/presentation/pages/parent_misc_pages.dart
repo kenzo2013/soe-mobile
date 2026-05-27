@@ -467,12 +467,12 @@ class _InvitationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final role = _roleLabel();
+    // unknown : on suppose que l'invitation est juste partie sans statut
+    // explicite cote back → fallback "Envoyée" (style info teal).
     final (label, bg, fg) = switch (invitation.status) {
-      InvitationStatus.pending => (
-        'Envoyée',
-        AppPalette.infoBg,
-        AppPalette.teal,
-      ),
+      InvitationStatus.pending ||
+      InvitationStatus.unknown =>
+        ('Envoyée', AppPalette.infoBg, AppPalette.teal),
       InvitationStatus.accepted => (
         'Acceptée',
         AppPalette.successBg,
@@ -488,7 +488,6 @@ class _InvitationCard extends StatelessWidget {
         AppPalette.n100,
         AppPalette.n700,
       ),
-      InvitationStatus.unknown => ('—', AppPalette.n100, AppPalette.n700),
     };
     final name = (invitation.fullName ?? '').isEmpty
         ? invitation.email
@@ -549,6 +548,18 @@ class _InvitationCard extends StatelessWidget {
                     color: AppPalette.n700,
                   ),
                 ),
+                if ((invitation.phone ?? '').isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    invitation.phone!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppPalette.n700,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

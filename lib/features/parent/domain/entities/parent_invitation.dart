@@ -8,6 +8,7 @@ class ParentInvitation {
     required this.sentAt,
     this.fullName,
     this.relationship,
+    this.phone,
   });
   final String id;
   final String email;
@@ -15,6 +16,7 @@ class ParentInvitation {
   final DateTime sentAt;
   final String? fullName;
   final String? relationship;
+  final String? phone;
 }
 
 /// CDC §11.5 : link_with_children ∈ { father, mother, guardian }.
