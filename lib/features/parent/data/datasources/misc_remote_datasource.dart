@@ -34,18 +34,21 @@ class MiscRemoteDatasource {
   }
 
   // CDC §11.5 : rating = entier 1..5.
-  static ParentReview _parseReview(Map<String, dynamic> j) => ParentReview(
-        id: j['id']?.toString() ?? '',
-        tutorId: j['tutor_id']?.toString() ?? '',
-        tutorName: j['tutor_name']?.toString() ?? '—',
-        rating: (j['rating'] as num?)?.toInt() ?? 0,
-        comment: j['comment']?.toString() ?? '',
-        createdAt: DateTime.tryParse(j['created_at']?.toString() ?? '') ??
-            DateTime.now(),
-        subjects: ((j['subjects'] as List?) ?? const [])
-            .map((e) => e.toString())
-            .toList(),
-      );
+  static ParentReview _parseReview(Map<String, dynamic> j) {
+    final a = _attrs(j);
+    return ParentReview(
+      id: j['id']?.toString() ?? '',
+      tutorId: a['tutor_id']?.toString() ?? '',
+      tutorName: a['tutor_name']?.toString() ?? '—',
+      rating: (a['rating'] as num?)?.toInt() ?? 0,
+      comment: a['comment']?.toString() ?? '',
+      createdAt: DateTime.tryParse(a['created_at']?.toString() ?? '') ??
+          DateTime.now(),
+      subjects: ((a['subjects'] as List?) ?? const [])
+          .map((e) => e.toString())
+          .toList(),
+    );
+  }
 
   // ── Programs ───────────────────────────────────────────
   Future<List<ParentProgram>> listPrograms() async {
@@ -54,22 +57,27 @@ class MiscRemoteDatasource {
     return list.cast<Map<String, dynamic>>().map(_parseProgram).toList();
   }
 
-  static ParentProgram _parseProgram(Map<String, dynamic> j) => ParentProgram(
-        id: j['id']?.toString() ?? '',
-        title: j['title']?.toString() ?? '—',
-        subject: j['subject']?.toString() ?? '',
-        level: j['level']?.toString() ?? '',
-        progress: (j['progress'] as num?)?.toDouble() ?? 0.0,
-        description: j['description']?.toString(),
-        modules: ((j['modules'] as List?) ?? const [])
-            .cast<Map<String, dynamic>>()
-            .map((m) => ProgramModule(
-                  id: m['id']?.toString() ?? '',
-                  title: m['title']?.toString() ?? '',
-                  progress: (m['progress'] as num?)?.toDouble() ?? 0.0,
-                ))
-            .toList(),
-      );
+  static ParentProgram _parseProgram(Map<String, dynamic> j) {
+    final a = _attrs(j);
+    return ParentProgram(
+      id: j['id']?.toString() ?? '',
+      title: a['title']?.toString() ?? '—',
+      subject: a['subject']?.toString() ?? '',
+      level: a['level']?.toString() ?? '',
+      progress: (a['progress'] as num?)?.toDouble() ?? 0.0,
+      description: a['description']?.toString(),
+      modules: ((a['modules'] as List?) ?? const [])
+          .cast<Map<String, dynamic>>()
+          .map((m) {
+        final ma = _attrs(m);
+        return ProgramModule(
+          id: m['id']?.toString() ?? '',
+          title: ma['title']?.toString() ?? '',
+          progress: (ma['progress'] as num?)?.toDouble() ?? 0.0,
+        );
+      }).toList(),
+    );
+  }
 
   // ── Invitations ────────────────────────────────────────
   Future<List<ParentInvitation>> listInvitations() async {
@@ -102,26 +110,28 @@ class MiscRemoteDatasource {
   }
 
   static ParentInvitation _parseInvitation(Map<String, dynamic> j) {
-    final firstName = j['first_name']?.toString();
-    final lastName = j['last_name']?.toString();
+    final a = _attrs(j);
+    final firstName = a['first_name']?.toString();
+    final lastName = a['last_name']?.toString();
     final fullName = [firstName, lastName]
         .whereType<String>()
         .where((s) => s.isNotEmpty)
         .join(' ');
     return ParentInvitation(
       id: j['id']?.toString() ?? '',
-      email: j['email']?.toString() ?? '',
-      status: switch (j['status']?.toString()) {
+      email: a['email']?.toString() ?? '',
+      status: switch (a['status']?.toString()) {
         'pending' => InvitationStatus.pending,
         'accepted' => InvitationStatus.accepted,
         'rejected' => InvitationStatus.rejected,
         'expired' => InvitationStatus.expired,
         _ => InvitationStatus.unknown,
       },
-      sentAt: DateTime.tryParse(j['sent_at']?.toString() ?? '') ??
+      sentAt: DateTime.tryParse(
+              (a['sent_at'] ?? a['created_at'])?.toString() ?? '') ??
           DateTime.now(),
       fullName: fullName.isEmpty ? null : fullName,
-      relationship: j['link_with_children']?.toString(),
+      relationship: a['link_with_children']?.toString(),
     );
   }
 
@@ -150,22 +160,33 @@ class MiscRemoteDatasource {
     return _parseContract(data);
   }
 
-  static Contract _parseContract(Map<String, dynamic> j) => Contract(
-        id: j['id']?.toString() ?? '',
-        title: j['title']?.toString() ?? 'Contrat',
-        status: switch (j['status']?.toString()) {
-          'signed' => ContractStatus.signed,
-          'unsigned' => ContractStatus.unsigned,
-          'expired' => ContractStatus.expired,
-          'terminated' => ContractStatus.terminated,
-          _ => ContractStatus.unknown,
-        },
-        createdAt: DateTime.tryParse(j['created_at']?.toString() ?? '') ??
-            DateTime.now(),
-        tutorName: j['tutor_name']?.toString(),
-        childName: j['child_name']?.toString(),
-        amount: (j['amount'] as num?)?.toInt(),
-        pdfUrl: j['pdf_url']?.toString(),
-        signedAt: DateTime.tryParse(j['signed_at']?.toString() ?? ''),
-      );
+  static Contract _parseContract(Map<String, dynamic> j) {
+    final a = _attrs(j);
+    return Contract(
+      id: j['id']?.toString() ?? '',
+      title: a['title']?.toString() ?? 'Contrat',
+      status: switch (a['status']?.toString()) {
+        'signed' => ContractStatus.signed,
+        'unsigned' => ContractStatus.unsigned,
+        'expired' => ContractStatus.expired,
+        'terminated' => ContractStatus.terminated,
+        _ => ContractStatus.unknown,
+      },
+      createdAt: DateTime.tryParse(a['created_at']?.toString() ?? '') ??
+          DateTime.now(),
+      tutorName: a['tutor_name']?.toString(),
+      childName: a['child_name']?.toString(),
+      amount: (a['amount'] as num?)?.toInt(),
+      pdfUrl: a['pdf_url']?.toString(),
+      signedAt: DateTime.tryParse(a['signed_at']?.toString() ?? ''),
+    );
+  }
+
+  /// Helper : si la reponse suit le format JSON:API
+  /// (`{id, type, attributes: {...}}`), retourne `attributes`. Sinon, le map
+  /// est deja plat → on le retourne tel quel.
+  static Map<String, dynamic> _attrs(Map<String, dynamic> j) {
+    final a = j['attributes'];
+    return a is Map<String, dynamic> ? a : j;
+  }
 }
