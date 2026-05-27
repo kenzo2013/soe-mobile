@@ -87,15 +87,24 @@ class _SoeOtpFieldState extends State<SoeOtpField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Cases OTP : Expanded + AspectRatio 1:1 → vrais carrés qui
-        // s'adaptent a la largeur disponible (peu importe l'ecran).
-        Row(
-          children: [
-            for (var i = 0; i < widget.length; i++) ...[
-              if (i > 0) const SizedBox(width: 10),
-              Expanded(
-                child: AspectRatio(
-                  aspectRatio: 1,
+        // Cases OTP : LayoutBuilder calcule la largeur d'une case en
+        // fonction de la largeur disponible, puis on impose
+        // `width == height` via un SizedBox carré. Plus fiable que
+        // AspectRatio + TextField qui se laisse écraser par la hauteur
+        // intrinsèque de l'InputDecoration.
+        LayoutBuilder(
+          builder: (context, constraints) {
+            const spacing = 10.0;
+            final cellSize = ((constraints.maxWidth -
+                        spacing * (widget.length - 1)) /
+                    widget.length)
+                .clamp(40.0, 72.0);
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: List.generate(widget.length, (i) {
+                return SizedBox(
+                  width: cellSize,
+                  height: cellSize,
                   child: TextField(
                     controller: _controllers[i],
                     focusNode: _focusNodes[i],
@@ -105,8 +114,6 @@ class _SoeOtpFieldState extends State<SoeOtpField> {
                     textAlignVertical: TextAlignVertical.center,
                     keyboardType: TextInputType.number,
                     inputFormatters: [
-                      // Pas de filtre digitsOnly pour autoriser le collage —
-                      // on filtre dans _onChanged.
                       LengthLimitingTextInputFormatter(widget.length),
                     ],
                     style: const TextStyle(
@@ -142,10 +149,10 @@ class _SoeOtpFieldState extends State<SoeOtpField> {
                     ),
                     onChanged: (v) => _onChanged(i, v),
                   ),
-                ),
-              ),
-            ],
-          ],
+                );
+              }),
+            );
+          },
         ),
         if (hasError) ...[
           const SizedBox(height: 6),
