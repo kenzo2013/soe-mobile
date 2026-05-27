@@ -26,12 +26,18 @@ class _Shell extends StatelessWidget {
     required this.title,
     required this.activeRoute,
     required this.body,
+    this.subtitle,
+    this.actions,
   });
   final String title;
+  final String? subtitle;
   final String activeRoute;
   final Widget body;
+  final List<Widget>? actions;
+
   @override
   Widget build(BuildContext context) {
+    final hasSubtitle = subtitle != null && subtitle!.isNotEmpty;
     return Scaffold(
       backgroundColor: AppPalette.n100,
       drawer: ParentDrawer(activeRoute: activeRoute),
@@ -39,14 +45,33 @@ class _Shell extends StatelessWidget {
         backgroundColor: AppPalette.n100,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: Text(
-          title,
-          style: const TextStyle(
-            color: AppPalette.ink,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
+        toolbarHeight: hasSubtitle ? 64 : 56,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                color: AppPalette.ink,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            if (hasSubtitle) ...[
+              const SizedBox(height: 2),
+              Text(
+                subtitle!,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppPalette.n700,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ],
         ),
+        actions: actions,
       ),
       body: body,
     );
@@ -264,50 +289,158 @@ class ParentProgramsListPage extends ConsumerWidget {
 // ────────────────────────────────────────────────────────────────
 class ParentInvitationsListPage extends ConsumerWidget {
   const ParentInvitationsListPage({super.key});
+
+  void _openInvite(BuildContext context) {
+    showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppPalette.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => const _InviteSheet(),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(invitationsListViewModelProvider(null));
+    final items = state is AsyncListLoaded<ParentInvitation>
+        ? state.items
+        : const <ParentInvitation>[];
+    final count = items.length;
+    final subtitle = count == 0
+        ? null
+        : '$count personne${count > 1 ? "s" : ""}';
     return _Shell(
       title: 'Invitations',
+      subtitle: subtitle,
       activeRoute: '/parent/invitations',
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-            child: FilledButton.icon(
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  builder: (_) => const _InviteSheet(),
-                );
-              },
-              icon: const Icon(Icons.person_add_alt_1),
-              label: const Text('Inviter une personne'),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppPalette.yellow,
-                foregroundColor: AppPalette.ink,
-                minimumSize: const Size.fromHeight(48),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: _AddIconBtn(onTap: () => _openInvite(context)),
+        ),
+      ],
+      body: _asyncList<ParentInvitation>(
+        state: state as AsyncListState<ParentInvitation>,
+        onRetry: () =>
+            ref.read(invitationsListViewModelProvider(null).notifier).refresh(),
+        onLoaded: (items) => CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              sliver: SliverToBoxAdapter(child: _IntroCard()),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 22, 16, 6),
+              sliver: SliverToBoxAdapter(
+                child: const Text(
+                  'Personnes invitées',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppPalette.ink,
+                    letterSpacing: -0.1,
+                  ),
+                ),
               ),
             ),
+            if (items.isEmpty)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: const _EmptyState(
+                  message: 'Aucune invitation envoyée',
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 6, 16, 24),
+                sliver: SliverList.separated(
+                  itemCount: items.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemBuilder: (_, i) =>
+                      _InvitationCard(invitation: items[i]),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AddIconBtn extends StatelessWidget {
+  const _AddIconBtn({required this.onTap});
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: AppPalette.yellow,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: AppPalette.yellow.withValues(alpha: 0.35),
+              offset: const Offset(0, 8),
+              blurRadius: 20,
+            ),
+          ],
+        ),
+        child: const Icon(Icons.add, color: AppPalette.ink, size: 20),
+      ),
+    );
+  }
+}
+
+class _IntroCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SoeCard(
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppPalette.infoBg,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.groups_outlined,
+              size: 20,
+              color: AppPalette.teal,
+            ),
           ),
+          const SizedBox(width: 12),
           Expanded(
-            child: _asyncList<ParentInvitation>(
-              state: state as AsyncListState<ParentInvitation>,
-              onRetry: () => ref
-                  .read(invitationsListViewModelProvider(null).notifier)
-                  .refresh(),
-              onLoaded: (items) => items.isEmpty
-                  ? const _EmptyState(message: 'Aucune invitation envoyée')
-                  : ListView.separated(
-                      padding:
-                          const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                      itemCount: items.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 10),
-                      itemBuilder: (_, i) => _InvitationCard(
-                        invitation: items[i],
-                      ),
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  'Partagez le suivi de vos enfants',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppPalette.ink,
+                  ),
+                ),
+                SizedBox(height: 3),
+                Text(
+                  "Invitez le co-parent ou un proche pour qu'ils suivent les progrès, séances et paiements.",
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppPalette.n700,
+                    height: 1.4,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -319,49 +452,98 @@ class ParentInvitationsListPage extends ConsumerWidget {
 class _InvitationCard extends StatelessWidget {
   const _InvitationCard({required this.invitation});
   final ParentInvitation invitation;
+
+  String? _roleLabel() {
+    final rel = invitation.relationship;
+    if (rel == null || rel.isEmpty) return null;
+    return switch (rel) {
+      'father' => 'Père',
+      'mother' => 'Mère',
+      'guardian' => 'Tuteur légal',
+      _ => rel,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
+    final role = _roleLabel();
     final (label, bg, fg) = switch (invitation.status) {
       InvitationStatus.pending => (
-        'En attente',
-        AppPalette.warningBg,
-        AppPalette.warning
+        'Envoyée',
+        AppPalette.infoBg,
+        AppPalette.teal,
       ),
       InvitationStatus.accepted => (
         'Acceptée',
         AppPalette.successBg,
-        AppPalette.success
+        AppPalette.success,
       ),
       InvitationStatus.rejected => (
         'Refusée',
         AppPalette.dangerBg,
-        AppPalette.danger
+        AppPalette.danger,
       ),
       InvitationStatus.expired => (
         'Expirée',
         AppPalette.n100,
-        AppPalette.n700
+        AppPalette.n700,
       ),
       InvitationStatus.unknown => ('—', AppPalette.n100, AppPalette.n700),
     };
+    final name = (invitation.fullName ?? '').isEmpty
+        ? invitation.email
+        : invitation.fullName!;
     return SoeCard(
       child: Row(
         children: [
+          SoeAvatar(name: name, size: SoeAvatarSize.list),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  invitation.fullName ?? invitation.email,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: AppPalette.ink,
-                  ),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppPalette.ink,
+                        ),
+                      ),
+                    ),
+                    if (role != null) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppPalette.infoBg,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          role,
+                          style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w600,
+                            color: AppPalette.teal,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 3),
                 Text(
-                  '${invitation.relationship ?? "—"} · ${DateFormat('d MMM y', "fr").format(invitation.sentAt)}',
+                  invitation.email,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 11,
                     color: AppPalette.n700,
@@ -370,19 +552,33 @@ class _InvitationCard extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(width: 8),
+          // Badge status — taille sm
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
               color: bg,
               borderRadius: BorderRadius.circular(999),
             ),
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: fg,
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 5,
+                  height: 5,
+                  decoration: BoxDecoration(color: fg, shape: BoxShape.circle),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: fg,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
