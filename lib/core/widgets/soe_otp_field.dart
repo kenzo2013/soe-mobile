@@ -102,53 +102,15 @@ class _SoeOtpFieldState extends State<SoeOtpField> {
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: List.generate(widget.length, (i) {
-                return SizedBox(
-                  width: cellSize,
-                  height: cellSize,
-                  child: TextField(
-                    controller: _controllers[i],
-                    focusNode: _focusNodes[i],
-                    autofocus: widget.autofocus && i == 0,
-                    enabled: widget.enabled,
-                    textAlign: TextAlign.center,
-                    textAlignVertical: TextAlignVertical.center,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(widget.length),
-                    ],
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: AppPalette.ink,
-                      height: 1,
-                    ),
-                    decoration: InputDecoration(
-                      counterText: '',
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      filled: true,
-                      fillColor:
-                          hasError ? AppPalette.dangerBg : AppPalette.n100,
-                      border: const OutlineInputBorder(
-                        borderRadius: AppRadius.rMd,
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: AppRadius.rMd,
-                        borderSide: BorderSide(
-                          color: hasError
-                              ? AppPalette.danger
-                              : Colors.transparent,
-                        ),
-                      ),
-                      focusedBorder: const OutlineInputBorder(
-                        borderRadius: AppRadius.rMd,
-                        borderSide:
-                            BorderSide(color: AppPalette.teal, width: 1.5),
-                      ),
-                    ),
-                    onChanged: (v) => _onChanged(i, v),
-                  ),
+                return _OtpCell(
+                  size: cellSize,
+                  hasError: hasError,
+                  focusNode: _focusNodes[i],
+                  controller: _controllers[i],
+                  enabled: widget.enabled,
+                  autofocus: widget.autofocus && i == 0,
+                  maxLen: widget.length,
+                  onChanged: (v) => _onChanged(i, v),
                 );
               }),
             );
@@ -163,6 +125,107 @@ class _SoeOtpFieldState extends State<SoeOtpField> {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// Une case OTP carrée. Décoration sur Container externe, TextField
+/// transparent à l'intérieur — la taille est garantie par le SizedBox
+/// peu importe les contraintes intrinsèques du TextField/Material.
+class _OtpCell extends StatefulWidget {
+  const _OtpCell({
+    required this.size,
+    required this.hasError,
+    required this.focusNode,
+    required this.controller,
+    required this.enabled,
+    required this.autofocus,
+    required this.maxLen,
+    required this.onChanged,
+  });
+  final double size;
+  final bool hasError;
+  final FocusNode focusNode;
+  final TextEditingController controller;
+  final bool enabled;
+  final bool autofocus;
+  final int maxLen;
+  final ValueChanged<String> onChanged;
+
+  @override
+  State<_OtpCell> createState() => _OtpCellState();
+}
+
+class _OtpCellState extends State<_OtpCell> {
+  late bool _focused;
+
+  @override
+  void initState() {
+    super.initState();
+    _focused = widget.focusNode.hasFocus;
+    widget.focusNode.addListener(_onFocus);
+  }
+
+  @override
+  void dispose() {
+    widget.focusNode.removeListener(_onFocus);
+    super.dispose();
+  }
+
+  void _onFocus() {
+    if (mounted) setState(() => _focused = widget.focusNode.hasFocus);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final borderColor = widget.hasError
+        ? AppPalette.danger
+        : (_focused ? AppPalette.teal : Colors.transparent);
+    return SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: widget.hasError ? AppPalette.dangerBg : AppPalette.n100,
+          borderRadius: AppRadius.rMd,
+          border: Border.all(
+            color: borderColor,
+            width: _focused || widget.hasError ? 1.5 : 1,
+          ),
+        ),
+        child: Center(
+          child: TextField(
+            controller: widget.controller,
+            focusNode: widget.focusNode,
+            autofocus: widget.autofocus,
+            enabled: widget.enabled,
+            textAlign: TextAlign.center,
+            textAlignVertical: TextAlignVertical.center,
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(widget.maxLen),
+            ],
+            cursorColor: AppPalette.teal,
+            cursorHeight: 24,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: AppPalette.ink,
+              height: 1,
+            ),
+            decoration: const InputDecoration(
+              counterText: '',
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              isCollapsed: true,
+              contentPadding: EdgeInsets.zero,
+              filled: false,
+            ),
+            onChanged: widget.onChanged,
+          ),
+        ),
+      ),
     );
   }
 }
