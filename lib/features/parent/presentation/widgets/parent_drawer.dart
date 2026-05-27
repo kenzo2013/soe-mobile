@@ -222,31 +222,41 @@ class ParentDrawer extends ConsumerWidget {
   }
 
   /// Modale de confirmation déconnexion + appel Logout usecase.
+  ///
+  /// On capture le router avant tout `pop()` / `await`, car le `context`
+  /// du drawer devient invalide dès que le drawer est fermé — sinon
+  /// `context.go(login)` ne s'exécute jamais.
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
-    // Ferme le drawer d'abord.
-    Navigator.of(context).pop();
+    final router = GoRouter.of(context);
+    final rootNavigator = Navigator.of(context, rootNavigator: true);
 
     final confirmed = await showDialog<bool>(
       context: context,
       barrierDismissible: true,
-      builder: (ctx) => _LogoutConfirmDialog(),
+      builder: (_) => _LogoutConfirmDialog(),
     );
-    if (confirmed != true || !context.mounted) return;
+    if (confirmed != true) return;
 
     final result = await ref.read(logoutUsecaseProvider).call();
-    if (!context.mounted) return;
+    // Ferme le drawer si encore ouvert (selon Android back/UX).
+    if (rootNavigator.canPop()) rootNavigator.pop();
     switch (result) {
       case Ok():
-        // Invalide le cache user pour qu'au prochain login le drawer
-        // recharge.
         ref.invalidate(currentUserProvider);
-        context.go(RouteNames.login);
+        router.go(RouteNames.login);
       case Err():
-        SoeToast.show(
-          context,
-          message: 'Échec de la déconnexion',
-          tone: SoeToastTone.danger,
-        );
+        // ScaffoldMessenger captured at root pour eviter le `context`
+        // potentiellement invalide.
+        rootNavigator.context.mounted
+            ? SoeToast.show(
+                rootNavigator.context,
+                message: 'Échec de la déconnexion',
+                tone: SoeToastTone.danger,
+              )
+            : null;
+        // Fallback : forcer la redirection meme en cas d'echec serveur,
+        // le storage est nettoye cote repo impl.
+        router.go(RouteNames.login);
     }
   }
 }
