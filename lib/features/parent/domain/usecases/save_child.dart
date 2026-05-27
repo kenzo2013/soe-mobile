@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import '../../../../core/error/failure.dart';
 import '../../../../core/error/result.dart';
 import '../entities/child.dart';
@@ -10,6 +12,9 @@ class SaveChild {
   Future<Result<Child, Failure>> call({
     String? id,
     required ChildFormParams params,
+    File? photo,
   }) =>
-      id == null ? _repo.create(params) : _repo.update(id, params);
+      id == null
+          ? _repo.create(params, photo: photo)
+          : _repo.update(id, params, photo: photo);
 }

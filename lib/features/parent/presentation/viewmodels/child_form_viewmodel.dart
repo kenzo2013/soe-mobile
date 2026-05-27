@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/error/result.dart';
@@ -9,9 +11,13 @@ class ChildFormViewModel extends StateNotifier<ChildFormState> {
   ChildFormViewModel(this._save) : super(const ChildFormState.idle());
   final SaveChild _save;
 
-  Future<void> submit({String? id, required ChildFormParams params}) async {
+  Future<void> submit({
+    String? id,
+    required ChildFormParams params,
+    File? photo,
+  }) async {
     state = const ChildFormState.saving();
-    final r = await _save(id: id, params: params);
+    final r = await _save(id: id, params: params, photo: photo);
     state = switch (r) {
       Ok(:final value) => ChildFormState.saved(value),
       Err(:final failure) => ChildFormState.error(failure),

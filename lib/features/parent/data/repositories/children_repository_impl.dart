@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 
 import '../../../../core/error/exception_mapper.dart';
@@ -33,9 +35,12 @@ class ChildrenRepositoryImpl implements ChildrenRepository {
   }
 
   @override
-  Future<Result<Child, Failure>> create(ChildFormParams params) async {
+  Future<Result<Child, Failure>> create(
+    ChildFormParams params, {
+    File? photo,
+  }) async {
     try {
-      final dto = await _ds.create(childParamsToJson(params));
+      final dto = await _ds.create(childParamsToJson(params), photo: photo);
       return Ok(dto.toEntity());
     } on DioException catch (e) {
       return Err(ExceptionMapper.fromDio(e));
@@ -44,9 +49,13 @@ class ChildrenRepositoryImpl implements ChildrenRepository {
 
   @override
   Future<Result<Child, Failure>> update(
-      String id, ChildFormParams params) async {
+    String id,
+    ChildFormParams params, {
+    File? photo,
+  }) async {
     try {
-      final dto = await _ds.update(id, childParamsToJson(params));
+      final dto =
+          await _ds.update(id, childParamsToJson(params), photo: photo);
       return Ok(dto.toEntity());
     } on DioException catch (e) {
       return Err(ExceptionMapper.fromDio(e));

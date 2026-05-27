@@ -345,9 +345,11 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
       country: _country,
       countryCode: _countryCode,
     );
-    ref
-        .read(childFormViewModelProvider.notifier)
-        .submit(id: widget.editId, params: params);
+    ref.read(childFormViewModelProvider.notifier).submit(
+          id: widget.editId,
+          params: params,
+          photo: _avatarFile,
+        );
   }
 }
 
