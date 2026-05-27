@@ -87,56 +87,65 @@ class _SoeOtpFieldState extends State<SoeOtpField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Cases OTP : Expanded + AspectRatio 1:1 → vrais carrés qui
+        // s'adaptent a la largeur disponible (peu importe l'ecran).
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(widget.length, (i) {
-            return SizedBox(
-              width: 48,
-              height: 60,
-              child: TextField(
-                controller: _controllers[i],
-                focusNode: _focusNodes[i],
-                autofocus: widget.autofocus && i == 0,
-                enabled: widget.enabled,
-                textAlign: TextAlign.center,
-                textAlignVertical: TextAlignVertical.center,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  // Pas de filtre `digitsOnly` pour autoriser le collage —
-                  // on filtre dans `_onChanged`.
-                  LengthLimitingTextInputFormatter(widget.length),
-                ],
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: AppPalette.ink,
-                  height: 1,
-                ),
-                decoration: InputDecoration(
-                  counterText: '',
-                  isDense: true,
-                  contentPadding: EdgeInsets.zero,
-                  filled: true,
-                  fillColor: hasError ? AppPalette.dangerBg : AppPalette.n100,
-                  border: const OutlineInputBorder(
-                    borderRadius: AppRadius.rMd,
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: AppRadius.rMd,
-                    borderSide: BorderSide(
-                      color: hasError ? AppPalette.danger : Colors.transparent,
+          children: [
+            for (var i = 0; i < widget.length; i++) ...[
+              if (i > 0) const SizedBox(width: 10),
+              Expanded(
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: TextField(
+                    controller: _controllers[i],
+                    focusNode: _focusNodes[i],
+                    autofocus: widget.autofocus && i == 0,
+                    enabled: widget.enabled,
+                    textAlign: TextAlign.center,
+                    textAlignVertical: TextAlignVertical.center,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      // Pas de filtre digitsOnly pour autoriser le collage —
+                      // on filtre dans _onChanged.
+                      LengthLimitingTextInputFormatter(widget.length),
+                    ],
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: AppPalette.ink,
+                      height: 1,
                     ),
-                  ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderRadius: AppRadius.rMd,
-                    borderSide: BorderSide(color: AppPalette.teal, width: 1.5),
+                    decoration: InputDecoration(
+                      counterText: '',
+                      isDense: true,
+                      contentPadding: EdgeInsets.zero,
+                      filled: true,
+                      fillColor:
+                          hasError ? AppPalette.dangerBg : AppPalette.n100,
+                      border: const OutlineInputBorder(
+                        borderRadius: AppRadius.rMd,
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: AppRadius.rMd,
+                        borderSide: BorderSide(
+                          color: hasError
+                              ? AppPalette.danger
+                              : Colors.transparent,
+                        ),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderRadius: AppRadius.rMd,
+                        borderSide:
+                            BorderSide(color: AppPalette.teal, width: 1.5),
+                      ),
+                    ),
+                    onChanged: (v) => _onChanged(i, v),
                   ),
                 ),
-                onChanged: (v) => _onChanged(i, v),
               ),
-            );
-          }),
+            ],
+          ],
         ),
         if (hasError) ...[
           const SizedBox(height: 6),
