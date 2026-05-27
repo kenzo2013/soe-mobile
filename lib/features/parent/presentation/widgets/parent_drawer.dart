@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/error/result.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_brand_logo.dart';
+import '../../../../core/widgets/soe_toast.dart';
+import '../../../auth/presentation/providers.dart' show logoutUsecaseProvider;
 import '../../../auth/presentation/providers/current_user_provider.dart';
 
 class ParentDrawer extends ConsumerWidget {
@@ -179,7 +182,7 @@ class ParentDrawer extends ConsumerWidget {
                     _drawerSecondary(
                       icon: Icons.logout,
                       label: 'Déconnexion',
-                      onTap: () {},
+                      onTap: () => _confirmLogout(context, ref),
                     ),
                   ],
                 ),
@@ -211,6 +214,137 @@ class ParentDrawer extends ConsumerWidget {
                 color: Colors.white.withValues(alpha: 0.85),
                 fontSize: 13,
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Modale de confirmation déconnexion + appel Logout usecase.
+  Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
+    // Ferme le drawer d'abord.
+    Navigator.of(context).pop();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => _LogoutConfirmDialog(),
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    final result = await ref.read(logoutUsecaseProvider).call();
+    if (!context.mounted) return;
+    switch (result) {
+      case Ok():
+        // Invalide le cache user pour qu'au prochain login le drawer
+        // recharge.
+        ref.invalidate(currentUserProvider);
+        context.go(RouteNames.login);
+      case Err():
+        SoeToast.show(
+          context,
+          message: 'Échec de la déconnexion',
+          tone: SoeToastTone.danger,
+        );
+    }
+  }
+}
+
+class _LogoutConfirmDialog extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: AppPalette.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Icone hero
+            Container(
+              width: 64,
+              height: 64,
+              decoration: const BoxDecoration(
+                color: AppPalette.dangerBg,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.logout,
+                size: 30,
+                color: AppPalette.danger,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Se déconnecter ?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: AppPalette.ink,
+                letterSpacing: -0.2,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Vous devrez ressaisir votre email et votre mot de passe à la prochaine connexion.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: AppPalette.n700,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 22),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppPalette.ink,
+                      side: const BorderSide(color: AppPalette.n300),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      'Annuler',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppPalette.danger,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      'Déconnecter',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
