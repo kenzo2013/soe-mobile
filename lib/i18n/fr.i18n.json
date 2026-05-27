@@ -189,7 +189,7 @@
     "passwordHint": "6 caractères minimum",
     "confirm": "Confirmation",
     "confirmHint": "Retapez le mot de passe",
-    "info": "Une fois modifié, vous serez automatiquement reconnecté avec un nouveau jeton JWT valable 30 jours.",
+    "info": "Une fois modifié, vous pourrez vous connecter avec votre nouveau mot de passe.",
     "submit": "Enregistrer le mot de passe",
     "successToast": "Mot de passe mis à jour. Vous pouvez vous reconnecter."
   },

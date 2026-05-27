@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/error/result.dart';
+import '../../../../core/providers/core_providers.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/soe_avatar.dart';
@@ -238,25 +239,28 @@ class ParentDrawer extends ConsumerWidget {
     if (confirmed != true) return;
 
     final result = await ref.read(logoutUsecaseProvider).call();
-    // Ferme le drawer si encore ouvert (selon Android back/UX).
+
+    // Clear les Riverpod StateProviders qui mémorisent l'auth en RAM —
+    // sinon AuthGuard.isAuthenticated() retourne encore true (il lit
+    // authTokenProvider, pas le storage) et redirige /login → /parent
+    // immédiatement après le router.go(login).
+    ref.read(authTokenProvider.notifier).state = null;
+    ref.read(currentRoleProvider.notifier).state = null;
+    ref.invalidate(currentUserProvider);
+
+    // Ferme le drawer si encore ouvert.
     if (rootNavigator.canPop()) rootNavigator.pop();
-    switch (result) {
-      case Ok():
-        ref.invalidate(currentUserProvider);
-        router.go(RouteNames.login);
-      case Err():
-        // ScaffoldMessenger captured at root pour eviter le `context`
-        // potentiellement invalide.
-        rootNavigator.context.mounted
-            ? SoeToast.show(
-                rootNavigator.context,
-                message: 'Échec de la déconnexion',
-                tone: SoeToastTone.danger,
-              )
-            : null;
-        // Fallback : forcer la redirection meme en cas d'echec serveur,
-        // le storage est nettoye cote repo impl.
-        router.go(RouteNames.login);
+
+    // On force la nav même en cas d'échec serveur (le storage local est
+    // déjà nettoyé par AuthRepositoryImpl.logout()).
+    router.go(RouteNames.login);
+
+    if (result is Err && rootNavigator.context.mounted) {
+      SoeToast.show(
+        rootNavigator.context,
+        message: 'Déconnecté (échec serveur)',
+        tone: SoeToastTone.warning,
+      );
     }
   }
 }
