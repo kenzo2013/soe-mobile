@@ -14,7 +14,7 @@ abstract final class AppTheme {
       surface: AppPalette.white,
     );
 
-    // Poppins via google_fonts — fetch + cache local au premier run.
+    // Poppins bundle dans assets/fonts/ (plus de telechargement runtime).
     final textTheme = TextTheme(
       displayLarge: AppTypography.display,
       headlineLarge: AppTypography.h1,
@@ -33,7 +33,14 @@ abstract final class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppPalette.n100,
+      // Force Poppins partout : tout Text(...) sans style explicite herite
+      // de fontFamily Poppins (sinon Flutter retombe sur Roboto/SF).
+      fontFamily: AppTypography.fontFamily,
       textTheme: textTheme,
+      primaryTextTheme: textTheme,
+      appBarTheme: AppBarTheme(
+        titleTextStyle: AppTypography.pageTitle.copyWith(color: AppPalette.ink),
+      ),
       inputDecorationTheme: const InputDecorationTheme(
         filled: true,
         fillColor: AppPalette.white,

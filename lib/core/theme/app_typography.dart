@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'app_palette.dart';
 
 /// Typographie SOE — design system officiel.
 ///
-/// Police : Poppins via `google_fonts` (téléchargée et cachée localement au
-/// premier run). Les styles ne sont plus `const` car ils résolvent dynamiquement
-/// le `fontFamily` au runtime, mais ils restent stables (mêmes objets après
-/// le premier appel grâce au cache de google_fonts).
+/// Police : Poppins bundlée localement dans `assets/fonts/`. Plus aucun
+/// téléchargement runtime (auparavant via google_fonts qui fallback sur
+/// Roboto si le DL échoue, ce qui rendait les gras moins prononcés).
 abstract final class AppTypography {
   static const String fontFamily = 'Poppins';
 
@@ -19,7 +17,8 @@ abstract final class AppTypography {
     double? letterSpacing,
     Color color = AppPalette.ink,
   }) {
-    return GoogleFonts.poppins(
+    return TextStyle(
+      fontFamily: fontFamily,
       fontWeight: weight,
       fontSize: size,
       height: height,
@@ -65,6 +64,13 @@ abstract final class AppTypography {
         weight: FontWeight.w600,
         size: 16,
         height: 24 / 16,
+      );
+
+  /// Titre de page (AppBar) — design SOE officiel : Poppins **700** 16px.
+  static TextStyle get pageTitle => _poppins(
+        weight: FontWeight.w700,
+        size: 16,
+        height: 1.2,
       );
 
   // Subtitle 15/22 · 600
