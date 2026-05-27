@@ -90,23 +90,10 @@ class _ParentSessionsListPageState
             ],
           ],
         ),
-        actions: [
+        actions: const [
           Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppPalette.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppPalette.n300),
-              ),
-              child: const Icon(
-                Icons.tune,
-                size: 18,
-                color: AppPalette.ink,
-              ),
-            ),
+            padding: EdgeInsets.only(right: 16),
+            child: _NotificationBtn(),
           ),
         ],
       ),
@@ -145,6 +132,54 @@ class _ParentSessionsListPageState
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Bouton notification (cloche + dot non-lu)
+// ═══════════════════════════════════════════════════════════════
+class _NotificationBtn extends StatelessWidget {
+  const _NotificationBtn();
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        // TODO: navigation vers /notifications quand la feature sera prete
+      },
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: AppPalette.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppPalette.n300),
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            const Icon(
+              Icons.notifications_outlined,
+              size: 20,
+              color: AppPalette.ink,
+            ),
+            Positioned(
+              top: 9,
+              right: 10,
+              child: Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: AppPalette.danger,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppPalette.white, width: 1.5),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
