@@ -28,6 +28,7 @@ class InviteParams {
     required this.firstName,
     required this.lastName,
     required this.linkWithChildren,
+    required this.phone, // format E.164 ex: +237699111222
     this.lang = 'fr',
   });
   final String email;
@@ -35,5 +36,6 @@ class InviteParams {
   final String firstName;
   final String lastName;
   final InvitationLink linkWithChildren;
+  final String phone;
   final String lang; // 'fr' | 'en'
 }

@@ -87,6 +87,7 @@ class MiscRemoteDatasource {
           'civility': p.civility,
           'first_name': p.firstName,
           'last_name': p.lastName,
+          'phone': p.phone,
           'link_with_children': switch (p.linkWithChildren) {
             InvitationLink.father => 'father',
             InvitationLink.mother => 'mother',

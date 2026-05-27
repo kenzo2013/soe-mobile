@@ -7,10 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/data/countries.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_card.dart';
+import '../../../../core/widgets/soe_phone_field.dart';
 import '../../domain/entities/contract.dart';
 import '../../domain/entities/parent_invitation.dart';
 import '../../domain/entities/parent_program.dart';
@@ -399,15 +401,19 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
   final _email = TextEditingController();
   final _firstName = TextEditingController();
   final _lastName = TextEditingController();
+  final _phone = TextEditingController();
+  Country _country = Countries.cameroon;
   String _civility = 'Mr';
   InvitationLink _link = InvitationLink.father;
   bool _sending = false;
+  String? _phoneError;
 
   @override
   void dispose() {
     _email.dispose();
     _firstName.dispose();
     _lastName.dispose();
+    _phone.dispose();
     super.dispose();
   }
 
@@ -415,13 +421,22 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
     if (_email.text.trim().isEmpty ||
         _firstName.text.trim().isEmpty ||
         _lastName.text.trim().isEmpty) return;
-    setState(() => _sending = true);
+    final phoneDigits = _phone.text.trim().replaceAll(RegExp(r'\D'), '');
+    if (phoneDigits.length < 6) {
+      setState(() => _phoneError = 'Numéro invalide');
+      return;
+    }
+    setState(() {
+      _phoneError = null;
+      _sending = true;
+    });
     final repo = ref.read(invitationsRepositoryProvider);
     final r = await repo.invite(InviteParams(
       email: _email.text.trim(),
       civility: _civility,
       firstName: _firstName.text.trim(),
       lastName: _lastName.text.trim(),
+      phone: '+${_country.callingCode}$phoneDigits',
       linkWithChildren: _link,
     ));
     if (!mounted) return;
@@ -501,6 +516,14 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
               labelText: 'Email *',
               border: OutlineInputBorder(),
             ),
+          ),
+          const SizedBox(height: 10),
+          SoePhoneField(
+            country: _country,
+            onCountryChanged: (c) => setState(() => _country = c),
+            controller: _phone,
+            hint: 'Téléphone *',
+            errorText: _phoneError,
           ),
           const SizedBox(height: 10),
           DropdownButtonFormField<InvitationLink>(
