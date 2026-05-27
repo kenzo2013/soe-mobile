@@ -41,6 +41,7 @@ class _SoePlacesAutocompleteFieldState
   Timer? _debounce;
   List<g.AutocompletePrediction> _predictions = const [];
   bool _loading = false;
+  bool _serviceUnavailable = false;
   String _lastQuery = '';
 
   @override
@@ -71,12 +72,16 @@ class _SoePlacesAutocompleteFieldState
       setState(() {
         _predictions = r.predictions;
         _loading = false;
+        _serviceUnavailable = false;
       });
     } catch (_) {
+      // Cle non autorisee / reseau down → degrade gracieusement avec
+      // message inline. L'utilisateur peut taper son adresse manuellement.
       if (!mounted) return;
       setState(() {
         _predictions = const [];
         _loading = false;
+        _serviceUnavailable = true;
       });
     }
   }
@@ -143,6 +148,34 @@ class _SoePlacesAutocompleteFieldState
                     prediction: p,
                     onTap: () => _select(p),
                   ),
+              ],
+            ),
+          ),
+        ] else if (_serviceUnavailable) ...[
+          const SizedBox(height: 6),
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppPalette.warningBg,
+              borderRadius: AppRadius.rMd,
+              border: Border.all(color: AppPalette.warning),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.cloud_off_outlined,
+                  size: 16,
+                  color: AppPalette.warning,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    "Suggestions d'adresse indisponibles — saisissez manuellement votre quartier et votre ville.",
+                    style: AppTypography.caption
+                        .copyWith(color: AppPalette.warning, height: 1.4),
+                  ),
+                ),
               ],
             ),
           ),
