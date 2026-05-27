@@ -86,12 +86,10 @@ class _EmailSentPageState extends ConsumerState<EmailSentPage> {
     ref.listen<AuthState>(otpConfirmViewModelProvider, (prev, next) {
       next.whenOrNull(
         registered: (_) {
-          SoeToast.show(
-            context,
-            message: tr.otp.confirmSuccess,
-            tone: SoeToastTone.success,
-          );
-          context.go(RouteNames.login);
+          // La page suivante (EmailConfirmedPage) affiche deja un retour
+          // visuel "Bienvenue sur SOE" + bouton Se connecter — pas de
+          // toast redondant ici.
+          context.go(RouteNames.emailConfirmed);
         },
         error: (f) => SoeToast.show(
           context,

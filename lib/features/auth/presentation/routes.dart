@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 
 import '../../../core/routing/route_names.dart';
+import 'pages/email_confirmed_page.dart';
 import 'pages/email_sent_page.dart';
 import 'pages/forgot_password_page.dart';
 import 'pages/forgot_password_sent_page.dart';
@@ -45,6 +46,10 @@ List<RouteBase> authRoutes() => [
       GoRoute(
         path: RouteNames.emailSent,
         builder: (context, state) => const EmailSentPage(),
+      ),
+      GoRoute(
+        path: RouteNames.emailConfirmed,
+        builder: (context, state) => const EmailConfirmedPage(),
       ),
       GoRoute(
         path: RouteNames.passwordForgot,

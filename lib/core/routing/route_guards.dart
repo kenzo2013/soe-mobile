@@ -26,6 +26,7 @@ class AuthGuard {
     RouteNames.passwordForgotSent,
     RouteNames.passwordReset,
     RouteNames.emailSent,
+    RouteNames.emailConfirmed,
   };
 
   String? redirect(BuildContext context, GoRouterState state) {

@@ -11,6 +11,7 @@ abstract final class RouteNames {
   static const String registerStep3 = '/register/password';
   static const String registerStep4 = '/register/address';
   static const String emailSent = '/register/email-sent';
+  static const String emailConfirmed = '/register/email-confirmed';
   static const String passwordForgot = '/password/forgot';
   static const String passwordForgotSent = '/password/forgot-sent';
   static const String passwordReset = '/password/reset';
