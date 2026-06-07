@@ -11,6 +11,7 @@ class Child {
     required this.age,
     required this.gender,
     this.classe,
+    this.schoolClassId,
     this.section,
     this.education = ChildEducation.unknown,
     this.subjects = const [],
@@ -23,7 +24,12 @@ class Child {
   final String lastName;
   final int age;
   final ChildGender gender;
+
+  /// Nom de la classe (ex: "CM2", "4ème") — pour affichage liste.
   final String? classe;
+
+  /// UUID de la SchoolClass — pour pre-remplir le picker en mode edit.
+  final String? schoolClassId;
   final String? section;
   final ChildEducation education;
   final List<String> subjects;
@@ -46,7 +52,7 @@ class ChildFormParams {
     required this.age,
     required this.gender,
     required this.city,
-    this.classe,
+    this.schoolClassId,
     this.section,
     this.education,
     this.subjects = const [],
@@ -59,7 +65,10 @@ class ChildFormParams {
   final String lastName;
   final int age;
   final ChildGender gender;
-  final String? classe;
+
+  /// UUID d'une `SchoolClass` recuperee via /references/school_classes.
+  /// Obligatoire cote back ("Classe doit exister").
+  final String? schoolClassId;
   final String? section;
   final ChildEducation? education;
   final List<String> subjects;

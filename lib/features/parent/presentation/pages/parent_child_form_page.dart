@@ -12,6 +12,8 @@ import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_places_autocomplete_field.dart';
 import '../../../../core/widgets/soe_text_field.dart';
 import '../../../../core/widgets/soe_toast.dart';
+import '../../../references/domain/entities/school_class.dart';
+import '../../../references/presentation/providers.dart';
 import '../../domain/entities/child.dart';
 import '../providers.dart';
 
@@ -34,37 +36,36 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
   ChildGender _gender = ChildGender.male;
   ChildEducation _education = ChildEducation.general;
   String _section = 'francophone';
-  String? _classe;
+  /// UUID de la SchoolClass selectionnee (pas le nom).
+  String? _schoolClassId;
   String? _avatarUrl;
   File? _avatarFile;
   String _country = 'Cameroun';
   String _countryCode = 'CM';
   bool _prefilled = false;
 
-  static const _classesPrimary = [
-    'CP', 'CE1', 'CE2', 'CM1', 'CM2',
-  ];
-  static const _classesSecondary = [
-    '6ème', '5ème', '4ème', '3ème',
-  ];
-  static const _classesGeneral = [
-    '2nde', '1re L', '1re S', '1re ES', 'Tle L', 'Tle S', 'Tle ES',
-  ];
-  static const _classesTechnical = [
-    '2nde Pro', '1re STMG', '1re STI2D', 'Tle STMG', 'Tle STI2D',
-  ];
-
-  List<String> get _classOptions => switch (_education) {
-        ChildEducation.primary => _classesPrimary,
-        ChildEducation.general => [..._classesSecondary, ..._classesGeneral],
-        ChildEducation.technic => [..._classesSecondary, ..._classesTechnical],
-        ChildEducation.unknown => [
-            ..._classesPrimary,
-            ..._classesSecondary,
-            ..._classesGeneral,
-            ..._classesTechnical,
-          ],
-      };
+  /// Filtre les SchoolClasses du back selon le niveau d'education et la
+  /// section choisis. Si l'API ne fournit pas ces metadonnes pour une
+  /// classe, on la garde (mieux que de la cacher).
+  List<SchoolClass> _filterClasses(List<SchoolClass> all) {
+    final eduKey = switch (_education) {
+      ChildEducation.primary => 'primary',
+      ChildEducation.general => 'general',
+      ChildEducation.technic => 'technic',
+      ChildEducation.unknown => null,
+    };
+    return all.where((c) {
+      final matchEdu = eduKey == null || c.education == null || c.education == eduKey;
+      final matchSec = c.section == null || c.section == _section;
+      return matchEdu && matchSec;
+    }).toList()
+      ..sort((a, b) {
+        if (a.position != null && b.position != null) {
+          return a.position!.compareTo(b.position!);
+        }
+        return a.name.compareTo(b.name);
+      });
+  }
 
   @override
   void initState() {
@@ -96,7 +97,8 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
           _firstName.text = c.firstName;
           _lastName.text = c.lastName;
           _age.text = c.age.toString();
-          _classe = (c.classe ?? '').isEmpty ? null : c.classe;
+          _schoolClassId =
+              (c.schoolClassId ?? '').isEmpty ? null : c.schoolClassId;
           // L'API renvoie l'adresse en string "neighborhood, city" — on
           // tente une separation simple sur la virgule.
           final addr = (c.address ?? '').split(',').map((s) => s.trim()).toList();
@@ -226,10 +228,13 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
                     value: _education,
                     onChanged: (e) => setState(() {
                       _education = e;
-                      // Reset classe si plus dans les options du nouveau niveau
-                      if (_classe != null && !_classOptions.contains(_classe)) {
-                        _classe = null;
-                      }
+                      // Reset si la classe n'est plus valide pour le nouveau
+                      // niveau — verifie via le provider async.
+                      final all = ref.read(schoolClassesProvider).valueOrNull ??
+                          const <SchoolClass>[];
+                      final stillValid = _filterClasses(all)
+                          .any((c) => c.id == _schoolClassId);
+                      if (!stillValid) _schoolClassId = null;
                     }),
                   ),
                 ),
@@ -242,10 +247,24 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
                 ),
               ]),
               const SizedBox(height: 10),
-              _ClassPicker(
-                value: _classe,
-                options: _classOptions,
-                onChanged: (c) => setState(() => _classe = c),
+              Consumer(
+                builder: (context, ref, _) {
+                  final async = ref.watch(schoolClassesProvider);
+                  return async.when(
+                    loading: () =>
+                        const _ClassPickerSkeleton(label: 'Classe'),
+                    error: (_, __) => const _ClassPickerError(label: 'Classe'),
+                    data: (all) {
+                      final options = _filterClasses(all);
+                      return _ClassPicker(
+                        value: _schoolClassId,
+                        options: options,
+                        onChanged: (id) =>
+                            setState(() => _schoolClassId = id),
+                      );
+                    },
+                  );
+                },
               ),
             ]),
             _section_('Adresse', [
@@ -336,7 +355,7 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
       lastName: _lastName.text.trim(),
       age: int.parse(_age.text),
       gender: _gender,
-      classe: _classe,
+      schoolClassId: _schoolClassId,
       section: _section,
       education: _education,
       city: _city.text.trim(),
@@ -574,19 +593,120 @@ class _ClassPicker extends StatelessWidget {
     required this.onChanged,
   });
   final String? value;
-  final List<String> options;
+  final List<SchoolClass> options;
   final ValueChanged<String?> onChanged;
   @override
   Widget build(BuildContext context) {
+    // Sécurité : si l'id sélectionné n'est plus dans les options, on
+    // l'oublie pour éviter un assert de DropdownButton.
+    final safeValue =
+        options.any((c) => c.id == value) ? value : null;
     return _Dropdown<String?>(
       label: 'Classe',
-      value: value,
-      hint: 'Sélectionnez la classe',
+      value: safeValue,
+      hint: options.isEmpty
+          ? 'Aucune classe disponible'
+          : 'Sélectionnez la classe',
       items: [
         for (final c in options)
-          DropdownMenuItem<String?>(value: c, child: Text(c)),
+          DropdownMenuItem<String?>(value: c.id, child: Text(c.name)),
       ],
       onChanged: onChanged,
+    );
+  }
+}
+
+class _ClassPickerSkeleton extends StatelessWidget {
+  const _ClassPickerSkeleton({required this.label});
+  final String label;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 5),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppPalette.n700,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        Container(
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: AppPalette.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppPalette.n300),
+          ),
+          child: const Row(
+            children: [
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppPalette.teal,
+                ),
+              ),
+              SizedBox(width: 10),
+              Text(
+                'Chargement des classes…',
+                style: TextStyle(fontSize: 13, color: AppPalette.n700),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ClassPickerError extends StatelessWidget {
+  const _ClassPickerError({required this.label});
+  final String label;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 5),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppPalette.n700,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: AppPalette.warningBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppPalette.warning),
+          ),
+          child: const Row(
+            children: [
+              Icon(Icons.cloud_off_outlined,
+                  size: 16, color: AppPalette.warning),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Impossible de charger les classes.',
+                  style: TextStyle(fontSize: 12, color: AppPalette.warning),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

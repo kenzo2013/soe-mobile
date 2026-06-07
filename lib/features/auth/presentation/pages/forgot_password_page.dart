@@ -65,16 +65,20 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: const BoxDecoration(
-                    color: AppPalette.n300,
-                    borderRadius: AppRadius.rLg,
-                  ),
-                  alignment: Alignment.center,
-                  child: const Icon(Icons.lock_outline,
-                      size: 28, color: AppPalette.teal),
+                Row(
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: const BoxDecoration(
+                        color: AppPalette.n300,
+                        borderRadius: AppRadius.rLg,
+                      ),
+                      alignment: Alignment.center,
+                      child: const Icon(Icons.lock_outline,
+                          size: 28, color: AppPalette.teal),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 18),
                 Text(tr.forgotPassword.title, style: AppTypography.h1),
