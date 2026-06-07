@@ -22,7 +22,11 @@ import '../viewmodels/register_flow_viewmodel.dart';
 /// L'email vient du flow d'inscription (RegisterFlowState). On capture localement
 /// avant de reset le flow. Au succès, redirection vers /login.
 class EmailSentPage extends ConsumerStatefulWidget {
-  const EmailSentPage({super.key});
+  const EmailSentPage({super.key, this.email});
+
+  /// Email passé par le caller (ex: login → 412 "compte non confirmé").
+  /// Si null, on lit depuis le RegisterFlow state.
+  final String? email;
 
   @override
   ConsumerState<EmailSentPage> createState() => _EmailSentPageState();
@@ -37,7 +41,8 @@ class _EmailSentPageState extends ConsumerState<EmailSentPage> {
   @override
   void initState() {
     super.initState();
-    _email = ref.read(registerFlowViewModelProvider).email;
+    final fromFlow = ref.read(registerFlowViewModelProvider).email;
+    _email = widget.email?.isNotEmpty == true ? widget.email! : fromFlow;
     Future.microtask(
       () => ref.read(registerFlowViewModelProvider.notifier).reset(),
     );

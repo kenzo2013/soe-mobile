@@ -44,28 +44,25 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
   String _countryCode = 'CM';
   bool _prefilled = false;
 
-  /// Filtre les SchoolClasses du back selon le niveau d'education et la
-  /// section choisis. Si l'API ne fournit pas ces metadonnes pour une
-  /// classe, on la garde (mieux que de la cacher).
-  List<SchoolClass> _filterClasses(List<SchoolClass> all) {
-    final eduKey = switch (_education) {
-      ChildEducation.primary => 'primary',
-      ChildEducation.general => 'general',
-      ChildEducation.technic => 'technic',
-      ChildEducation.unknown => null,
-    };
-    return all.where((c) {
-      final matchEdu = eduKey == null || c.education == null || c.education == eduKey;
-      final matchSec = c.section == null || c.section == _section;
-      return matchEdu && matchSec;
-    }).toList()
-      ..sort((a, b) {
-        if (a.position != null && b.position != null) {
-          return a.position!.compareTo(b.position!);
-        }
-        return a.name.compareTo(b.name);
-      });
-  }
+  /// Mapping enum local → libellé attendu par l'API
+  /// `GET /common/school_classes?education=…`.
+  /// API renvoie les libellés en français capitalisés (cf. Swagger sample :
+  /// ["Primaire", "Secondaire", ...]).
+  String? get _educationApiLabel => switch (_education) {
+        ChildEducation.primary => 'Primaire',
+        ChildEducation.general => 'Général',
+        ChildEducation.technic => 'Technique',
+        ChildEducation.unknown => null,
+      };
+
+  /// Section côté API (capitalisée d'après le Swagger).
+  String get _sectionApiLabel =>
+      _section == 'francophone' ? 'Francophone' : 'Anglophone';
+
+  SchoolClassFilter get _classFilter => (
+        education: _educationApiLabel,
+        section: _sectionApiLabel,
+      );
 
   @override
   void initState() {
@@ -228,13 +225,9 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
                     value: _education,
                     onChanged: (e) => setState(() {
                       _education = e;
-                      // Reset si la classe n'est plus valide pour le nouveau
-                      // niveau — verifie via le provider async.
-                      final all = ref.read(schoolClassesProvider).valueOrNull ??
-                          const <SchoolClass>[];
-                      final stillValid = _filterClasses(all)
-                          .any((c) => c.id == _schoolClassId);
-                      if (!stillValid) _schoolClassId = null;
+                      // Le filtre change → on reset l'id pour eviter
+                      // qu'un id de l'ancien niveau persiste.
+                      _schoolClassId = null;
                     }),
                   ),
                 ),
@@ -242,27 +235,27 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
                 Expanded(
                   child: _SectionPicker(
                     value: _section,
-                    onChanged: (s) => setState(() => _section = s),
+                    onChanged: (s) => setState(() {
+                      _section = s;
+                      _schoolClassId = null;
+                    }),
                   ),
                 ),
               ]),
               const SizedBox(height: 10),
               Consumer(
                 builder: (context, ref, _) {
-                  final async = ref.watch(schoolClassesProvider);
+                  final async = ref.watch(schoolClassesProvider(_classFilter));
                   return async.when(
                     loading: () =>
                         const _ClassPickerSkeleton(label: 'Classe'),
                     error: (_, __) => const _ClassPickerError(label: 'Classe'),
-                    data: (all) {
-                      final options = _filterClasses(all);
-                      return _ClassPicker(
-                        value: _schoolClassId,
-                        options: options,
-                        onChanged: (id) =>
-                            setState(() => _schoolClassId = id),
-                      );
-                    },
+                    data: (refs) => _ClassPicker(
+                      value: _schoolClassId,
+                      options: refs.classes,
+                      onChanged: (id) =>
+                          setState(() => _schoolClassId = id),
+                    ),
                   );
                 },
               ),

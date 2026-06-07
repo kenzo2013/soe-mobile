@@ -6,50 +6,59 @@ class ReferencesRemoteDatasource {
   const ReferencesRemoteDatasource(this._dio);
   final Dio _dio;
 
-  /// CDC §7.7 : GET /references/school_classes
+  /// `GET /common/school_classes` — endpoint officiel (mai 2026, Swagger).
   ///
-  /// Parser tolérant : accepte soit le format JSON:API
-  /// (`{data: [{id, type, attributes: {name, …}}]}`), soit un format plat
-  /// (`{data: [{id, name, …}]}`). Si l'API regroupe par niveau
-  /// (`{data: {primary: [...], general: [...]}}`), on aplatit.
-  Future<List<SchoolClass>> listSchoolClasses() async {
-    final r = await _dio.get<Map<String, dynamic>>('/references/school_classes');
+  /// Réponse :
+  /// ```json
+  /// {
+  ///   "status": { "code": 200, "message": "..." },
+  ///   "data": {
+  ///     "educations": ["Primaire", "Secondaire", ...],
+  ///     "sections":   ["Francophone", "Anglophone"],
+  ///     "school_classes": [
+  ///       { "id": "1", "type": "school_class",
+  ///         "attributes": { "name": "...", "abbr": "..." } }
+  ///     ]
+  ///   }
+  /// }
+  /// ```
+  ///
+  /// `education` et `section` sont des query params optionnels — l'API
+  /// filtre la liste retournée côté serveur (pas de filtre client).
+  Future<SchoolClassReferences> list({String? education, String? section}) async {
+    final r = await _dio.get<Map<String, dynamic>>(
+      '/common/school_classes',
+      queryParameters: {
+        if (education != null && education.isNotEmpty) 'education': education,
+        if (section != null && section.isNotEmpty) 'section': section,
+      },
+    );
     final body = r.data!;
-    final data = body['data'];
-    final maps = <Map<String, dynamic>>[];
+    final data = (body['data'] as Map<String, dynamic>?) ?? const {};
 
-    if (data is List) {
-      maps.addAll(data.cast<Map<String, dynamic>>());
-    } else if (data is Map<String, dynamic>) {
-      // Format groupé par niveau : {primary: [...], general: [...]}
-      for (final entry in data.entries) {
-        if (entry.value is List) {
-          for (final item in (entry.value as List).cast<Map<String, dynamic>>()) {
-            // Si l'item n'a pas d'`education`, on hérite du groupe parent.
-            if (!item.containsKey('education') &&
-                !(item['attributes'] is Map &&
-                    (item['attributes'] as Map).containsKey('education'))) {
-              item['education'] = entry.key;
-            }
-            maps.add(item);
-          }
-        }
-      }
-    }
+    final educations =
+        ((data['educations'] as List?) ?? const []).map((e) => e.toString()).toList();
+    final sections =
+        ((data['sections'] as List?) ?? const []).map((e) => e.toString()).toList();
+    final classes = ((data['school_classes'] as List?) ?? const [])
+        .cast<Map<String, dynamic>>()
+        .map(_parseClass)
+        .toList();
 
-    return maps.map(_parse).toList();
+    return SchoolClassReferences(
+      educations: educations,
+      sections: sections,
+      classes: classes,
+    );
   }
 
-  /// Helper format JSON:API : si `attributes` est un map, on lit dedans.
-  static SchoolClass _parse(Map<String, dynamic> j) {
-    final attrsRaw = j['attributes'];
-    final a = attrsRaw is Map<String, dynamic> ? attrsRaw : j;
+  static SchoolClass _parseClass(Map<String, dynamic> j) {
+    final a =
+        (j['attributes'] is Map<String, dynamic>) ? j['attributes'] as Map<String, dynamic> : j;
     return SchoolClass(
-      id: j['id']?.toString() ?? a['id']?.toString() ?? '',
-      name: a['name']?.toString() ?? a['label']?.toString() ?? '—',
-      education: a['education']?.toString() ?? a['education_level']?.toString(),
-      section: a['section']?.toString(),
-      position: (a['position'] as num?)?.toInt(),
+      id: j['id']?.toString() ?? '',
+      name: a['name']?.toString() ?? a['abbr']?.toString() ?? '—',
+      abbr: a['abbr']?.toString(),
     );
   }
 }

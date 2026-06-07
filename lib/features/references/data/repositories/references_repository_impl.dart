@@ -12,9 +12,12 @@ class ReferencesRepositoryImpl implements ReferencesRepository {
   final ReferencesRemoteDatasource _ds;
 
   @override
-  Future<Result<List<SchoolClass>, Failure>> listSchoolClasses() async {
+  Future<Result<SchoolClassReferences, Failure>> listSchoolClasses({
+    String? education,
+    String? section,
+  }) async {
     try {
-      return Ok(await _ds.listSchoolClasses());
+      return Ok(await _ds.list(education: education, section: section));
     } on DioException catch (e) {
       return Err(ExceptionMapper.fromDio(e));
     }

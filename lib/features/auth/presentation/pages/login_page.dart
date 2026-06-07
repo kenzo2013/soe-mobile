@@ -51,7 +51,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               : RouteNames.parentDashboard;
           context.go(dest);
         },
-        error: (failure) => _showError(context, failure, tr),
+        error: (failure) {
+          // Compte non confirmé (API renvoie 412 maintenant, ou 401 ancien
+          // message "confirm email") → redirige vers la saisie du code
+          // OTP au lieu d'afficher juste une erreur.
+          if (failure is EmailNotConfirmedFailure) {
+            final email = _email.text.trim();
+            context.go(
+              '${RouteNames.emailSent}?email=${Uri.encodeQueryComponent(email)}',
+            );
+            return;
+          }
+          _showError(context, failure, tr);
+        },
       );
     });
 

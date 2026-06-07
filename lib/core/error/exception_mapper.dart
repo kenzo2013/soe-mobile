@@ -41,6 +41,10 @@ abstract final class ExceptionMapper {
         return const NotFoundFailure();
       case 409:
         return ConflictFailure(message);
+      case 412:
+        // Nouveau code (API mai 2026) : compte non confirme.
+        // Avant, l'API renvoyait un 401 + message "confirm email".
+        return const EmailNotConfirmedFailure();
       case 422:
         return ValidationFailure(_extractErrors(data), message);
       case null:

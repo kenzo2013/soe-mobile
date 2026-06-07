@@ -45,7 +45,9 @@ List<RouteBase> authRoutes() => [
       ),
       GoRoute(
         path: RouteNames.emailSent,
-        builder: (context, state) => const EmailSentPage(),
+        builder: (context, state) => EmailSentPage(
+          email: state.uri.queryParameters['email'],
+        ),
       ),
       GoRoute(
         path: RouteNames.emailConfirmed,

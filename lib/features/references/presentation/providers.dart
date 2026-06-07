@@ -16,9 +16,16 @@ final referencesRepositoryProvider = Provider<ReferencesRepository>(
       ReferencesRepositoryImpl(ref.watch(referencesRemoteDatasourceProvider)),
 );
 
-/// Liste des classes scolaires (fetch lazy, cache pendant la session).
-/// `null` si l'endpoint échoue → la UI peut afficher un état dégradé.
-final schoolClassesProvider = FutureProvider<List<SchoolClass>>((ref) async {
-  final r = await ref.read(referencesRepositoryProvider).listSchoolClasses();
-  return r.valueOrNull ?? const [];
+/// Clé du family : couple (education, section) pour filtrer côté serveur.
+typedef SchoolClassFilter = ({String? education, String? section});
+
+/// Charge les classes filtrées par niveau + section. Cache par clé pendant
+/// la session — un changement de filtre déclenche un fetch.
+final schoolClassesProvider = FutureProvider.autoDispose
+    .family<SchoolClassReferences, SchoolClassFilter>((ref, filter) async {
+  final r = await ref.read(referencesRepositoryProvider).listSchoolClasses(
+        education: filter.education,
+        section: filter.section,
+      );
+  return r.valueOrNull ?? SchoolClassReferences.empty;
 });
