@@ -119,6 +119,9 @@ class _ChildTile extends StatelessWidget {
             if (student.classe.isNotEmpty)
               Text(
                 student.classe,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 9,
                   color: AppPalette.n700,

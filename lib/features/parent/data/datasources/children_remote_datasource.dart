@@ -16,6 +16,7 @@ class ChildrenRemoteDatasource {
     final list = (body['data'] as List?) ?? const [];
     return list
         .cast<Map<String, dynamic>>()
+        .map(_toFlatJson)
         .map(ChildDto.fromJson)
         .toList();
   }
@@ -26,7 +27,7 @@ class ChildrenRemoteDatasource {
     );
     final body = r.data!;
     final data = (body['data'] as Map<String, dynamic>?) ?? body;
-    return ChildDto.fromJson(data);
+    return ChildDto.fromJson(_toFlatJson(data));
   }
 
   /// CDC §11.6 : avec photo → multipart/form-data avec `student[photo]`.
@@ -42,7 +43,42 @@ class ChildrenRemoteDatasource {
           : await _buildMultipart(payload, photo),
     );
     final data = (r.data!['data'] as Map<String, dynamic>?) ?? r.data!;
-    return ChildDto.fromJson(data);
+    return ChildDto.fromJson(_toFlatJson(data));
+  }
+
+  /// L'API renvoie les students au format JSON:API :
+  /// `{id, type, attributes: {first_name, ..., school_class: {id, type,
+  /// attributes: {...}}, address: {id, type, attributes: {...}}}}`.
+  /// On aplatit en remontant `attributes` à la racine + on simplifie les
+  /// nested resources `school_class` et `address` pour matcher le DTO.
+  static Map<String, dynamic> _toFlatJson(Map<String, dynamic> json) {
+    final id = json['id']?.toString();
+    final attrsRaw = json['attributes'];
+    final out = <String, dynamic>{};
+    if (id != null) out['id'] = id;
+    if (attrsRaw is Map<String, dynamic>) {
+      out.addAll(attrsRaw);
+    } else {
+      out.addAll(json);
+    }
+    // Aplatit aussi school_class et address si nested au format JSON:API.
+    out['school_class'] = _flattenNested(out['school_class']);
+    out['address'] = _flattenNested(out['address']);
+    return out;
+  }
+
+  static Map<String, dynamic>? _flattenNested(dynamic v) {
+    if (v is! Map<String, dynamic>) return null;
+    final id = v['id']?.toString();
+    final attrs = v['attributes'];
+    final out = <String, dynamic>{};
+    if (id != null) out['id'] = id;
+    if (attrs is Map<String, dynamic>) {
+      out.addAll(attrs);
+    } else {
+      out.addAll(v);
+    }
+    return out;
   }
 
   Future<ChildDto> update(
@@ -57,7 +93,7 @@ class ChildrenRemoteDatasource {
           : await _buildMultipart(payload, photo),
     );
     final data = (r.data!['data'] as Map<String, dynamic>?) ?? r.data!;
-    return ChildDto.fromJson(data);
+    return ChildDto.fromJson(_toFlatJson(data));
   }
 
   Future<void> delete(String id) async {

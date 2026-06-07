@@ -26,8 +26,10 @@ class _ParentNewReservationPageState
   int _frequency = 2;
   DateTime _start = DateTime.now().add(const Duration(days: 7));
   TutorGenderPref _genderPref = TutorGenderPref.noPreference;
-  final TextEditingController _locationCtrl = TextEditingController();
 
+  // NOTE(api): catalogue de matieres temporaire (libelles statiques). Le CDC
+  // §4.4 attend des UUID dans subject_ids ; a remplacer par l'endpoint
+  // matieres des qu'il est livre cote back.
   static const _subjectsCatalog = [
     'Mathématiques',
     'Physique-Chimie',
@@ -38,12 +40,6 @@ class _ParentNewReservationPageState
     'Philosophie',
     'Espagnol',
   ];
-
-  @override
-  void dispose() {
-    _locationCtrl.dispose();
-    super.dispose();
-  }
 
   bool _canContinue() {
     switch (_step) {
@@ -66,8 +62,6 @@ class _ParentNewReservationPageState
       frequency: _frequency,
       estimatedStartDate: _start,
       preferredTutorGender: _genderPref,
-      location:
-          _locationCtrl.text.trim().isEmpty ? null : _locationCtrl.text.trim(),
     );
     ref.read(newReservationViewModelProvider.notifier).submit(params);
   }
@@ -151,13 +145,11 @@ class _ParentNewReservationPageState
                         context: context,
                         initialDate: _start,
                         firstDate: DateTime.now(),
-                        lastDate: DateTime.now()
-                            .add(const Duration(days: 365)),
+                        lastDate: DateTime.now().add(const Duration(days: 365)),
                       );
                       if (d != null) setState(() => _start = d);
                     },
                     onGender: (g) => setState(() => _genderPref = g),
-                    locationController: _locationCtrl,
                   ),
                 _ => _Step3(
                     key: const ValueKey(2),
@@ -166,7 +158,6 @@ class _ParentNewReservationPageState
                     frequency: _frequency,
                     start: _start,
                     genderPref: _genderPref,
-                    location: _locationCtrl.text,
                   ),
               },
             ),
@@ -229,8 +220,7 @@ class _ProgressBar extends StatelessWidget {
               const Spacer(),
               Text(
                 '${(pct * 100).round()}%',
-                style:
-                    const TextStyle(fontSize: 11, color: AppPalette.n700),
+                style: const TextStyle(fontSize: 11, color: AppPalette.n700),
               ),
             ],
           ),
@@ -482,7 +472,6 @@ class _Step2 extends StatelessWidget {
     required this.onFrequency,
     required this.onPickStart,
     required this.onGender,
-    required this.locationController,
   });
   final int frequency;
   final DateTime start;
@@ -490,7 +479,6 @@ class _Step2 extends StatelessWidget {
   final ValueChanged<int> onFrequency;
   final VoidCallback onPickStart;
   final ValueChanged<TutorGenderPref> onGender;
-  final TextEditingController locationController;
 
   @override
   Widget build(BuildContext context) {
@@ -657,26 +645,6 @@ class _Step2 extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 18),
-        _sectionLabel('Lieu des cours'),
-        TextField(
-          controller: locationController,
-          decoration: InputDecoration(
-            hintText: 'Bastos, Yaoundé',
-            filled: true,
-            fillColor: AppPalette.white,
-            prefixIcon:
-                const Icon(Icons.public, size: 16, color: AppPalette.n500),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: AppPalette.n300),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: AppPalette.n300),
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -752,14 +720,12 @@ class _Step3 extends StatelessWidget {
     required this.frequency,
     required this.start,
     required this.genderPref,
-    required this.location,
   });
   final Child? child;
   final List<String> subjects;
   final int frequency;
   final DateTime start;
   final TutorGenderPref genderPref;
-  final String location;
 
   @override
   Widget build(BuildContext context) {
@@ -835,12 +801,14 @@ class _Step3 extends StatelessWidget {
                 'Fréquence',
                 '$frequency séance${frequency > 1 ? 's' : ''}/semaine',
               ),
-              _row('Tuteur', switch (genderPref) {
-                TutorGenderPref.male => 'Homme',
-                TutorGenderPref.female => 'Femme',
-                TutorGenderPref.noPreference => 'Pas de préférence',
-              }),
-              _row('Lieu', location.isEmpty ? '—' : location, last: true),
+              _row(
+                  'Tuteur',
+                  switch (genderPref) {
+                    TutorGenderPref.male => 'Homme',
+                    TutorGenderPref.female => 'Femme',
+                    TutorGenderPref.noPreference => 'Pas de préférence',
+                  },
+                  last: true),
             ],
           ),
         ),
@@ -849,8 +817,7 @@ class _Step3 extends StatelessWidget {
   }
 
   Widget _row(String k, String v, {bool last = false}) => Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           border: last
               ? null

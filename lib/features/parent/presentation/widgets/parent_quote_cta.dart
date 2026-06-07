@@ -9,7 +9,19 @@ class ParentQuoteCta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
+    return DecoratedBox(
+      // Ombre CTA du design : 0 8px 20px rgba(255,180,0,.35)
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: AppPalette.yellow.withValues(alpha: 0.35),
+            offset: const Offset(0, 8),
+            blurRadius: 20,
+          ),
+        ],
+      ),
+      child: Material(
       color: AppPalette.yellow,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
@@ -33,7 +45,7 @@ class ParentQuoteCta extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Expanded(
+              const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -65,6 +77,7 @@ class ParentQuoteCta extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }

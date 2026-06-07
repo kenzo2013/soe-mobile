@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/child.dart';
+import '../school_meta_mapping.dart';
 
 part 'child_dto.freezed.dart';
 part 'child_dto.g.dart';
@@ -34,8 +35,11 @@ extension ChildDtoX on ChildDto {
         gender: _parseGender(gender),
         classe: schoolClass?['name']?.toString(),
         schoolClassId: schoolClass?['id']?.toString(),
-        section: section,
-        education: _parseEducation(education),
+        // L'API renvoie l'enum lowercase (ex: "francophone", "general") —
+        // on remappe vers le libellé affichable ("Francophone", "Général")
+        // pour qu'il matche les options des pickers.
+        section: SchoolMetaMapping.sectionApiToLabel(section),
+        education: SchoolMetaMapping.educationApiToLabel(education),
         subjects: subjects,
         avatarUrl: avatarUrl,
         address: _formatAddress(address),
@@ -43,27 +47,36 @@ extension ChildDtoX on ChildDto {
 }
 
 /// Payload pour POST/PATCH /parents/students.
-/// CDC §11.5 : valeurs `gender` = male|feminine, `education` = general|technic|primary.
-/// CDC §11.6 : avec photo, utiliser multipart/form-data (champ `student[photo]`).
+/// `gender` = male|feminine.
+/// `education` et `section` sont envoyés en libellé brut tel que choisi
+/// par l'utilisateur dans les listes `data.educations` / `data.sections`
+/// retournées par `GET /common/school_classes`.
 /// `school_class_id` est obligatoire ("Classe doit exister") — UUID
-/// recupere via GET /references/school_classes (CDC §7.7).
-Map<String, dynamic> childParamsToJson(ChildFormParams p) => {
-      'first_name': p.firstName,
-      'last_name': p.lastName,
-      'age': p.age,
-      'gender': _serializeGender(p.gender),
-      if (p.section != null) 'section': p.section,
-      if (p.education != null) 'education': _serializeEducation(p.education!),
-      if (p.schoolClassId != null && p.schoolClassId!.isNotEmpty)
-        'school_class_id': p.schoolClassId,
-      'address_attributes': {
-        if (p.neighborhood != null && p.neighborhood!.isNotEmpty)
-          'neighborhood': p.neighborhood,
-        'city': p.city,
-        'country': p.country,
-        'country_code': p.countryCode,
-      },
-    };
+/// récupéré via `data.school_classes[].id`.
+Map<String, dynamic> childParamsToJson(ChildFormParams p) {
+  // Convertit les libellés affichés vers les enums attendus en payload :
+  // "Général"      → "general"
+  // "Francophone"  → "francophone"
+  final eduApi = SchoolMetaMapping.educationLabelToApi(p.education);
+  final secApi = SchoolMetaMapping.sectionLabelToApi(p.section);
+  return {
+    'first_name': p.firstName,
+    'last_name': p.lastName,
+    'age': p.age,
+    'gender': _serializeGender(p.gender),
+    if (secApi != null && secApi.isNotEmpty) 'section': secApi,
+    if (eduApi != null && eduApi.isNotEmpty) 'education': eduApi,
+    if (p.schoolClassId != null && p.schoolClassId!.isNotEmpty)
+      'school_class_id': p.schoolClassId,
+    'address_attributes': {
+      if (p.neighborhood != null && p.neighborhood!.isNotEmpty)
+        'neighborhood': p.neighborhood,
+      'city': p.city,
+      'country': p.country,
+      'country_code': p.countryCode,
+    },
+  };
+}
 
 ChildGender _parseGender(String? raw) => switch (raw) {
       'male' => ChildGender.male,
@@ -75,20 +88,6 @@ String _serializeGender(ChildGender g) => switch (g) {
       ChildGender.male => 'male',
       ChildGender.feminine => 'feminine',
       ChildGender.unknown => 'male',
-    };
-
-ChildEducation _parseEducation(String? raw) => switch (raw) {
-      'primary' => ChildEducation.primary,
-      'general' => ChildEducation.general,
-      'technic' => ChildEducation.technic,
-      _ => ChildEducation.unknown,
-    };
-
-String _serializeEducation(ChildEducation e) => switch (e) {
-      ChildEducation.primary => 'primary',
-      ChildEducation.general => 'general',
-      ChildEducation.technic => 'technic',
-      ChildEducation.unknown => 'general',
     };
 
 String? _formatAddress(Map<String, dynamic>? a) {

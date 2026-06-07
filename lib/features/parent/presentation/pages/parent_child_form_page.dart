@@ -34,8 +34,15 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
   late final TextEditingController _neighborhood;
   late final TextEditingController _city;
   ChildGender _gender = ChildGender.male;
-  ChildEducation _education = ChildEducation.general;
-  String _section = 'francophone';
+
+  /// Niveau d'éducation choisi — libellé brut tel que renvoyé par l'API
+  /// dans `data.educations` (ex: "Primaire", "Secondaire", "Général").
+  String? _education;
+
+  /// Section choisie — libellé brut tel que renvoyé par l'API dans
+  /// `data.sections` (ex: "Francophone", "Anglophone").
+  String? _section;
+
   /// UUID de la SchoolClass selectionnee (pas le nom).
   String? _schoolClassId;
   String? _avatarUrl;
@@ -44,25 +51,16 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
   String _countryCode = 'CM';
   bool _prefilled = false;
 
-  /// Mapping enum local → libellé attendu par l'API
-  /// `GET /common/school_classes?education=…`.
-  /// API renvoie les libellés en français capitalisés (cf. Swagger sample :
-  /// ["Primaire", "Secondaire", ...]).
-  String? get _educationApiLabel => switch (_education) {
-        ChildEducation.primary => 'Primaire',
-        ChildEducation.general => 'Général',
-        ChildEducation.technic => 'Technique',
-        ChildEducation.unknown => null,
-      };
-
-  /// Section côté API (capitalisée d'après le Swagger).
-  String get _sectionApiLabel =>
-      _section == 'francophone' ? 'Francophone' : 'Anglophone';
-
+  /// Filtre courant pour `schoolClassesProvider`.
   SchoolClassFilter get _classFilter => (
-        education: _educationApiLabel,
-        section: _sectionApiLabel,
+        education: _education,
+        section: _section,
       );
+
+  /// Filtre vide → fetch global utilisé pour récupérer `educations` et
+  /// `sections` (les listes de choix des pickers Niveau/Section).
+  static const SchoolClassFilter _emptyFilter =
+      (education: null, section: null);
 
   @override
   void initState() {
@@ -219,29 +217,53 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
               ]),
             ]),
             _section_('Scolarité', [
-              Row(children: [
-                Expanded(
-                  child: _EducationPicker(
-                    value: _education,
-                    onChanged: (e) => setState(() {
-                      _education = e;
-                      // Le filtre change → on reset l'id pour eviter
-                      // qu'un id de l'ancien niveau persiste.
-                      _schoolClassId = null;
-                    }),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _SectionPicker(
-                    value: _section,
-                    onChanged: (s) => setState(() {
-                      _section = s;
-                      _schoolClassId = null;
-                    }),
-                  ),
-                ),
-              ]),
+              // Listes Niveau + Section viennent des keys API
+              // `data.educations` et `data.sections` du fetch sans filtre.
+              Consumer(
+                builder: (context, ref, _) {
+                  final globalAsync =
+                      ref.watch(schoolClassesProvider(_emptyFilter));
+                  return globalAsync.when(
+                    loading: () => Row(children: const [
+                      Expanded(child: _ClassPickerSkeleton(label: 'Niveau')),
+                      SizedBox(width: 10),
+                      Expanded(child: _ClassPickerSkeleton(label: 'Section')),
+                    ]),
+                    error: (_, __) => Row(children: const [
+                      Expanded(child: _ClassPickerError(label: 'Niveau')),
+                      SizedBox(width: 10),
+                      Expanded(child: _ClassPickerError(label: 'Section')),
+                    ]),
+                    data: (refs) => Row(children: [
+                      Expanded(
+                        child: _DynamicPicker(
+                          label: 'Niveau',
+                          value: _education,
+                          options: refs.educations,
+                          hint: 'Choisir',
+                          onChanged: (v) => setState(() {
+                            _education = v;
+                            _schoolClassId = null;
+                          }),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _DynamicPicker(
+                          label: 'Section',
+                          value: _section,
+                          options: refs.sections,
+                          hint: 'Choisir',
+                          onChanged: (v) => setState(() {
+                            _section = v;
+                            _schoolClassId = null;
+                          }),
+                        ),
+                      ),
+                    ]),
+                  );
+                },
+              ),
               const SizedBox(height: 10),
               Consumer(
                 builder: (context, ref, _) {
@@ -533,46 +555,34 @@ class _GenderPicker extends StatelessWidget {
   }
 }
 
-class _EducationPicker extends StatelessWidget {
-  const _EducationPicker({required this.value, required this.onChanged});
-  final ChildEducation value;
-  final ValueChanged<ChildEducation> onChanged;
-  @override
-  Widget build(BuildContext context) {
-    return _Dropdown<ChildEducation>(
-      label: 'Niveau',
-      value: value,
-      items: const [
-        DropdownMenuItem(
-          value: ChildEducation.primary,
-          child: Text('Primaire'),
-        ),
-        DropdownMenuItem(
-          value: ChildEducation.general,
-          child: Text('Général'),
-        ),
-        DropdownMenuItem(
-          value: ChildEducation.technic,
-          child: Text('Technique'),
-        ),
-      ],
-      onChanged: onChanged,
-    );
-  }
-}
+/// Picker générique alimenté par une liste de strings (libellés API).
+/// Sert pour Niveau (`data.educations`) et Section (`data.sections`).
+class _DynamicPicker extends StatelessWidget {
+  const _DynamicPicker({
+    required this.label,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+    this.hint,
+  });
+  final String label;
+  final String? value;
+  final List<String> options;
+  final ValueChanged<String?> onChanged;
+  final String? hint;
 
-class _SectionPicker extends StatelessWidget {
-  const _SectionPicker({required this.value, required this.onChanged});
-  final String value;
-  final ValueChanged<String> onChanged;
   @override
   Widget build(BuildContext context) {
-    return _Dropdown<String>(
-      label: 'Section',
-      value: value,
-      items: const [
-        DropdownMenuItem(value: 'francophone', child: Text('Francophone')),
-        DropdownMenuItem(value: 'anglophone', child: Text('Anglophone')),
+    // Sécurité : si la valeur sélectionnée n'est plus dans les options
+    // (cas rare lors d'un refresh API), on l'oublie.
+    final safeValue = options.contains(value) ? value : null;
+    return _Dropdown<String?>(
+      label: label,
+      value: safeValue,
+      hint: hint ?? (options.isEmpty ? 'Aucune option' : 'Choisir'),
+      items: [
+        for (final o in options)
+          DropdownMenuItem<String?>(value: o, child: Text(o)),
       ],
       onChanged: onChanged,
     );

@@ -67,7 +67,6 @@ class NewReservationParams {
     required this.frequency,
     required this.estimatedStartDate,
     required this.preferredTutorGender,
-    this.location,
   });
 
   final String childId;
@@ -75,5 +74,4 @@ class NewReservationParams {
   final int frequency;
   final DateTime estimatedStartDate;
   final TutorGenderPref preferredTutorGender;
-  final String? location;
 }

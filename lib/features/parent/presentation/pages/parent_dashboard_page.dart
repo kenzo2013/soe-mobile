@@ -27,7 +27,8 @@ class ParentDashboardPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(parentDashboardViewModelProvider);
     final user = ref.watch(currentUserProvider).asData?.value;
-    final firstName = (user?.firstName.isNotEmpty ?? false) ? user!.firstName : 'Parent';
+    final firstName =
+        (user?.firstName.isNotEmpty ?? false) ? user!.firstName : 'Parent';
 
     return Scaffold(
       backgroundColor: AppPalette.n100,
@@ -49,8 +50,8 @@ class ParentDashboardPage extends ConsumerWidget {
           child: _LoadedView(
             firstName: firstName,
             data: d,
-            onAddChild: () => context.go(RouteNames.parentStudents),
-            onRequestQuote: () => context.go(RouteNames.parentReservations),
+            onAddChild: () => context.push(RouteNames.parentStudentNew),
+            onRequestQuote: () => context.push(RouteNames.parentReservationNew),
           ),
         ),
       ),
@@ -129,114 +130,111 @@ class _LoadedView extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(
-          child: ParentGreetHeader(
-            firstName: firstName,
-            dateLine: _todayLine(sessions.length),
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Transform.translate(
-            offset: const Offset(0, -16),
-            child: Container(
-              decoration: const BoxDecoration(
-                color: AppPalette.n100,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
+          // Header + feuille de contenu dans une SEULE Column : la feuille,
+          // peinte APRES le header dans la meme Column, remonte par-dessus lui
+          // (Transform -24) et ses coins arrondis laissent voir le degrade
+          // derriere → effet "pull-up". En slivers separes, le header peignait
+          // au-dessus de la feuille → transition plate.
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ParentGreetHeader(
+                firstName: firstName,
+                dateLine: _todayLine(sessions.length),
+              ),
+              Transform.translate(
+                offset: const Offset(0, -24),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: AppPalette.n100,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(24),
+                      topRight: Radius.circular(24),
+                    ),
+                  ),
+                  padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ParentQuoteCta(onTap: onRequestQuote),
+                      const SizedBox(height: 22),
+                      _sectionHeader(
+                        'Mes enfants',
+                        actionLabel: 'Voir tout',
+                        onAction: () => context.push(RouteNames.parentStudents),
+                      ),
+                      ChildAvatarsRow(
+                        students: students,
+                        onAdd: onAddChild,
+                      ),
+                      if (sessions.isNotEmpty) ...[
+                        const SizedBox(height: 22),
+                        _sectionHeader(
+                          'Séances du jour',
+                          count: sessions.length.toString(),
+                          actionLabel: 'Calendrier',
+                          onAction: () =>
+                              context.push(RouteNames.parentSessions),
+                        ),
+                        SoeCard(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Column(
+                            children: [
+                              for (var i = 0; i < sessions.length; i++) ...[
+                                TodaySessionRow(session: sessions[i]),
+                                if (i < sessions.length - 1)
+                                  Container(
+                                    height: 1,
+                                    color: AppPalette.n100,
+                                  ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                      if (reservations.isNotEmpty) ...[
+                        const SizedBox(height: 22),
+                        _sectionHeader(
+                          'Réservations récentes',
+                          actionLabel: 'Tout voir',
+                          onAction: () =>
+                              context.push(RouteNames.parentReservations),
+                        ),
+                        SoeCard(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Column(
+                            children: [
+                              for (var i = 0; i < reservations.length; i++) ...[
+                                RecentReservationRow(
+                                  reservation: reservations[i],
+                                ),
+                                if (i < reservations.length - 1)
+                                  Container(
+                                    height: 1,
+                                    color: AppPalette.n100,
+                                  ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
-              padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ParentQuoteCta(onTap: onRequestQuote),
-                  const SizedBox(height: 22),
-                  _sectionHeader(
-                    'Mes enfants',
-                    action: const Text(
-                      'Voir tout',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppPalette.teal,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  ChildAvatarsRow(
-                    students: students,
-                    onAdd: onAddChild,
-                  ),
-                  if (sessions.isNotEmpty) ...[
-                    const SizedBox(height: 22),
-                    _sectionHeader(
-                      'Séances du jour',
-                      count: sessions.length.toString(),
-                      action: const Text(
-                        'Calendrier',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppPalette.teal,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    SoeCard(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        children: [
-                          for (var i = 0; i < sessions.length; i++) ...[
-                            TodaySessionRow(session: sessions[i]),
-                            if (i < sessions.length - 1)
-                              Container(
-                                height: 1,
-                                color: AppPalette.n100,
-                              ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ],
-                  if (reservations.isNotEmpty) ...[
-                    const SizedBox(height: 22),
-                    _sectionHeader(
-                      'Réservations récentes',
-                      action: const Text(
-                        'Tout voir',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppPalette.teal,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    SoeCard(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        children: [
-                          for (var i = 0; i < reservations.length; i++) ...[
-                            RecentReservationRow(
-                              reservation: reservations[i],
-                            ),
-                            if (i < reservations.length - 1)
-                              Container(
-                                height: 1,
-                                color: AppPalette.n100,
-                              ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
+            ],
           ),
         ),
       ],
     );
   }
 
-  Widget _sectionHeader(String title, {String? count, Widget? action}) {
+  Widget _sectionHeader(
+    String title, {
+    String? count,
+    String? actionLabel,
+    VoidCallback? onAction,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, top: 4),
       child: Row(
@@ -262,7 +260,22 @@ class _LoadedView extends StatelessWidget {
             ),
           ],
           const Spacer(),
-          if (action != null) action,
+          if (actionLabel != null)
+            InkWell(
+              onTap: onAction,
+              borderRadius: BorderRadius.circular(6),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                child: Text(
+                  actionLabel,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppPalette.teal,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -280,77 +293,86 @@ class _EmptyDashboard extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.zero,
       children: [
-        ParentGreetHeader(firstName: firstName, dateLine: 'Aucune séance prévue'),
-        Transform.translate(
-          offset: const Offset(0, -16),
-          child: Container(
-            decoration: const BoxDecoration(
-              color: AppPalette.n100,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
+        // Header + feuille dans une SEULE Column pour que la feuille remonte
+        // par-dessus le header (coins arrondis visibles), cf. _LoadedView.
+        Column(
+          children: [
+            ParentGreetHeader(
+              firstName: firstName,
+              dateLine: 'Aucune séance prévue',
             ),
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
-            child: Column(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: AppPalette.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: AppPalette.n300),
-                  ),
-                  padding: const EdgeInsets.fromLTRB(22, 28, 22, 28),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 76,
-                        height: 76,
-                        decoration: const BoxDecoration(
-                          color: AppPalette.infoBg,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.groups_outlined,
-                          size: 36,
-                          color: AppPalette.teal,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Bienvenue sur SOE',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: AppPalette.ink,
-                          letterSpacing: -0.2,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        "Pour commencer, ajoutez le profil d'un de vos enfants. "
-                        "Vous pourrez ensuite demander un devis aux tuteurs.",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppPalette.n700,
-                          height: 1.5,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      SoeButton(
-                        label: 'Ajouter mon premier enfant',
-                        onPressed: onAddChild,
-                        icon: Icons.add,
-                      ),
-                    ],
+            Transform.translate(
+              offset: const Offset(0, -24),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: AppPalette.n100,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(24),
+                    topRight: Radius.circular(24),
                   ),
                 ),
-                const SizedBox(height: 22),
-                ..._howItWorks,
-              ],
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+                child: Column(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppPalette.white,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: AppPalette.n300),
+                      ),
+                      padding: const EdgeInsets.fromLTRB(22, 28, 22, 28),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 76,
+                            height: 76,
+                            decoration: const BoxDecoration(
+                              color: AppPalette.infoBg,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.groups_outlined,
+                              size: 36,
+                              color: AppPalette.teal,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Bienvenue sur SOE',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: AppPalette.ink,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            "Pour commencer, ajoutez le profil d'un de vos enfants. "
+                            "Vous pourrez ensuite demander un devis aux tuteurs.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppPalette.n700,
+                              height: 1.5,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          SoeButton(
+                            label: 'Ajouter mon premier enfant',
+                            onPressed: onAddChild,
+                            icon: Icons.add,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 22),
+                    ..._howItWorks,
+                  ],
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ],
     );

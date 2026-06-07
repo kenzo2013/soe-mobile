@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../network/image_url.dart';
 import '../theme/app_palette.dart';
 
 enum SoeAvatarSize { mini, list, profile, detail }
@@ -35,21 +36,22 @@ class SoeAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final resolvedUrl = ImageUrl.resolve(imageUrl);
     return Container(
       width: _diameter,
       height: _diameter,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: AppPalette.teal,
-        image: imageUrl == null
+        image: resolvedUrl == null
             ? null
             : DecorationImage(
-                image: NetworkImage(imageUrl!),
+                image: NetworkImage(resolvedUrl),
                 fit: BoxFit.cover,
               ),
       ),
       alignment: Alignment.center,
-      child: imageUrl != null
+      child: resolvedUrl != null
           ? null
           : Text(
               _initials(name),

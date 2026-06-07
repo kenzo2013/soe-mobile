@@ -52,7 +52,7 @@ List<RouteBase> parentRoutes() => [
         builder: (context, state) => const ParentReservationsListPage(),
       ),
       GoRoute(
-        path: '/parent/reservations/new',
+        path: RouteNames.parentReservationNew,
         builder: (context, state) => const ParentNewReservationPage(),
       ),
       GoRoute(

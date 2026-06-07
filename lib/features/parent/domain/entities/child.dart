@@ -1,8 +1,5 @@
 enum ChildGender { male, feminine, unknown }
 
-/// Valeurs API officielles (CDC §11.5) : `general`, `technic`, `primary`.
-enum ChildEducation { primary, general, technic, unknown }
-
 class Child {
   const Child({
     required this.id,
@@ -13,7 +10,7 @@ class Child {
     this.classe,
     this.schoolClassId,
     this.section,
-    this.education = ChildEducation.unknown,
+    this.education,
     this.subjects = const [],
     this.avatarUrl,
     this.address,
@@ -30,8 +27,15 @@ class Child {
 
   /// UUID de la SchoolClass — pour pre-remplir le picker en mode edit.
   final String? schoolClassId;
+
+  /// Libellé de la section tel que renvoyé par l'API
+  /// (ex: "Francophone", "Anglophone"). Source : `data.sections`.
   final String? section;
-  final ChildEducation education;
+
+  /// Libellé du niveau d'éducation tel que renvoyé par l'API
+  /// (ex: "Primaire", "Secondaire"). Source : `data.educations`.
+  final String? education;
+
   final List<String> subjects;
   final String? avatarUrl;
   final String? address;
@@ -66,11 +70,18 @@ class ChildFormParams {
   final int age;
   final ChildGender gender;
 
-  /// UUID d'une `SchoolClass` recuperee via /references/school_classes.
+  /// UUID d'une `SchoolClass` recuperee via /common/school_classes.
   /// Obligatoire cote back ("Classe doit exister").
   final String? schoolClassId;
+
+  /// Libellé section tel que choisi par l'utilisateur dans la liste
+  /// `data.sections` de l'API (ex: "Francophone").
   final String? section;
-  final ChildEducation? education;
+
+  /// Libellé du niveau d'éducation choisi dans la liste `data.educations`
+  /// (ex: "Primaire", "Secondaire", "Général", "Technique").
+  final String? education;
+
   final List<String> subjects;
 
   /// Adresse — `city` est obligatoire côté API (CDC + 422).

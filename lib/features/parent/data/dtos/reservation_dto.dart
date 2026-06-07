@@ -93,10 +93,14 @@ Map<String, dynamic> newReservationParamsToJson(NewReservationParams p) {
           TutorGenderPref.female => 'female',
           TutorGenderPref.noPreference => 'no_preference',
         },
+        // CDC §4.4 : subject_ids attend des UUID de matieres.
+        // TODO(api): brancher sur l'endpoint matieres des qu'il existe cote
+        // back (ex: GET /common/subjects) pour envoyer de vrais UUID. En
+        // attendant on transmet les libelles du catalogue statique — le back
+        // les rejette (400) tant que l'endpoint n'est pas livre.
         'subject_ids': p.subjects,
       },
     ],
-    if (p.location != null) 'location': p.location,
   };
 }
 
