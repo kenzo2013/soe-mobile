@@ -61,6 +61,17 @@ dev_dependencies:
 
   very_good_analysis: ^6.0.0
 
+  flutter_launcher_icons: ^0.14.1
+
+# Icône d'app SOE : ampoule blanche sur fond jaune #FFB000.
+flutter_launcher_icons:
+  image_path: "assets/icon/app_icon.png"
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  adaptive_icon_background: "#FFB000"
+  adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
+
 flutter:
   uses-material-design: true
   generate: true

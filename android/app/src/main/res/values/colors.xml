@@ -7,4 +7,5 @@
     <color name="soe_yellow">#FFFFB000</color>
     <color name="soe_ink">#FF010814</color>
     <color name="soe_white">#FFFCFDFF</color>
+	<color name="ic_launcher_background">#FFB000</color>
 </resources>
