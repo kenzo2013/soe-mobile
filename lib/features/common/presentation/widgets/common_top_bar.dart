@@ -29,26 +29,29 @@ class CommonTopBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       scrolledUnderElevation: 0,
       automaticallyImplyLeading: false,
-      titleSpacing: 0,
-      leadingWidth: canPop ? 52 : 16,
+      titleSpacing: canPop ? 12 : 16,
+      leadingWidth: canPop ? 56 : 16,
       leading: canPop
-          ? Padding(
-              padding: const EdgeInsets.only(left: 12),
-              child: Material(
-                color: AppPalette.white,
-                borderRadius: BorderRadius.circular(10),
-                child: InkWell(
-                  onTap: () => context.pop(),
-                  borderRadius: BorderRadius.circular(10),
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppPalette.n300),
+          ? Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: Material(
+                  color: AppPalette.white,
+                  borderRadius: BorderRadius.circular(12),
+                  child: InkWell(
+                    onTap: () => context.pop(),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppPalette.n300),
+                      ),
+                      child: const Icon(Icons.chevron_left,
+                          size: 22, color: AppPalette.ink),
                     ),
-                    child: const Icon(Icons.chevron_left,
-                        size: 22, color: AppPalette.ink),
                   ),
                 ),
               ),

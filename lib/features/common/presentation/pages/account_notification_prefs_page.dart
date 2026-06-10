@@ -7,7 +7,6 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_toast.dart';
 import '../../domain/entities/notification_preferences.dart';
-import '../common_action.dart';
 import '../providers.dart';
 import '../widgets/common_top_bar.dart';
 
@@ -27,6 +26,9 @@ class AccountNotificationPrefsPage extends ConsumerWidget {
         subtitle: 'Sauvegarde automatique',
       ),
       body: async.when(
+        // Garde la grille affichée pendant le re-fetch déclenché par un toggle
+        // (sinon flash du spinner à chaque sauvegarde).
+        skipLoadingOnReload: true,
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => ErrorView(
           failure: e is Failure ? e : const UnknownFailure(),
@@ -62,34 +64,33 @@ class _PrefsGridState extends ConsumerState<_PrefsGrid> {
 
   Future<void> _toggle(NotificationCategory cat, String channel) async {
     final previous = _prefs;
-    final updated = _prefs.withUpdated(cat.toggle(channel));
+    final optimistic = _prefs.withUpdated(cat.toggle(channel));
     setState(() {
-      _prefs = updated;
+      _prefs = optimistic;
       _savedHint = false;
     });
 
-    final ok = await ref
-        .read(commonActionViewModelProvider('prefs').notifier)
-        .run(() async {
-      final r = await ref
-          .read(commonRepositoryProvider)
-          .updateNotificationPreferences(updated);
-      return switch (r) {
-        Ok() => const Ok<void, Failure>(null),
-        Err(:final failure) => Err<void, Failure>(failure),
-      };
-    });
+    final r = await ref
+        .read(commonRepositoryProvider)
+        .updateNotificationPreferences(optimistic);
 
     if (!mounted) return;
-    if (ok) {
-      setState(() => _savedHint = true);
-    } else {
-      setState(() => _prefs = previous); // revert
-      SoeToast.show(
-        context,
-        message: 'Échec de la sauvegarde',
-        tone: SoeToastTone.danger,
-      );
+    switch (r) {
+      case Ok(:final value):
+        // Synchronise avec l'état serveur + rafraîchit le provider partagé
+        // (sous-titre du hub, et état correct au prochain accès).
+        setState(() {
+          _prefs = value;
+          _savedHint = true;
+        });
+        ref.invalidate(notificationPreferencesProvider);
+      case Err():
+        setState(() => _prefs = previous); // revert
+        SoeToast.show(
+          context,
+          message: 'Échec de la sauvegarde',
+          tone: SoeToastTone.danger,
+        );
     }
   }
 
