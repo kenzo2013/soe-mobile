@@ -13,6 +13,7 @@ import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/soe_phone_field.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/contract.dart';
 import '../../domain/entities/parent_invitation.dart';
 import '../../domain/entities/parent_program.dart';
@@ -103,16 +104,17 @@ class ParentReviewsListPage extends ConsumerWidget {
   const ParentReviewsListPage({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(reviewsListViewModelProvider(null));
     return _Shell(
-      title: 'Mes avis',
+      title: tr.parent.reviews.title,
       activeRoute: '/parent/reviews',
       body: _asyncList<ParentReview>(
         state: state as AsyncListState<ParentReview>,
         onRetry: () =>
             ref.read(reviewsListViewModelProvider(null).notifier).refresh(),
         onLoaded: (items) => items.isEmpty
-            ? const _EmptyState(message: 'Aucun avis donné pour le moment')
+            ? _EmptyState(message: tr.parent.reviews.empty)
             : ListView.separated(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                 itemCount: items.length,
@@ -197,16 +199,17 @@ class ParentProgramsListPage extends ConsumerWidget {
   const ParentProgramsListPage({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(programsListViewModelProvider(null));
     return _Shell(
-      title: 'Programmes',
+      title: tr.parent.programs.title,
       activeRoute: '/parent/programs',
       body: _asyncList<ParentProgram>(
         state: state as AsyncListState<ParentProgram>,
         onRetry: () =>
             ref.read(programsListViewModelProvider(null).notifier).refresh(),
         onLoaded: (items) => items.isEmpty
-            ? const _EmptyState(message: 'Aucun programme disponible')
+            ? _EmptyState(message: tr.parent.programs.empty)
             : ListView.separated(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                 itemCount: items.length,
@@ -268,7 +271,9 @@ class ParentProgramsListPage extends ConsumerWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '${(p.progress * 100).round()}% complet',
+                          tr.parent.programs.percentComplete(
+                            percent: (p.progress * 100).round(),
+                          ),
                           style: const TextStyle(
                             fontSize: 11,
                             color: AppPalette.n700,
@@ -304,15 +309,19 @@ class ParentInvitationsListPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(invitationsListViewModelProvider(null));
     final items = state is AsyncListLoaded<ParentInvitation>
         ? state.items
         : const <ParentInvitation>[];
     final count = items.length;
-    final subtitle =
-        count == 0 ? null : '$count personne${count > 1 ? "s" : ""}';
+    final subtitle = count == 0
+        ? null
+        : (count > 1
+            ? tr.parent.invitations.countMany(count: count)
+            : tr.parent.invitations.countOne(count: count));
     return _Shell(
-      title: 'Invitations',
+      title: tr.parent.invitations.title,
       subtitle: subtitle,
       activeRoute: '/parent/invitations',
       actions: [
@@ -335,9 +344,9 @@ class ParentInvitationsListPage extends ConsumerWidget {
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 22, 16, 6),
               sliver: SliverToBoxAdapter(
-                child: const Text(
-                  'Personnes invitées',
-                  style: TextStyle(
+                child: Text(
+                  tr.parent.invitations.invitedPeople,
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: AppPalette.ink,
@@ -347,13 +356,13 @@ class ParentInvitationsListPage extends ConsumerWidget {
               ),
             ),
             if (items.isEmpty)
-              const SliverFillRemaining(
+              SliverFillRemaining(
                 // L'enfant `_EmptyState` est lui-même un ListView (scrollable) :
                 // `hasScrollBody: true` évite le calcul d'intrinsèques interdit
                 // dans un viewport (sinon crash + page blanche).
                 hasScrollBody: true,
                 child: _EmptyState(
-                  message: 'Aucune invitation envoyée',
+                  message: tr.parent.invitations.empty,
                 ),
               )
             else
@@ -403,6 +412,7 @@ class _AddIconBtn extends StatelessWidget {
 class _IntroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return SoeCard(
       child: Row(
         children: [
@@ -423,19 +433,19 @@ class _IntroCard extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  'Partagez le suivi de vos enfants',
-                  style: TextStyle(
+                  tr.parent.invitations.introTitle,
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: AppPalette.ink,
                   ),
                 ),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 Text(
-                  "Invitez le co-parent ou un proche pour qu'ils suivent les progrès, séances et paiements.",
-                  style: TextStyle(
+                  tr.parent.invitations.introBody,
+                  style: const TextStyle(
                     fontSize: 11,
                     color: AppPalette.n700,
                     height: 1.4,
@@ -454,40 +464,41 @@ class _InvitationCard extends StatelessWidget {
   const _InvitationCard({required this.invitation});
   final ParentInvitation invitation;
 
-  String? _roleLabel() {
+  String? _roleLabel(Translations tr) {
     final rel = invitation.relationship;
     if (rel == null || rel.isEmpty) return null;
     return switch (rel) {
-      'father' => 'Père',
-      'mother' => 'Mère',
-      'guardian' => 'Tuteur légal',
+      'father' => tr.parent.invitations.roleFather,
+      'mother' => tr.parent.invitations.roleMother,
+      'guardian' => tr.parent.invitations.roleGuardian,
       _ => rel,
     };
   }
 
   @override
   Widget build(BuildContext context) {
-    final role = _roleLabel();
+    final tr = Translations.of(context);
+    final role = _roleLabel(tr);
     // unknown : on suppose que l'invitation est juste partie sans statut
     // explicite cote back → fallback "Envoyée" (style info teal).
     final (label, bg, fg) = switch (invitation.status) {
       InvitationStatus.pending || InvitationStatus.unknown => (
-          'Envoyée',
+          tr.parent.invitations.statusSent,
           AppPalette.infoBg,
           AppPalette.teal
         ),
       InvitationStatus.accepted => (
-          'Acceptée',
+          tr.parent.invitations.statusAccepted,
           AppPalette.successBg,
           AppPalette.success,
         ),
       InvitationStatus.rejected => (
-          'Refusée',
+          tr.parent.invitations.statusRejected,
           AppPalette.dangerBg,
           AppPalette.danger,
         ),
       InvitationStatus.expired => (
-          'Expirée',
+          tr.parent.invitations.statusExpired,
           AppPalette.n100,
           AppPalette.n700,
         ),
@@ -629,12 +640,13 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
   }
 
   Future<void> _submit() async {
+    final tr = Translations.of(context);
     if (_email.text.trim().isEmpty ||
         _firstName.text.trim().isEmpty ||
         _lastName.text.trim().isEmpty) return;
     final phoneDigits = _phone.text.trim().replaceAll(RegExp(r'\D'), '');
     if (phoneDigits.length < 6) {
-      setState(() => _phoneError = 'Numéro invalide');
+      setState(() => _phoneError = tr.parent.invitations.invalidPhone);
       return;
     }
     setState(() {
@@ -656,7 +668,7 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
     r.isOk
         ? Navigator.of(context).pop(true)
         : ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Échec de l\'invitation')),
+            SnackBar(content: Text(tr.parent.invitations.inviteFailed)),
           );
     if (r.isOk) {
       ref.read(invitationsListViewModelProvider(null).notifier).refresh();
@@ -665,6 +677,7 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -676,9 +689,9 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Inviter un proche',
-            style: TextStyle(
+          Text(
+            tr.parent.invitations.sheetTitle,
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: AppPalette.ink,
@@ -689,9 +702,9 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
             Expanded(
               child: DropdownButtonFormField<String>(
                 value: _civility,
-                decoration: const InputDecoration(
-                  labelText: 'Civilité',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: tr.parent.invitations.civility,
+                  border: const OutlineInputBorder(),
                 ),
                 items: const [
                   DropdownMenuItem(value: 'Mr', child: Text('Mr')),
@@ -705,9 +718,9 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
               flex: 2,
               child: TextField(
                 controller: _firstName,
-                decoration: const InputDecoration(
-                  labelText: 'Prénom *',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: tr.parent.invitations.firstName,
+                  border: const OutlineInputBorder(),
                 ),
               ),
             ),
@@ -715,18 +728,18 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
           const SizedBox(height: 10),
           TextField(
             controller: _lastName,
-            decoration: const InputDecoration(
-              labelText: 'Nom *',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: tr.parent.invitations.lastName,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 10),
           TextField(
             controller: _email,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              labelText: 'Email *',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: tr.parent.invitations.email,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 10),
@@ -734,23 +747,26 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
             country: _country,
             onCountryChanged: (c) => setState(() => _country = c),
             controller: _phone,
-            hint: 'Téléphone *',
+            hint: tr.parent.invitations.phone,
             errorText: _phoneError,
           ),
           const SizedBox(height: 10),
           DropdownButtonFormField<InvitationLink>(
             value: _link,
-            decoration: const InputDecoration(
-              labelText: 'Lien avec les enfants',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: tr.parent.invitations.linkWithChildren,
+              border: const OutlineInputBorder(),
             ),
-            items: const [
+            items: [
               DropdownMenuItem(
-                  value: InvitationLink.father, child: Text('Père')),
+                  value: InvitationLink.father,
+                  child: Text(tr.parent.invitations.roleFather)),
               DropdownMenuItem(
-                  value: InvitationLink.mother, child: Text('Mère')),
+                  value: InvitationLink.mother,
+                  child: Text(tr.parent.invitations.roleMother)),
               DropdownMenuItem(
-                  value: InvitationLink.guardian, child: Text('Tuteur légal')),
+                  value: InvitationLink.guardian,
+                  child: Text(tr.parent.invitations.roleGuardian)),
             ],
             onChanged: (v) =>
                 setState(() => _link = v ?? InvitationLink.father),
@@ -769,7 +785,7 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Envoyer l\'invitation'),
+                : Text(tr.parent.invitations.sendInvitation),
           ),
         ],
       ),
@@ -784,16 +800,17 @@ class ParentContractsListPage extends ConsumerWidget {
   const ParentContractsListPage({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(contractsListViewModelProvider(null));
     return _Shell(
-      title: 'Contrats',
+      title: tr.parent.contracts.title,
       activeRoute: '/parent/contracts',
       body: _asyncList<Contract>(
         state: state as AsyncListState<Contract>,
         onRetry: () =>
             ref.read(contractsListViewModelProvider(null).notifier).refresh(),
         onLoaded: (items) => items.isEmpty
-            ? const _EmptyState(message: 'Aucun contrat pour le moment')
+            ? _EmptyState(message: tr.parent.contracts.empty)
             : ListView.separated(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                 itemCount: items.length,
@@ -810,25 +827,34 @@ class _ContractCard extends StatelessWidget {
   final Contract contract;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final signed = contract.status == ContractStatus.signed;
     final (label, bg, fg) = switch (contract.status) {
       ContractStatus.signed => (
-          'Signé',
+          tr.parent.contracts.statusSigned,
           AppPalette.successBg,
           AppPalette.success
         ),
       ContractStatus.unsigned => (
-          'À signer',
+          tr.parent.contracts.statusUnsigned,
           AppPalette.warningBg,
           AppPalette.warning
         ),
-      ContractStatus.expired => ('Expiré', AppPalette.n100, AppPalette.n700),
+      ContractStatus.expired => (
+          tr.parent.contracts.statusExpired,
+          AppPalette.n100,
+          AppPalette.n700
+        ),
       ContractStatus.terminated => (
-          'Résilié',
+          tr.parent.contracts.statusTerminated,
           AppPalette.dangerBg,
           AppPalette.danger
         ),
-      ContractStatus.unknown => ('—', AppPalette.n100, AppPalette.n700),
+      ContractStatus.unknown => (
+          '—',
+          AppPalette.n100,
+          AppPalette.n700
+        ),
     };
     return SoeCard(
       child: Column(
@@ -880,14 +906,16 @@ class _ContractCard extends StatelessWidget {
                 OutlinedButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.picture_as_pdf_outlined, size: 16),
-                  label: const Text('PDF', style: TextStyle(fontSize: 12)),
+                  label: Text(tr.parent.contracts.pdf,
+                      style: const TextStyle(fontSize: 12)),
                 ),
               const Spacer(),
               if (!signed)
                 FilledButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.edit, size: 16),
-                  label: const Text('Signer', style: TextStyle(fontSize: 12)),
+                  label: Text(tr.parent.contracts.sign,
+                      style: const TextStyle(fontSize: 12)),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppPalette.teal,
                     foregroundColor: Colors.white,

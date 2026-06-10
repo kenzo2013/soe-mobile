@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../i18n/translations.g.dart';
 import '../theme/app_palette.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_typography.dart';
@@ -177,8 +178,8 @@ class SoePasswordField extends StatefulWidget {
   const SoePasswordField({
     super.key,
     required this.controller,
-    this.label = 'Mot de passe',
-    this.hint = '8 caractères minimum',
+    this.label,
+    this.hint,
     this.errorText,
     this.validator,
     this.textInputAction,
@@ -186,7 +187,11 @@ class SoePasswordField extends StatefulWidget {
   });
 
   final TextEditingController controller;
-  final String label;
+
+  /// Label du champ. Si `null`, `widgets.password` est utilisé.
+  final String? label;
+
+  /// Placeholder. Si `null`, `widgets.passwordHint` est utilisé.
   final String? hint;
   final String? errorText;
   final String? Function(String?)? validator;
@@ -202,10 +207,11 @@ class _SoePasswordFieldState extends State<SoePasswordField> {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return SoeTextField(
       controller: widget.controller,
-      label: widget.label,
-      hint: widget.hint,
+      label: widget.label ?? tr.widgets.password,
+      hint: widget.hint ?? tr.widgets.passwordHint,
       leadingIcon: Icons.lock_outline,
       obscureText: _obscure,
       errorText: widget.errorText,
@@ -229,16 +235,19 @@ class SoeSearchField extends StatelessWidget {
   const SoeSearchField({
     super.key,
     required this.controller,
-    this.hint = 'Rechercher…',
+    this.hint,
     this.onChanged,
   });
 
   final TextEditingController controller;
-  final String hint;
+
+  /// Placeholder. Si `null`, `widgets.searchHint` est utilisé.
+  final String? hint;
   final ValueChanged<String>? onChanged;
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Container(
       height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -256,7 +265,7 @@ class SoeSearchField extends StatelessWidget {
               onChanged: onChanged,
               style: AppTypography.body.copyWith(color: AppPalette.ink),
               decoration: InputDecoration(
-                hintText: hint,
+                hintText: hint ?? tr.widgets.searchHint,
                 hintStyle: AppTypography.body.copyWith(color: AppPalette.n700),
                 isDense: true,
                 border: InputBorder.none,

@@ -10,6 +10,7 @@ import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/soe_toast.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/reservation_detail.dart';
 import '../../domain/entities/reservation_summary.dart';
 import '../providers.dart';
@@ -21,16 +22,18 @@ class ParentReservationDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(reservationDetailViewModelProvider(id));
 
     ref.listen(reservationDetailViewModelProvider(id), (prev, next) {
       next.whenOrNull(
         actionSuccess: (_) {
-          SoeToast.show(context, message: 'Réservation mise à jour.');
+          SoeToast.show(context,
+              message: tr.parent.reservationDetail.updatedToast);
         },
         error: (f) => SoeToast.show(
           context,
-          message: 'Action impossible — réessayez.',
+          message: tr.parent.reservationDetail.actionError,
           tone: SoeToastTone.danger,
         ),
       );
@@ -44,7 +47,7 @@ class ParentReservationDetailPage extends ConsumerWidget {
         title: Text(state.maybeWhen(
           loaded: (d) => '#${d.reference}',
           actionSuccess: (d) => '#${d.reference}',
-          orElse: () => 'Réservation',
+          orElse: () => tr.parent.reservationDetail.title,
         )),
         titleTextStyle: const TextStyle(
           color: AppPalette.ink,
@@ -80,6 +83,7 @@ class _DetailView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final vm = ref.read(reservationDetailViewModelProvider(id).notifier);
     final isQuote = detail.status == ReservationStatus.proposedPrice;
     return ListView(
@@ -96,35 +100,38 @@ class _DetailView extends ConsumerWidget {
         ],
         if (detail.tutor != null) ...[
           const SizedBox(height: 16),
-          _sectionTitle('Tuteur proposé'),
+          _sectionTitle(tr.parent.reservationDetail.proposedTutor),
           _TutorCard(tutor: detail.tutor!, studentId: detail.childId),
         ],
         const SizedBox(height: 16),
-        _sectionTitle('Détails de la demande'),
+        _sectionTitle(tr.parent.reservationDetail.requestDetails),
         SoeCard(
           padding: EdgeInsets.zero,
           child: Column(
             children: [
-              _Row('Élève', detail.childName),
-              _Row('Matières', detail.subjects.join(' · ')),
+              _Row(tr.parent.reservationDetail.student, detail.childName),
+              _Row(tr.parent.reservationDetail.subjects,
+                  detail.subjects.join(' · ')),
               _Row(
-                'Fréquence',
+                tr.parent.reservationDetail.frequency,
                 detail.frequency == 1
-                    ? '1 séance / semaine'
-                    : '${detail.frequency} séances / semaine',
+                    ? tr.parent.reservationDetail.frequencyOne
+                    : tr.parent.reservationDetail
+                        .frequencyMany(count: detail.frequency),
               ),
               _Row(
-                'Démarrage',
+                tr.parent.reservationDetail.startDate,
                 DateFormat('EEEE d MMMM yyyy', 'fr')
                     .format(detail.estimatedStartDate),
               ),
-              _Row('Lieu', detail.location, last: true),
+              _Row(tr.parent.reservationDetail.location, detail.location,
+                  last: true),
             ],
           ),
         ),
         if (detail.programText != null) ...[
           const SizedBox(height: 16),
-          _sectionTitle('Programme proposé'),
+          _sectionTitle(tr.parent.reservationDetail.proposedProgram),
           SoeCard(
             child: Text(
               detail.programText!,
@@ -139,7 +146,7 @@ class _DetailView extends ConsumerWidget {
         if (isQuote) ...[
           const SizedBox(height: 22),
           SoeButton(
-            label: 'Accepter le devis',
+            label: tr.parent.reservationDetail.acceptQuote,
             icon: Icons.check,
             fullWidth: true,
             onPressed: () => vm.doAccept(id),
@@ -149,7 +156,7 @@ class _DetailView extends ConsumerWidget {
             children: [
               Expanded(
                 child: SoeButton(
-                  label: 'Négocier',
+                  label: tr.parent.reservationDetail.negotiate,
                   variant: SoeButtonVariant.secondary,
                   icon: Icons.handshake_outlined,
                   onPressed: () => _openNegotiate(context, vm),
@@ -158,7 +165,7 @@ class _DetailView extends ConsumerWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: SoeButton(
-                  label: 'Rejeter',
+                  label: tr.parent.reservationDetail.reject,
                   variant: SoeButtonVariant.danger,
                   icon: Icons.close,
                   onPressed: () => vm.doReject(id),
@@ -172,6 +179,7 @@ class _DetailView extends ConsumerWidget {
   }
 
   void _openNegotiate(BuildContext context, ReservationDetailViewModel vm) {
+    final tr = Translations.of(context);
     final controller = TextEditingController();
     showModalBottomSheet(
       context: context,
@@ -192,9 +200,9 @@ class _DetailView extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Votre proposition',
-                style: TextStyle(
+              Text(
+                tr.parent.reservationDetail.yourProposal,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppPalette.ink,
@@ -205,7 +213,7 @@ class _DetailView extends ConsumerWidget {
                 controller: controller,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  hintText: 'Montant proposé (FCFA)',
+                  hintText: tr.parent.reservationDetail.proposedAmountHint,
                   filled: true,
                   fillColor: AppPalette.n50,
                   border: OutlineInputBorder(
@@ -216,7 +224,7 @@ class _DetailView extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               SoeButton(
-                label: 'Envoyer la contre-proposition',
+                label: tr.parent.reservationDetail.sendCounterProposal,
                 fullWidth: true,
                 onPressed: () {
                   final amount = int.tryParse(controller.text);
@@ -251,6 +259,7 @@ class _StatusBanner extends StatelessWidget {
   final String tutorName;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: AppPalette.warningBg,
@@ -279,7 +288,7 @@ class _StatusBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Devis reçu de $tutorName',
+                  tr.parent.reservationDetail.quoteReceived(name: tutorName),
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -287,9 +296,9 @@ class _StatusBanner extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
-                const Text(
-                  'Acceptez, proposez un autre prix ou rejetez la proposition.',
-                  style: TextStyle(fontSize: 11, color: AppPalette.n700),
+                Text(
+                  tr.parent.reservationDetail.quoteReceivedHint,
+                  style: const TextStyle(fontSize: 11, color: AppPalette.n700),
                 ),
               ],
             ),
@@ -311,6 +320,7 @@ class _AmountCard extends StatelessWidget {
   final int? sessions;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final f = NumberFormat.decimalPattern('fr_FR');
     return SoeCard(
       child: Row(
@@ -319,9 +329,9 @@ class _AmountCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Montant proposé',
-                  style: TextStyle(
+                Text(
+                  tr.parent.reservationDetail.proposedAmount,
+                  style: const TextStyle(
                     fontSize: 11,
                     color: AppPalette.n700,
                     fontWeight: FontWeight.w500,
@@ -340,7 +350,10 @@ class _AmountCard extends StatelessWidget {
                 if (perSession != null && sessions != null) ...[
                   const SizedBox(height: 4),
                   Text(
-                    '= ${f.format(perSession!)} FCFA / séance · $sessions séances',
+                    tr.parent.reservationDetail.amountBreakdown(
+                      perSession: f.format(perSession!),
+                      sessions: sessions!,
+                    ),
                     style: const TextStyle(
                       fontSize: 11,
                       color: AppPalette.n700,
@@ -375,6 +388,7 @@ class _TutorCard extends StatelessWidget {
   final String studentId;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return SoeCard(
       child: Row(
         children: [
@@ -403,7 +417,8 @@ class _TutorCard extends StatelessWidget {
                     if (tutor.rating != null)
                       '${tutor.rating!.toStringAsFixed(1)} ★',
                     if (tutor.reviewCount != null)
-                      '(${tutor.reviewCount} avis)',
+                      tr.parent.reservationDetail
+                          .reviewCount(count: tutor.reviewCount!),
                   ].join(' · '),
                   style: const TextStyle(
                     fontSize: 11,
@@ -422,7 +437,8 @@ class _TutorCard extends StatelessWidget {
               foregroundColor: AppPalette.teal,
               padding: const EdgeInsets.symmetric(horizontal: 12),
             ),
-            child: const Text('Profil', style: TextStyle(fontSize: 11)),
+            child: Text(tr.parent.reservationDetail.profile,
+                style: const TextStyle(fontSize: 11)),
           ),
         ],
       ),

@@ -92,7 +92,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                 SoeTextField(
                   controller: _email,
                   label: tr.forgotPassword.email,
-                  hint: 'parent@example.com',
+                  hint: tr.forgotPassword.emailHint,
                   leadingIcon: Icons.mail_outline,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.done,

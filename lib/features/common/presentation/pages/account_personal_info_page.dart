@@ -12,6 +12,7 @@ import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/soe_text_field.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/presentation/providers/current_user_provider.dart';
 import '../../domain/repositories/common_repository.dart';
@@ -25,12 +26,13 @@ class AccountPersonalInfoPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final async = ref.watch(currentUserProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const CommonTopBar(
-        title: 'Informations personnelles',
-        subtitle: 'Identité et coordonnées',
+      appBar: CommonTopBar(
+        title: tr.account.personalInfo.title,
+        subtitle: tr.account.personalInfo.subtitle,
       ),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -39,7 +41,7 @@ class AccountPersonalInfoPage extends ConsumerWidget {
           onRetry: () => ref.invalidate(currentUserProvider),
         ),
         data: (user) => user == null
-            ? const Center(child: Text('Profil indisponible'))
+            ? Center(child: Text(tr.account.personalInfo.unavailable))
             : _ProfileForm(user: user),
       ),
     );
@@ -87,6 +89,7 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
   }
 
   Future<void> _save() async {
+    final tr = Translations.of(context);
     final params = UpdateProfileParams(
       civility: _civility,
       firstName: _firstName.text.trim(),
@@ -99,7 +102,7 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
       context,
       ref,
       actionKey: 'profile',
-      successMessage: 'Profil mis à jour',
+      successMessage: tr.account.personalInfo.saved,
       op: () async {
         final r = await ref.read(commonRepositoryProvider).updateProfile(params);
         return switch (r) {
@@ -113,6 +116,7 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final submitting =
         ref.watch(commonActionViewModelProvider('profile')) is CommonActionSubmitting;
     return ListView(
@@ -158,9 +162,9 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
               const SizedBox(height: 8),
               TextButton(
                 onPressed: _pickPhoto,
-                child: const Text(
-                  'Caméra ou galerie',
-                  style: TextStyle(
+                child: Text(
+                  tr.account.personalInfo.photoHint,
+                  style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: AppPalette.teal,
@@ -184,14 +188,14 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
                   Expanded(
                     child: SoeTextField(
                       controller: _firstName,
-                      label: 'Prénom',
+                      label: tr.account.personalInfo.firstName,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: SoeTextField(
                       controller: _lastName,
-                      label: 'Nom',
+                      label: tr.account.personalInfo.lastName,
                     ),
                   ),
                 ],
@@ -199,14 +203,14 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
               const SizedBox(height: 12),
               SoeTextField(
                 controller: _phone,
-                label: 'Téléphone',
+                label: tr.account.personalInfo.phone,
                 leadingIcon: Icons.phone_outlined,
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 12),
               SoeTextField(
                 controller: TextEditingController(text: widget.user.email),
-                label: 'Email',
+                label: tr.account.personalInfo.email,
                 leadingIcon: Icons.mail_outline,
                 enabled: false,
               ),
@@ -214,9 +218,9 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
           ),
         ),
         const SizedBox(height: 20),
-        const Text(
-          'Langue préférée',
-          style: TextStyle(
+        Text(
+          tr.account.personalInfo.preferredLanguage,
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
             color: AppPalette.ink,
@@ -246,7 +250,7 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
         ),
         const SizedBox(height: 24),
         SoeButton(
-          label: 'Enregistrer',
+          label: tr.account.personalInfo.save,
           fullWidth: true,
           loading: submitting,
           onPressed: submitting ? null : _save,
@@ -263,14 +267,15 @@ class _CivilitySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(bottom: 6),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
           child: Text(
-            'Civilité',
-            style: TextStyle(
+            tr.account.personalInfo.civility,
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: AppPalette.n700,
@@ -281,7 +286,7 @@ class _CivilitySelector extends StatelessWidget {
           children: [
             Expanded(
               child: _CivilityChip(
-                label: 'Monsieur',
+                label: tr.account.personalInfo.mr,
                 selected: value == 'Mr',
                 onTap: () => onChanged('Mr'),
               ),
@@ -289,7 +294,7 @@ class _CivilitySelector extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: _CivilityChip(
-                label: 'Madame',
+                label: tr.account.personalInfo.mrs,
                 selected: value == 'Mme',
                 onTap: () => onChanged('Mme'),
               ),

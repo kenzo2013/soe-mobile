@@ -22,7 +22,7 @@ class SoePhoneField extends StatelessWidget {
     this.textInputAction,
     this.onFieldSubmitted,
     this.errorText,
-    this.pickerTitle = 'Indicatif pays',
+    this.pickerTitle,
   });
 
   final Country country;
@@ -32,7 +32,9 @@ class SoePhoneField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onFieldSubmitted;
   final String? errorText;
-  final String pickerTitle;
+
+  /// Titre du sélecteur. Si `null`, `countryPicker.phoneTitle` est utilisé.
+  final String? pickerTitle;
 
   @override
   Widget build(BuildContext context) {

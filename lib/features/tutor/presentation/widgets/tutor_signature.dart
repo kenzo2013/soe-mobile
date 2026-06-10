@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_palette.dart';
+import '../../../../i18n/translations.g.dart';
 
 /// Contrôleur de signature : accumule le tracé et l'exporte en PNG transparent
 /// (CDC §11.6 — signature → fichier PNG → upload multipart).
@@ -106,9 +107,9 @@ class TutorSignaturePad extends StatelessWidget {
                   color: AppPalette.n100,
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Text(
-                  'Effacer',
-                  style: TextStyle(
+                child: Text(
+                  Translations.of(context).tutor.forms.signatureClear,
+                  style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                     color: AppPalette.n700,

@@ -12,6 +12,7 @@ import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_places_autocomplete_field.dart';
 import '../../../../core/widgets/soe_text_field.dart';
 import '../../../../core/widgets/soe_toast.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../../references/domain/entities/school_class.dart';
 import '../../../references/presentation/providers.dart';
 import '../../domain/entities/child.dart';
@@ -112,6 +113,7 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     _prefillFromExisting();
     final state = ref.watch(childFormViewModelProvider);
 
@@ -121,14 +123,14 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
           SoeToast.show(
             context,
             message: widget.editId == null
-                ? '${c.firstName} ajouté(e)'
-                : '${c.firstName} mis(e) à jour',
+                ? tr.parent.childForm.addedToast(name: c.firstName)
+                : tr.parent.childForm.updatedToast(name: c.firstName),
           );
           Navigator.of(context).pop(c);
         },
         error: (Failure f) => SoeToast.show(
           context,
-          message: 'Erreur — réessayez.',
+          message: tr.parent.childForm.saveError,
           tone: SoeToastTone.danger,
         ),
       );
@@ -145,7 +147,8 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
         scrolledUnderElevation: 0,
         leading: const SoeBackButton(),
         leadingWidth: 72,
-        title: Text(isEdit ? 'Modifier l\'enfant' : 'Nouvel enfant'),
+        title: Text(
+            isEdit ? tr.parent.childForm.editTitle : tr.parent.childForm.newTitle),
         titleTextStyle: const TextStyle(
           color: AppPalette.ink,
           fontSize: 18,
@@ -175,11 +178,11 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
               ),
             ),
             const SizedBox(height: 22),
-            _section_('Identité', [
+            _section_(tr.parent.childForm.identitySection, [
               Row(children: [
                 Expanded(
                   child: SoeTextField(
-                    label: 'Prénom',
+                    label: tr.parent.childForm.firstName,
                     controller: _firstName,
                     validator: _required,
                   ),
@@ -187,7 +190,7 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: SoeTextField(
-                    label: 'Nom',
+                    label: tr.parent.childForm.lastName,
                     controller: _lastName,
                     validator: _required,
                   ),
@@ -197,12 +200,14 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
               Row(children: [
                 Expanded(
                   child: SoeTextField(
-                    label: 'Âge',
+                    label: tr.parent.childForm.age,
                     controller: _age,
                     keyboardType: TextInputType.number,
                     validator: (v) {
                       final n = int.tryParse(v ?? '');
-                      if (n == null || n <= 0 || n > 25) return 'Invalide';
+                      if (n == null || n <= 0 || n > 25) {
+                        return tr.parent.childForm.invalid;
+                      }
                       return null;
                     },
                   ),
@@ -216,7 +221,7 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
                 ),
               ]),
             ]),
-            _section_('Scolarité', [
+            _section_(tr.parent.childForm.schoolingSection, [
               // Listes Niveau + Section viennent des keys API
               // `data.educations` et `data.sections` du fetch sans filtre.
               Consumer(
@@ -224,23 +229,31 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
                   final globalAsync =
                       ref.watch(schoolClassesProvider(_emptyFilter));
                   return globalAsync.when(
-                    loading: () => Row(children: const [
-                      Expanded(child: _ClassPickerSkeleton(label: 'Niveau')),
-                      SizedBox(width: 10),
-                      Expanded(child: _ClassPickerSkeleton(label: 'Section')),
+                    loading: () => Row(children: [
+                      Expanded(
+                          child: _ClassPickerSkeleton(
+                              label: tr.parent.childForm.level)),
+                      const SizedBox(width: 10),
+                      Expanded(
+                          child: _ClassPickerSkeleton(
+                              label: tr.parent.childForm.section)),
                     ]),
-                    error: (_, __) => Row(children: const [
-                      Expanded(child: _ClassPickerError(label: 'Niveau')),
-                      SizedBox(width: 10),
-                      Expanded(child: _ClassPickerError(label: 'Section')),
+                    error: (_, __) => Row(children: [
+                      Expanded(
+                          child:
+                              _ClassPickerError(label: tr.parent.childForm.level)),
+                      const SizedBox(width: 10),
+                      Expanded(
+                          child: _ClassPickerError(
+                              label: tr.parent.childForm.section)),
                     ]),
                     data: (refs) => Row(children: [
                       Expanded(
                         child: _DynamicPicker(
-                          label: 'Niveau',
+                          label: tr.parent.childForm.level,
                           value: _education,
                           options: refs.educations,
-                          hint: 'Choisir',
+                          hint: tr.parent.childForm.choose,
                           onChanged: (v) => setState(() {
                             _education = v;
                             _schoolClassId = null;
@@ -250,10 +263,10 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: _DynamicPicker(
-                          label: 'Section',
+                          label: tr.parent.childForm.section,
                           value: _section,
                           options: refs.sections,
-                          hint: 'Choisir',
+                          hint: tr.parent.childForm.choose,
                           onChanged: (v) => setState(() {
                             _section = v;
                             _schoolClassId = null;
@@ -270,8 +283,9 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
                   final async = ref.watch(schoolClassesProvider(_classFilter));
                   return async.when(
                     loading: () =>
-                        const _ClassPickerSkeleton(label: 'Classe'),
-                    error: (_, __) => const _ClassPickerError(label: 'Classe'),
+                        _ClassPickerSkeleton(label: tr.parent.childForm.schoolClass),
+                    error: (_, __) =>
+                        _ClassPickerError(label: tr.parent.childForm.schoolClass),
                     data: (refs) => _ClassPicker(
                       value: _schoolClassId,
                       options: refs.classes,
@@ -282,12 +296,12 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
                 },
               ),
             ]),
-            _section_('Adresse', [
+            _section_(tr.parent.childForm.addressSection, [
               Padding(
                 padding: const EdgeInsets.only(left: 4, bottom: 5),
-                child: const Text(
-                  'Quartier',
-                  style: TextStyle(
+                child: Text(
+                  tr.parent.childForm.neighborhood,
+                  style: const TextStyle(
                     fontSize: 11,
                     color: AppPalette.n700,
                     fontWeight: FontWeight.w500,
@@ -297,7 +311,7 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
               SoePlacesAutocompleteField(
                 controller: _neighborhood,
                 client: ref.watch(googlePlacesClientProvider),
-                hint: 'Ex. Bastos',
+                hint: tr.parent.childForm.neighborhoodHint,
                 onPlaceSelected: (p) {
                   _neighborhood.text =
                       p.neighborhood ?? p.formattedAddress;
@@ -309,16 +323,18 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
               ),
               const SizedBox(height: 10),
               SoeTextField(
-                label: 'Ville *',
+                label: tr.parent.childForm.city,
                 controller: _city,
-                hint: 'Ex. Yaoundé',
+                hint: tr.parent.childForm.cityHint,
                 leadingIcon: Icons.location_city_outlined,
                 validator: _required,
               ),
             ]),
             const SizedBox(height: 22),
             SoeButton(
-              label: isEdit ? 'Mettre à jour' : 'Enregistrer cet enfant',
+              label: isEdit
+                  ? tr.parent.childForm.update
+                  : tr.parent.childForm.saveChild,
               icon: Icons.check,
               fullWidth: true,
               loading: saving,
@@ -360,8 +376,9 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
     );
   }
 
-  String? _required(String? v) =>
-      (v ?? '').trim().isEmpty ? 'Obligatoire' : null;
+  String? _required(String? v) => (v ?? '').trim().isEmpty
+      ? Translations.of(context).parent.childForm.required
+      : null;
 
   void _submit() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
@@ -393,6 +410,7 @@ class _SaveActionButton extends StatelessWidget {
   final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Material(
       color: AppPalette.yellow,
       borderRadius: BorderRadius.circular(10),
@@ -410,9 +428,9 @@ class _SaveActionButton extends StatelessWidget {
                     color: AppPalette.ink,
                   ),
                 )
-              : const Text(
-                  'Enregistrer',
-                  style: TextStyle(
+              : Text(
+                  tr.common.save,
+                  style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
                     color: AppPalette.ink,
@@ -543,12 +561,17 @@ class _GenderPicker extends StatelessWidget {
   final ValueChanged<ChildGender> onChanged;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return _Dropdown<ChildGender>(
-      label: 'Genre',
+      label: tr.parent.childForm.gender,
       value: value,
-      items: const [
-        DropdownMenuItem(value: ChildGender.male, child: Text('Garçon')),
-        DropdownMenuItem(value: ChildGender.feminine, child: Text('Fille')),
+      items: [
+        DropdownMenuItem(
+            value: ChildGender.male,
+            child: Text(tr.parent.childForm.genderBoy)),
+        DropdownMenuItem(
+            value: ChildGender.feminine,
+            child: Text(tr.parent.childForm.genderGirl)),
       ],
       onChanged: onChanged,
     );
@@ -573,13 +596,17 @@ class _DynamicPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     // Sécurité : si la valeur sélectionnée n'est plus dans les options
     // (cas rare lors d'un refresh API), on l'oublie.
     final safeValue = options.contains(value) ? value : null;
     return _Dropdown<String?>(
       label: label,
       value: safeValue,
-      hint: hint ?? (options.isEmpty ? 'Aucune option' : 'Choisir'),
+      hint: hint ??
+          (options.isEmpty
+              ? tr.parent.childForm.noOption
+              : tr.parent.childForm.choose),
       items: [
         for (final o in options)
           DropdownMenuItem<String?>(value: o, child: Text(o)),
@@ -600,16 +627,17 @@ class _ClassPicker extends StatelessWidget {
   final ValueChanged<String?> onChanged;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     // Sécurité : si l'id sélectionné n'est plus dans les options, on
     // l'oublie pour éviter un assert de DropdownButton.
     final safeValue =
         options.any((c) => c.id == value) ? value : null;
     return _Dropdown<String?>(
-      label: 'Classe',
+      label: tr.parent.childForm.schoolClass,
       value: safeValue,
       hint: options.isEmpty
-          ? 'Aucune classe disponible'
-          : 'Sélectionnez la classe',
+          ? tr.parent.childForm.noClassAvailable
+          : tr.parent.childForm.selectClass,
       items: [
         for (final c in options)
           DropdownMenuItem<String?>(value: c.id, child: Text(c.name)),
@@ -624,6 +652,7 @@ class _ClassPickerSkeleton extends StatelessWidget {
   final String label;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -646,9 +675,9 @@ class _ClassPickerSkeleton extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: AppPalette.n300),
           ),
-          child: const Row(
+          child: Row(
             children: [
-              SizedBox(
+              const SizedBox(
                 width: 16,
                 height: 16,
                 child: CircularProgressIndicator(
@@ -656,10 +685,10 @@ class _ClassPickerSkeleton extends StatelessWidget {
                   color: AppPalette.teal,
                 ),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Text(
-                'Chargement des classes…',
-                style: TextStyle(fontSize: 13, color: AppPalette.n700),
+                tr.parent.childForm.loadingClasses,
+                style: const TextStyle(fontSize: 13, color: AppPalette.n700),
               ),
             ],
           ),
@@ -674,6 +703,7 @@ class _ClassPickerError extends StatelessWidget {
   final String label;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -695,15 +725,15 @@ class _ClassPickerError extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: AppPalette.warning),
           ),
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.cloud_off_outlined,
+              const Icon(Icons.cloud_off_outlined,
                   size: 16, color: AppPalette.warning),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Impossible de charger les classes.',
-                  style: TextStyle(fontSize: 12, color: AppPalette.warning),
+                  tr.parent.childForm.loadClassesError,
+                  style: const TextStyle(fontSize: 12, color: AppPalette.warning),
                 ),
               ),
             ],

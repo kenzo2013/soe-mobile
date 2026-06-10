@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/soe_avatar.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/student_summary.dart';
 
 class ChildAvatarsRow extends StatelessWidget {
@@ -44,6 +45,7 @@ class _AddTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return SizedBox(
       width: 56,
       child: Column(
@@ -71,9 +73,9 @@ class _AddTile extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Ajouter',
-            style: TextStyle(
+          Text(
+            tr.common.add,
+            style: const TextStyle(
               fontSize: 10,
               color: AppPalette.n700,
               fontWeight: FontWeight.w500,

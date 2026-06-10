@@ -6,6 +6,7 @@ import '../../../../core/error/result.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_toast.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/notification_preferences.dart';
 import '../providers.dart';
 import '../widgets/common_top_bar.dart';
@@ -18,12 +19,13 @@ class AccountNotificationPrefsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final async = ref.watch(notificationPreferencesProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const CommonTopBar(
-        title: 'Préférences de notification',
-        subtitle: 'Sauvegarde automatique',
+      appBar: CommonTopBar(
+        title: tr.account.notificationPrefs.title,
+        subtitle: tr.account.notificationPrefs.subtitle,
       ),
       body: async.when(
         // Garde la grille affichée pendant le re-fetch déclenché par un toggle
@@ -35,14 +37,19 @@ class AccountNotificationPrefsPage extends ConsumerWidget {
           onRetry: () => ref.invalidate(notificationPreferencesProvider),
         ),
         data: (prefs) => prefs.categories.isEmpty
-            ? const Center(child: Text('Aucune catégorie disponible'))
+            ? Center(child: Text(tr.account.notificationPrefs.empty))
             : _PrefsGrid(initial: prefs),
       ),
     );
   }
 }
 
-const _channelLabels = {'email': 'EMAIL', 'web': 'WEB', 'push': 'PUSH'};
+String _channelLabel(Translations tr, String channel) => switch (channel) {
+      'email' => tr.account.notificationPrefs.channelEmail,
+      'web' => tr.account.notificationPrefs.channelWeb,
+      'push' => tr.account.notificationPrefs.channelPush,
+      _ => channel.toUpperCase(),
+    };
 
 class _PrefsGrid extends ConsumerStatefulWidget {
   const _PrefsGrid({required this.initial});
@@ -63,6 +70,7 @@ class _PrefsGridState extends ConsumerState<_PrefsGrid> {
   }
 
   Future<void> _toggle(NotificationCategory cat, String channel) async {
+    final tr = Translations.of(context);
     final previous = _prefs;
     final optimistic = _prefs.withUpdated(cat.toggle(channel));
     setState(() {
@@ -88,7 +96,7 @@ class _PrefsGridState extends ConsumerState<_PrefsGrid> {
         setState(() => _prefs = previous); // revert
         SoeToast.show(
           context,
-          message: 'Échec de la sauvegarde',
+          message: tr.account.notificationPrefs.saveFailed,
           tone: SoeToastTone.danger,
         );
     }
@@ -96,6 +104,7 @@ class _PrefsGridState extends ConsumerState<_PrefsGrid> {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final channels = _prefs.channels;
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -105,10 +114,10 @@ class _PrefsGridState extends ConsumerState<_PrefsGrid> {
           padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
           child: Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'CATÉGORIE',
-                  style: TextStyle(
+                  tr.account.notificationPrefs.categoryHeader,
+                  style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     color: AppPalette.n700,
@@ -120,7 +129,7 @@ class _PrefsGridState extends ConsumerState<_PrefsGrid> {
                 SizedBox(
                   width: 48,
                   child: Text(
-                    _channelLabels[ch] ?? ch.toUpperCase(),
+                    _channelLabel(tr, ch),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 10,
@@ -210,12 +219,12 @@ class _PrefsGridState extends ConsumerState<_PrefsGrid> {
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(Icons.check, size: 14, color: AppPalette.success),
-                    SizedBox(width: 6),
+                  children: [
+                    const Icon(Icons.check, size: 14, color: AppPalette.success),
+                    const SizedBox(width: 6),
                     Text(
-                      'Modifications enregistrées',
-                      style: TextStyle(
+                      tr.account.notificationPrefs.savedHint,
+                      style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: AppPalette.success,

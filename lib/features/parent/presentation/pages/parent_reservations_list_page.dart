@@ -7,6 +7,7 @@ import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_card.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/reservation_summary.dart';
 import '../providers.dart';
 import '../widgets/parent_drawer.dart';
@@ -23,7 +24,13 @@ class _ParentReservationsListPageState
     extends ConsumerState<ParentReservationsListPage> {
   int _filter = 0;
 
-  static const _filters = ['Toutes', 'En attente', 'Devis reçu', 'Acceptées', 'Terminées'];
+  List<String> _filters(Translations tr) => [
+        tr.parent.reservationsList.filterAll,
+        tr.parent.reservationsList.filterPending,
+        tr.parent.reservationsList.filterQuoteReceived,
+        tr.parent.reservationsList.filterAccepted,
+        tr.parent.reservationsList.filterCompleted,
+      ];
 
   bool _match(ReservationSummary r) {
     switch (_filter) {
@@ -43,6 +50,8 @@ class _ParentReservationsListPageState
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
+    final filters = _filters(tr);
     final state = ref.watch(reservationsListViewModelProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
@@ -51,9 +60,9 @@ class _ParentReservationsListPageState
         backgroundColor: AppPalette.n100,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: const Text(
-          'Réservations',
-          style: TextStyle(
+        title: Text(
+          tr.parent.reservationsList.title,
+          style: const TextStyle(
             color: AppPalette.ink,
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -85,7 +94,7 @@ class _ParentReservationsListPageState
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              itemCount: _filters.length,
+              itemCount: filters.length,
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (_, i) {
                 final active = _filter == i;
@@ -104,7 +113,7 @@ class _ParentReservationsListPageState
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      _filters[i],
+                      filters[i],
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -134,7 +143,9 @@ class _ParentReservationsListPageState
                     child: Padding(
                       padding: const EdgeInsets.all(24),
                       child: Text(
-                        'Aucune réservation ${_filter == 0 ? "" : "dans cette catégorie"}',
+                        _filter == 0
+                            ? tr.parent.reservationsList.emptyAll
+                            : tr.parent.reservationsList.emptyCategory,
                         style: const TextStyle(
                           color: AppPalette.n700,
                           fontSize: 13,

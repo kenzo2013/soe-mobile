@@ -8,6 +8,7 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_card.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../../auth/presentation/providers/current_user_provider.dart';
 import '../../domain/entities/tutor_dashboard.dart';
 import '../providers.dart';
@@ -94,6 +95,7 @@ class _Loaded extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return ListView(
       padding: EdgeInsets.zero,
       children: [
@@ -116,9 +118,9 @@ class _Loaded extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Séances du jour',
-                            style: TextStyle(
+                          Text(
+                            tr.tutor.dashboard.todaySessions,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                               color: AppPalette.ink,
@@ -127,7 +129,8 @@ class _Loaded extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '${data.todaySessions.length} séances planifiées',
+                            tr.tutor.dashboard.planned(
+                                count: data.todaySessions.length),
                             style: const TextStyle(
                               fontSize: 11,
                               color: AppPalette.n700,
@@ -138,9 +141,9 @@ class _Loaded extends StatelessWidget {
                     ),
                     InkWell(
                       onTap: () => context.push(RouteNames.tutorSessions),
-                      child: const Text(
-                        'Voir tout',
-                        style: TextStyle(
+                      child: Text(
+                        tr.common.seeAll,
+                        style: const TextStyle(
                           fontSize: 12,
                           color: AppPalette.teal,
                           fontWeight: FontWeight.w600,
@@ -162,11 +165,11 @@ class _Loaded extends StatelessWidget {
                   ),
                 ),
               const SizedBox(height: 12),
-              const Padding(
-                padding: EdgeInsets.only(left: 4, bottom: 10),
+              Padding(
+                padding: const EdgeInsets.only(left: 4, bottom: 10),
                 child: Text(
-                  'Actions rapides',
-                  style: TextStyle(
+                  tr.tutor.dashboard.quickActions,
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: AppPalette.ink,
@@ -183,28 +186,28 @@ class _Loaded extends StatelessWidget {
                 children: [
                   _QuickAction(
                     icon: Icons.work_outline,
-                    label: 'Voir les offres',
-                    sub: 'Parcourir',
+                    label: tr.tutor.dashboard.qaJobs,
+                    sub: tr.tutor.dashboard.qaJobsSub,
                     onTap: () => context.push(RouteNames.tutorJobs),
                   ),
                   _QuickAction(
                     icon: Icons.draw_outlined,
-                    label: 'Soumettre un rapport',
-                    sub: 'Mes séances',
+                    label: tr.tutor.dashboard.qaReport,
+                    sub: tr.tutor.dashboard.qaReportSub,
                     accent: true,
                     onTap: () => context.push(RouteNames.tutorSessions),
                   ),
                   _QuickAction(
                     icon: Icons.calendar_month_outlined,
-                    label: 'Mes disponibilités',
-                    sub: 'Gérer',
+                    label: tr.tutor.dashboard.qaAvailabilities,
+                    sub: tr.tutor.dashboard.qaAvailabilitiesSub,
                     onTap: () =>
                         context.push(RouteNames.tutorProfileAvailabilities),
                   ),
                   _QuickAction(
                     icon: Icons.payments_outlined,
-                    label: 'Mes rémunérations',
-                    sub: 'Historique',
+                    label: tr.tutor.dashboard.qaRemunerations,
+                    sub: tr.tutor.dashboard.qaRemunerationsSub,
                     onTap: () => context.push(RouteNames.tutorRemunerations),
                   ),
                 ],
@@ -229,6 +232,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Container(
       decoration: const BoxDecoration(gradient: AppPalette.brandGradient),
       padding: EdgeInsets.fromLTRB(
@@ -251,9 +255,9 @@ class _Header extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Tableau de bord',
-                      style: TextStyle(
+                    Text(
+                      tr.tutor.dashboard.title,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -263,7 +267,8 @@ class _Header extends StatelessWidget {
                     Text(
                       firstName.isEmpty
                           ? dateLine
-                          : 'Bonjour $firstName · $dateLine',
+                          : tr.tutor.dashboard
+                              .greeting(name: firstName, date: dateLine),
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 11,
@@ -301,7 +306,7 @@ class _Header extends StatelessWidget {
                       Expanded(
                         child: _StatTile(
                           icon: Icons.groups_outlined,
-                          label: 'Élèves',
+                          label: tr.tutor.dashboard.statStudents,
                           value: stats!.totalStudents,
                           accent: AppPalette.yellow,
                         ),
@@ -310,7 +315,7 @@ class _Header extends StatelessWidget {
                       Expanded(
                         child: _StatTile(
                           icon: Icons.calendar_month_outlined,
-                          label: 'Séances',
+                          label: tr.tutor.dashboard.statSessions,
                           value: stats!.totalSessions,
                           accent: const Color(0xFF7DD3FC),
                         ),
@@ -323,7 +328,7 @@ class _Header extends StatelessWidget {
                       Expanded(
                         child: _StatTile(
                           icon: Icons.schedule_outlined,
-                          label: 'En attente',
+                          label: tr.tutor.dashboard.statPending,
                           value: stats!.pendingSessions,
                           accent: const Color(0xFFFCA5A5),
                         ),
@@ -332,7 +337,7 @@ class _Header extends StatelessWidget {
                       Expanded(
                         child: _StatTile(
                           icon: Icons.check_circle_outline,
-                          label: 'Terminées',
+                          label: tr.tutor.dashboard.statCompleted,
                           value: stats!.completedSessions,
                           accent: const Color(0xFF86EFAC),
                         ),
@@ -419,7 +424,8 @@ class _TodaySessionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final spec = sessionStatusSpec(session.status);
+    final tr = Translations.of(context);
+    final spec = sessionStatusSpec(tr, session.status);
     return Container(
       decoration: BoxDecoration(
         color: AppPalette.white,
@@ -513,15 +519,15 @@ class _TodaySessionCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 alignment: Alignment.center,
-                                child: const Row(
+                                child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.draw_outlined,
+                                    const Icon(Icons.draw_outlined,
                                         size: 14, color: AppPalette.ink),
-                                    SizedBox(width: 6),
+                                    const SizedBox(width: 6),
                                     Text(
-                                      'Faire le rapport',
-                                      style: TextStyle(
+                                      tr.tutor.dashboard.doReport,
+                                      style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w700,
                                         color: AppPalette.ink,

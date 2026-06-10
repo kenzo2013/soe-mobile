@@ -7,6 +7,7 @@ import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_card.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/session_summary.dart';
 import '../providers.dart';
 import '../widgets/parent_drawer.dart';
@@ -56,6 +57,7 @@ class _ParentSessionsListPageState
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final state = ref.watch(sessionsListViewModelProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
@@ -69,9 +71,9 @@ class _ParentSessionsListPageState
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Séances',
-              style: TextStyle(
+            Text(
+              tr.parent.sessionsList.title,
+              style: const TextStyle(
                 color: AppPalette.ink,
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -80,7 +82,9 @@ class _ParentSessionsListPageState
             if (_mode == _ViewMode.calendar) ...[
               const SizedBox(height: 2),
               Text(
-                'Semaine du ${DateFormat('d MMMM', 'fr').format(_weekStart)}',
+                tr.parent.sessionsList.weekOf(
+                  date: DateFormat('d MMMM', 'fr').format(_weekStart),
+                ),
                 style: const TextStyle(
                   fontSize: 11,
                   color: AppPalette.n700,
@@ -196,6 +200,7 @@ class _ViewToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
@@ -208,7 +213,7 @@ class _ViewToggle extends StatelessWidget {
           Expanded(
             child: _ToggleTab(
               icon: Icons.calendar_month_outlined,
-              label: 'Calendrier',
+              label: tr.parent.sessionsList.calendarTab,
               active: mode == _ViewMode.calendar,
               onTap: () => onChanged(_ViewMode.calendar),
             ),
@@ -216,7 +221,7 @@ class _ViewToggle extends StatelessWidget {
           Expanded(
             child: _ToggleTab(
               icon: Icons.list_alt_outlined,
-              label: 'Liste',
+              label: tr.parent.sessionsList.listTab,
               active: mode == _ViewMode.list,
               onTap: () => onChanged(_ViewMode.list),
             ),
@@ -639,6 +644,7 @@ class _CalendarEmptyHint extends StatelessWidget {
   const _CalendarEmptyHint();
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return SoeCard(
       child: Row(
         children: [
@@ -656,22 +662,22 @@ class _CalendarEmptyHint extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Aucune séance cette semaine',
-                  style: TextStyle(
+                  tr.parent.sessionsList.emptyWeekTitle,
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: AppPalette.ink,
                   ),
                 ),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 Text(
-                  "Vos séances planifiées s'afficheront ici. Naviguez entre les semaines avec les flèches.",
-                  style: TextStyle(
+                  tr.parent.sessionsList.emptyWeekBody,
+                  style: const TextStyle(
                     fontSize: 11,
                     color: AppPalette.n700,
                     height: 1.4,
@@ -695,6 +701,7 @@ class _ListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     if (sessions.isEmpty) {
       return const _ListEmptyView();
     }
@@ -719,9 +726,11 @@ class _ListView extends StatelessWidget {
           ..sort((a, b) => a.startAt.compareTo(b.startAt));
         final date = daySessions.first.startAt;
         final isToday = dayKey == todayKey;
+        final dayLabel =
+            DateFormat('EEEE d MMMM', 'fr').format(date).toUpperCase();
         final label = isToday
-            ? "AUJOURD'HUI · ${DateFormat('EEEE d MMMM', 'fr').format(date).toUpperCase()}"
-            : DateFormat('EEEE d MMMM', 'fr').format(date).toUpperCase();
+            ? '${tr.parent.sessionsList.todayPrefix} · $dayLabel'
+            : dayLabel;
         return Padding(
           padding: const EdgeInsets.only(bottom: 18),
           child: Column(
@@ -768,13 +777,14 @@ class _SessionRow extends StatelessWidget {
   final SessionSummary session;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final now = DateTime.now();
     final endAt = session.startAt.add(Duration(minutes: session.durationMinutes));
     final isLive = session.status == SessionStatus.pending &&
         now.isAfter(session.startAt) &&
         now.isBefore(endAt);
     final timeFmt = DateFormat.Hm('fr');
-    final dur = _formatDuration(session.durationMinutes);
+    final dur = _formatDuration(tr, session.durationMinutes);
     return InkWell(
       onTap: () => context.push('/parent/sessions/${session.id}'),
       child: Padding(
@@ -845,8 +855,8 @@ class _SessionRow extends StatelessWidget {
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              SizedBox(
+                            children: [
+                              const SizedBox(
                                 width: 5,
                                 height: 5,
                                 child: DecoratedBox(
@@ -856,10 +866,10 @@ class _SessionRow extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 4),
+                              const SizedBox(width: 4),
                               Text(
-                                'EN COURS',
-                                style: TextStyle(
+                                tr.parent.sessionsList.live,
+                                style: const TextStyle(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w700,
                                   color: AppPalette.success,
@@ -874,7 +884,10 @@ class _SessionRow extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    '${session.childName} · avec ${session.tutorName}',
+                    tr.parent.sessionsList.childWithTutor(
+                      child: session.childName,
+                      tutor: session.tutorName,
+                    ),
                     style: const TextStyle(
                       fontSize: 11,
                       color: AppPalette.n700,
@@ -894,12 +907,12 @@ class _SessionRow extends StatelessWidget {
     );
   }
 
-  String _formatDuration(int minutes) {
+  String _formatDuration(Translations tr, int minutes) {
     final h = minutes ~/ 60;
     final m = minutes % 60;
     if (h > 0 && m > 0) return '${h}h${m.toString().padLeft(2, '0')}';
     if (h > 0) return '${h}h';
-    return '${m}min';
+    return tr.parent.sessionsList.durationMinutes(count: m);
   }
 }
 
@@ -908,6 +921,7 @@ class _ListEmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     // Affiche 3 jours "skeletons" pour montrer la structure même sans données
     final today = DateTime.now();
     final days = [today, today.add(const Duration(days: 1)), today.add(const Duration(days: 2))];
@@ -935,22 +949,22 @@ class _ListEmptyView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Aucune séance planifiée',
-                          style: TextStyle(
+                          tr.parent.sessionsList.emptyListTitle,
+                          style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: AppPalette.ink,
                           ),
                         ),
-                        SizedBox(height: 3),
+                        const SizedBox(height: 3),
                         Text(
-                          "Les séances de tutorat apparaîtront ici dès qu'elles seront planifiées.",
-                          style: TextStyle(
+                          tr.parent.sessionsList.emptyListBody,
+                          style: const TextStyle(
                             fontSize: 11,
                             color: AppPalette.n700,
                             height: 1.4,
@@ -966,9 +980,11 @@ class _ListEmptyView extends StatelessWidget {
         }
         final day = days[i - 1];
         final isToday = i == 1;
+        final dayLabel =
+            DateFormat('EEEE d MMMM', 'fr').format(day).toUpperCase();
         final label = isToday
-            ? "AUJOURD'HUI · ${DateFormat('EEEE d MMMM', 'fr').format(day).toUpperCase()}"
-            : DateFormat('EEEE d MMMM', 'fr').format(day).toUpperCase();
+            ? '${tr.parent.sessionsList.todayPrefix} · $dayLabel'
+            : dayLabel;
         return Padding(
           padding: const EdgeInsets.only(bottom: 18),
           child: Column(
@@ -993,7 +1009,7 @@ class _ListEmptyView extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    'Aucune séance ce jour',
+                    tr.parent.sessionsList.emptyDay,
                     style: const TextStyle(
                       fontSize: 12,
                       color: AppPalette.n500,

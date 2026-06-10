@@ -14,12 +14,14 @@ class SoeCountryField extends StatelessWidget {
     super.key,
     required this.country,
     required this.onChanged,
-    this.pickerTitle = 'Choisir un pays',
+    this.pickerTitle,
   });
 
   final Country country;
   final ValueChanged<Country> onChanged;
-  final String pickerTitle;
+
+  /// Titre du sélecteur. Si `null`, `countryPicker.addressTitle` est utilisé.
+  final String? pickerTitle;
 
   @override
   Widget build(BuildContext context) {

@@ -8,6 +8,7 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_text_field.dart';
 import '../../../../core/widgets/soe_toast.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../../references/presentation/providers.dart';
 import '../../domain/entities/tutor_form_params.dart';
 import '../../domain/entities/tutor_payment_method.dart';
@@ -82,6 +83,7 @@ Future<void> showTrainingSheet(
     text: (existing?.specialty == '—' ? '' : existing?.specialty) ?? '',
   );
   final date = TextEditingController(text: existing?.date ?? '');
+  final tr = Translations.of(context);
   final category = TextEditingController(
       text: existing?.category.isNotEmpty == true
           ? existing!.category
@@ -89,21 +91,23 @@ Future<void> showTrainingSheet(
   final key = 'training:${existing?.id ?? 'new'}';
   return _showSheet(
     context,
-    title: existing == null ? 'Nouvelle formation' : 'Modifier la formation',
+    title: existing == null
+        ? tr.tutor.forms.newTraining
+        : tr.tutor.forms.editTraining,
     builder: (ctx) => Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SoeTextField(controller: level, label: 'Niveau (ex: Master)'),
+        SoeTextField(controller: level, label: tr.tutor.forms.levelLabel),
         const SizedBox(height: 10),
-        SoeTextField(controller: domain, label: 'Domaine'),
+        SoeTextField(controller: domain, label: tr.tutor.forms.domain),
         const SizedBox(height: 10),
-        SoeTextField(controller: specialty, label: 'Spécialité'),
+        SoeTextField(controller: specialty, label: tr.tutor.forms.specialty),
         const SizedBox(height: 10),
-        SoeTextField(controller: date, label: "Année d'obtention"),
+        SoeTextField(controller: date, label: tr.tutor.forms.obtentionYear),
         const SizedBox(height: 20),
         Consumer(
           builder: (context, r, _) => SoeButton(
-            label: 'Enregistrer',
+            label: tr.common.save,
             fullWidth: true,
             loading: r.watch(tutorActionViewModelProvider(key))
                 is TutorActionSubmitting,
@@ -111,8 +115,9 @@ Future<void> showTrainingSheet(
               ctx,
               r,
               actionKey: key,
-              successMessage:
-                  existing == null ? 'Formation ajoutée' : 'Formation modifiée',
+              successMessage: existing == null
+                  ? tr.tutor.forms.trainingAdded
+                  : tr.tutor.forms.trainingUpdated,
               op: () => r.read(saveTutorTrainingProvider)(
                 TutorTrainingParams(
                   category: category.text.trim(),
@@ -144,28 +149,31 @@ Future<void> showWorkSheet(
   final since = TextEditingController(text: existing?.since ?? '');
   final until = TextEditingController(text: existing?.until ?? '');
   var current = existing?.current ?? false;
+  final tr = Translations.of(context);
   final key = 'work:${existing?.id ?? 'new'}';
   return _showSheet(
     context,
-    title: existing == null ? 'Nouvelle expérience' : "Modifier l'expérience",
+    title:
+        existing == null ? tr.tutor.forms.newWork : tr.tutor.forms.editWork,
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setState) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SoeTextField(controller: title, label: 'Poste occupé'),
+          SoeTextField(controller: title, label: tr.tutor.forms.position),
           const SizedBox(height: 10),
-          SoeTextField(controller: company, label: 'Entreprise'),
+          SoeTextField(controller: company, label: tr.tutor.forms.company),
           const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
-                child: SoeTextField(controller: since, label: 'Depuis'),
+                child: SoeTextField(
+                    controller: since, label: tr.tutor.forms.since),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: SoeTextField(
                   controller: until,
-                  label: "Jusqu'à",
+                  label: tr.tutor.forms.until,
                   enabled: !current,
                 ),
               ),
@@ -174,15 +182,15 @@ Future<void> showWorkSheet(
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             activeTrackColor: AppPalette.teal,
-            title: const Text('Poste actuel',
-                style: TextStyle(fontSize: 13, color: AppPalette.ink)),
+            title: Text(tr.tutor.forms.currentPosition,
+                style: const TextStyle(fontSize: 13, color: AppPalette.ink)),
             value: current,
             onChanged: (v) => setState(() => current = v),
           ),
           const SizedBox(height: 12),
           Consumer(
             builder: (context, r, _) => SoeButton(
-              label: 'Enregistrer',
+              label: tr.common.save,
               fullWidth: true,
               loading: r.watch(tutorActionViewModelProvider(key))
                   is TutorActionSubmitting,
@@ -191,8 +199,8 @@ Future<void> showWorkSheet(
                 r,
                 actionKey: key,
                 successMessage: existing == null
-                    ? 'Expérience ajoutée'
-                    : 'Expérience modifiée',
+                    ? tr.tutor.forms.workAdded
+                    : tr.tutor.forms.workUpdated,
                 op: () => r.read(saveTutorWorkProvider)(
                   TutorWorkParams(
                     title: title.text.trim(),
@@ -218,30 +226,31 @@ Future<void> showWorkSheet(
 
 // ── Disponibilité ────────────────────────────────────────────
 Future<void> showAvailabilitySheet(BuildContext context, WidgetRef ref) {
-  const days = [
-    'Lundi',
-    'Mardi',
-    'Mercredi',
-    'Jeudi',
-    'Vendredi',
-    'Samedi',
-    'Dimanche'
+  final tr = Translations.of(context);
+  final days = [
+    tr.tutor.days.monday,
+    tr.tutor.days.tuesday,
+    tr.tutor.days.wednesday,
+    tr.tutor.days.thursday,
+    tr.tutor.days.friday,
+    tr.tutor.days.saturday,
+    tr.tutor.days.sunday,
   ];
   var weekday = 1;
   final from = TextEditingController(text: '14:00');
   final to = TextEditingController(text: '18:00');
   return _showSheet(
     context,
-    title: 'Nouveau créneau',
+    title: tr.tutor.forms.newSlot,
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setState) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           DropdownButtonFormField<int>(
             initialValue: weekday,
-            decoration: const InputDecoration(
-              labelText: 'Jour',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: tr.tutor.forms.day,
+              border: const OutlineInputBorder(),
             ),
             items: [
               for (var i = 0; i < days.length; i++)
@@ -252,15 +261,19 @@ Future<void> showAvailabilitySheet(BuildContext context, WidgetRef ref) {
           const SizedBox(height: 10),
           Row(
             children: [
-              Expanded(child: SoeTextField(controller: from, label: 'Début')),
+              Expanded(
+                  child: SoeTextField(
+                      controller: from, label: tr.tutor.forms.start)),
               const SizedBox(width: 10),
-              Expanded(child: SoeTextField(controller: to, label: 'Fin')),
+              Expanded(
+                  child: SoeTextField(
+                      controller: to, label: tr.tutor.forms.end)),
             ],
           ),
           const SizedBox(height: 20),
           Consumer(
             builder: (context, r, _) => SoeButton(
-              label: 'Ajouter',
+              label: tr.common.add,
               fullWidth: true,
               loading: r.watch(tutorActionViewModelProvider('availability'))
                   is TutorActionSubmitting,
@@ -268,7 +281,7 @@ Future<void> showAvailabilitySheet(BuildContext context, WidgetRef ref) {
                 ctx,
                 r,
                 actionKey: 'availability',
-                successMessage: 'Créneau ajouté',
+                successMessage: tr.tutor.forms.slotAdded,
                 op: () => r.read(createTutorAvailabilityProvider)(
                   TutorAvailabilityParams(
                     weekday: weekday,
@@ -298,10 +311,13 @@ Future<void> showMobilePaymentSheet(
   var op = (existing?.operator ?? '').toLowerCase().contains('orange')
       ? TutorMobileOperator.orange
       : TutorMobileOperator.mtn;
+  final tr = Translations.of(context);
   final key = 'pay_mobile:${existing?.id ?? 'new'}';
   return _showSheet(
     context,
-    title: existing == null ? 'Ajouter Mobile Money' : 'Modifier Mobile Money',
+    title: existing == null
+        ? tr.tutor.forms.addMobileMoney
+        : tr.tutor.forms.editMobileMoney,
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setState) => Column(
         mainAxisSize: MainAxisSize.min,
@@ -320,13 +336,13 @@ Future<void> showMobilePaymentSheet(
           const SizedBox(height: 12),
           SoeTextField(
             controller: phone,
-            label: 'Numéro de téléphone',
+            label: tr.tutor.forms.phoneNumber,
             keyboardType: TextInputType.phone,
           ),
           const SizedBox(height: 20),
           Consumer(
             builder: (context, r, _) => SoeButton(
-              label: 'Enregistrer',
+              label: tr.common.save,
               fullWidth: true,
               loading: r.watch(tutorActionViewModelProvider(key))
                   is TutorActionSubmitting,
@@ -334,8 +350,9 @@ Future<void> showMobilePaymentSheet(
                 ctx,
                 r,
                 actionKey: key,
-                successMessage:
-                    existing == null ? 'Méthode ajoutée' : 'Méthode modifiée',
+                successMessage: existing == null
+                    ? tr.tutor.forms.methodAdded
+                    : tr.tutor.forms.methodUpdated,
                 op: () => r.read(addTutorMobilePaymentProvider)(
                   TutorMobilePaymentParams(
                       phone: phone.text.trim(), operator: op),
@@ -363,26 +380,31 @@ Future<void> showIdentitySheet(
   final birthday = TextEditingController(text: existing?.dob ?? '');
   final expiration = TextEditingController(text: existing?.expires ?? '');
   final images = <File>[];
+  final tr = Translations.of(context);
   final key = 'identity:${existing?.id ?? 'new'}';
   return _showSheet(
     context,
-    title: existing == null ? 'Ajouter un document' : 'Modifier le document',
+    title: existing == null
+        ? tr.tutor.forms.addDocument
+        : tr.tutor.forms.editDocument,
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setState) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SoeTextField(controller: type, label: 'Type (CNI, Passeport…)'),
+          SoeTextField(controller: type, label: tr.tutor.forms.documentType),
           const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
                 child: SoeTextField(
-                    controller: birthday, label: 'Naissance (AAAA-MM-JJ)'),
+                    controller: birthday,
+                    label: tr.tutor.forms.birthDate),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child:
-                    SoeTextField(controller: expiration, label: 'Expiration'),
+                child: SoeTextField(
+                    controller: expiration,
+                    label: tr.tutor.forms.expiration),
               ),
             ],
           ),
@@ -400,23 +422,23 @@ Future<void> showIdentitySheet(
             label: Text(
               images.isEmpty
                   ? (existing == null
-                      ? 'Choisir des photos'
-                      : 'Remplacer les photos')
-                  : '${images.length} photo(s)',
+                      ? tr.tutor.forms.choosePhotos
+                      : tr.tutor.forms.replacePhotos)
+                  : tr.tutor.forms.photosCount(count: images.length),
             ),
           ),
           if (existing != null && images.isEmpty)
-            const Padding(
-              padding: EdgeInsets.only(top: 6),
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
               child: Text(
-                'Laissez vide pour conserver les photos actuelles.',
-                style: TextStyle(fontSize: 11, color: AppPalette.n500),
+                tr.tutor.forms.keepCurrentPhotos,
+                style: const TextStyle(fontSize: 11, color: AppPalette.n500),
               ),
             ),
           const SizedBox(height: 16),
           Consumer(
             builder: (context, r, _) => SoeButton(
-              label: 'Enregistrer',
+              label: tr.common.save,
               fullWidth: true,
               loading: r.watch(tutorActionViewModelProvider(key))
                   is TutorActionSubmitting,
@@ -424,7 +446,7 @@ Future<void> showIdentitySheet(
                 // Photos obligatoires uniquement à la création.
                 if (existing == null && images.isEmpty) {
                   SoeToast.show(ctx,
-                      message: 'Ajoutez au moins une photo',
+                      message: tr.tutor.forms.addAtLeastOnePhoto,
                       tone: SoeToastTone.warning);
                   return;
                 }
@@ -438,8 +460,9 @@ Future<void> showIdentitySheet(
                   ctx,
                   r,
                   actionKey: key,
-                  successMessage:
-                      existing == null ? 'Document ajouté' : 'Document modifié',
+                  successMessage: existing == null
+                      ? tr.tutor.forms.documentAdded
+                      : tr.tutor.forms.documentUpdated,
                   op: () => existing == null
                       ? r.read(createTutorIdentityProvider)(params)
                       : r.read(updateTutorIdentityProvider)(
@@ -467,10 +490,12 @@ Future<void> showTeachingCourseSheet(
   String? classId;
   final subjectIds = <String>{};
   var prefilled = false;
+  final tr = Translations.of(context);
   final key = 'course:${existing?.id ?? 'new'}';
   return _showSheet(
     context,
-    title: existing == null ? 'Nouvelle classe' : 'Modifier la classe',
+    title:
+        existing == null ? tr.tutor.forms.newClass : tr.tutor.forms.editClass,
     builder: (ctx) => Consumer(
       builder: (ctx, r, _) {
         final classesAsync =
@@ -484,11 +509,11 @@ Future<void> showTeachingCourseSheet(
           );
         }
         if (classesAsync.hasError || subjectsAsync.hasError) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
             child: Text(
-              'Impossible de charger les classes / matières. Réessayez.',
-              style: TextStyle(fontSize: 13, color: AppPalette.danger),
+              tr.tutor.forms.loadClassesError,
+              style: const TextStyle(fontSize: 13, color: AppPalette.danger),
             ),
           );
         }
@@ -520,9 +545,9 @@ Future<void> showTeachingCourseSheet(
               DropdownButtonFormField<String>(
                 initialValue: classId,
                 isExpanded: true,
-                decoration: const InputDecoration(
-                  labelText: 'Classe / niveau',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: tr.tutor.forms.classLevel,
+                  border: const OutlineInputBorder(),
                 ),
                 items: [
                   for (final c in classes)
@@ -537,9 +562,9 @@ Future<void> showTeachingCourseSheet(
                 onChanged: (v) => setState(() => classId = v),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Matières enseignées',
-                style: TextStyle(
+              Text(
+                tr.tutor.forms.taughtSubjects,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: AppPalette.ink,
@@ -574,20 +599,20 @@ Future<void> showTeachingCourseSheet(
               ),
               const SizedBox(height: 20),
               SoeButton(
-                label: 'Enregistrer',
+                label: tr.common.save,
                 fullWidth: true,
                 loading: r.watch(tutorActionViewModelProvider(key))
                     is TutorActionSubmitting,
                 onPressed: () {
                   if (classId == null) {
                     SoeToast.show(ctx,
-                        message: 'Choisissez une classe',
+                        message: tr.tutor.forms.chooseClass,
                         tone: SoeToastTone.warning);
                     return;
                   }
                   if (subjectIds.isEmpty) {
                     SoeToast.show(ctx,
-                        message: 'Choisissez au moins une matière',
+                        message: tr.tutor.forms.chooseSubject,
                         tone: SoeToastTone.warning);
                     return;
                   }
@@ -595,8 +620,9 @@ Future<void> showTeachingCourseSheet(
                     ctx,
                     r,
                     actionKey: key,
-                    successMessage:
-                        existing == null ? 'Classe ajoutée' : 'Classe modifiée',
+                    successMessage: existing == null
+                        ? tr.tutor.forms.classAdded
+                        : tr.tutor.forms.classUpdated,
                     op: () => r.read(saveTutorTeachingCourseProvider)(
                       TutorTeachingCourseParams(
                         schoolClassId: classId!,
@@ -626,17 +652,18 @@ Future<void> showContractSignSheet(
   VoidCallback? onSuccess,
 }) {
   final sig = TutorSignatureController();
+  final tr = Translations.of(context);
   return _showSheet(
     context,
-    title: 'Signer le contrat',
+    title: tr.tutor.forms.signContract,
     builder: (ctx) => Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Align(
+        Align(
           alignment: Alignment.centerLeft,
           child: Text(
-            'Signez dans le cadre puis validez.',
-            style: TextStyle(fontSize: 12, color: AppPalette.n700),
+            tr.tutor.forms.signInFrame,
+            style: const TextStyle(fontSize: 12, color: AppPalette.n700),
           ),
         ),
         const SizedBox(height: 10),
@@ -644,7 +671,7 @@ Future<void> showContractSignSheet(
         const SizedBox(height: 20),
         Consumer(
           builder: (context, r, _) => SoeButton(
-            label: 'Signer le contrat',
+            label: tr.tutor.forms.signContract,
             fullWidth: true,
             loading: r.watch(tutorActionViewModelProvider('sign:$contractId'))
                 is TutorActionSubmitting,
@@ -653,14 +680,15 @@ Future<void> showContractSignSheet(
               if (!ctx.mounted) return;
               if (file == null) {
                 SoeToast.show(ctx,
-                    message: 'Veuillez signer', tone: SoeToastTone.warning);
+                    message: tr.tutor.forms.pleaseSign,
+                    tone: SoeToastTone.warning);
                 return;
               }
               await runTutorAction(
                 ctx,
                 r,
                 actionKey: 'sign:$contractId',
-                successMessage: 'Contrat signé',
+                successMessage: tr.tutor.forms.contractSigned,
                 op: () => r.read(signTutorContractProvider)(contractId, file),
                 onSuccess: onSuccess,
               );
@@ -674,20 +702,21 @@ Future<void> showContractSignSheet(
 
 /// Confirmation de suppression générique.
 Future<bool> confirmDelete(BuildContext context, String label) async {
+  final tr = Translations.of(context);
   final r = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: const Text('Supprimer ?'),
-      content: Text('Voulez-vous supprimer $label ?'),
+      title: Text(tr.tutor.forms.deleteTitle),
+      content: Text(tr.tutor.forms.deleteConfirm(label: label)),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx, false),
-          child: const Text('Annuler'),
+          child: Text(tr.common.cancel),
         ),
         FilledButton(
           style: FilledButton.styleFrom(backgroundColor: AppPalette.danger),
           onPressed: () => Navigator.pop(ctx, true),
-          child: const Text('Supprimer'),
+          child: Text(tr.common.delete),
         ),
       ],
     ),

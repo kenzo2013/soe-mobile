@@ -8,6 +8,7 @@ import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/tutor_course.dart';
 import '../providers.dart';
 import '../viewmodels/tutor_async_state.dart';
@@ -24,13 +25,14 @@ class TutorActiveCoursesPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorActiveCoursesViewModelProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
       drawer: const TutorDrawer(activeRoute: RouteNames.tutorCourses),
-      appBar: const TutorAppBar(
-        title: 'Mes cours actifs',
-        subtitle: 'Réservations en cours',
+      appBar: TutorAppBar(
+        title: tr.tutor.courses.activeTitle,
+        subtitle: tr.tutor.courses.activeSubtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -56,17 +58,20 @@ class TutorActiveCoursesPage extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: _MiniStat(
-                            value: '${courses.length}', label: 'Élèves'),
+                            value: '${courses.length}',
+                            label: tr.tutor.courses.statStudents),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: _MiniStat(
-                            value: '${subjects.length}', label: 'Matières'),
+                            value: '${subjects.length}',
+                            label: tr.tutor.courses.statSubjects),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: _MiniStat(
-                            value: '${courses.length}', label: 'Cours'),
+                            value: '${courses.length}',
+                            label: tr.tutor.courses.statCourses),
                       ),
                     ],
                   );
@@ -131,6 +136,7 @@ class _CourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
@@ -141,8 +147,8 @@ class _CourseCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const TutorPillBadge(
-                  label: 'En cours',
+                TutorPillBadge(
+                  label: tr.tutor.status.inProgress,
                   bg: AppPalette.successBg,
                   fg: AppPalette.success,
                 ),
@@ -175,7 +181,8 @@ class _CourseCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${course.classe} · démarré le ${course.start}',
+                        tr.tutor.courses.startedOn(
+                            classe: course.classe, date: course.start),
                         style: const TextStyle(
                           fontSize: 11,
                           color: AppPalette.n700,
@@ -235,12 +242,13 @@ class TutorCourseDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorCourseDetailViewModelProvider(id));
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const TutorAppBar(
-        title: 'Détail du cours',
-        subtitle: 'Profil et emploi du temps',
+      appBar: TutorAppBar(
+        title: tr.tutor.courses.detailTitle,
+        subtitle: tr.tutor.courses.detailSubtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -272,7 +280,8 @@ class TutorCourseDetailPage extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          '${c.age} ans · ${c.gender}',
+                          tr.tutor.courses.ageGender(
+                              age: c.age, gender: c.gender),
                           style: const TextStyle(
                             fontSize: 11,
                             color: AppPalette.n700,
@@ -291,7 +300,7 @@ class TutorCourseDetailPage extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 14),
-            _title('Matières concernées'),
+            _title(tr.tutor.courses.relatedSubjects),
             Wrap(
               spacing: 6,
               runSpacing: 6,
@@ -307,13 +316,13 @@ class TutorCourseDetailPage extends ConsumerWidget {
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(child: _title("Emploi du temps")),
+                Expanded(child: _title(tr.tutor.courses.schedule)),
                 InkWell(
                   onTap: () =>
                       context.push(RouteNames.tutorCourseSchedules(c.id)),
-                  child: const Text(
-                    'Modifier',
-                    style: TextStyle(
+                  child: Text(
+                    tr.common.edit,
+                    style: const TextStyle(
                       fontSize: 12,
                       color: AppPalette.teal,
                       fontWeight: FontWeight.w600,
@@ -403,14 +412,26 @@ class TutorManageSchedulesPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorCourseDetailViewModelProvider(id));
-    const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-    const activeDays = {'Lundi', 'Mercredi', 'Vendredi'};
+    final days = [
+      tr.tutor.days.monday,
+      tr.tutor.days.tuesday,
+      tr.tutor.days.wednesday,
+      tr.tutor.days.thursday,
+      tr.tutor.days.friday,
+      tr.tutor.days.saturday,
+    ];
+    final activeDays = {
+      tr.tutor.days.monday,
+      tr.tutor.days.wednesday,
+      tr.tutor.days.friday,
+    };
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const TutorAppBar(
-        title: 'Gérer les horaires',
-        subtitle: 'Ajuster les créneaux (avec accord parent)',
+      appBar: TutorAppBar(
+        title: tr.tutor.courses.manageSchedulesTitle,
+        subtitle: tr.tutor.courses.manageSchedulesSubtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -427,16 +448,15 @@ class TutorManageSchedulesPage extends ConsumerWidget {
                 border: Border.all(
                     color: AppPalette.warning.withValues(alpha: 0.2)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.notifications_active_outlined,
+                  const Icon(Icons.notifications_active_outlined,
                       size: 16, color: AppPalette.warning),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      "Modifier les horaires nécessite l'accord du parent. Une "
-                      'notification sera envoyée pour validation.',
-                      style: TextStyle(
+                      tr.tutor.courses.scheduleParentWarning,
+                      style: const TextStyle(
                         fontSize: 11,
                         color: AppPalette.warning,
                         height: 1.4,
@@ -517,7 +537,7 @@ class TutorManageSchedulesPage extends ConsumerWidget {
               ),
             const SizedBox(height: 12),
             SoeButton(
-              label: 'Demander la modification',
+              label: tr.tutor.courses.requestChange,
               fullWidth: true,
               loading: ref.watch(tutorActionViewModelProvider('schedules:$id'))
                   is TutorActionSubmitting,
@@ -525,7 +545,7 @@ class TutorManageSchedulesPage extends ConsumerWidget {
                 context,
                 ref,
                 actionKey: 'schedules:$id',
-                successMessage: 'Demande envoyée au parent',
+                successMessage: tr.tutor.courses.requestSentToParent,
                 op: () => ref.read(manageTutorSchedulesProvider)({
                   'student_id': id,
                   'note': 'Demande de modification des horaires',

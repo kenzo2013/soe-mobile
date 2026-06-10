@@ -157,7 +157,7 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
                           SoeFieldLabel(tr.signup.step4.city),
                           SoeTextField(
                             controller: _city,
-                            hint: 'Douala',
+                            hint: tr.signup.step4.cityHint,
                             textInputAction: TextInputAction.done,
                             validator: (v) =>
                                 (v == null || v.trim().isEmpty)

@@ -7,6 +7,7 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/tutor_form_params.dart';
 import '../../domain/entities/tutor_payment_method.dart';
 import '../providers.dart';
@@ -25,13 +26,14 @@ class TutorPaymentMethodsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorPaymentMethodsViewModelProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
       drawer: const TutorDrawer(activeRoute: RouteNames.tutorPayment),
-      appBar: const TutorAppBar(
-        title: 'Infos de paiement',
-        subtitle: 'Mobile Money et compte bancaire',
+      appBar: TutorAppBar(
+        title: tr.tutor.payment.title,
+        subtitle: tr.tutor.payment.subtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -45,9 +47,11 @@ class TutorPaymentMethodsPage extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           children: [
             Text(
-              '${methods.length} méthode${methods.length > 1 ? "s" : ""} '
-              'enregistrée${methods.length > 1 ? "s" : ""} · '
-              '${methods.where((m) => m.isDefault).length} par défaut',
+              (methods.length > 1
+                      ? tr.tutor.payment.countPlural(count: methods.length)
+                      : tr.tutor.payment.countSingular(count: methods.length)) +
+                  tr.tutor.payment.defaultCount(
+                      count: methods.where((m) => m.isDefault).length),
               style: const TextStyle(fontSize: 11, color: AppPalette.n700),
             ),
             const SizedBox(height: 12),
@@ -60,7 +64,7 @@ class TutorPaymentMethodsPage extends ConsumerWidget {
                     context,
                     ref,
                     actionKey: 'pay_default:${m.id}',
-                    successMessage: 'Méthode par défaut mise à jour',
+                    successMessage: tr.tutor.payment.defaultUpdated,
                     popOnSuccess: false,
                     op: () => ref.read(markTutorPaymentDefaultProvider)(m.id),
                     onSuccess: () => ref
@@ -68,13 +72,14 @@ class TutorPaymentMethodsPage extends ConsumerWidget {
                         .refresh(),
                   ),
                   onDelete: () async {
-                    if (await confirmDelete(context, 'cette méthode') &&
+                    if (await confirmDelete(
+                            context, tr.tutor.payment.deleteThisMethod) &&
                         context.mounted) {
                       await runTutorAction(
                         context,
                         ref,
                         actionKey: 'pay_del:${m.id}',
-                        successMessage: 'Méthode supprimée',
+                        successMessage: tr.tutor.payment.methodDeleted,
                         popOnSuccess: false,
                         op: () =>
                             ref.read(deleteTutorPaymentMethodProvider)(m.id),
@@ -96,11 +101,11 @@ class TutorPaymentMethodsPage extends ConsumerWidget {
                 ),
               ),
             const SizedBox(height: 4),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 12, left: 4),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12, left: 4),
               child: Text(
-                'Ajouter une méthode',
-                style: TextStyle(
+                tr.tutor.payment.addMethod,
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: AppPalette.ink,
@@ -121,7 +126,7 @@ class TutorPaymentMethodsPage extends ConsumerWidget {
                 Expanded(
                   child: _AddMethod(
                     icon: Icons.account_balance_outlined,
-                    title: 'Compte bancaire',
+                    title: tr.tutor.payment.bankAccount,
                     sub: 'IBAN · BIC',
                     onTap: () => context.push(RouteNames.tutorPaymentAddBank),
                   ),
@@ -151,6 +156,7 @@ class _MethodCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final isMobile = method.kind == TutorPaymentKind.mobile;
     final isMtn = (method.operator ?? '').startsWith('MTN');
     return SoeCard(
@@ -218,8 +224,8 @@ class _MethodCard extends StatelessWidget {
                               ),
                               if (method.isDefault) ...[
                                 const SizedBox(width: 6),
-                                const TutorPillBadge(
-                                  label: 'Par défaut',
+                                TutorPillBadge(
+                                  label: tr.tutor.payment.defaultBadge,
                                   bg: AppPalette.successBg,
                                   fg: AppPalette.success,
                                 ),
@@ -243,25 +249,25 @@ class _MethodCard extends StatelessWidget {
                     PopupMenuButton<String>(
                       icon: const Icon(Icons.tune,
                           size: 16, color: AppPalette.n700),
-                      tooltip: 'Options',
+                      tooltip: tr.tutor.payment.options,
                       onSelected: (v) {
                         if (v == 'edit') onEdit();
                         if (v == 'default') onSetDefault();
                         if (v == 'delete') onDelete();
                       },
                       itemBuilder: (ctx) => [
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'edit',
-                          child: Text('Modifier'),
+                          child: Text(tr.common.edit),
                         ),
                         if (!method.isDefault)
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'default',
-                            child: Text('Définir par défaut'),
+                            child: Text(tr.tutor.payment.setDefault),
                           ),
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'delete',
-                          child: Text('Supprimer'),
+                          child: Text(tr.common.delete),
                         ),
                       ],
                     ),
@@ -280,9 +286,9 @@ class _MethodCard extends StatelessWidget {
                       border: Border(top: BorderSide(color: AppPalette.n300)),
                     ),
                     alignment: Alignment.center,
-                    child: const Text(
-                      'Définir par défaut',
-                      style: TextStyle(
+                    child: Text(
+                      tr.tutor.payment.setDefault,
+                      style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: AppPalette.teal,
@@ -404,6 +410,7 @@ class _TutorAddBankPageState extends ConsumerState<TutorAddBankPage> {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final isEdit = widget.existing != null;
     final actionKey = isEdit ? 'bank_edit:${widget.existing!.id}' : 'add_bank';
     final submitting = ref.watch(tutorActionViewModelProvider(actionKey))
@@ -412,9 +419,9 @@ class _TutorAddBankPageState extends ConsumerState<TutorAddBankPage> {
       backgroundColor: AppPalette.n100,
       appBar: TutorAppBar(
         title: isEdit
-            ? 'Modifier le compte bancaire'
-            : 'Ajouter un compte bancaire',
-        subtitle: 'Coordonnées de versement',
+            ? tr.tutor.payment.editBankTitle
+            : tr.tutor.payment.addBankTitle,
+        subtitle: tr.tutor.payment.bankSubtitle,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -425,15 +432,15 @@ class _TutorAddBankPageState extends ConsumerState<TutorAddBankPage> {
               color: AppPalette.infoBg,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.lock_outline, size: 16, color: AppPalette.info),
-                SizedBox(width: 10),
+                const Icon(Icons.lock_outline,
+                    size: 16, color: AppPalette.info),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Vos coordonnées bancaires sont chiffrées et ne sont '
-                    'utilisées que pour les versements de rémunération.',
-                    style: TextStyle(
+                    tr.tutor.payment.bankEncryptedNote,
+                    style: const TextStyle(
                       fontSize: 11,
                       color: AppPalette.info,
                       height: 1.4,
@@ -444,22 +451,22 @@ class _TutorAddBankPageState extends ConsumerState<TutorAddBankPage> {
             ),
           ),
           const SizedBox(height: 14),
-          _title('Titulaire'),
+          _title(tr.tutor.payment.holder),
           SoeCard(
             child: _BankField(
-              label: 'Titulaire du compte',
+              label: tr.tutor.payment.accountHolder,
               hint: 'Paul Mbarga',
               icon: Icons.person_outline,
               controller: _holder,
             ),
           ),
           const SizedBox(height: 14),
-          _title('Banque'),
+          _title(tr.tutor.payment.bank),
           SoeCard(
             child: Column(
               children: [
                 _BankField(
-                  label: 'Nom de la banque',
+                  label: tr.tutor.payment.bankName,
                   hint: 'Afriland First Bank',
                   icon: Icons.account_balance_outlined,
                   controller: _bank,
@@ -469,14 +476,14 @@ class _TutorAddBankPageState extends ConsumerState<TutorAddBankPage> {
                   children: [
                     Expanded(
                       child: _BankField(
-                          label: 'Code banque',
+                          label: tr.tutor.payment.bankCode,
                           hint: '10004',
                           controller: _bankCode),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: _BankField(
-                          label: 'Code agence',
+                          label: tr.tutor.payment.agencyCode,
                           hint: '00100',
                           controller: _agencyCode),
                     ),
@@ -486,12 +493,12 @@ class _TutorAddBankPageState extends ConsumerState<TutorAddBankPage> {
             ),
           ),
           const SizedBox(height: 14),
-          _title('Compte'),
+          _title(tr.tutor.payment.account),
           SoeCard(
             child: Column(
               children: [
                 _BankField(
-                  label: 'Numéro de compte',
+                  label: tr.tutor.payment.accountNumber,
                   hint: '11234567890',
                   icon: Icons.credit_card,
                   controller: _account,
@@ -501,18 +508,22 @@ class _TutorAddBankPageState extends ConsumerState<TutorAddBankPage> {
                   children: [
                     Expanded(
                       child: _BankField(
-                          label: 'Clé', hint: '45', controller: _key),
+                          label: tr.tutor.payment.bankKey,
+                          hint: '45',
+                          controller: _key),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: _BankField(
-                          label: 'BIC', hint: 'CCEICMCX', controller: _bic),
+                          label: tr.tutor.payment.bic,
+                          hint: 'CCEICMCX',
+                          controller: _bic),
                     ),
                   ],
                 ),
                 const SizedBox(height: 10),
                 _BankField(
-                  label: 'IBAN',
+                  label: tr.tutor.payment.iban,
                   hint: 'CM21 1000 4001 1234 5678 9012 345',
                   icon: Icons.public,
                   controller: _iban,
@@ -523,15 +534,17 @@ class _TutorAddBankPageState extends ConsumerState<TutorAddBankPage> {
           const SizedBox(height: 20),
           SoeButton(
             label: isEdit
-                ? 'Enregistrer les modifications'
-                : 'Enregistrer le compte',
+                ? tr.tutor.payment.saveChanges
+                : tr.tutor.payment.saveAccount,
             fullWidth: true,
             loading: submitting,
             onPressed: () => runTutorAction(
               context,
               ref,
               actionKey: actionKey,
-              successMessage: isEdit ? 'Compte modifié' : 'Compte enregistré',
+              successMessage: isEdit
+                  ? tr.tutor.payment.accountUpdated
+                  : tr.tutor.payment.accountSaved,
               op: () => ref.read(addTutorBankPaymentProvider)(
                 TutorBankPaymentParams(
                   accountHolder: _holder.text.trim(),
@@ -629,6 +642,7 @@ class TutorPaymentDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     // Résout la version à jour depuis la liste (reflète une édition / passage
     // par défaut sans recharger), avec repli sur le snapshot reçu.
     final state = ref.watch(tutorPaymentMethodsViewModelProvider);
@@ -643,25 +657,27 @@ class TutorPaymentDetailPage extends ConsumerWidget {
 
     final rows = <(String, String?)>[
       if (isMobile) ...[
-        ('Opérateur', m.operator),
-        ('Numéro', m.phone),
+        (tr.tutor.payment.operator, m.operator),
+        (tr.tutor.payment.number, m.phone),
       ] else ...[
-        ('Titulaire', m.holder),
-        ('Banque', m.bank),
-        ('Code banque', m.bankCode),
-        ('Code agence', m.branchCode),
-        ('Numéro de compte', m.accountNumber),
-        ('Clé', m.key),
-        ('BIC', m.bic),
-        ('IBAN', m.iban),
+        (tr.tutor.payment.holder, m.holder),
+        (tr.tutor.payment.bank, m.bank),
+        (tr.tutor.payment.bankCode, m.bankCode),
+        (tr.tutor.payment.agencyCode, m.branchCode),
+        (tr.tutor.payment.accountNumber, m.accountNumber),
+        (tr.tutor.payment.bankKey, m.key),
+        (tr.tutor.payment.bic, m.bic),
+        (tr.tutor.payment.iban, m.iban),
       ],
     ].where((r) => (r.$2 ?? '').isNotEmpty).toList();
 
     return Scaffold(
       backgroundColor: AppPalette.n100,
       appBar: TutorAppBar(
-        title: isMobile ? 'Détail Mobile Money' : 'Détail compte bancaire',
-        subtitle: 'Moyen de versement',
+        title: isMobile
+            ? tr.tutor.payment.detailMobileTitle
+            : tr.tutor.payment.detailBankTitle,
+        subtitle: tr.tutor.payment.detailSubtitle,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -702,7 +718,7 @@ class TutorPaymentDetailPage extends ConsumerWidget {
                       Text(
                         isMobile
                             ? (m.operator ?? 'Mobile Money')
-                            : (m.bank ?? 'Compte bancaire'),
+                            : (m.bank ?? tr.tutor.payment.bankAccount),
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -711,14 +727,16 @@ class TutorPaymentDetailPage extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       if (m.isDefault)
-                        const TutorPillBadge(
-                          label: 'Par défaut',
+                        TutorPillBadge(
+                          label: tr.tutor.payment.defaultBadge,
                           bg: AppPalette.warningBg,
                           fg: AppPalette.warning,
                         )
                       else
                         Text(
-                          isMobile ? 'Mobile Money' : 'Compte bancaire',
+                          isMobile
+                              ? 'Mobile Money'
+                              : tr.tutor.payment.bankAccount,
                           style: const TextStyle(
                             fontSize: 12,
                             color: AppPalette.n700,
@@ -745,14 +763,14 @@ class TutorPaymentDetailPage extends ConsumerWidget {
           const SizedBox(height: 20),
           if (!m.isDefault) ...[
             SoeButton(
-              label: 'Définir par défaut',
+              label: tr.tutor.payment.setDefault,
               variant: SoeButtonVariant.secondary,
               fullWidth: true,
               onPressed: () => runTutorAction(
                 context,
                 ref,
                 actionKey: 'pay_default:${m.id}',
-                successMessage: 'Méthode par défaut mise à jour',
+                successMessage: tr.tutor.payment.defaultUpdated,
                 popOnSuccess: false,
                 op: () => ref.read(markTutorPaymentDefaultProvider)(m.id),
                 onSuccess: () => ref
@@ -763,7 +781,7 @@ class TutorPaymentDetailPage extends ConsumerWidget {
             const SizedBox(height: 10),
           ],
           SoeButton(
-            label: 'Modifier',
+            label: tr.common.edit,
             fullWidth: true,
             onPressed: () {
               if (m.kind == TutorPaymentKind.bank) {
@@ -775,17 +793,18 @@ class TutorPaymentDetailPage extends ConsumerWidget {
           ),
           const SizedBox(height: 10),
           SoeButton(
-            label: 'Supprimer',
+            label: tr.common.delete,
             variant: SoeButtonVariant.danger,
             fullWidth: true,
             onPressed: () async {
-              if (await confirmDelete(context, 'cette méthode') &&
+              if (await confirmDelete(
+                      context, tr.tutor.payment.deleteThisMethod) &&
                   context.mounted) {
                 await runTutorAction(
                   context,
                   ref,
                   actionKey: 'pay_del:${m.id}',
-                  successMessage: 'Méthode supprimée',
+                  successMessage: tr.tutor.payment.methodDeleted,
                   op: () => ref.read(deleteTutorPaymentMethodProvider)(m.id),
                   onSuccess: () => ref
                       .read(tutorPaymentMethodsViewModelProvider.notifier)

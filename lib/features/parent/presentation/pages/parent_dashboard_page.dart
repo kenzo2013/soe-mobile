@@ -9,6 +9,7 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../../auth/presentation/providers/current_user_provider.dart';
 import '../../domain/entities/parent_dashboard.dart';
 import '../providers.dart';
@@ -64,11 +65,12 @@ class _LoadingShell extends StatelessWidget {
   final String firstName;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Column(
       children: [
         ParentGreetHeader(
           firstName: firstName,
-          dateLine: _todayLine(0),
+          dateLine: _todayLine(tr, 0),
         ),
         const Expanded(child: DashboardSkeleton()),
       ],
@@ -88,9 +90,10 @@ class _ErrorShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Column(
       children: [
-        ParentGreetHeader(firstName: firstName, dateLine: _todayLine(0)),
+        ParentGreetHeader(firstName: firstName, dateLine: _todayLine(tr, 0)),
         Expanded(
           child: ErrorView(
             failure: failure,
@@ -116,6 +119,7 @@ class _LoadedView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final sessions = data.todaySessions;
     final reservations = data.recentReservations;
     final students = data.students;
@@ -140,7 +144,7 @@ class _LoadedView extends StatelessWidget {
             children: [
               ParentGreetHeader(
                 firstName: firstName,
-                dateLine: _todayLine(sessions.length),
+                dateLine: _todayLine(tr, sessions.length),
               ),
               Transform.translate(
                 offset: const Offset(0, -24),
@@ -159,8 +163,8 @@ class _LoadedView extends StatelessWidget {
                       ParentQuoteCta(onTap: onRequestQuote),
                       const SizedBox(height: 22),
                       _sectionHeader(
-                        'Mes enfants',
-                        actionLabel: 'Voir tout',
+                        tr.parent.dashboard.myChildren,
+                        actionLabel: tr.common.seeAll,
                         onAction: () => context.push(RouteNames.parentStudents),
                       ),
                       ChildAvatarsRow(
@@ -170,9 +174,9 @@ class _LoadedView extends StatelessWidget {
                       if (sessions.isNotEmpty) ...[
                         const SizedBox(height: 22),
                         _sectionHeader(
-                          'Séances du jour',
+                          tr.parent.dashboard.todaySessions,
                           count: sessions.length.toString(),
-                          actionLabel: 'Calendrier',
+                          actionLabel: tr.parent.dashboard.calendar,
                           onAction: () =>
                               context.push(RouteNames.parentSessions),
                         ),
@@ -195,8 +199,8 @@ class _LoadedView extends StatelessWidget {
                       if (reservations.isNotEmpty) ...[
                         const SizedBox(height: 22),
                         _sectionHeader(
-                          'Réservations récentes',
-                          actionLabel: 'Tout voir',
+                          tr.parent.dashboard.recentReservations,
+                          actionLabel: tr.common.seeAll,
                           onAction: () =>
                               context.push(RouteNames.parentReservations),
                         ),
@@ -290,6 +294,7 @@ class _EmptyDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return ListView(
       padding: EdgeInsets.zero,
       children: [
@@ -299,7 +304,7 @@ class _EmptyDashboard extends StatelessWidget {
           children: [
             ParentGreetHeader(
               firstName: firstName,
-              dateLine: 'Aucune séance prévue',
+              dateLine: tr.parent.dashboard.noSessionPlanned,
             ),
             Transform.translate(
               offset: const Offset(0, -24),
@@ -337,9 +342,9 @@ class _EmptyDashboard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          const Text(
-                            'Bienvenue sur SOE',
-                            style: TextStyle(
+                          Text(
+                            tr.parent.dashboard.welcomeTitle,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
                               color: AppPalette.ink,
@@ -347,11 +352,10 @@ class _EmptyDashboard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          const Text(
-                            "Pour commencer, ajoutez le profil d'un de vos enfants. "
-                            "Vous pourrez ensuite demander un devis aux tuteurs.",
+                          Text(
+                            tr.parent.dashboard.welcomeBody,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 13,
                               color: AppPalette.n700,
                               height: 1.5,
@@ -359,7 +363,7 @@ class _EmptyDashboard extends StatelessWidget {
                           ),
                           const SizedBox(height: 20),
                           SoeButton(
-                            label: 'Ajouter mon premier enfant',
+                            label: tr.parent.dashboard.addFirstChild,
                             onPressed: onAddChild,
                             icon: Icons.add,
                           ),
@@ -367,7 +371,7 @@ class _EmptyDashboard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 22),
-                    ..._howItWorks,
+                    ..._howItWorks(tr),
                   ],
                 ),
               ),
@@ -378,26 +382,26 @@ class _EmptyDashboard extends StatelessWidget {
     );
   }
 
-  static const _howItWorks = [
-    _HowStep(
-      n: 1,
-      title: 'Ajoutez vos enfants',
-      desc: 'Profil, classe, matières souhaitées',
-      icon: Icons.groups_outlined,
-    ),
-    _HowStep(
-      n: 2,
-      title: 'Demandez un devis',
-      desc: '3 étapes guidées · réponse en 24h',
-      icon: Icons.description_outlined,
-    ),
-    _HowStep(
-      n: 3,
-      title: 'Suivez les séances',
-      desc: 'Calendrier, rapports, paiements MoMo',
-      icon: Icons.calendar_month_outlined,
-    ),
-  ];
+  static List<Widget> _howItWorks(Translations tr) => [
+        _HowStep(
+          n: 1,
+          title: tr.parent.dashboard.howStep1Title,
+          desc: tr.parent.dashboard.howStep1Desc,
+          icon: Icons.groups_outlined,
+        ),
+        _HowStep(
+          n: 2,
+          title: tr.parent.dashboard.howStep2Title,
+          desc: tr.parent.dashboard.howStep2Desc,
+          icon: Icons.description_outlined,
+        ),
+        _HowStep(
+          n: 3,
+          title: tr.parent.dashboard.howStep3Title,
+          desc: tr.parent.dashboard.howStep3Desc,
+          icon: Icons.calendar_month_outlined,
+        ),
+      ];
 }
 
 class _HowStep extends StatelessWidget {
@@ -474,10 +478,13 @@ class _HowStep extends StatelessWidget {
   }
 }
 
-String _todayLine(int sessionCount) {
+String _todayLine(Translations tr, int sessionCount) {
   final fmt = DateFormat('EEEE d MMMM', 'fr');
   final date = fmt.format(DateTime.now());
-  if (sessionCount == 0) return '$date · Aucune séance';
-  if (sessionCount == 1) return '$date · 1 séance aujourd\'hui';
-  return '$date · $sessionCount séances aujourd\'hui';
+  if (sessionCount == 0) return tr.parent.dashboard.dateLineNoSession(date: date);
+  if (sessionCount == 1) return tr.parent.dashboard.dateLineOneSession(date: date);
+  return tr.parent.dashboard.dateLineManySessions(
+    date: date,
+    count: sessionCount,
+  );
 }

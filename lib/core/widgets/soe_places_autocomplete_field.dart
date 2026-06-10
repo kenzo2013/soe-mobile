@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart' as g;
 
+import '../../i18n/translations.g.dart';
 import '../services/places_service.dart';
 import '../theme/app_palette.dart';
 import '../theme/app_radius.dart';
@@ -113,6 +114,7 @@ class _SoePlacesAutocompleteFieldState
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -171,7 +173,7 @@ class _SoePlacesAutocompleteFieldState
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    "Suggestions d'adresse indisponibles — saisissez manuellement votre quartier et votre ville.",
+                    tr.widgets.placesUnavailable,
                     style: AppTypography.caption
                         .copyWith(color: AppPalette.warning, height: 1.4),
                   ),

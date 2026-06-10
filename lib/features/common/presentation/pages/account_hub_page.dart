@@ -6,6 +6,7 @@ import '../../../../core/providers/core_providers.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/soe_avatar.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/presentation/providers/current_user_provider.dart';
 import '../providers.dart';
@@ -19,22 +20,23 @@ class AccountHubPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final user = ref.watch(currentUserProvider).asData?.value;
     final role = ref.watch(currentRoleProvider) ?? user?.role.apiValue;
     final addressSub = ref.watch(accountAddressProvider).maybeWhen(
           data: (a) => a.shortLabel,
-          orElse: () => 'Localisation',
+          orElse: () => tr.account.hub.addressFallback,
         );
     final prefsSub = ref.watch(notificationPreferencesProvider).maybeWhen(
-          data: (p) => '${p.activeChannels} canaux actifs',
-          orElse: () => 'Email et push',
+          data: (p) => tr.account.hub.prefsChannels(count: p.activeChannels),
+          orElse: () => tr.account.hub.prefsFallback,
         );
 
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const CommonTopBar(
-        title: 'Mon compte',
-        subtitle: 'Profil, sécurité et préférences',
+      appBar: CommonTopBar(
+        title: tr.account.hub.title,
+        subtitle: tr.account.hub.subtitle,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -43,46 +45,49 @@ class AccountHubPage extends ConsumerWidget {
           const SizedBox(height: 14),
           _HubTile(
             icon: Icons.person_outline,
-            label: 'Informations personnelles',
-            sub: 'Nom, photo, téléphone',
+            label: tr.account.hub.personalInfoLabel,
+            sub: tr.account.hub.personalInfoSub,
             onTap: () => context.push(RouteNames.accountProfile),
           ),
           _HubTile(
             icon: Icons.lock_outline,
-            label: 'Changer le mot de passe',
+            label: tr.account.hub.passwordLabel,
             sub: '••••••••',
             onTap: () => context.push(RouteNames.accountPassword),
           ),
           _HubTile(
             icon: Icons.public,
-            label: 'Adresse',
+            label: tr.account.hub.addressLabel,
             sub: addressSub,
             onTap: () => context.push(RouteNames.accountAddress),
           ),
           _HubTile(
             icon: Icons.group_outlined,
-            label: 'Rôle actuel',
-            sub: _roleLabel(role),
-            badge: _roleLabel(role),
+            label: tr.account.hub.roleLabel,
+            sub: _roleLabel(tr, role),
+            badge: _roleLabel(tr, role),
             onTap: () => context.push(RouteNames.accountRole),
           ),
           _HubTile(
             icon: Icons.notifications_outlined,
-            label: 'Préférences de notification',
+            label: tr.account.hub.prefsLabel,
             sub: prefsSub,
             onTap: () => context.push(RouteNames.accountNotificationPrefs),
           ),
           const SizedBox(height: 16),
-          _LogoutTile(onTap: () => showLogoutSheet(context, ref)),
+          _LogoutTile(
+            label: tr.account.hub.logout,
+            onTap: () => showLogoutSheet(context, ref),
+          ),
         ],
       ),
     );
   }
 
-  static String _roleLabel(String? role) => switch (role) {
-        'tutor' => 'Tuteur',
-        'parent' => 'Parent',
-        _ => 'Parent',
+  static String _roleLabel(Translations tr, String? role) => switch (role) {
+        'tutor' => tr.account.role.tutorBadge,
+        'parent' => tr.account.role.parentBadge,
+        _ => tr.account.role.parentBadge,
       };
 }
 
@@ -92,6 +97,7 @@ class _HeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final name = user == null ? '' : user!.fullName.trim();
     final civility = user?.civility;
     final title = [civility, name]
@@ -118,7 +124,7 @@ class _HeaderCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title.isEmpty ? 'Mon profil' : title,
+                  title.isEmpty ? tr.account.hub.myProfile : title,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -236,7 +242,8 @@ class _HubTile extends StatelessWidget {
 }
 
 class _LogoutTile extends StatelessWidget {
-  const _LogoutTile({required this.onTap});
+  const _LogoutTile({required this.label, required this.onTap});
+  final String label;
   final VoidCallback onTap;
 
   @override
@@ -251,12 +258,12 @@ class _LogoutTile extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
           child: Row(
-            children: const [
-              Icon(Icons.logout, size: 18, color: AppPalette.danger),
-              SizedBox(width: 12),
+            children: [
+              const Icon(Icons.logout, size: 18, color: AppPalette.danger),
+              const SizedBox(width: 12),
               Text(
-                'Déconnexion',
-                style: TextStyle(
+                label,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: AppPalette.danger,

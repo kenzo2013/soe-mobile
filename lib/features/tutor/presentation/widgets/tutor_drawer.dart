@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_brand_logo.dart';
 import '../../../../core/widgets/soe_toast.dart';
@@ -18,51 +19,53 @@ class TutorDrawer extends ConsumerWidget {
 
   final String activeRoute;
 
-  static const _items = <_DrawerItem>[
-    _DrawerItem(
-      route: RouteNames.tutorDashboard,
-      icon: Icons.home_outlined,
-      label: 'Tableau de bord',
-    ),
-    _DrawerItem(
-      route: RouteNames.tutorProfile,
-      icon: Icons.person_outline,
-      label: 'Mon profil',
-    ),
-    _DrawerItem(
-      route: RouteNames.tutorJobs,
-      icon: Icons.work_outline,
-      label: "Offres d'emploi",
-    ),
-    _DrawerItem(
-      route: RouteNames.tutorCourses,
-      icon: Icons.menu_book_outlined,
-      label: 'Mes cours',
-    ),
-    _DrawerItem(
-      route: RouteNames.tutorSessions,
-      icon: Icons.calendar_month_outlined,
-      label: 'Séances',
-    ),
-    _DrawerItem(
-      route: RouteNames.tutorRemunerations,
-      icon: Icons.payments_outlined,
-      label: 'Rémunérations',
-    ),
-    _DrawerItem(
-      route: RouteNames.tutorPayment,
-      icon: Icons.credit_card_outlined,
-      label: 'Infos de paiement',
-    ),
-    _DrawerItem(
-      route: RouteNames.tutorContracts,
-      icon: Icons.article_outlined,
-      label: 'Contrats',
-    ),
-  ];
+  static List<_DrawerItem> _buildItems(Translations tr) => <_DrawerItem>[
+        _DrawerItem(
+          route: RouteNames.tutorDashboard,
+          icon: Icons.home_outlined,
+          label: tr.tutor.drawer.dashboard,
+        ),
+        _DrawerItem(
+          route: RouteNames.tutorProfile,
+          icon: Icons.person_outline,
+          label: tr.tutor.drawer.profile,
+        ),
+        _DrawerItem(
+          route: RouteNames.tutorJobs,
+          icon: Icons.work_outline,
+          label: tr.tutor.drawer.jobs,
+        ),
+        _DrawerItem(
+          route: RouteNames.tutorCourses,
+          icon: Icons.menu_book_outlined,
+          label: tr.tutor.drawer.courses,
+        ),
+        _DrawerItem(
+          route: RouteNames.tutorSessions,
+          icon: Icons.calendar_month_outlined,
+          label: tr.tutor.drawer.sessions,
+        ),
+        _DrawerItem(
+          route: RouteNames.tutorRemunerations,
+          icon: Icons.payments_outlined,
+          label: tr.tutor.drawer.remunerations,
+        ),
+        _DrawerItem(
+          route: RouteNames.tutorPayment,
+          icon: Icons.credit_card_outlined,
+          label: tr.tutor.drawer.payment,
+        ),
+        _DrawerItem(
+          route: RouteNames.tutorContracts,
+          icon: Icons.article_outlined,
+          label: tr.tutor.drawer.contracts,
+        ),
+      ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
+    final items = _buildItems(tr);
     final user = ref.watch(currentUserProvider).asData?.value;
     final name =
         user == null ? '' : '${user.firstName} ${user.lastName}'.trim();
@@ -113,7 +116,7 @@ class TutorDrawer extends ConsumerWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Tuteur · ${user?.email ?? 'Doctorant'}',
+                            '${tr.tutor.drawer.roleLabel} · ${user?.email ?? tr.tutor.drawer.roleFallback}',
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.65),
                               fontSize: 11,
@@ -134,9 +137,9 @@ class TutorDrawer extends ConsumerWidget {
                     horizontal: 12,
                     vertical: 10,
                   ),
-                  itemCount: _items.length,
+                  itemCount: items.length,
                   itemBuilder: (context, i) {
-                    final it = _items[i];
+                    final it = items[i];
                     final active = it.route == activeRoute;
                     return _DrawerRow(
                       item: it,
@@ -157,7 +160,7 @@ class TutorDrawer extends ConsumerWidget {
                   children: [
                     _secondary(
                       icon: Icons.settings_outlined,
-                      label: 'Mon compte',
+                      label: tr.tutor.drawer.account,
                       onTap: () {
                         Navigator.of(context).pop();
                         context.push(RouteNames.account);
@@ -166,7 +169,7 @@ class TutorDrawer extends ConsumerWidget {
                     const SizedBox(height: 8),
                     _secondary(
                       icon: Icons.logout,
-                      label: 'Déconnexion',
+                      label: tr.tutor.drawer.logout,
                       onTap: () => _confirmLogout(context, ref),
                     ),
                   ],
@@ -215,6 +218,7 @@ class TutorDrawer extends ConsumerWidget {
   /// /login → /tutor), PUIS on ferme le drawer via le root navigator, PUIS on
   /// force la nav vers /login (même si l'appel serveur a échoué).
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
+    final tr = Translations.of(context);
     final router = GoRouter.of(context);
     final rootNavigator = Navigator.of(context, rootNavigator: true);
 
@@ -230,7 +234,7 @@ class TutorDrawer extends ConsumerWidget {
     if (result.isErr && rootNavigator.context.mounted) {
       SoeToast.show(
         rootNavigator.context,
-        message: 'Déconnecté (échec serveur)',
+        message: tr.tutor.drawer.logoutServerError,
         tone: SoeToastTone.warning,
       );
     }

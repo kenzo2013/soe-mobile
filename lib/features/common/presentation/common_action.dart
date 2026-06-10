@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/error/failure.dart';
 import '../../../core/error/result.dart';
 import '../../../core/widgets/soe_toast.dart';
+import '../../../i18n/translations.g.dart';
 
 /// État d'une mutation des écrans communs.
 sealed class CommonActionState {
@@ -58,18 +59,16 @@ final commonActionViewModelProvider = StateNotifierProvider.autoDispose
 );
 
 /// Message utilisateur pour une `Failure` (CDC §7.4).
-String commonFailureMessage(Failure f) => switch (f) {
-      NetworkFailure() => 'Pas de connexion réseau.',
-      TimeoutFailure() => 'Le serveur met trop de temps à répondre.',
-      UnauthorizedFailure() => 'Session expirée, veuillez vous reconnecter.',
-      ForbiddenFailure() => 'Accès non autorisé.',
-      NotFoundFailure() => 'Ressource introuvable.',
-      ConflictFailure(:final message) =>
-        message ?? 'Conflit : action déjà effectuée.',
-      ValidationFailure(:final message) =>
-        message ?? 'Veuillez vérifier les informations saisies.',
-      ServerFailure(:final message) => message ?? 'Erreur serveur.',
-      _ => 'Une erreur est survenue. Réessayez.',
+String commonFailureMessage(Translations tr, Failure f) => switch (f) {
+      NetworkFailure() => tr.errors.network,
+      TimeoutFailure() => tr.errors.timeout,
+      UnauthorizedFailure() => tr.errors.unauthorized,
+      ForbiddenFailure() => tr.errors.forbidden,
+      NotFoundFailure() => tr.errors.notFound,
+      ConflictFailure(:final message) => message ?? tr.errors.conflict,
+      ValidationFailure(:final message) => message ?? tr.errors.validation,
+      ServerFailure(:final message) => message ?? tr.errors.server,
+      _ => tr.errors.unknown,
     };
 
 /// Exécute une mutation commune avec feedback standardisé (toast + pop + reload).
@@ -78,22 +77,27 @@ Future<bool> runCommonAction(
   WidgetRef ref, {
   required String actionKey,
   required Future<Result<void, Failure>> Function() op,
-  String successMessage = 'Enregistré',
+  String? successMessage,
   bool popOnSuccess = true,
   VoidCallback? onSuccess,
 }) async {
   final vm = ref.read(commonActionViewModelProvider(actionKey).notifier);
   final ok = await vm.run(op);
   if (!context.mounted) return ok;
+  final tr = Translations.of(context);
   if (ok) {
-    SoeToast.show(context, message: successMessage, tone: SoeToastTone.success);
+    SoeToast.show(
+      context,
+      message: successMessage ?? tr.common.saved,
+      tone: SoeToastTone.success,
+    );
     onSuccess?.call();
     if (popOnSuccess && context.canPop()) context.pop();
   } else {
     final state = ref.read(commonActionViewModelProvider(actionKey));
     final message = state is CommonActionError
-        ? commonFailureMessage(state.failure)
-        : 'Une erreur est survenue.';
+        ? commonFailureMessage(tr, state.failure)
+        : tr.errors.unknown;
     SoeToast.show(context, message: message, tone: SoeToastTone.danger);
   }
   return ok;

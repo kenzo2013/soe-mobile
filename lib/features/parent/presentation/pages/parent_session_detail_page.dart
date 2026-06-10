@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_card.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/session_detail.dart';
 import '../../domain/entities/session_summary.dart';
 import '../providers.dart';
@@ -14,13 +15,14 @@ class ParentSessionDetailPage extends ConsumerWidget {
   final String id;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(sessionDetailViewModelProvider(id));
     return Scaffold(
       backgroundColor: AppPalette.n100,
       appBar: AppBar(
         backgroundColor: AppPalette.n100,
         elevation: 0,
-        title: const Text('Séance'),
+        title: Text(tr.parent.sessionDetail.title),
         titleTextStyle: const TextStyle(
           color: AppPalette.ink,
           fontSize: 16,
@@ -47,6 +49,7 @@ class _Body extends StatelessWidget {
   final SessionDetail detail;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final dateLine = DateFormat('EEEE d MMMM · HH:mm', 'fr').format(detail.startAt);
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
@@ -72,17 +75,27 @@ class _Body extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              _row('Élève', detail.childName),
-              _row('Tuteur', detail.tutorName),
-              _row('Durée', '${detail.durationMinutes} min'),
-              if (detail.location != null) _row('Lieu', detail.location!),
-              _row('Statut', _statusLabel(detail.status), last: true),
+              _row(tr.parent.sessionDetail.student, detail.childName),
+              _row(tr.parent.sessionDetail.tutor, detail.tutorName),
+              _row(
+                tr.parent.sessionDetail.duration,
+                tr.parent.sessionDetail.durationValue(
+                  count: detail.durationMinutes,
+                ),
+              ),
+              if (detail.location != null)
+                _row(tr.parent.sessionDetail.location, detail.location!),
+              _row(
+                tr.parent.sessionDetail.status,
+                _statusLabel(tr, detail.status),
+                last: true,
+              ),
             ],
           ),
         ),
         if (detail.report != null) ...[
           const SizedBox(height: 16),
-          _sectionTitle('Rapport du tuteur'),
+          _sectionTitle(tr.parent.sessionDetail.tutorReport),
           SoeCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +135,7 @@ class _Body extends StatelessWidget {
         ],
         if (detail.tasks.isNotEmpty) ...[
           const SizedBox(height: 16),
-          _sectionTitle('Devoirs'),
+          _sectionTitle(tr.parent.sessionDetail.homework),
           SoeCard(
             child: Column(
               children: [
@@ -164,7 +177,7 @@ class _Body extends StatelessWidget {
         ],
         if (detail.notes != null && detail.notes!.isNotEmpty) ...[
           const SizedBox(height: 16),
-          _sectionTitle('Notes'),
+          _sectionTitle(tr.parent.sessionDetail.notes),
           SoeCard(
             child: Text(
               detail.notes!,
@@ -220,11 +233,11 @@ class _Body extends StatelessWidget {
         ),
       );
 
-  String _statusLabel(SessionStatus s) => switch (s) {
-        SessionStatus.pending => 'À venir',
-        SessionStatus.completed => 'Terminée',
-        SessionStatus.approved => 'Validée',
-        SessionStatus.rejected => 'Refusée',
+  String _statusLabel(Translations tr, SessionStatus s) => switch (s) {
+        SessionStatus.pending => tr.parent.sessionDetail.statusPending,
+        SessionStatus.completed => tr.parent.sessionDetail.statusCompleted,
+        SessionStatus.approved => tr.parent.sessionDetail.statusApproved,
+        SessionStatus.rejected => tr.parent.sessionDetail.statusRejected,
         SessionStatus.unknown => '—',
       };
 }

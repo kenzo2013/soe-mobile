@@ -9,6 +9,7 @@ import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/soe_toast.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/tutor_form_params.dart';
 import '../../domain/entities/tutor_session.dart';
 import '../providers.dart';
@@ -27,13 +28,14 @@ class TutorSessionsListPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorSessionsListViewModelProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
       drawer: const TutorDrawer(activeRoute: RouteNames.tutorSessions),
-      appBar: const TutorAppBar(
-        title: 'Mes séances',
-        subtitle: 'Vos cours planifiés',
+      appBar: TutorAppBar(
+        title: tr.tutor.sessions.title,
+        subtitle: tr.tutor.sessions.subtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -55,11 +57,11 @@ class TutorSessionsListPage extends ConsumerWidget {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
-                    for (final f in const [
-                      ('Toutes', true),
-                      ('À venir', false),
-                      ('Terminées', false),
-                      ('Rapport dû', false),
+                    for (final f in [
+                      (tr.tutor.sessions.filterAll, true),
+                      (tr.tutor.sessions.filterUpcoming, false),
+                      (tr.tutor.sessions.filterCompleted, false),
+                      (tr.tutor.sessions.filterReportDue, false),
                     ])
                       Padding(
                         padding: const EdgeInsets.only(right: 6),
@@ -139,6 +141,7 @@ class _SessionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
@@ -171,14 +174,14 @@ class _SessionRow extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       if (session.reportAvailable && !session.reportSubmitted)
-                        const TutorPillBadge(
-                          label: 'Rapport dû',
+                        TutorPillBadge(
+                          label: tr.tutor.sessions.reportDue,
                           bg: AppPalette.warningBg,
                           fg: AppPalette.warning,
                         ),
                       if (session.reportSubmitted)
-                        const TutorPillBadge(
-                          label: 'Rapport ✓',
+                        TutorPillBadge(
+                          label: tr.tutor.sessions.reportDone,
                           bg: AppPalette.successBg,
                           fg: AppPalette.success,
                         ),
@@ -214,12 +217,13 @@ class TutorSessionDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorSessionDetailViewModelProvider(id));
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const TutorAppBar(
-        title: 'Détail séance',
-        subtitle: 'Informations et actions disponibles',
+      appBar: TutorAppBar(
+        title: tr.tutor.sessions.detailTitle,
+        subtitle: tr.tutor.sessions.detailSubtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -231,7 +235,7 @@ class TutorSessionDetailPage extends ConsumerWidget {
               .load(id),
         ),
         loaded: (s) {
-          final spec = sessionStatusSpec(s.status);
+          final spec = sessionStatusSpec(tr, s.status);
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -284,7 +288,9 @@ class TutorSessionDetailPage extends ConsumerWidget {
                                 ),
                               ),
                               Text(
-                                '${s.classe} · Réservation ${s.reservationRef}',
+                                tr.tutor.sessions.reservationLine(
+                                    classe: s.classe,
+                                    ref: s.reservationRef),
                                 style: const TextStyle(
                                     fontSize: 11, color: AppPalette.n700),
                               ),
@@ -307,21 +313,21 @@ class TutorSessionDetailPage extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 14),
-              _title('État de la séance'),
+              _title(tr.tutor.sessions.sessionState),
               SoeCard(
                 padding: EdgeInsets.zero,
                 child: Column(
                   children: [
                     _FlagRow(
                       icon: Icons.tune,
-                      label: 'Modifiable',
+                      label: tr.tutor.sessions.flagEditable,
                       value: s.editableReason,
                       ok: s.editable,
                     ),
                     const Divider(height: 1, color: AppPalette.n300),
                     _FlagRow(
                       icon: Icons.draw_outlined,
-                      label: 'Rapport disponible',
+                      label: tr.tutor.sessions.flagReportAvailable,
                       value: s.reportReason,
                       ok: s.reportAvailable,
                     ),
@@ -329,11 +335,11 @@ class TutorSessionDetailPage extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 14),
-              _title('Actions'),
+              _title(tr.tutor.sessions.actions),
               _ActionTile(
                 icon: Icons.draw_outlined,
-                title: 'Soumettre le rapport',
-                sub: 'Avec contenu et signature',
+                title: tr.tutor.sessions.actionSubmitReport,
+                sub: tr.tutor.sessions.actionSubmitReportSub,
                 enabled: s.reportAvailable,
                 accent: true,
                 onTap: () => context.push(RouteNames.tutorSessionReport(s.id)),
@@ -341,10 +347,10 @@ class TutorSessionDetailPage extends ConsumerWidget {
               const SizedBox(height: 10),
               _ActionTile(
                 icon: Icons.edit_calendar_outlined,
-                title: 'Modifier la séance',
+                title: tr.tutor.sessions.actionEdit,
                 sub: s.editable
-                    ? 'Reporter ou ajuster'
-                    : 'Indisponible (> 24h requis)',
+                    ? tr.tutor.sessions.actionEditAvailableSub
+                    : tr.tutor.sessions.actionEditUnavailableSub,
                 enabled: s.editable,
                 onTap: () => context.push(RouteNames.tutorSessionEdit(s.id)),
               ),
@@ -517,12 +523,13 @@ class TutorSessionEditPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorSessionDetailViewModelProvider(id));
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const TutorAppBar(
-        title: 'Modifier la séance',
-        subtitle: 'Reporter ou ajuster un cours',
+      appBar: TutorAppBar(
+        title: tr.tutor.sessions.editTitle,
+        subtitle: tr.tutor.sessions.editSubtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -531,12 +538,12 @@ class TutorSessionEditPage extends ConsumerWidget {
         loaded: (s) => ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _title('Date et horaires'),
+            _title(tr.tutor.sessions.editDateTimes),
             SoeCard(
               child: Column(
                 children: [
-                  const _Field(
-                      label: 'Date',
+                  _Field(
+                      label: tr.tutor.sessions.fieldDate,
                       value: 'Vendredi 15 mai 2026',
                       icon: Icons.calendar_today_outlined),
                   const SizedBox(height: 10),
@@ -544,14 +551,14 @@ class TutorSessionEditPage extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: _Field(
-                            label: 'Début',
+                            label: tr.tutor.sessions.fieldStart,
                             value: s.timeRange.split('–').first.trim(),
                             icon: Icons.schedule_outlined),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: _Field(
-                            label: 'Fin',
+                            label: tr.tutor.sessions.fieldEnd,
                             value: s.timeRange.split('–').last.trim(),
                             icon: Icons.schedule_outlined),
                       ),
@@ -561,16 +568,16 @@ class TutorSessionEditPage extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 14),
-            _title('Lieu'),
-            const SoeCard(
+            _title(tr.tutor.sessions.location),
+            SoeCard(
               child: _Field(
-                label: 'Adresse',
+                label: tr.tutor.sessions.fieldAddress,
                 value: "Bastos · Rue de l'Étoile, Yaoundé",
                 icon: Icons.place_outlined,
               ),
             ),
             const SizedBox(height: 14),
-            _title('Note au parent (optionnel)'),
+            _title(tr.tutor.sessions.parentNoteOptional),
             Container(
               decoration: BoxDecoration(
                 color: AppPalette.white,
@@ -578,17 +585,17 @@ class TutorSessionEditPage extends ConsumerWidget {
                 border: Border.all(color: AppPalette.n300),
               ),
               padding: const EdgeInsets.all(14),
-              child: const TextField(
+              child: TextField(
                 maxLines: 3,
                 decoration: InputDecoration.collapsed(
-                  hintText: 'Décalage demandé suite à un imprévu…',
+                  hintText: tr.tutor.sessions.parentNoteHint,
                 ),
-                style: TextStyle(fontSize: 13, color: AppPalette.ink),
+                style: const TextStyle(fontSize: 13, color: AppPalette.ink),
               ),
             ),
             const SizedBox(height: 20),
             SoeButton(
-              label: 'Enregistrer les modifications',
+              label: tr.tutor.sessions.saveChanges,
               fullWidth: true,
               loading:
                   ref.watch(tutorActionViewModelProvider('session_edit:$id'))
@@ -597,7 +604,7 @@ class TutorSessionEditPage extends ConsumerWidget {
                 context,
                 ref,
                 actionKey: 'session_edit:$id',
-                successMessage: 'Demande envoyée',
+                successMessage: tr.tutor.sessions.requestSent,
                 op: () => ref.read(updateTutorSessionProvider)(
                   id,
                   const TutorSessionEditParams(note: 'Demande de modification'),
@@ -711,14 +718,15 @@ class _TutorSessionReportPageState
     if (!mounted) return;
     if (file == null) {
       SoeToast.show(context,
-          message: 'Veuillez signer le rapport', tone: SoeToastTone.warning);
+          message: Translations.of(context).tutor.sessions.pleaseSignReport,
+          tone: SoeToastTone.warning);
       return;
     }
     await runTutorAction(
       context,
       ref,
       actionKey: 'report:${widget.id}',
-      successMessage: 'Rapport soumis',
+      successMessage: Translations.of(context).tutor.sessions.reportSubmitted,
       op: () => ref.read(submitTutorSessionReportProvider)(
         widget.id,
         TutorSessionReportParams(
@@ -734,14 +742,15 @@ class _TutorSessionReportPageState
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final submitting = ref.watch(
       tutorActionViewModelProvider('report:${widget.id}'),
     ) is TutorActionSubmitting;
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const TutorAppBar(
-        title: 'Rapport de séance',
-        subtitle: 'Compte-rendu avec signature',
+      appBar: TutorAppBar(
+        title: tr.tutor.sessions.reportTitle,
+        subtitle: tr.tutor.sessions.reportSubtitle,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -771,20 +780,20 @@ class _TutorSessionReportPageState
             ),
           ),
           const SizedBox(height: 14),
-          _title('Heures effectives'),
-          const SoeCard(
+          _title(tr.tutor.sessions.effectiveHours),
+          SoeCard(
             child: Row(
               children: [
                 Expanded(
                   child: _Field(
-                      label: 'Début effectif',
+                      label: tr.tutor.sessions.effectiveStart,
                       value: '10:05',
                       icon: Icons.schedule_outlined),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: _Field(
-                      label: 'Fin effective',
+                      label: tr.tutor.sessions.effectiveEnd,
                       value: '12:00',
                       icon: Icons.schedule_outlined),
                 ),
@@ -792,7 +801,7 @@ class _TutorSessionReportPageState
             ),
           ),
           const SizedBox(height: 14),
-          _title('Contenu de la séance'),
+          _title(tr.tutor.sessions.sessionContent),
           Container(
             decoration: BoxDecoration(
               color: AppPalette.white,
@@ -803,8 +812,8 @@ class _TutorSessionReportPageState
             child: TextField(
               controller: _proceedings,
               maxLines: 5,
-              decoration: const InputDecoration.collapsed(
-                hintText: 'Ce qui a été couvert pendant la séance…',
+              decoration: InputDecoration.collapsed(
+                hintText: tr.tutor.sessions.sessionContentHint,
               ),
               style: const TextStyle(
                 fontSize: 13,
@@ -814,17 +823,17 @@ class _TutorSessionReportPageState
             ),
           ),
           const SizedBox(height: 14),
-          _title('Signature du tuteur'),
+          _title(tr.tutor.sessions.tutorSignature),
           TutorSignaturePad(controller: _signature),
           const SizedBox(height: 6),
-          const Text(
-            'Signez avec votre doigt dans le cadre',
+          Text(
+            tr.tutor.sessions.signWithFinger,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 11, color: AppPalette.n700),
+            style: const TextStyle(fontSize: 11, color: AppPalette.n700),
           ),
           const SizedBox(height: 20),
           SoeButton(
-            label: 'Soumettre le rapport',
+            label: tr.tutor.sessions.submitReport,
             fullWidth: true,
             loading: submitting,
             onPressed: _submit,

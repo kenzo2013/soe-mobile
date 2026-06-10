@@ -7,6 +7,7 @@ import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_card.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/payment.dart';
 import '../providers.dart';
 import '../widgets/parent_drawer.dart';
@@ -15,6 +16,7 @@ class ParentPaymentsListPage extends ConsumerWidget {
   const ParentPaymentsListPage({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(paymentsListViewModelProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
@@ -23,9 +25,9 @@ class ParentPaymentsListPage extends ConsumerWidget {
         backgroundColor: AppPalette.n100,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: const Text(
-          'Paiements',
-          style: TextStyle(
+        title: Text(
+          tr.parent.payments.title,
+          style: const TextStyle(
             color: AppPalette.ink,
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -55,6 +57,7 @@ class _Loaded extends StatelessWidget {
   final List<Payment> items;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final now = DateTime.now();
     final thisMonth = items
         .where((p) => p.createdAt.year == now.year && p.createdAt.month == now.month)
@@ -81,7 +84,9 @@ class _Loaded extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Total dépensé en ${DateFormat.MMMM("fr").format(now)}',
+                tr.parent.payments.totalSpent(
+                  month: DateFormat.MMMM("fr").format(now),
+                ),
                 style: TextStyle(
                   fontSize: 11,
                   color: Colors.white.withValues(alpha: 0.7),
@@ -101,11 +106,13 @@ class _Loaded extends StatelessWidget {
               const SizedBox(height: 14),
               Row(
                 children: [
-                  _miniStat('$ok', 'Réussis', Colors.white),
+                  _miniStat('$ok', tr.parent.payments.statSucceeded, Colors.white),
                   const SizedBox(width: 22),
-                  _miniStat('$processing', 'En cours', AppPalette.warning),
+                  _miniStat(
+                      '$processing', tr.parent.payments.statProcessing, AppPalette.warning),
                   const SizedBox(width: 22),
-                  _miniStat('$failed', 'Échoués', const Color(0xFFFF8A8A)),
+                  _miniStat(
+                      '$failed', tr.parent.payments.statFailed, const Color(0xFFFF8A8A)),
                 ],
               ),
             ],
@@ -116,9 +123,9 @@ class _Loaded extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 10, left: 4),
           child: Row(
             children: [
-              const Text(
-                'Historique',
-                style: TextStyle(
+              Text(
+                tr.parent.payments.history,
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: AppPalette.ink,
@@ -126,7 +133,9 @@ class _Loaded extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                '${items.length} transaction${items.length > 1 ? "s" : ""}',
+                items.length > 1
+                    ? tr.parent.payments.transactionsMany(count: items.length)
+                    : tr.parent.payments.transactionsOne(count: items.length),
                 style: const TextStyle(
                   fontSize: 12,
                   color: AppPalette.n700,
@@ -137,11 +146,11 @@ class _Loaded extends StatelessWidget {
         ),
         if (items.isEmpty)
           SoeCard(
-            child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 28),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 28),
               child: Text(
-                'Aucun paiement enregistré',
-                style: TextStyle(color: AppPalette.n700, fontSize: 12),
+                tr.parent.payments.empty,
+                style: const TextStyle(color: AppPalette.n700, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -194,6 +203,7 @@ class _PaymentRow extends StatelessWidget {
   final Payment payment;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
@@ -216,7 +226,7 @@ class _PaymentRow extends StatelessWidget {
                         ),
                       ),
                     ),
-                    _statusBadge(payment.status),
+                    _statusBadge(tr, payment.status),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -272,13 +282,18 @@ class _PaymentRow extends StatelessWidget {
     );
   }
 
-  Widget _statusBadge(PaymentStatus s) {
+  Widget _statusBadge(Translations tr, PaymentStatus s) {
     final (label, bg, fg) = switch (s) {
-      PaymentStatus.completed => ('Réussi', AppPalette.successBg, AppPalette.success),
-      PaymentStatus.processing => ('En cours', AppPalette.infoBg, AppPalette.teal),
-      PaymentStatus.pending => ('En attente', AppPalette.warningBg, AppPalette.warning),
-      PaymentStatus.failed => ('Échoué', AppPalette.dangerBg, AppPalette.danger),
-      PaymentStatus.cancelled => ('Annulé', AppPalette.n100, AppPalette.n700),
+      PaymentStatus.completed =>
+        (tr.parent.payments.statusCompleted, AppPalette.successBg, AppPalette.success),
+      PaymentStatus.processing =>
+        (tr.parent.payments.statusProcessing, AppPalette.infoBg, AppPalette.teal),
+      PaymentStatus.pending =>
+        (tr.parent.payments.statusPending, AppPalette.warningBg, AppPalette.warning),
+      PaymentStatus.failed =>
+        (tr.parent.payments.statusFailed, AppPalette.dangerBg, AppPalette.danger),
+      PaymentStatus.cancelled =>
+        (tr.parent.payments.statusCancelled, AppPalette.n100, AppPalette.n700),
       PaymentStatus.unknown => ('—', AppPalette.n100, AppPalette.n700),
     };
     return Container(

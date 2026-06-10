@@ -8,8 +8,16 @@ import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/child.dart';
 import '../providers.dart';
+
+/// Libellé du genre traduit (remplace `child.genderLabel` côté entité).
+String _genderLabel(Translations tr, ChildGender gender) => switch (gender) {
+      ChildGender.male => tr.parent.childDetail.genderBoy,
+      ChildGender.feminine => tr.parent.childDetail.genderGirl,
+      ChildGender.unknown => '—',
+    };
 
 class ParentChildDetailPage extends ConsumerStatefulWidget {
   const ParentChildDetailPage({super.key, required this.id});
@@ -26,6 +34,7 @@ class _ParentChildDetailPageState
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     // On lit la liste pour récupérer l'enfant — évite un nouvel endpoint.
     final list = ref.watch(childrenListViewModelProvider);
     return Scaffold(
@@ -41,7 +50,7 @@ class _ParentChildDetailPageState
         loaded: (children) {
           final child = children.where((c) => c.id == widget.id).firstOrNull;
           if (child == null) {
-            return const Center(child: Text('Enfant introuvable'));
+            return Center(child: Text(tr.parent.childDetail.notFound));
           }
           return _DetailBody(
             child: child,
@@ -68,6 +77,7 @@ class _DetailBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(child: _Hero(child: child)),
@@ -95,7 +105,7 @@ class _DetailBody extends StatelessWidget {
                   if (tab == 2) const _ScheduleTab(),
                   const SizedBox(height: 22),
                   SoeButton(
-                    label: 'Demander un nouveau tuteur',
+                    label: tr.parent.childDetail.requestNewTutor,
                     icon: Icons.add,
                     fullWidth: true,
                     onPressed: () =>
@@ -116,6 +126,7 @@ class _Hero extends StatelessWidget {
   final Child child;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Container(
       decoration: const BoxDecoration(gradient: AppPalette.brandGradient),
       padding: const EdgeInsets.fromLTRB(0, 12, 0, 60),
@@ -158,8 +169,9 @@ class _Hero extends StatelessWidget {
             Text(
               [
                 if (child.classe != null) child.classe!,
-                '${child.age} ans',
-                if (child.section != null) 'Section ${child.section}',
+                tr.parent.childDetail.ageValue(age: child.age),
+                if (child.section != null)
+                  tr.parent.childDetail.sectionValue(section: child.section!),
               ].join(' · '),
               style: TextStyle(
                 fontSize: 12,
@@ -178,15 +190,17 @@ class _StatsRow extends StatelessWidget {
   final int subjects;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return SoeCard(
       padding: EdgeInsets.zero,
       child: Row(
         children: [
-          Expanded(child: _stat('$subjects', 'Matières')),
+          Expanded(
+              child: _stat('$subjects', tr.parent.childDetail.statSubjects)),
           Container(width: 1, height: 44, color: AppPalette.n100),
-          Expanded(child: _stat('—', 'Séances')),
+          Expanded(child: _stat('—', tr.parent.childDetail.statSessions)),
           Container(width: 1, height: 44, color: AppPalette.n100),
-          Expanded(child: _stat('—', 'Moyenne')),
+          Expanded(child: _stat('—', tr.parent.childDetail.statAverage)),
         ],
       ),
     );
@@ -221,7 +235,12 @@ class _Tabs extends StatelessWidget {
   final ValueChanged<int> onChanged;
   @override
   Widget build(BuildContext context) {
-    const labels = ['Détails', 'Matières', 'Emploi du temps'];
+    final tr = Translations.of(context);
+    final labels = [
+      tr.parent.childDetail.tabDetails,
+      tr.parent.childDetail.tabSubjects,
+      tr.parent.childDetail.tabSchedule,
+    ];
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
@@ -265,17 +284,23 @@ class _DetailsTab extends StatelessWidget {
   final Child child;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return SoeCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _row('Prénom', child.firstName),
-          _row('Nom', child.lastName),
-          _row('Âge', '${child.age} ans'),
-          _row('Genre', child.genderLabel),
-          if (child.classe != null) _row('Classe', child.classe!),
-          if (child.section != null) _row('Section', child.section!),
-          if (child.address != null) _row('Adresse', child.address!),
+          _row(tr.parent.childDetail.firstName, child.firstName),
+          _row(tr.parent.childDetail.lastName, child.lastName),
+          _row(tr.parent.childDetail.age,
+              tr.parent.childDetail.ageValue(age: child.age)),
+          _row(tr.parent.childDetail.gender,
+              _genderLabel(tr, child.gender)),
+          if (child.classe != null)
+            _row(tr.parent.childDetail.schoolClass, child.classe!),
+          if (child.section != null)
+            _row(tr.parent.childDetail.section, child.section!),
+          if (child.address != null)
+            _row(tr.parent.childDetail.address, child.address!),
         ],
       ),
     );
@@ -315,14 +340,15 @@ class _SubjectsTab extends StatelessWidget {
   final List<String> subjects;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     if (subjects.isEmpty) {
       return SoeCard(
-        child: const Center(
+        child: Center(
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
+            padding: const EdgeInsets.symmetric(vertical: 24),
             child: Text(
-              'Aucune matière renseignée',
-              style: TextStyle(color: AppPalette.n700, fontSize: 12),
+              tr.parent.childDetail.noSubjects,
+              style: const TextStyle(color: AppPalette.n700, fontSize: 12),
             ),
           ),
         ),
@@ -360,13 +386,14 @@ class _ScheduleTab extends StatelessWidget {
   const _ScheduleTab();
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return SoeCard(
-      child: const Center(
+      child: Center(
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 24),
+          padding: const EdgeInsets.symmetric(vertical: 24),
           child: Text(
-            'Aucune séance planifiée',
-            style: TextStyle(color: AppPalette.n700, fontSize: 12),
+            tr.parent.childDetail.noSessionsPlanned,
+            style: const TextStyle(color: AppPalette.n700, fontSize: 12),
           ),
         ),
       ),

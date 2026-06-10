@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../i18n/translations.g.dart';
 import '../error/failure.dart';
 import '../theme/app_palette.dart';
 import '../theme/app_typography.dart';
@@ -14,6 +15,7 @@ class ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -36,13 +38,13 @@ class ErrorView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              _label(failure),
+              _label(tr, failure),
               textAlign: TextAlign.center,
               style: AppTypography.body,
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 16),
-              SoeButton(label: 'Réessayer', onPressed: onRetry),
+              SoeButton(label: tr.common.retry, onPressed: onRetry),
             ],
           ],
         ),
@@ -50,22 +52,18 @@ class ErrorView extends StatelessWidget {
     );
   }
 
-  String _label(Failure f) => switch (f) {
-        NetworkFailure() => 'Pas de connexion réseau.',
-        TimeoutFailure() => 'Le serveur met trop de temps à répondre.',
-        UnauthorizedFailure() => 'Session expirée, veuillez vous reconnecter.',
-        InvalidCredentialsFailure() =>
-          'Email ou mot de passe incorrect.',
-        EmailNotConfirmedFailure() =>
-          'Veuillez confirmer votre email avant de vous connecter.',
-        ForbiddenFailure() => 'Accès non autorisé.',
-        NotFoundFailure() => 'Ressource introuvable.',
-        ConflictFailure(:final message) => message ?? 'Conflit détecté.',
-        ValidationFailure(:final message) =>
-          message ?? 'Certains champs sont invalides.',
-        ServerFailure(:final message) =>
-          message ?? 'Erreur serveur, réessayez plus tard.',
-        CancelledFailure() => 'Opération annulée.',
-        UnknownFailure() => 'Une erreur inattendue est survenue.',
+  String _label(Translations tr, Failure f) => switch (f) {
+        NetworkFailure() => tr.errors.network,
+        TimeoutFailure() => tr.errors.timeout,
+        UnauthorizedFailure() => tr.errors.unauthorized,
+        InvalidCredentialsFailure() => tr.errors.invalidCredentials,
+        EmailNotConfirmedFailure() => tr.errors.emailNotConfirmed,
+        ForbiddenFailure() => tr.errors.forbidden,
+        NotFoundFailure() => tr.errors.notFound,
+        ConflictFailure(:final message) => message ?? tr.errors.conflict,
+        ValidationFailure(:final message) => message ?? tr.errors.validation,
+        ServerFailure(:final message) => message ?? tr.errors.server,
+        CancelledFailure() => tr.errors.cancelled,
+        UnknownFailure() => tr.errors.unknown,
       };
 }

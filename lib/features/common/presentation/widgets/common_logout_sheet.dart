@@ -6,6 +6,7 @@ import '../../../../core/providers/core_providers.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/soe_toast.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../../auth/presentation/providers.dart' show logoutUsecaseProvider;
 import '../../../auth/presentation/providers/current_user_provider.dart';
 
@@ -29,6 +30,7 @@ class _LogoutSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return SafeArea(
       top: false,
       child: Container(
@@ -60,9 +62,9 @@ class _LogoutSheet extends StatelessWidget {
               child: const Icon(Icons.logout, size: 28, color: AppPalette.danger),
             ),
             const SizedBox(height: 14),
-            const Text(
-              'Se déconnecter ?',
-              style: TextStyle(
+            Text(
+              tr.account.logout.title,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: AppPalette.ink,
@@ -70,13 +72,12 @@ class _LogoutSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Text(
-                'Vous devrez ressaisir vos identifiants pour vous reconnecter '
-                'à votre compte.',
+                tr.account.logout.message,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   color: AppPalette.n700,
                   height: 1.5,
@@ -88,7 +89,7 @@ class _LogoutSheet extends StatelessWidget {
               children: [
                 Expanded(
                   child: _SheetButton(
-                    label: 'Annuler',
+                    label: tr.account.logout.cancel,
                     background: AppPalette.n100,
                     foreground: AppPalette.ink,
                     onTap: () => Navigator.of(context).pop(),
@@ -97,10 +98,11 @@ class _LogoutSheet extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: _SheetButton(
-                    label: 'Déconnexion',
+                    label: tr.account.logout.confirm,
                     background: AppPalette.danger,
                     foreground: Colors.white,
-                    onTap: () => _logout(context),
+                    onTap: () =>
+                        _logout(context, tr.account.logout.serverFailure),
                   ),
                 ),
               ],
@@ -111,7 +113,7 @@ class _LogoutSheet extends StatelessWidget {
     );
   }
 
-  Future<void> _logout(BuildContext sheetContext) async {
+  Future<void> _logout(BuildContext sheetContext, String failureMessage) async {
     final router = GoRouter.of(sheetContext);
     final rootNavigator = Navigator.of(sheetContext, rootNavigator: true);
 
@@ -127,7 +129,7 @@ class _LogoutSheet extends StatelessWidget {
     if (result.isErr && rootNavigator.context.mounted) {
       SoeToast.show(
         rootNavigator.context,
-        message: 'Déconnecté (échec serveur)',
+        message: failureMessage,
         tone: SoeToastTone.warning,
       );
     }

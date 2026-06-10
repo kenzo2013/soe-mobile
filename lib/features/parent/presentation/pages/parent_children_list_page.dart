@@ -8,6 +8,7 @@ import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/soe_skeleton.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/child.dart';
 import '../providers.dart';
 import '../widgets/parent_drawer.dart';
@@ -65,26 +66,28 @@ class _Title extends StatelessWidget {
   final int? count;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
+    final c = count;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text(
-          'Mes enfants',
-          style: TextStyle(
+        Text(
+          tr.parent.children.title,
+          style: const TextStyle(
             color: AppPalette.ink,
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
         ),
-        if (count != null) ...[
+        if (c != null) ...[
           const SizedBox(height: 2),
           Text(
-            count == 0
-                ? 'Aucun profil'
-                : count == 1
-                    ? '1 profil enregistré'
-                    : '$count profils enregistrés',
+            c == 0
+                ? tr.parent.children.countNone
+                : c == 1
+                    ? tr.parent.children.countOne
+                    : tr.parent.children.countMany(count: c),
             style: const TextStyle(
               fontSize: 11,
               color: AppPalette.n700,
@@ -151,6 +154,7 @@ class _ChildCard extends StatelessWidget {
   final Child child;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return SoeCard(
       padding: EdgeInsets.zero,
       child: Column(
@@ -230,7 +234,7 @@ class _ChildCard extends StatelessWidget {
               Expanded(
                 child: _CardAction(
                   icon: Icons.calendar_month_outlined,
-                  label: 'Emploi du temps',
+                  label: tr.parent.children.schedule,
                   onTap: () => context
                       .push(RouteNames.parentStudentDetail(child.id)),
                 ),
@@ -239,7 +243,7 @@ class _ChildCard extends StatelessWidget {
               Expanded(
                 child: _CardAction(
                   icon: Icons.description_outlined,
-                  label: 'Demander un tuteur',
+                  label: tr.parent.children.requestTutor,
                   onTap: () => context.push(RouteNames.parentReservations),
                 ),
               ),
@@ -315,21 +319,22 @@ class _AddChildCta extends StatelessWidget {
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: DottedBorder(
         radius: 14,
-        child: const Padding(
-          padding: EdgeInsets.symmetric(vertical: 18),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 18),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.add, size: 18, color: AppPalette.teal),
-              SizedBox(width: 8),
+              const Icon(Icons.add, size: 18, color: AppPalette.teal),
+              const SizedBox(width: 8),
               Text(
-                'Ajouter un autre enfant',
-                style: TextStyle(
+                tr.parent.children.addAnother,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: AppPalette.teal,
@@ -396,6 +401,7 @@ class _Empty extends StatelessWidget {
   final VoidCallback onAdd;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 80, 16, 24),
       children: [
@@ -415,20 +421,21 @@ class _Empty extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 18),
-        const Text(
-          'Aucun enfant pour le moment',
+        Text(
+          tr.parent.children.emptyTitle,
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w700,
             color: AppPalette.ink,
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Ajoutez votre premier enfant pour commencer à demander des devis aux tuteurs.',
+        Text(
+          tr.parent.children.emptyBody,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 13, color: AppPalette.n700, height: 1.5),
+          style: const TextStyle(
+              fontSize: 13, color: AppPalette.n700, height: 1.5),
         ),
         const SizedBox(height: 24),
         _AddChildCta(onTap: onAdd),

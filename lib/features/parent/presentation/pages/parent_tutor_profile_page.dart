@@ -9,6 +9,7 @@ import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/tutor_profile.dart';
 import '../providers.dart';
 
@@ -71,6 +72,7 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return CustomScrollView(
       slivers: [
         SliverToBoxAdapter(child: _Hero(profile: profile)),
@@ -103,7 +105,7 @@ class _Body extends StatelessWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: SoeButton(
-                          label: 'Demander un devis',
+                          label: tr.parent.tutorProfile.requestQuote,
                           icon: Icons.add,
                           fullWidth: true,
                           onPressed: () =>
@@ -127,6 +129,7 @@ class _Hero extends StatelessWidget {
   final TutorProfile profile;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Container(
       decoration: const BoxDecoration(gradient: AppPalette.brandGradient),
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 50),
@@ -202,19 +205,23 @@ class _Hero extends StatelessWidget {
                 children: [
                   _Stat(
                     value: profile.rating.toStringAsFixed(1),
-                    label: '${profile.reviewCount} avis',
+                    label: tr.parent.tutorProfile.reviewsCount(
+                      count: profile.reviewCount,
+                    ),
                     icon: Icons.star,
                     color: AppPalette.yellow,
                   ),
                   _Stat(
                     value: '${profile.sessionCount}',
-                    label: 'Séances',
+                    label: tr.parent.tutorProfile.sessions,
                     icon: Icons.calendar_month_outlined,
                     color: Colors.white,
                   ),
                   _Stat(
-                    value: '${profile.experienceYears} ans',
-                    label: 'Expérience',
+                    value: tr.parent.tutorProfile.yearsValue(
+                      count: profile.experienceYears,
+                    ),
+                    label: tr.parent.tutorProfile.experience,
                     icon: Icons.work_outline,
                     color: Colors.white,
                   ),
@@ -277,7 +284,12 @@ class _Tabs extends StatelessWidget {
   final ValueChanged<int> onChanged;
   @override
   Widget build(BuildContext context) {
-    const labels = ['Identité', 'Cours', 'Avis'];
+    final tr = Translations.of(context);
+    final labels = [
+      tr.parent.tutorProfile.tabIdentity,
+      tr.parent.tutorProfile.tabCourses,
+      tr.parent.tutorProfile.tabReviews,
+    ];
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
@@ -321,13 +333,14 @@ class _Identity extends StatelessWidget {
   final TutorProfile profile;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _sectionTitle('À propos'),
+        _sectionTitle(tr.parent.tutorProfile.about),
         SoeCard(
           child: Text(
-            profile.bio ?? 'Aucune biographie renseignée.',
+            profile.bio ?? tr.parent.tutorProfile.noBio,
             style: const TextStyle(
               fontSize: 12,
               color: AppPalette.ink,
@@ -336,7 +349,10 @@ class _Identity extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 18),
-        _sectionTitle('Formations', count: profile.trainings.length),
+        _sectionTitle(
+          tr.parent.tutorProfile.trainings,
+          count: profile.trainings.length,
+        ),
         Column(
           children: [
             for (final t in profile.trainings)
@@ -393,7 +409,7 @@ class _Identity extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 18),
-        _sectionTitle('Disponibilités'),
+        _sectionTitle(tr.parent.tutorProfile.availability),
         _AvailabilityWidget(profile: profile),
       ],
     );
@@ -433,6 +449,7 @@ class _AvailabilityWidget extends StatelessWidget {
   final TutorProfile profile;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final activeDays =
         profile.availabilities.map((a) => a.weekday).toSet();
     return SoeCard(
@@ -454,7 +471,7 @@ class _AvailabilityWidget extends StatelessWidget {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        _weekdayInitial(d),
+                        _weekdayInitial(tr, d),
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -474,7 +491,8 @@ class _AvailabilityWidget extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 profile.availabilities
-                    .map((a) => '${_weekdayLabel(a.weekday)} ${a.timeRange}')
+                    .map((a) =>
+                        '${_weekdayLabel(tr, a.weekday)} ${a.timeRange}')
                     .join(' · '),
                 style: const TextStyle(
                   fontSize: 11,
@@ -489,10 +507,24 @@ class _AvailabilityWidget extends StatelessWidget {
     );
   }
 
-  String _weekdayInitial(int d) => const ['L', 'M', 'M', 'J', 'V', 'S', 'D'][d - 1];
-  String _weekdayLabel(int d) =>
-      const ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'][
-          d - 1];
+  String _weekdayInitial(Translations tr, int d) => [
+        tr.parent.tutorProfile.weekdayInitialMon,
+        tr.parent.tutorProfile.weekdayInitialTue,
+        tr.parent.tutorProfile.weekdayInitialWed,
+        tr.parent.tutorProfile.weekdayInitialThu,
+        tr.parent.tutorProfile.weekdayInitialFri,
+        tr.parent.tutorProfile.weekdayInitialSat,
+        tr.parent.tutorProfile.weekdayInitialSun,
+      ][d - 1];
+  String _weekdayLabel(Translations tr, int d) => [
+        tr.parent.tutorProfile.weekdayMon,
+        tr.parent.tutorProfile.weekdayTue,
+        tr.parent.tutorProfile.weekdayWed,
+        tr.parent.tutorProfile.weekdayThu,
+        tr.parent.tutorProfile.weekdayFri,
+        tr.parent.tutorProfile.weekdaySat,
+        tr.parent.tutorProfile.weekdaySun,
+      ][d - 1];
 }
 
 class _Courses extends StatelessWidget {
@@ -500,13 +532,14 @@ class _Courses extends StatelessWidget {
   final TutorProfile profile;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return SoeCard(
       child: profile.subjects.isEmpty
-          ? const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
+          ? Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
               child: Text(
-                'Matières non renseignées',
-                style: TextStyle(color: AppPalette.n700, fontSize: 12),
+                tr.parent.tutorProfile.noSubjects,
+                style: const TextStyle(color: AppPalette.n700, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
             )
@@ -544,13 +577,14 @@ class _Reviews extends StatelessWidget {
   final TutorProfile profile;
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     if (profile.reviews.isEmpty) {
       return SoeCard(
-        child: const Padding(
-          padding: EdgeInsets.symmetric(vertical: 24),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
           child: Text(
-            'Aucun avis pour ce tuteur',
-            style: TextStyle(color: AppPalette.n700, fontSize: 12),
+            tr.parent.tutorProfile.noReviews,
+            style: const TextStyle(color: AppPalette.n700, fontSize: 12),
             textAlign: TextAlign.center,
           ),
         ),

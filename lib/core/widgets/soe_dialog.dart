@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../i18n/translations.g.dart';
 import '../theme/app_palette.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_typography.dart';
@@ -16,8 +17,8 @@ class SoeConfirmDialog extends StatelessWidget {
     this.icon = Icons.help_outline,
     this.iconColor = AppPalette.warning,
     this.iconBgColor = AppPalette.warningBg,
-    this.confirmLabel = 'Confirmer',
-    this.cancelLabel = 'Annuler',
+    this.confirmLabel,
+    this.cancelLabel,
     this.destructive = false,
   });
 
@@ -26,16 +27,20 @@ class SoeConfirmDialog extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final Color iconBgColor;
-  final String confirmLabel;
-  final String cancelLabel;
+
+  /// Libellé du bouton de confirmation. Si `null`, `common.confirm` est utilisé.
+  final String? confirmLabel;
+
+  /// Libellé du bouton d'annulation. Si `null`, `common.cancel` est utilisé.
+  final String? cancelLabel;
   final bool destructive;
 
   static Future<bool?> show(
     BuildContext context, {
     required String title,
     required String message,
-    String confirmLabel = 'Confirmer',
-    String cancelLabel = 'Annuler',
+    String? confirmLabel,
+    String? cancelLabel,
     bool destructive = false,
     IconData icon = Icons.help_outline,
     Color iconColor = AppPalette.warning,
@@ -58,6 +63,9 @@ class SoeConfirmDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
+    final confirm = confirmLabel ?? tr.common.confirm;
+    final cancel = cancelLabel ?? tr.common.cancel;
     return Dialog(
       shape: const RoundedRectangleBorder(borderRadius: AppRadius.rLg),
       backgroundColor: AppPalette.white,
@@ -93,7 +101,7 @@ class SoeConfirmDialog extends StatelessWidget {
               children: [
                 Expanded(
                   child: SoeButton(
-                    label: cancelLabel,
+                    label: cancel,
                     variant: SoeButtonVariant.secondary,
                     onPressed: () => Navigator.of(context).pop(false),
                     fullWidth: true,
@@ -102,7 +110,7 @@ class SoeConfirmDialog extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: SoeButton(
-                    label: confirmLabel,
+                    label: confirm,
                     variant: destructive
                         ? SoeButtonVariant.danger
                         : SoeButtonVariant.primary,

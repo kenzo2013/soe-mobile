@@ -5,6 +5,7 @@ import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_card.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/tutor_remuneration.dart';
 import '../providers.dart';
 import '../widgets/tutor_app_bar.dart';
@@ -17,13 +18,14 @@ class TutorRemunerationsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorRemunerationsViewModelProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
       drawer: const TutorDrawer(activeRoute: RouteNames.tutorRemunerations),
-      appBar: const TutorAppBar(
-        title: 'Rémunérations',
-        subtitle: 'Historique de vos versements',
+      appBar: TutorAppBar(
+        title: tr.tutor.remunerations.title,
+        subtitle: tr.tutor.remunerations.subtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -42,11 +44,11 @@ class TutorRemunerationsPage extends ConsumerWidget {
             children: [
               _Hero(summary: data.summary),
               const SizedBox(height: 14),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 12, left: 4),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12, left: 4),
                 child: Text(
-                  'Historique',
-                  style: TextStyle(
+                  tr.tutor.remunerations.history,
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: AppPalette.ink,
@@ -75,6 +77,7 @@ class _Hero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return SoeCard(
       padding: EdgeInsets.zero,
       child: Container(
@@ -87,7 +90,7 @@ class _Hero extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'TOTAL PERÇU EN ${summary.year}',
+              tr.tutor.remunerations.totalEarnedIn(year: summary.year),
               style: TextStyle(
                 fontSize: 11,
                 color: Colors.white.withValues(alpha: 0.7),
@@ -107,11 +110,13 @@ class _Hero extends StatelessWidget {
             const SizedBox(height: 12),
             Row(
               children: [
-                _stat('Séances', '${summary.totalSessions}'),
+                _stat(tr.tutor.remunerations.sessions,
+                    '${summary.totalSessions}'),
                 _sep(),
-                _stat('Élèves', '${summary.totalStudents}'),
+                _stat(tr.tutor.remunerations.students,
+                    '${summary.totalStudents}'),
                 _sep(),
-                _stat('Taux moyen',
+                _stat(tr.tutor.remunerations.averageRate,
                     NumberFormatHelper.spaced(summary.averageRate)),
               ],
             ),
@@ -153,6 +158,7 @@ class _RemunerationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final paid = item.status == RemunerationStatus.paid;
     return SoeCard(
       child: Row(
@@ -175,7 +181,9 @@ class _RemunerationCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     TutorPillBadge(
-                      label: paid ? 'Payé' : 'En attente',
+                      label: paid
+                          ? tr.tutor.remunerations.paid
+                          : tr.tutor.remunerations.pending,
                       bg: paid ? AppPalette.successBg : AppPalette.warningBg,
                       fg: paid ? AppPalette.success : AppPalette.warning,
                     ),
@@ -184,8 +192,15 @@ class _RemunerationCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   paid
-                      ? '${item.sessions} séances · Versé le ${item.paidOn} (${item.method})'
-                      : '${item.sessions} séances · Versement prévu le 02 juin',
+                      ? tr.tutor.remunerations.paidLine(
+                          count: item.sessions,
+                          date: item.paidOn ?? '',
+                          method: item.method ?? '',
+                        )
+                      : tr.tutor.remunerations.pendingLine(
+                          count: item.sessions,
+                          date: '02 juin',
+                        ),
                   style: const TextStyle(fontSize: 11, color: AppPalette.n700),
                 ),
               ],

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../i18n/translations.g.dart';
 
 class ParentGreetHeader extends StatelessWidget {
   const ParentGreetHeader({
@@ -19,6 +20,7 @@ class ParentGreetHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Container(
       clipBehavior: Clip.hardEdge,
       decoration: const BoxDecoration(gradient: AppPalette.brandGradient),
@@ -133,7 +135,7 @@ class ParentGreetHeader extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Bonjour,',
+                          tr.parent.dashboard.greeting,
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.white.withValues(alpha: 0.7),

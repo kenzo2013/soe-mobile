@@ -5,6 +5,7 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/soe_text_field.dart';
+import '../../../../i18n/translations.g.dart';
 import '../common_action.dart';
 import '../providers.dart';
 import '../widgets/common_top_bar.dart';
@@ -50,11 +51,11 @@ class _AccountPasswordPageState extends ConsumerState<AccountPasswordPage> {
     return s;
   }
 
-  String get _strengthLabel => switch (_strength) {
-        0 || 1 => 'Mot de passe faible',
-        2 => 'Mot de passe moyen',
-        3 => 'Mot de passe correct',
-        _ => 'Mot de passe fort',
+  String _strengthLabel(Translations tr) => switch (_strength) {
+        0 || 1 => tr.account.password.strengthWeak,
+        2 => tr.account.password.strengthMedium,
+        3 => tr.account.password.strengthGood,
+        _ => tr.account.password.strengthStrong,
       };
 
   Color get _strengthColor => switch (_strength) {
@@ -64,24 +65,25 @@ class _AccountPasswordPageState extends ConsumerState<AccountPasswordPage> {
       };
 
   Future<void> _submit() async {
+    final tr = Translations.of(context);
     setState(() => _error = null);
     if (_current.text.isEmpty) {
-      setState(() => _error = 'Saisissez votre mot de passe actuel.');
+      setState(() => _error = tr.account.password.errorCurrentRequired);
       return;
     }
     if (_next.text.length < 8) {
-      setState(() => _error = 'Le nouveau mot de passe doit faire 8 caractères.');
+      setState(() => _error = tr.account.password.errorTooShort);
       return;
     }
     if (_next.text != _confirm.text) {
-      setState(() => _error = 'La confirmation ne correspond pas.');
+      setState(() => _error = tr.account.password.errorMismatch);
       return;
     }
     await runCommonAction(
       context,
       ref,
       actionKey: 'password',
-      successMessage: 'Mot de passe mis à jour',
+      successMessage: tr.account.password.saved,
       op: () => ref.read(commonRepositoryProvider).updatePassword(
             currentPassword: _current.text,
             newPassword: _next.text,
@@ -92,13 +94,14 @@ class _AccountPasswordPageState extends ConsumerState<AccountPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final submitting = ref.watch(commonActionViewModelProvider('password'))
         is CommonActionSubmitting;
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const CommonTopBar(
-        title: 'Changer le mot de passe',
-        subtitle: 'Sécurité du compte',
+      appBar: CommonTopBar(
+        title: tr.account.password.title,
+        subtitle: tr.account.password.subtitle,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -111,14 +114,13 @@ class _AccountPasswordPageState extends ConsumerState<AccountPasswordPage> {
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Icon(Icons.lock_outline, size: 16, color: AppPalette.info),
-                SizedBox(width: 10),
+              children: [
+                const Icon(Icons.lock_outline, size: 16, color: AppPalette.info),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    "Pour votre sécurité, choisissez un mot de passe d'au moins "
-                    '8 caractères avec lettres et chiffres.',
-                    style: TextStyle(
+                    tr.account.password.securityHint,
+                    style: const TextStyle(
                       fontSize: 11,
                       color: AppPalette.info,
                       height: 1.4,
@@ -132,14 +134,14 @@ class _AccountPasswordPageState extends ConsumerState<AccountPasswordPage> {
           SoeCard(
             child: SoePasswordField(
               controller: _current,
-              label: 'Mot de passe actuel',
-              hint: 'Votre mot de passe actuel',
+              label: tr.account.password.currentLabel,
+              hint: tr.account.password.currentHint,
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
-            'Nouveau mot de passe',
-            style: TextStyle(
+          Text(
+            tr.account.password.newSectionTitle,
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: AppPalette.ink,
@@ -151,15 +153,15 @@ class _AccountPasswordPageState extends ConsumerState<AccountPasswordPage> {
               children: [
                 SoePasswordField(
                   controller: _next,
-                  label: 'Nouveau',
-                  hint: '8 caractères minimum',
+                  label: tr.account.password.newLabel,
+                  hint: tr.account.password.newHint,
                   onFieldSubmitted: (_) {},
                 ),
                 const SizedBox(height: 12),
                 SoePasswordField(
                   controller: _confirm,
-                  label: 'Confirmation',
-                  hint: 'Répétez le mot de passe',
+                  label: tr.account.password.confirmLabel,
+                  hint: tr.account.password.confirmHint,
                 ),
                 if (_next.text.isNotEmpty) ...[
                   const SizedBox(height: 14),
@@ -168,7 +170,7 @@ class _AccountPasswordPageState extends ConsumerState<AccountPasswordPage> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      _strengthLabel,
+                      _strengthLabel(tr),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -189,7 +191,7 @@ class _AccountPasswordPageState extends ConsumerState<AccountPasswordPage> {
           ],
           const SizedBox(height: 24),
           SoeButton(
-            label: 'Mettre à jour',
+            label: tr.account.password.submit,
             fullWidth: true,
             loading: submitting,
             onPressed: submitting ? null : _submit,

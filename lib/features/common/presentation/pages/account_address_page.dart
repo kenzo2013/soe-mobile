@@ -11,6 +11,7 @@ import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/soe_places_autocomplete_field.dart';
 import '../../../../core/widgets/soe_text_field.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/account_address.dart';
 import '../common_action.dart';
 import '../providers.dart';
@@ -22,12 +23,13 @@ class AccountAddressPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final async = ref.watch(accountAddressProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const CommonTopBar(
-        title: 'Mon adresse',
-        subtitle: 'Localisation pour la mise en relation',
+      appBar: CommonTopBar(
+        title: tr.account.address.title,
+        subtitle: tr.account.address.subtitle,
       ),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -98,6 +100,7 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
   }
 
   Future<void> _save() async {
+    final tr = Translations.of(context);
     final updated = widget.address.copyWith(
       address: _address.text.trim(),
       complement: _complement.text.trim(),
@@ -112,7 +115,7 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
       context,
       ref,
       actionKey: 'address',
-      successMessage: 'Adresse enregistrée',
+      successMessage: tr.account.address.saved,
       popOnSuccess: false,
       op: () async {
         final r = await ref.read(commonRepositoryProvider).updateAddress(updated);
@@ -127,6 +130,7 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final submitting = ref.watch(commonActionViewModelProvider('address'))
         is CommonActionSubmitting;
     FlutterGooglePlacesSdk? places;
@@ -145,13 +149,13 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
           child: Column(
             children: [
               if (places != null) ...[
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
-                    padding: EdgeInsets.only(bottom: 6),
+                    padding: const EdgeInsets.only(bottom: 6),
                     child: Text(
-                      'Adresse (Google Places)',
-                      style: TextStyle(
+                      tr.account.address.googlePlacesLabel,
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppPalette.n700,
@@ -162,19 +166,19 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
                 SoePlacesAutocompleteField(
                   controller: _address,
                   client: places,
-                  hint: 'Rechercher une adresse',
+                  hint: tr.account.address.searchHint,
                   onPlaceSelected: _onPlaceSelected,
                 ),
               ] else
                 SoeTextField(
                   controller: _address,
-                  label: 'Adresse',
+                  label: tr.account.address.addressLabel,
                   leadingIcon: Icons.search,
                 ),
               const SizedBox(height: 12),
               SoeTextField(
                 controller: _complement,
-                label: "Complément d'adresse",
+                label: tr.account.address.complementLabel,
                 leadingIcon: Icons.public,
               ),
               const SizedBox(height: 12),
@@ -183,12 +187,15 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
                   Expanded(
                     child: SoeTextField(
                       controller: _neighborhood,
-                      label: 'Quartier',
+                      label: tr.account.address.neighborhoodLabel,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: SoeTextField(controller: _city, label: 'Ville'),
+                    child: SoeTextField(
+                      controller: _city,
+                      label: tr.account.address.cityLabel,
+                    ),
                   ),
                 ],
               ),
@@ -196,25 +203,31 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
               Row(
                 children: [
                   Expanded(
-                    child: SoeTextField(controller: _region, label: 'Région'),
+                    child: SoeTextField(
+                      controller: _region,
+                      label: tr.account.address.regionLabel,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: SoeTextField(controller: _country, label: 'Pays'),
+                    child: SoeTextField(
+                      controller: _country,
+                      label: tr.account.address.countryLabel,
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
               SoeTextField(
                 controller: _landmark,
-                label: 'Point de repère',
+                label: tr.account.address.landmarkLabel,
               ),
             ],
           ),
         ),
         const SizedBox(height: 24),
         SoeButton(
-          label: "Enregistrer l'adresse",
+          label: tr.account.address.save,
           fullWidth: true,
           loading: submitting,
           onPressed: submitting ? null : _save,

@@ -5,6 +5,7 @@ import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_card.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/tutor_contract.dart';
 import '../providers.dart';
 import '../widgets/tutor_app_bar.dart';
@@ -18,13 +19,14 @@ class TutorContractsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorContractsViewModelProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
       drawer: const TutorDrawer(activeRoute: RouteNames.tutorContracts),
-      appBar: const TutorAppBar(
-        title: 'Mes contrats',
-        subtitle: 'Conventions et avenants',
+      appBar: TutorAppBar(
+        title: tr.tutor.contracts.title,
+        subtitle: tr.tutor.contracts.subtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -56,8 +58,11 @@ class TutorContractsPage extends ConsumerWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          '${unsigned.length} contrat'
-                          '${unsigned.length > 1 ? "s" : ""} à signer',
+                          unsigned.length > 1
+                              ? tr.tutor.contracts
+                                  .toSignBannerPlural(count: unsigned.length)
+                              : tr.tutor.contracts
+                                  .toSignBannerSingular(count: unsigned.length),
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -72,7 +77,7 @@ class TutorContractsPage extends ConsumerWidget {
                 ),
               if (unsigned.isNotEmpty) ...[
                 const SizedBox(height: 14),
-                _sectionTitle('À signer'),
+                _sectionTitle(tr.tutor.contracts.toSign),
                 for (final c in unsigned)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
@@ -91,7 +96,7 @@ class TutorContractsPage extends ConsumerWidget {
                   ),
               ],
               const SizedBox(height: 4),
-              _sectionTitle('Signés'),
+              _sectionTitle(tr.tutor.contracts.signed),
               for (final c in signed)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
@@ -130,6 +135,7 @@ class _UnsignedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: AppPalette.white,
@@ -158,9 +164,9 @@ class _UnsignedCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Convention de tutorat',
-                        style: TextStyle(
+                      Text(
+                        tr.tutor.contracts.tutoringAgreement,
+                        style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: AppPalette.ink,
@@ -177,8 +183,8 @@ class _UnsignedCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const TutorPillBadge(
-                  label: 'À signer',
+                TutorPillBadge(
+                  label: tr.tutor.contracts.toSignBadge,
                   bg: AppPalette.warningBg,
                   fg: AppPalette.warning,
                 ),
@@ -188,8 +194,11 @@ class _UnsignedCard extends StatelessWidget {
             const Divider(height: 1, color: AppPalette.n300),
             const SizedBox(height: 8),
             Text(
-              'Parent : ${contract.parent} · Élève : ${contract.student} · '
-              'Mensuel : ${fcfa(contract.monthlyAmount)}',
+              tr.tutor.contracts.parentStudentMonthly(
+                parent: contract.parent,
+                student: contract.student,
+                amount: fcfa(contract.monthlyAmount),
+              ),
               style: const TextStyle(fontSize: 11, color: AppPalette.n700),
             ),
             const SizedBox(height: 10),
@@ -206,14 +215,14 @@ class _UnsignedCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       alignment: Alignment.center,
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.draw_outlined,
+                          const Icon(Icons.draw_outlined,
                               size: 14, color: AppPalette.ink),
-                          SizedBox(width: 6),
-                          Text('Signer',
-                              style: TextStyle(
+                          const SizedBox(width: 6),
+                          Text(tr.tutor.contracts.sign,
+                              style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: AppPalette.ink,
@@ -255,6 +264,7 @@ class _SignedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return SoeCard(
       child: Row(
         children: [
@@ -293,9 +303,9 @@ class _SignedCard extends StatelessWidget {
                           color: AppPalette.info.withValues(alpha: 0.13),
                           borderRadius: BorderRadius.circular(999),
                         ),
-                        child: const Text(
-                          'AVENANT',
-                          style: TextStyle(
+                        child: Text(
+                          tr.tutor.contracts.amendment,
+                          style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
                             color: AppPalette.info,

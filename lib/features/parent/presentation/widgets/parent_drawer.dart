@@ -9,6 +9,7 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_brand_logo.dart';
 import '../../../../core/widgets/soe_toast.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../../auth/presentation/providers.dart' show logoutUsecaseProvider;
 import '../../../auth/presentation/providers/current_user_provider.dart';
 
@@ -20,62 +21,66 @@ class ParentDrawer extends ConsumerWidget {
 
   final String activeRoute;
 
-  static const _items = <_DrawerItem>[
-    _DrawerItem(
-      route: RouteNames.parentDashboard,
-      icon: Icons.home_outlined,
-      label: 'Accueil',
-    ),
-    _DrawerItem(
-      route: RouteNames.parentStudents,
-      icon: Icons.groups_outlined,
-      label: 'Mes enfants',
-    ),
-    _DrawerItem(
-      route: RouteNames.parentReservations,
-      icon: Icons.description_outlined,
-      label: 'Réservations',
-    ),
-    _DrawerItem(
-      route: RouteNames.parentSessions,
-      icon: Icons.calendar_month_outlined,
-      label: 'Séances',
-    ),
-    _DrawerItem(
-      route: RouteNames.parentPayments,
-      icon: Icons.credit_card_outlined,
-      label: 'Paiements',
-    ),
-    _DrawerItem(
-      route: '/parent/reviews',
-      icon: Icons.star_outline,
-      label: 'Avis',
-    ),
-    _DrawerItem(
-      route: '/parent/programs',
-      icon: Icons.menu_book_outlined,
-      label: 'Programmes',
-    ),
-    _DrawerItem(
-      route: '/parent/invitations',
-      icon: Icons.mail_outline,
-      label: 'Invitations',
-    ),
-    _DrawerItem(
-      route: '/parent/contracts',
-      icon: Icons.article_outlined,
-      label: 'Contrats',
-    ),
-  ];
+  static List<_DrawerItem> _itemsOf(Translations tr) => <_DrawerItem>[
+        _DrawerItem(
+          route: RouteNames.parentDashboard,
+          icon: Icons.home_outlined,
+          label: tr.parent.drawer.home,
+        ),
+        _DrawerItem(
+          route: RouteNames.parentStudents,
+          icon: Icons.groups_outlined,
+          label: tr.parent.drawer.children,
+        ),
+        _DrawerItem(
+          route: RouteNames.parentReservations,
+          icon: Icons.description_outlined,
+          label: tr.parent.drawer.reservations,
+        ),
+        _DrawerItem(
+          route: RouteNames.parentSessions,
+          icon: Icons.calendar_month_outlined,
+          label: tr.parent.drawer.sessions,
+        ),
+        _DrawerItem(
+          route: RouteNames.parentPayments,
+          icon: Icons.credit_card_outlined,
+          label: tr.parent.drawer.payments,
+        ),
+        _DrawerItem(
+          route: '/parent/reviews',
+          icon: Icons.star_outline,
+          label: tr.parent.drawer.reviews,
+        ),
+        _DrawerItem(
+          route: '/parent/programs',
+          icon: Icons.menu_book_outlined,
+          label: tr.parent.drawer.programs,
+        ),
+        _DrawerItem(
+          route: '/parent/invitations',
+          icon: Icons.mail_outline,
+          label: tr.parent.drawer.invitations,
+        ),
+        _DrawerItem(
+          route: '/parent/contracts',
+          icon: Icons.article_outlined,
+          label: tr.parent.drawer.contracts,
+        ),
+      ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
+    final items = _itemsOf(tr);
     final userAsync = ref.watch(currentUserProvider);
     final user = userAsync.asData?.value;
     final name = user == null ? '' : '${user.firstName} ${user.lastName}'.trim();
     final roleLine = user == null
-        ? 'Non connecté'
-        : 'Compte ${user.role.name == "parent" ? "parent" : "tuteur"}';
+        ? tr.parent.drawer.notConnected
+        : (user.role.name == "parent"
+            ? tr.parent.drawer.parentAccount
+            : tr.parent.drawer.tutorAccount);
     return Drawer(
       width: 296,
       backgroundColor: Colors.transparent,
@@ -150,9 +155,9 @@ class ParentDrawer extends ConsumerWidget {
                     horizontal: 12,
                     vertical: 10,
                   ),
-                  itemCount: _items.length,
+                  itemCount: items.length,
                   itemBuilder: (context, i) {
-                    final it = _items[i];
+                    final it = items[i];
                     final active = it.route == activeRoute;
                     return _DrawerRow(
                       item: it,
@@ -176,7 +181,7 @@ class ParentDrawer extends ConsumerWidget {
                   children: [
                     _drawerSecondary(
                       icon: Icons.settings_outlined,
-                      label: 'Mon compte',
+                      label: tr.parent.drawer.account,
                       onTap: () {
                         Navigator.of(context).pop();
                         context.push(RouteNames.account);
@@ -185,7 +190,7 @@ class ParentDrawer extends ConsumerWidget {
                     const SizedBox(height: 8),
                     _drawerSecondary(
                       icon: Icons.logout,
-                      label: 'Déconnexion',
+                      label: tr.parent.drawer.logout,
                       onTap: () => _confirmLogout(context, ref),
                     ),
                   ],
@@ -233,6 +238,7 @@ class ParentDrawer extends ConsumerWidget {
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
     final router = GoRouter.of(context);
     final rootNavigator = Navigator.of(context, rootNavigator: true);
+    final tr = Translations.of(context);
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -261,7 +267,7 @@ class ParentDrawer extends ConsumerWidget {
     if (result is Err && rootNavigator.context.mounted) {
       SoeToast.show(
         rootNavigator.context,
-        message: 'Déconnecté (échec serveur)',
+        message: tr.parent.drawer.logoutServerError,
         tone: SoeToastTone.warning,
       );
     }
@@ -271,6 +277,7 @@ class ParentDrawer extends ConsumerWidget {
 class _LogoutConfirmDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Dialog(
       backgroundColor: AppPalette.white,
       shape: RoundedRectangleBorder(
@@ -297,10 +304,10 @@ class _LogoutConfirmDialog extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Se déconnecter ?',
+            Text(
+              tr.parent.drawer.logoutConfirmTitle,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: AppPalette.ink,
@@ -308,10 +315,10 @@ class _LogoutConfirmDialog extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Vous devrez ressaisir votre email et votre mot de passe à la prochaine connexion.',
+            Text(
+              tr.parent.drawer.logoutConfirmBody,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 13,
                 color: AppPalette.n700,
                 height: 1.5,
@@ -331,9 +338,9 @@ class _LogoutConfirmDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text(
-                      'Annuler',
-                      style: TextStyle(
+                    child: Text(
+                      tr.common.cancel,
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                       ),
@@ -352,9 +359,9 @@ class _LogoutConfirmDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text(
-                      'Déconnecter',
-                      style: TextStyle(
+                    child: Text(
+                      tr.parent.drawer.logoutConfirm,
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                       ),

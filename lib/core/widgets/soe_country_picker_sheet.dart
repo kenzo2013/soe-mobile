@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../i18n/translations.g.dart';
 import '../data/countries.dart';
 import '../theme/app_palette.dart';
 import '../theme/app_radius.dart';
@@ -20,8 +21,13 @@ Future<Country?> showSoeCountryPicker(
   BuildContext context, {
   required Country selected,
   required SoeCountryPickerMode mode,
-  String title = 'Choisir un pays',
+  String? title,
 }) {
+  final tr = Translations.of(context);
+  final resolvedTitle = title ??
+      (mode == SoeCountryPickerMode.phone
+          ? tr.countryPicker.phoneTitle
+          : tr.countryPicker.addressTitle);
   return showModalBottomSheet<Country>(
     context: context,
     isScrollControlled: true,
@@ -32,7 +38,7 @@ Future<Country?> showSoeCountryPicker(
     builder: (ctx) => _CountryPicker(
       selected: selected,
       mode: mode,
-      title: title,
+      title: resolvedTitle,
     ),
   );
 }

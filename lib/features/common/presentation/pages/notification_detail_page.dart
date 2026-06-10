@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/soe_button.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/app_notification.dart';
 import '../common_action.dart';
 import '../providers.dart';
@@ -15,37 +16,45 @@ class NotificationDetailPage extends ConsumerWidget {
 
   final AppNotification? notification;
 
-  static const _kindLabel = {
-    NotificationKind.reservation: 'Réservation',
-    NotificationKind.session: 'Séance',
-    NotificationKind.payment: 'Paiement',
-    NotificationKind.review: 'Avis',
-    NotificationKind.contract: 'Contrat',
-    NotificationKind.system: 'Système',
-  };
+  static String _kindLabel(Translations tr, NotificationKind kind) =>
+      switch (kind) {
+        NotificationKind.reservation => tr.notifications.kinds.reservation,
+        NotificationKind.session => tr.notifications.kinds.session,
+        NotificationKind.payment => tr.notifications.kinds.payment,
+        NotificationKind.review => tr.notifications.kinds.review,
+        NotificationKind.contract => tr.notifications.kinds.contract,
+        NotificationKind.system => tr.notifications.kinds.system,
+      };
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final n = notification;
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const CommonTopBar(title: 'Notification', subtitle: 'Détail'),
+      appBar: CommonTopBar(
+        title: tr.notifications.detail.title,
+        subtitle: tr.notifications.detail.subtitle,
+      ),
       body: n == null
-          ? const Center(child: Text('Notification introuvable'))
+          ? Center(child: Text(tr.notifications.detail.notFound))
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                _DetailCard(notification: n, kindLabel: _kindLabel[n.kind]!),
+                _DetailCard(
+                  notification: n,
+                  kindLabel: _kindLabel(tr, n.kind),
+                ),
                 const SizedBox(height: 24),
                 SoeButton(
-                  label: 'Supprimer',
+                  label: tr.notifications.detail.delete,
                   variant: SoeButtonVariant.danger,
                   fullWidth: true,
                   onPressed: () => runCommonAction(
                     context,
                     ref,
                     actionKey: 'notif_detail_del:${n.id}',
-                    successMessage: 'Notification supprimée',
+                    successMessage: tr.notifications.detail.deleted,
                     op: () => ref
                         .read(commonRepositoryProvider)
                         .deleteNotification(n.id),

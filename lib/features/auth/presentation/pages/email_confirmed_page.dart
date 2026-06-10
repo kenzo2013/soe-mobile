@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/soe_button.dart';
+import '../../../../i18n/translations.g.dart';
 
 /// Affichée après confirmation du code OTP de validation de compte.
 /// L'utilisateur voit son compte activé, puis se connecte avec ses
@@ -35,6 +36,7 @@ class _EmailConfirmedPageState extends ConsumerState<EmailConfirmedPage> {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
@@ -69,9 +71,9 @@ class _EmailConfirmedPageState extends ConsumerState<EmailConfirmedPage> {
                     ),
                   ),
                   const SizedBox(height: 28),
-                  const Text(
-                    'Bienvenue sur SOE !',
-                    style: TextStyle(
+                  Text(
+                    tr.emailConfirmed.title,
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
@@ -80,7 +82,7 @@ class _EmailConfirmedPageState extends ConsumerState<EmailConfirmedPage> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Votre email a été confirmé. Nous préparons votre espace parent…',
+                    tr.emailConfirmed.subtitle,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 13,
@@ -94,17 +96,17 @@ class _EmailConfirmedPageState extends ConsumerState<EmailConfirmedPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _ChecklistRow(
-                        label: 'Profil créé',
+                        label: tr.emailConfirmed.profileCreated,
                         state: _RowState.done,
                       ),
                       const SizedBox(height: 14),
                       _ChecklistRow(
-                        label: 'Email vérifié',
+                        label: tr.emailConfirmed.emailVerified,
                         state: _RowState.done,
                       ),
                       const SizedBox(height: 14),
                       _ChecklistRow(
-                        label: 'Préparation du dashboard',
+                        label: tr.emailConfirmed.preparingDashboard,
                         state: _dashboardReady
                             ? _RowState.done
                             : _RowState.inProgress,
@@ -116,7 +118,7 @@ class _EmailConfirmedPageState extends ConsumerState<EmailConfirmedPage> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 24),
                     child: SoeButton(
-                      label: 'Se connecter',
+                      label: tr.emailConfirmed.signIn,
                       icon: Icons.login,
                       fullWidth: true,
                       onPressed: () => context.go(RouteNames.login),

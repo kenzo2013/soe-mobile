@@ -9,6 +9,7 @@ import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_empty_state.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../data/mappers/notification_mapper.dart';
 import '../../domain/entities/app_notification.dart';
 import '../common_action.dart';
@@ -30,11 +31,12 @@ class _NotificationsCenterPageState
   bool _unreadOnly = false;
 
   Future<void> _markAllRead() async {
+    final tr = Translations.of(context);
     await runCommonAction(
       context,
       ref,
       actionKey: 'notif_all_read',
-      successMessage: 'Tout marqué comme lu',
+      successMessage: tr.notifications.center.markedAllRead,
       popOnSuccess: false,
       op: () => ref.read(commonRepositoryProvider).markAllNotificationsRead(),
       onSuccess: () => ref.invalidate(notificationsProvider),
@@ -53,11 +55,12 @@ class _NotificationsCenterPageState
   }
 
   Future<void> _delete(AppNotification n) async {
+    final tr = Translations.of(context);
     await runCommonAction(
       context,
       ref,
       actionKey: 'notif_del:${n.id}',
-      successMessage: 'Notification supprimée',
+      successMessage: tr.notifications.center.deleted,
       popOnSuccess: false,
       op: () => ref.read(commonRepositoryProvider).deleteNotification(n.id),
       onSuccess: () => ref.invalidate(notificationsProvider),
@@ -66,6 +69,7 @@ class _NotificationsCenterPageState
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final async = ref.watch(notificationsProvider);
     final unreadCount =
         async.asData?.value.where((n) => !n.read).length ?? 0;
@@ -73,8 +77,10 @@ class _NotificationsCenterPageState
     return Scaffold(
       backgroundColor: AppPalette.n100,
       appBar: CommonTopBar(
-        title: 'Notifications',
-        subtitle: '$unreadCount non-lues',
+        title: tr.notifications.center.title,
+        subtitle: unreadCount <= 1
+            ? tr.notifications.center.unreadOne(count: unreadCount)
+            : tr.notifications.center.unreadOther(count: unreadCount),
         action: Material(
           color: AppPalette.white,
           borderRadius: BorderRadius.circular(10),
@@ -108,14 +114,14 @@ class _NotificationsCenterPageState
                 child: Row(
                   children: [
                     _FilterChip(
-                      label: 'Toutes',
+                      label: tr.notifications.center.filterAll,
                       count: all.length,
                       selected: !_unreadOnly,
                       onTap: () => setState(() => _unreadOnly = false),
                     ),
                     const SizedBox(width: 8),
                     _FilterChip(
-                      label: 'Non-lues',
+                      label: tr.notifications.center.filterUnread,
                       count: unreadCount,
                       selected: _unreadOnly,
                       onTap: () => setState(() => _unreadOnly = true),
@@ -125,10 +131,10 @@ class _NotificationsCenterPageState
               ),
               Expanded(
                 child: items.isEmpty
-                    ? const SoeEmptyState(
+                    ? SoeEmptyState(
                         icon: Icons.notifications_none,
-                        title: 'Aucune notification',
-                        message: 'Vous êtes à jour.',
+                        title: tr.notifications.center.emptyTitle,
+                        message: tr.notifications.center.emptyMessage,
                       )
                     : RefreshIndicator(
                         onRefresh: () async =>

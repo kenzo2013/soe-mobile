@@ -9,6 +9,7 @@ import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/soe_toast.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/tutor_profile.dart';
 import '../providers.dart';
 import '../viewmodels/tutor_async_state.dart';
@@ -26,13 +27,14 @@ class TutorProfileHubPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorProfileViewModelProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
       drawer: const TutorDrawer(activeRoute: RouteNames.tutorProfile),
-      appBar: const TutorAppBar(
-        title: 'Mon profil',
-        subtitle: 'Profil public visible des parents',
+      appBar: TutorAppBar(
+        title: tr.tutor.profile.title,
+        subtitle: tr.tutor.profile.subtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -54,20 +56,29 @@ class _HubBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const sections = <_HubSection>[
-      _HubSection('Description / Bio', 'Voir et modifier',
+    final tr = Translations.of(context);
+    final sections = <_HubSection>[
+      _HubSection(tr.tutor.profile.hubBio, tr.tutor.profile.hubBioSub,
           Icons.description_outlined, RouteNames.tutorProfileBio, true),
-      _HubSection('Formations', 'Gérer mes diplômes', Icons.school_outlined,
-          RouteNames.tutorProfileTrainings, true),
-      _HubSection('Expériences', 'Gérer mon parcours', Icons.work_outline,
-          RouteNames.tutorProfileWorks, true),
-      _HubSection("Pièces d'identité", 'Gérer mes documents',
-          Icons.badge_outlined, RouteNames.tutorProfileIdentities, true),
-      _HubSection('Matières enseignées', 'Par classe / niveau',
+      _HubSection(
+          tr.tutor.profile.hubTrainings,
+          tr.tutor.profile.hubTrainingsSub,
+          Icons.school_outlined,
+          RouteNames.tutorProfileTrainings,
+          true),
+      _HubSection(tr.tutor.profile.hubWorks, tr.tutor.profile.hubWorksSub,
+          Icons.work_outline, RouteNames.tutorProfileWorks, true),
+      _HubSection(
+          tr.tutor.profile.hubIdentities,
+          tr.tutor.profile.hubIdentitiesSub,
+          Icons.badge_outlined,
+          RouteNames.tutorProfileIdentities,
+          true),
+      _HubSection(tr.tutor.profile.hubCourses, tr.tutor.profile.hubCoursesSub,
           Icons.menu_book_outlined, RouteNames.tutorProfileCourses, true),
       _HubSection(
-          'Disponibilités hebdomadaires',
-          'Créneaux par jour',
+          tr.tutor.profile.hubAvailabilities,
+          tr.tutor.profile.hubAvailabilitiesSub,
           Icons.calendar_month_outlined,
           RouteNames.tutorProfileAvailabilities,
           true),
@@ -129,7 +140,8 @@ class _HubBody extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                ' · ${profile.reviews} avis',
+                                tr.tutor.profile.reviewsSuffix(
+                                    count: profile.reviews),
                                 style: const TextStyle(
                                   color: Colors.white60,
                                   fontSize: 11,
@@ -160,8 +172,8 @@ class _HubBody extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Profil complété',
-                            style: TextStyle(
+                        Text(tr.tutor.profile.completed,
+                            style: const TextStyle(
                                 fontSize: 12, color: AppPalette.n700)),
                         Text(
                           '${profile.completion}%',
@@ -266,12 +278,13 @@ class TutorBioPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorProfileViewModelProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const TutorAppBar(
-        title: 'Description / Bio',
-        subtitle: 'Présentation visible des parents',
+      appBar: TutorAppBar(
+        title: tr.tutor.profile.bioTitle,
+        subtitle: tr.tutor.profile.bioSubtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -302,12 +315,13 @@ class _BioEditorState extends ConsumerState<_BioEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     final submitting =
         ref.watch(tutorActionViewModelProvider('bio')) is TutorActionSubmitting;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const _Eyebrow('Éditeur'),
+        _Eyebrow(tr.tutor.profile.editor),
         Container(
           decoration: BoxDecoration(
             color: AppPalette.white,
@@ -319,8 +333,8 @@ class _BioEditorState extends ConsumerState<_BioEditor> {
             controller: _ctrl,
             maxLines: 8,
             maxLength: 800,
-            decoration: const InputDecoration.collapsed(
-              hintText: 'Présentez-vous aux parents…',
+            decoration: InputDecoration.collapsed(
+              hintText: tr.tutor.profile.bioHint,
             ),
             style: const TextStyle(
               fontSize: 13,
@@ -331,14 +345,14 @@ class _BioEditorState extends ConsumerState<_BioEditor> {
         ),
         const SizedBox(height: 20),
         SoeButton(
-          label: 'Enregistrer',
+          label: tr.common.save,
           fullWidth: true,
           loading: submitting,
           onPressed: () => runTutorAction(
             context,
             ref,
             actionKey: 'bio',
-            successMessage: 'Bio enregistrée',
+            successMessage: tr.tutor.profile.bioSaved,
             op: () => ref.read(saveTutorBioProvider)(_ctrl.text.trim()),
             onSuccess: () =>
                 ref.read(tutorProfileViewModelProvider.notifier).refresh(),
@@ -357,12 +371,13 @@ class TutorTrainingsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorTrainingsViewModelProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const TutorAppBar(
-        title: 'Formations',
-        subtitle: 'Diplômes et certifications',
+      appBar: TutorAppBar(
+        title: tr.tutor.profile.trainingsTitle,
+        subtitle: tr.tutor.profile.trainingsSubtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -376,7 +391,7 @@ class TutorTrainingsPage extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           children: [
             Text(
-              '${items.length} formations enregistrées',
+              tr.tutor.profile.trainingsCount(count: items.length),
               style: const TextStyle(fontSize: 12, color: AppPalette.n700),
             ),
             const SizedBox(height: 12),
@@ -413,7 +428,8 @@ class TutorTrainingsPage extends ConsumerWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Spécialité : ${t.specialty}',
+                                tr.tutor.profile
+                                    .specialtyLabel(value: t.specialty),
                                 style: const TextStyle(
                                   fontSize: 11,
                                   color: AppPalette.n700,
@@ -426,7 +442,8 @@ class TutorTrainingsPage extends ConsumerWidget {
                                       size: 12, color: AppPalette.n700),
                                   const SizedBox(width: 4),
                                   Text(
-                                    'Obtenu en ${t.date}',
+                                    tr.tutor.profile
+                                        .obtainedIn(date: t.date),
                                     style: const TextStyle(
                                       fontSize: 11,
                                       color: AppPalette.n700,
@@ -439,14 +456,15 @@ class TutorTrainingsPage extends ConsumerWidget {
                         ),
                         InkWell(
                           onTap: () async {
-                            if (await confirmDelete(
-                                    context, 'cette formation') &&
+                            if (await confirmDelete(context,
+                                    tr.tutor.profile.deleteThisTraining) &&
                                 context.mounted) {
                               await runTutorAction(
                                 context,
                                 ref,
                                 actionKey: 'training_del',
-                                successMessage: 'Formation supprimée',
+                                successMessage:
+                                    tr.tutor.profile.trainingDeleted,
                                 popOnSuccess: false,
                                 op: () =>
                                     ref.read(deleteTutorTrainingProvider)(t.id),
@@ -470,7 +488,7 @@ class TutorTrainingsPage extends ConsumerWidget {
                 ),
               ),
             TutorAddTile(
-              label: 'Nouvelle formation',
+              label: tr.tutor.profile.newTraining,
               onTap: () => showTrainingSheet(context, ref),
             ),
           ],
@@ -488,12 +506,13 @@ class TutorWorksPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorWorksViewModelProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const TutorAppBar(
-        title: 'Expériences pro.',
-        subtitle: 'Parcours professionnel',
+      appBar: TutorAppBar(
+        title: tr.tutor.profile.worksTitle,
+        subtitle: tr.tutor.profile.worksSubtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -563,8 +582,8 @@ class TutorWorksPage extends ConsumerWidget {
                                     ),
                                     if (w.current) ...[
                                       const SizedBox(width: 8),
-                                      const TutorPillBadge(
-                                        label: 'Poste actuel',
+                                      TutorPillBadge(
+                                        label: tr.tutor.profile.currentPosition,
                                         bg: AppPalette.successBg,
                                         fg: AppPalette.success,
                                       ),
@@ -573,14 +592,16 @@ class TutorWorksPage extends ConsumerWidget {
                                     InkWell(
                                       onTap: () async {
                                         if (await confirmDelete(
-                                                context, 'cette expérience') &&
+                                                context,
+                                                tr.tutor.profile
+                                                    .deleteThisWork) &&
                                             context.mounted) {
                                           await runTutorAction(
                                             context,
                                             ref,
                                             actionKey: 'work_del',
                                             successMessage:
-                                                'Expérience supprimée',
+                                                tr.tutor.profile.workDeleted,
                                             popOnSuccess: false,
                                             op: () => ref.read(
                                                 deleteTutorWorkProvider)(w.id),
@@ -612,7 +633,7 @@ class TutorWorksPage extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  '${w.since} – ${w.until ?? "aujourd'hui"}',
+                                  '${w.since} – ${w.until ?? tr.tutor.profile.today}',
                                   style: const TextStyle(
                                     fontSize: 11,
                                     color: AppPalette.n700,
@@ -628,7 +649,7 @@ class TutorWorksPage extends ConsumerWidget {
                 ),
               ),
             TutorAddTile(
-              label: 'Ajouter une expérience',
+              label: tr.tutor.profile.addWork,
               onTap: () => showWorkSheet(context, ref),
             ),
           ],
@@ -646,12 +667,13 @@ class TutorIdentitiesPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorIdentitiesViewModelProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const TutorAppBar(
-        title: "Pièces d'identité",
-        subtitle: 'Documents chiffrés · vérification SOE',
+      appBar: TutorAppBar(
+        title: tr.tutor.profile.identitiesTitle,
+        subtitle: tr.tutor.profile.identitiesSubtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -670,16 +692,16 @@ class TutorIdentitiesPage extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               padding: const EdgeInsets.all(12),
-              child: const Row(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.lock_outline, size: 16, color: AppPalette.info),
-                  SizedBox(width: 10),
+                  const Icon(Icons.lock_outline,
+                      size: 16, color: AppPalette.info),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Vos documents sont chiffrés et ne sont visibles que par '
-                      'les administrateurs SOE pour vérification.',
-                      style: TextStyle(
+                      tr.tutor.profile.identitiesEncryptedNote,
+                      style: const TextStyle(
                         fontSize: 11,
                         color: AppPalette.info,
                         height: 1.4,
@@ -732,19 +754,21 @@ class TutorIdentitiesPage extends ConsumerWidget {
                                           ),
                                         ),
                                         const SizedBox(width: 6),
-                                        _identityBadge(d.status),
+                                        _identityBadge(tr, d.status),
                                         const Spacer(),
                                         InkWell(
                                           onTap: () async {
                                             if (await confirmDelete(
-                                                    context, 'ce document') &&
+                                                    context,
+                                                    tr.tutor.profile
+                                                        .deleteThisDocument) &&
                                                 context.mounted) {
                                               await runTutorAction(
                                                 context,
                                                 ref,
                                                 actionKey: 'identity_del',
-                                                successMessage:
-                                                    'Document supprimé',
+                                                successMessage: tr.tutor.profile
+                                                    .documentDeleted,
                                                 popOnSuccess: false,
                                                 op: () => ref.read(
                                                         deleteTutorIdentityProvider)(
@@ -770,7 +794,8 @@ class TutorIdentitiesPage extends ConsumerWidget {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      'Expire le ${d.expires} · ${d.photos} photos',
+                                      tr.tutor.profile.expiresPhotos(
+                                          date: d.expires, count: d.photos),
                                       style: const TextStyle(
                                         fontSize: 11,
                                         color: AppPalette.n700,
@@ -824,7 +849,7 @@ class TutorIdentitiesPage extends ConsumerWidget {
                 ),
               ),
             TutorAddTile(
-              label: 'Ajouter un document',
+              label: tr.tutor.profile.addDocument,
               icon: Icons.add_a_photo_outlined,
               padding: const EdgeInsets.all(24),
               onTap: () => showIdentitySheet(context, ref),
@@ -835,20 +860,20 @@ class TutorIdentitiesPage extends ConsumerWidget {
     );
   }
 
-  Widget _identityBadge(TutorIdentityStatus s) {
+  Widget _identityBadge(Translations tr, TutorIdentityStatus s) {
     final BadgeSpec spec = switch (s) {
       TutorIdentityStatus.approved => (
-          'Validé',
+          tr.tutor.profile.identityApproved,
           AppPalette.successBg,
           AppPalette.success
         ),
       TutorIdentityStatus.pending => (
-          'En attente',
+          tr.tutor.profile.identityPending,
           AppPalette.warningBg,
           AppPalette.warning
         ),
       TutorIdentityStatus.rejected => (
-          'Rejeté',
+          tr.tutor.profile.identityRejected,
           AppPalette.dangerBg,
           AppPalette.danger
         ),
@@ -866,12 +891,13 @@ class TutorCoursesProfilePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorTeachingCoursesViewModelProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const TutorAppBar(
-        title: 'Matières enseignées',
-        subtitle: 'Par classe / niveau',
+      appBar: TutorAppBar(
+        title: tr.tutor.profile.teachingCoursesTitle,
+        subtitle: tr.tutor.profile.teachingCoursesSubtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -918,7 +944,8 @@ class TutorCoursesProfilePage extends ConsumerWidget {
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                '${c.subjects.length} matières',
+                                tr.tutor.profile
+                                    .subjectsCount(count: c.subjects.length),
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: AppPalette.n700,
@@ -927,14 +954,15 @@ class TutorCoursesProfilePage extends ConsumerWidget {
                             ),
                             InkWell(
                               onTap: () async {
-                                if (await confirmDelete(
-                                        context, 'cette classe') &&
+                                if (await confirmDelete(context,
+                                        tr.tutor.profile.deleteThisClass) &&
                                     context.mounted) {
                                   await runTutorAction(
                                     context,
                                     ref,
                                     actionKey: 'course_del',
-                                    successMessage: 'Classe supprimée',
+                                    successMessage:
+                                        tr.tutor.profile.classDeleted,
                                     popOnSuccess: false,
                                     op: () => ref.read(
                                             deleteTutorTeachingCourseProvider)(
@@ -970,7 +998,7 @@ class TutorCoursesProfilePage extends ConsumerWidget {
                 ),
               ),
             TutorAddTile(
-              label: 'Ajouter une classe',
+              label: tr.tutor.profile.addClass,
               onTap: () => showTeachingCourseSheet(context, ref),
             ),
           ],
@@ -988,12 +1016,13 @@ class TutorAvailabilitiesPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorAvailabilitiesViewModelProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const TutorAppBar(
-        title: 'Disponibilités',
-        subtitle: 'Créneaux par jour de la semaine',
+      appBar: TutorAppBar(
+        title: tr.tutor.profile.availabilitiesTitle,
+        subtitle: tr.tutor.profile.availabilitiesSubtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -1006,10 +1035,9 @@ class TutorAvailabilitiesPage extends ConsumerWidget {
         loaded: (days) => ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            const Text(
-              'Définissez vos créneaux pour chaque jour. Les parents ne '
-              'pourront vous proposer des séances que dans ces plages.',
-              style: TextStyle(fontSize: 12, color: AppPalette.n700),
+            Text(
+              tr.tutor.profile.availabilitiesIntro,
+              style: const TextStyle(fontSize: 12, color: AppPalette.n700),
             ),
             const SizedBox(height: 14),
             for (final d in days)
@@ -1047,9 +1075,9 @@ class TutorAvailabilitiesPage extends ConsumerWidget {
                           Expanded(
                             child: Text(
                               d.isAvailable
-                                  ? '${d.slots.length} créneau'
-                                      '${d.slots.length > 1 ? "x" : ""}'
-                                  : 'Indisponible',
+                                  ? tr.tutor.profile
+                                      .slotsCount(count: d.slots.length)
+                                  : tr.tutor.profile.unavailable,
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
@@ -1105,15 +1133,19 @@ class TutorAvailabilitiesPage extends ConsumerWidget {
                                       onTap: d.recordId == null
                                           ? null
                                           : () async {
-                                              if (await confirmDelete(context,
-                                                      'la disponibilité du ${d.label}') &&
+                                              if (await confirmDelete(
+                                                      context,
+                                                      tr.tutor.profile
+                                                          .deleteAvailabilityOf(
+                                                              day: d.label)) &&
                                                   context.mounted) {
                                                 await runTutorAction(
                                                   context,
                                                   ref,
                                                   actionKey: 'avail_del',
-                                                  successMessage:
-                                                      'Disponibilité supprimée',
+                                                  successMessage: tr.tutor
+                                                      .profile
+                                                      .availabilityDeleted,
                                                   popOnSuccess: false,
                                                   op: () => ref.read(
                                                       deleteTutorAvailabilityProvider)(
@@ -1208,6 +1240,6 @@ class _PhotoPlaceholder extends StatelessWidget {
 /// Action mock : aucune écriture côté API tant qu'elle n'est pas branchée.
 void stubAction(BuildContext context) => SoeToast.show(
       context,
-      message: 'Action disponible au branchement de l’API',
+      message: Translations.of(context).tutor.profile.stubAction,
       tone: SoeToastTone.info,
     );

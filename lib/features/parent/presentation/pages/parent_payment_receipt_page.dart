@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_card.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/payment.dart';
 import '../providers.dart';
 
@@ -14,13 +15,14 @@ class ParentPaymentReceiptPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(paymentReceiptViewModelProvider(id));
     return Scaffold(
       backgroundColor: AppPalette.n100,
       appBar: AppBar(
         backgroundColor: AppPalette.n100,
         elevation: 0,
-        title: const Text('Reçu'),
+        title: Text(tr.parent.paymentReceipt.title),
         titleTextStyle: const TextStyle(
           color: AppPalette.ink,
           fontSize: 16,
@@ -60,7 +62,7 @@ class ParentPaymentReceiptPage extends ConsumerWidget {
               const SizedBox(height: 16),
               Center(
                 child: Text(
-                  _statusTitle(p.status),
+                  _statusTitle(tr, p.status),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -85,15 +87,36 @@ class ParentPaymentReceiptPage extends ConsumerWidget {
                 padding: EdgeInsets.zero,
                 child: Column(
                   children: [
-                    _row('Référence', p.reference),
+                    _row(tr.parent.paymentReceipt.reference, p.reference),
                     if (p.reservationRef != null)
-                      _row('Réservation', '#${p.reservationRef}'),
-                    _row('Date', DateFormat('d MMM yyyy · HH:mm', 'fr').format(p.createdAt)),
-                    _row('Méthode', _methodLabel(p.method)),
-                    if (p.phone != null) _row('Numéro', p.phone!),
-                    if (r.childName != null) _row('Enfant', r.childName!),
-                    if (r.tutorName != null) _row('Tuteur', r.tutorName!, last: true)
-                    else _row('Statut', _statusTitle(p.status), last: true),
+                      _row(
+                        tr.parent.paymentReceipt.reservation,
+                        '#${p.reservationRef}',
+                      ),
+                    _row(
+                      tr.parent.paymentReceipt.date,
+                      DateFormat('d MMM yyyy · HH:mm', 'fr').format(p.createdAt),
+                    ),
+                    _row(
+                      tr.parent.paymentReceipt.method,
+                      _methodLabel(p.method),
+                    ),
+                    if (p.phone != null)
+                      _row(tr.parent.paymentReceipt.phone, p.phone!),
+                    if (r.childName != null)
+                      _row(tr.parent.paymentReceipt.child, r.childName!),
+                    if (r.tutorName != null)
+                      _row(
+                        tr.parent.paymentReceipt.tutor,
+                        r.tutorName!,
+                        last: true,
+                      )
+                    else
+                      _row(
+                        tr.parent.paymentReceipt.status,
+                        _statusTitle(tr, p.status),
+                        last: true,
+                      ),
                   ],
                 ),
               ),
@@ -102,7 +125,7 @@ class ParentPaymentReceiptPage extends ConsumerWidget {
                 OutlinedButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.download_outlined),
-                  label: const Text('Télécharger le PDF'),
+                  label: Text(tr.parent.paymentReceipt.downloadPdf),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppPalette.teal,
                     padding: const EdgeInsets.symmetric(vertical: 14),
@@ -132,13 +155,13 @@ class ParentPaymentReceiptPage extends ConsumerWidget {
         PaymentStatus.processing => Icons.hourglass_top_outlined,
         _ => Icons.receipt_long_outlined,
       };
-  String _statusTitle(PaymentStatus s) => switch (s) {
-        PaymentStatus.completed => 'Paiement réussi',
-        PaymentStatus.failed => 'Paiement échoué',
-        PaymentStatus.processing => 'En cours de traitement',
-        PaymentStatus.pending => 'En attente',
-        PaymentStatus.cancelled => 'Annulé',
-        PaymentStatus.unknown => 'Statut inconnu',
+  String _statusTitle(Translations tr, PaymentStatus s) => switch (s) {
+        PaymentStatus.completed => tr.parent.paymentReceipt.statusCompleted,
+        PaymentStatus.failed => tr.parent.paymentReceipt.statusFailed,
+        PaymentStatus.processing => tr.parent.paymentReceipt.statusProcessing,
+        PaymentStatus.pending => tr.parent.paymentReceipt.statusPending,
+        PaymentStatus.cancelled => tr.parent.paymentReceipt.statusCancelled,
+        PaymentStatus.unknown => tr.parent.paymentReceipt.statusUnknown,
       };
   String _methodLabel(PaymentMethod m) => switch (m) {
         PaymentMethod.mtnMomo => 'MTN Mobile Money',

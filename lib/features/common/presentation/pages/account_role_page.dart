@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/presentation/providers.dart' show authRepositoryProvider;
 import '../../../auth/presentation/providers/current_user_provider.dart';
@@ -12,27 +13,22 @@ import '../common_action.dart';
 import '../providers.dart';
 import '../widgets/common_top_bar.dart';
 
-/// Métadonnées d'affichage d'un rôle.
+/// Métadonnées d'affichage d'un rôle. Les libellés sont résolus via `tr` au
+/// point d'usage (voir [_roleLabel] / [_roleDesc]).
 class _RoleMeta {
-  const _RoleMeta(this.key, this.label, this.desc, this.icon);
+  const _RoleMeta(this.key, this.icon);
   final String key;
-  final String label;
-  final String desc;
   final IconData icon;
 }
 
-const _parentMeta = _RoleMeta(
-  'parent',
-  'Compte parent',
-  'Gérer enfants, réservations, paiements',
-  Icons.group_outlined,
-);
-const _tutorMeta = _RoleMeta(
-  'tutor',
-  'Compte tuteur',
-  'Offres, séances, rémunérations',
-  Icons.school_outlined,
-);
+const _parentMeta = _RoleMeta('parent', Icons.group_outlined);
+const _tutorMeta = _RoleMeta('tutor', Icons.school_outlined);
+
+String _roleLabel(Translations tr, _RoleMeta meta) =>
+    meta.key == 'tutor' ? tr.account.role.tutorLabel : tr.account.role.parentLabel;
+
+String _roleDesc(Translations tr, _RoleMeta meta) =>
+    meta.key == 'tutor' ? tr.account.role.tutorDesc : tr.account.role.parentDesc;
 
 /// 5 · Mon rôle — switch / ajout (design `CommonRoleSwitch`).
 class AccountRolePage extends ConsumerWidget {
@@ -40,6 +36,7 @@ class AccountRolePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final user = ref.watch(currentUserProvider).asData?.value;
     final currentKey =
         ref.watch(currentRoleProvider) ?? user?.role.apiValue ?? 'parent';
@@ -52,27 +49,27 @@ class AccountRolePage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const CommonTopBar(
-        title: 'Mon rôle',
-        subtitle: 'Basculer ou ajouter un profil',
+      appBar: CommonTopBar(
+        title: tr.account.role.title,
+        subtitle: tr.account.role.subtitle,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Padding(
-            padding: EdgeInsets.only(left: 4, bottom: 10),
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 10),
             child: Text(
-              'Rôle actuellement actif',
-              style: TextStyle(fontSize: 11, color: AppPalette.n700),
+              tr.account.role.activeSectionLabel,
+              style: const TextStyle(fontSize: 11, color: AppPalette.n700),
             ),
           ),
           _ActiveRoleCard(meta: current),
           const SizedBox(height: 20),
-          const Padding(
-            padding: EdgeInsets.only(left: 4, bottom: 10),
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 10),
             child: Text(
-              'Autres rôles disponibles',
-              style: TextStyle(
+              tr.account.role.otherSectionLabel,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: AppPalette.ink,
@@ -82,17 +79,22 @@ class AccountRolePage extends ConsumerWidget {
           if (multiRole)
             _OtherRoleCard(
               meta: other,
-              actionLabel: 'Basculer',
+              actionLabel: tr.account.role.switchAction,
               loading: submitting,
               onTap: submitting
                   ? null
                   : () => _switch(context, ref, other.key),
             )
           else ...[
-            _OtherRoleCard(meta: other, subtitle: 'Pas encore activé'),
+            _OtherRoleCard(
+              meta: other,
+              subtitle: tr.account.role.notActivated,
+            ),
             const SizedBox(height: 12),
             _AddRoleButton(
-              label: other.key == 'tutor' ? 'Devenir tuteur' : 'Devenir parent',
+              label: other.key == 'tutor'
+                  ? tr.account.role.becomeTutor
+                  : tr.account.role.becomeParent,
               loading: submitting,
               onTap:
                   submitting ? null : () => _add(context, ref, other.key),
@@ -100,10 +102,8 @@ class AccountRolePage extends ConsumerWidget {
             const SizedBox(height: 10),
             Text(
               other.key == 'tutor'
-                  ? 'Vous gagnerez accès à un espace tuteur (offres, séances, '
-                      'rémunérations).'
-                  : 'Vous gagnerez accès à un espace parent (enfants, '
-                      'réservations, paiements).',
+                  ? tr.account.role.addTutorHint
+                  : tr.account.role.addParentHint,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 11,
@@ -118,11 +118,12 @@ class AccountRolePage extends ConsumerWidget {
   }
 
   Future<void> _switch(BuildContext context, WidgetRef ref, String role) async {
+    final tr = Translations.of(context);
     final ok = await runCommonAction(
       context,
       ref,
       actionKey: 'role',
-      successMessage: 'Rôle activé',
+      successMessage: tr.account.role.switched,
       popOnSuccess: false,
       op: () => ref.read(commonRepositoryProvider).switchRole(role),
       onSuccess: () => ref.read(currentRoleProvider.notifier).state = role,
@@ -139,11 +140,12 @@ class AccountRolePage extends ConsumerWidget {
   }
 
   Future<void> _add(BuildContext context, WidgetRef ref, String role) async {
+    final tr = Translations.of(context);
     final ok = await runCommonAction(
       context,
       ref,
       actionKey: 'role',
-      successMessage: 'Rôle ajouté',
+      successMessage: tr.account.role.added,
       popOnSuccess: false,
       op: () => ref.read(commonRepositoryProvider).addRole(role),
     );
@@ -161,6 +163,7 @@ class _ActiveRoleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
@@ -185,7 +188,7 @@ class _ActiveRoleCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  meta.label,
+                  _roleLabel(tr, meta),
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -194,7 +197,7 @@ class _ActiveRoleCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  meta.desc,
+                  _roleDesc(tr, meta),
                   style: TextStyle(
                     fontSize: 11,
                     color: Colors.white.withValues(alpha: 0.7),
@@ -209,9 +212,9 @@ class _ActiveRoleCard extends StatelessWidget {
               color: AppPalette.success,
               borderRadius: BorderRadius.circular(99),
             ),
-            child: const Text(
-              'Actif',
-              style: TextStyle(
+            child: Text(
+              tr.account.role.activeBadge,
+              style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -240,6 +243,7 @@ class _OtherRoleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -264,7 +268,7 @@ class _OtherRoleCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  meta.label,
+                  _roleLabel(tr, meta),
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -273,7 +277,7 @@ class _OtherRoleCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  subtitle ?? meta.desc,
+                  subtitle ?? _roleDesc(tr, meta),
                   style: const TextStyle(fontSize: 11, color: AppPalette.n700),
                 ),
               ],

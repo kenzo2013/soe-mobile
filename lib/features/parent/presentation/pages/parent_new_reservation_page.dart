@@ -7,6 +7,7 @@ import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/soe_toast.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../../references/presentation/providers.dart';
 import '../../domain/entities/child.dart';
 import '../../domain/entities/reservation_detail.dart';
@@ -58,15 +59,16 @@ class _ParentNewReservationPageState
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     ref.listen(newReservationViewModelProvider, (_, next) {
       next.whenOrNull(
         submitted: (_) {
-          SoeToast.show(context, message: 'Demande envoyée');
+          SoeToast.show(context, message: tr.parent.reservation.requestSent);
           Navigator.of(context).pop();
         },
         error: (_) => SoeToast.show(
           context,
-          message: 'Échec de l\'envoi',
+          message: tr.parent.reservation.requestError,
           tone: SoeToastTone.danger,
         ),
       );
@@ -86,9 +88,9 @@ class _ParentNewReservationPageState
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Nouvelle réservation',
-              style: TextStyle(
+            Text(
+              tr.parent.reservation.title,
+              style: const TextStyle(
                 color: AppPalette.ink,
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -96,7 +98,10 @@ class _ParentNewReservationPageState
             ),
             const SizedBox(height: 2),
             Text(
-              'Étape ${_step + 1}/3 · ${_stepLabel(_step)}',
+              tr.parent.reservation.stepHeader(
+                step: _step + 1,
+                label: _stepLabel(tr, _step),
+              ),
               style: const TextStyle(fontSize: 11, color: AppPalette.n700),
             ),
           ],
@@ -105,7 +110,7 @@ class _ParentNewReservationPageState
       ),
       body: Column(
         children: [
-          _ProgressBar(step: _step + 1, total: 3),
+          _ProgressBar(step: _step + 1, total: 3, tr: tr),
           Expanded(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 200),
@@ -156,7 +161,9 @@ class _ParentNewReservationPageState
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: SoeButton(
-                label: _step == 2 ? 'Envoyer la demande' : 'Continuer',
+                label: _step == 2
+                    ? tr.parent.reservation.submit
+                    : tr.common.kContinue,
                 icon: _step == 2 ? Icons.check : Icons.chevron_right,
                 iconRight: _step < 2,
                 fullWidth: true,
@@ -178,17 +185,22 @@ class _ParentNewReservationPageState
     );
   }
 
-  String _stepLabel(int s) => switch (s) {
-        0 => 'Enfant et matières',
-        1 => 'Vos besoins',
-        _ => 'Confirmation',
+  String _stepLabel(Translations tr, int s) => switch (s) {
+        0 => tr.parent.reservation.step1Label,
+        1 => tr.parent.reservation.step2Label,
+        _ => tr.parent.reservation.step3Label,
       };
 }
 
 class _ProgressBar extends StatelessWidget {
-  const _ProgressBar({required this.step, required this.total});
+  const _ProgressBar({
+    required this.step,
+    required this.total,
+    required this.tr,
+  });
   final int step;
   final int total;
+  final Translations tr;
   @override
   Widget build(BuildContext context) {
     final pct = step / total;
@@ -199,7 +211,7 @@ class _ProgressBar extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Étape $step sur $total',
+                tr.parent.reservation.stepOf(step: step, total: total),
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -208,7 +220,7 @@ class _ProgressBar extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                '${(pct * 100).round()}%',
+                tr.parent.reservation.percent(value: (pct * 100).round()),
                 style: const TextStyle(fontSize: 11, color: AppPalette.n700),
               ),
             ],
@@ -252,13 +264,14 @@ class _Step1 extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final children = ref.watch(childrenListViewModelProvider);
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       children: [
-        const Text(
-          'Pour quel enfant ?',
-          style: TextStyle(
+        Text(
+          tr.parent.reservation.step1Title,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: AppPalette.ink,
@@ -266,17 +279,17 @@ class _Step1 extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 6),
-        const Text(
-          'Choisissez parmi vos enfants enregistrés.',
-          style: TextStyle(fontSize: 12, color: AppPalette.n700),
+        Text(
+          tr.parent.reservation.step1Subtitle,
+          style: const TextStyle(fontSize: 12, color: AppPalette.n700),
         ),
         const SizedBox(height: 16),
         children.when(
           initial: () => const SizedBox.shrink(),
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_) => const Text(
-            'Impossible de charger les enfants',
-            style: TextStyle(color: AppPalette.danger, fontSize: 12),
+          error: (_) => Text(
+            tr.parent.reservation.childrenLoadError,
+            style: const TextStyle(color: AppPalette.danger, fontSize: 12),
           ),
           loaded: (list) => Column(
             children: [
@@ -368,9 +381,9 @@ class _Step1 extends ConsumerWidget {
         const SizedBox(height: 22),
         Row(
           children: [
-            const Text(
-              'Matières souhaitées',
-              style: TextStyle(
+            Text(
+              tr.parent.reservation.subjectsLabel,
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: AppPalette.ink,
@@ -378,7 +391,11 @@ class _Step1 extends ConsumerWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              '${selectedSubjects.length} sélectionnée${selectedSubjects.length > 1 ? "s" : ""}',
+              selectedSubjects.length > 1
+                  ? tr.parent.reservation
+                      .selectedMany(count: selectedSubjects.length)
+                  : tr.parent.reservation
+                      .selectedOne(count: selectedSubjects.length),
               style: const TextStyle(
                 fontSize: 12,
                 color: AppPalette.n700,
@@ -390,14 +407,15 @@ class _Step1 extends ConsumerWidget {
         const SizedBox(height: 12),
         ref.watch(subjectsProvider).when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (_, __) => const Text(
-                'Impossible de charger les matières',
-                style: TextStyle(color: AppPalette.danger, fontSize: 12),
+              error: (_, __) => Text(
+                tr.parent.reservation.subjectsLoadError,
+                style: const TextStyle(color: AppPalette.danger, fontSize: 12),
               ),
               data: (subjects) => subjects.isEmpty
-                  ? const Text(
-                      'Aucune matière disponible',
-                      style: TextStyle(color: AppPalette.n700, fontSize: 12),
+                  ? Text(
+                      tr.parent.reservation.subjectsEmpty,
+                      style: const TextStyle(
+                          color: AppPalette.n700, fontSize: 12),
                     )
                   : Wrap(
                       spacing: 8,
@@ -481,12 +499,13 @@ class _Step2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       children: [
-        const Text(
-          'Vos besoins',
-          style: TextStyle(
+        Text(
+          tr.parent.reservation.step2Title,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: AppPalette.ink,
@@ -494,12 +513,12 @@ class _Step2 extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        const Text(
-          'Aidez-nous à trouver le tuteur idéal.',
-          style: TextStyle(fontSize: 12, color: AppPalette.n700),
+        Text(
+          tr.parent.reservation.step2Subtitle,
+          style: const TextStyle(fontSize: 12, color: AppPalette.n700),
         ),
         const SizedBox(height: 18),
-        _sectionLabel('Date de démarrage'),
+        _sectionLabel(tr.parent.reservation.startDate),
         InkWell(
           onTap: onPickStart,
           borderRadius: BorderRadius.circular(10),
@@ -539,15 +558,15 @@ class _Step2 extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 18),
-        _sectionLabel('Fréquence des séances'),
+        _sectionLabel(tr.parent.reservation.frequency),
         SoeCard(
           child: Column(
             children: [
               Row(
                 children: [
-                  const Text(
-                    'Séances par semaine',
-                    style: TextStyle(
+                  Text(
+                    tr.parent.reservation.sessionsPerWeek,
+                    style: const TextStyle(
                       fontSize: 12,
                       color: AppPalette.n700,
                       fontWeight: FontWeight.w500,
@@ -613,12 +632,12 @@ class _Step2 extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 18),
-        _sectionLabel('Tuteur préféré'),
+        _sectionLabel(tr.parent.reservation.preferredTutor),
         Row(
           children: [
             Expanded(
               child: _GenderTile(
-                label: 'Sans pref.',
+                label: tr.parent.reservation.genderNoPreferenceShort,
                 icon: Icons.groups_outlined,
                 selected: genderPref == TutorGenderPref.noPreference,
                 onTap: () => onGender(TutorGenderPref.noPreference),
@@ -627,7 +646,7 @@ class _Step2 extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: _GenderTile(
-                label: 'Homme',
+                label: tr.parent.reservation.genderMale,
                 icon: Icons.person_outline,
                 selected: genderPref == TutorGenderPref.male,
                 onTap: () => onGender(TutorGenderPref.male),
@@ -636,7 +655,7 @@ class _Step2 extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: _GenderTile(
-                label: 'Femme',
+                label: tr.parent.reservation.genderFemale,
                 icon: Icons.person_outline,
                 selected: genderPref == TutorGenderPref.female,
                 onTap: () => onGender(TutorGenderPref.female),
@@ -730,6 +749,7 @@ class _Step3 extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final subjectNames = ref.watch(subjectsProvider).maybeWhen(
           data: (all) {
             final byId = {for (final s in all) s.id: s.name};
@@ -740,9 +760,9 @@ class _Step3 extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       children: [
-        const Text(
-          'Vérifiez votre demande',
-          style: TextStyle(
+        Text(
+          tr.parent.reservation.step3Title,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: AppPalette.ink,
@@ -750,9 +770,9 @@ class _Step3 extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 6),
-        const Text(
-          'Une réponse vous sera envoyée sous 24h ouvrées.',
-          style: TextStyle(fontSize: 12, color: AppPalette.n700),
+        Text(
+          tr.parent.reservation.step3Subtitle,
+          style: const TextStyle(fontSize: 12, color: AppPalette.n700),
         ),
         const SizedBox(height: 18),
         SoeCard(
@@ -800,21 +820,25 @@ class _Step3 extends ConsumerWidget {
                   ),
                 ),
               Container(height: 1, color: AppPalette.n100),
-              _row('Matières', subjectNames.join(' · ')),
+              _row(tr.parent.reservation.summarySubjects,
+                  subjectNames.join(' · ')),
               _row(
-                'Démarrage',
+                tr.parent.reservation.summaryStart,
                 DateFormat('d MMM yyyy', 'fr').format(start),
               ),
               _row(
-                'Fréquence',
-                '$frequency séance${frequency > 1 ? 's' : ''}/semaine',
+                tr.parent.reservation.summaryFrequency,
+                frequency > 1
+                    ? tr.parent.reservation.frequencyValueMany(count: frequency)
+                    : tr.parent.reservation.frequencyValueOne(count: frequency),
               ),
               _row(
-                  'Tuteur',
+                  tr.parent.reservation.summaryTutor,
                   switch (genderPref) {
-                    TutorGenderPref.male => 'Homme',
-                    TutorGenderPref.female => 'Femme',
-                    TutorGenderPref.noPreference => 'Pas de préférence',
+                    TutorGenderPref.male => tr.parent.reservation.genderMale,
+                    TutorGenderPref.female => tr.parent.reservation.genderFemale,
+                    TutorGenderPref.noPreference =>
+                      tr.parent.reservation.genderNoPreference,
                   },
                   last: true),
             ],

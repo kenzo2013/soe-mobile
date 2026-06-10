@@ -8,6 +8,7 @@ import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../../auth/presentation/providers/current_user_provider.dart';
 import '../../domain/entities/tutor_job.dart';
 import '../providers.dart';
@@ -25,13 +26,14 @@ class TutorJobsListPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorJobsListViewModelProvider);
     return Scaffold(
       backgroundColor: AppPalette.n100,
       drawer: const TutorDrawer(activeRoute: RouteNames.tutorJobs),
-      appBar: const TutorAppBar(
-        title: "Offres d'emploi",
-        subtitle: 'Demandes correspondant à votre profil',
+      appBar: TutorAppBar(
+        title: tr.tutor.jobs.title,
+        subtitle: tr.tutor.jobs.subtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -53,8 +55,8 @@ class TutorJobsListPage extends ConsumerWidget {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
-                    for (final f in const [
-                      ('Toutes', true),
+                    for (final f in [
+                      (tr.tutor.jobs.filterAll, true),
                       ('Maths', false),
                       ('Physique', false),
                       ('Yaoundé', false),
@@ -68,7 +70,7 @@ class TutorJobsListPage extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                '${jobs.length} offres correspondent à votre profil',
+                tr.tutor.jobs.matchCount(count: jobs.length),
                 style: const TextStyle(fontSize: 11, color: AppPalette.n700),
               ),
               const SizedBox(height: 10),
@@ -120,6 +122,7 @@ class _JobCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = Translations.of(context);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
@@ -155,8 +158,8 @@ class _JobCard extends StatelessWidget {
                   ),
                 ),
                 if (job.applied)
-                  const TutorPillBadge(
-                    label: 'Postulé',
+                  TutorPillBadge(
+                    label: tr.tutor.jobs.applied,
                     bg: AppPalette.infoBg,
                     fg: AppPalette.info,
                   ),
@@ -196,9 +199,9 @@ class _JobCard extends StatelessWidget {
                               color: AppPalette.ink,
                             ),
                           ),
-                          const Text(
-                            '/h',
-                            style: TextStyle(
+                          Text(
+                            tr.tutor.jobs.perHourShort,
+                            style: const TextStyle(
                               fontSize: 10,
                               color: AppPalette.n700,
                             ),
@@ -206,7 +209,8 @@ class _JobCard extends StatelessWidget {
                         ],
                       ),
                       Text(
-                        '${job.frequency} · début ${job.start}',
+                        tr.tutor.jobs.freqStart(
+                            frequency: job.frequency, start: job.start),
                         style: const TextStyle(
                           fontSize: 10,
                           color: AppPalette.n700,
@@ -224,7 +228,9 @@ class _JobCard extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    job.applied ? 'Voir candidature' : 'Postuler',
+                    job.applied
+                        ? tr.tutor.jobs.viewApplication
+                        : tr.tutor.jobs.apply,
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -250,12 +256,13 @@ class TutorJobDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorJobDetailViewModelProvider(id));
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const TutorAppBar(
-        title: "Détail de l'offre",
-        subtitle: 'Détail complet de la demande',
+      appBar: TutorAppBar(
+        title: tr.tutor.jobs.detailTitle,
+        subtitle: tr.tutor.jobs.detailSubtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -285,7 +292,7 @@ class TutorJobDetailPage extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Publiée ${j.posted}',
+                        tr.tutor.jobs.publishedOn(date: j.posted),
                         style: const TextStyle(
                           fontSize: 11,
                           color: AppPalette.n700,
@@ -312,7 +319,7 @@ class TutorJobDetailPage extends ConsumerWidget {
                               ),
                             ),
                             Text(
-                              '/heure · ${j.frequency}',
+                              tr.tutor.jobs.perHourFreq(frequency: j.frequency),
                               style: const TextStyle(
                                 fontSize: 11,
                                 color: AppPalette.n700,
@@ -325,7 +332,7 @@ class TutorJobDetailPage extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 14),
-                _sectionTitle('Description'),
+                _sectionTitle(tr.tutor.jobs.description),
                 SoeCard(
                   child: Text(
                     j.summary,
@@ -337,33 +344,33 @@ class TutorJobDetailPage extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 14),
-                _sectionTitle('Détails'),
+                _sectionTitle(tr.tutor.jobs.details),
                 SoeCard(
                   padding: EdgeInsets.zero,
                   child: Column(
                     children: [
                       _DetailRow(
                           icon: Icons.calendar_today_outlined,
-                          label: 'Date de début',
+                          label: tr.tutor.jobs.startDate,
                           value: j.start),
                       _DetailRow(
                           icon: Icons.schedule_outlined,
-                          label: 'Fréquence',
+                          label: tr.tutor.jobs.frequency,
                           value: j.frequency),
                       _DetailRow(
                           icon: Icons.school_outlined,
-                          label: 'Classes',
+                          label: tr.tutor.jobs.classes,
                           value: j.classes.join(', ')),
                       _DetailRow(
                           icon: Icons.place_outlined,
-                          label: 'Localisation',
+                          label: tr.tutor.jobs.location,
                           value: j.location,
                           last: true),
                     ],
                   ),
                 ),
                 const SizedBox(height: 14),
-                _sectionTitle('Matières requises'),
+                _sectionTitle(tr.tutor.jobs.requiredSubjects),
                 Wrap(
                   spacing: 6,
                   runSpacing: 6,
@@ -390,8 +397,8 @@ class TutorJobDetailPage extends ConsumerWidget {
                 ),
                 child: SoeButton(
                   label: j.applied
-                      ? 'Voir ma candidature'
-                      : 'Postuler à cette offre',
+                      ? tr.tutor.jobs.viewMyApplication
+                      : tr.tutor.jobs.applyToOffer,
                   fullWidth: true,
                   onPressed: () => context.push(RouteNames.tutorJobApply(j.id)),
                 ),
@@ -483,12 +490,13 @@ class TutorJobApplyPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context);
     final state = ref.watch(tutorJobDetailViewModelProvider(id));
     return Scaffold(
       backgroundColor: AppPalette.n100,
-      appBar: const TutorAppBar(
-        title: 'Postuler',
-        subtitle: 'Envoyer votre candidature',
+      appBar: TutorAppBar(
+        title: tr.tutor.jobs.applyTitle,
+        subtitle: tr.tutor.jobs.applySubtitle,
       ),
       body: state.when(
         initial: () => const TutorLoading(),
@@ -501,8 +509,9 @@ class TutorJobApplyPage extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Vous postulez à',
-                      style: TextStyle(fontSize: 11, color: AppPalette.n700)),
+                  Text(tr.tutor.jobs.applyingTo,
+                      style: const TextStyle(
+                          fontSize: 11, color: AppPalette.n700)),
                   const SizedBox(height: 4),
                   Text(
                     j.title,
@@ -525,7 +534,7 @@ class TutorJobApplyPage extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 14),
-            _label('Message au parent (optionnel)'),
+            _label(tr.tutor.jobs.parentMessageOptional),
             Container(
               decoration: BoxDecoration(
                 color: AppPalette.white,
@@ -540,8 +549,8 @@ class TutorJobApplyPage extends ConsumerWidget {
                     "Bonjour,\n\nDoctorant en mathématiques, j'ai 6 ans "
                     "d'expérience en préparation d'examens. Je serais ravi "
                     "d'accompagner votre enfant.",
-                decoration: const InputDecoration.collapsed(
-                  hintText: 'Votre message…',
+                decoration: InputDecoration.collapsed(
+                  hintText: tr.tutor.jobs.yourMessageHint,
                 ),
                 style: const TextStyle(
                   fontSize: 13,
@@ -551,7 +560,7 @@ class TutorJobApplyPage extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 6),
-            _label('Mon profil sera partagé'),
+            _label(tr.tutor.jobs.profileShared),
             Builder(
               builder: (context) {
                 final user = ref.watch(currentUserProvider).asData?.value;
@@ -571,7 +580,7 @@ class TutorJobApplyPage extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              name.isEmpty ? 'Mon profil' : name,
+                              name.isEmpty ? tr.tutor.jobs.myProfile : name,
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -579,9 +588,9 @@ class TutorJobApplyPage extends ConsumerWidget {
                               ),
                             ),
                             const SizedBox(height: 2),
-                            const Text(
-                              'Votre profil tuteur sera transmis au parent',
-                              style: TextStyle(
+                            Text(
+                              tr.tutor.jobs.profileSharedSub,
+                              style: const TextStyle(
                                 fontSize: 11,
                                 color: AppPalette.n700,
                               ),
@@ -598,7 +607,7 @@ class TutorJobApplyPage extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             SoeButton(
-              label: 'Envoyer ma candidature',
+              label: tr.tutor.jobs.sendApplication,
               fullWidth: true,
               loading: ref.watch(tutorActionViewModelProvider('candidacy:$id'))
                   is TutorActionSubmitting,
@@ -606,7 +615,7 @@ class TutorJobApplyPage extends ConsumerWidget {
                 context,
                 ref,
                 actionKey: 'candidacy:$id',
-                successMessage: 'Candidature envoyée',
+                successMessage: tr.tutor.jobs.applicationSent,
                 op: () => ref.read(applyToJobProvider)(id),
               ),
             ),

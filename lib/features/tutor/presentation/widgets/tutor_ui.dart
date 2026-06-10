@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_palette.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/tutor_dashboard.dart' show TutorSessionStatus;
 
 /// Helpers UI partagés du flux tuteur (formatage, badges, tuiles, états).
@@ -11,24 +12,25 @@ String fcfa(int n) => '${NumberFormat.decimalPattern("fr_FR").format(n)} FCFA';
 /// Spec d'un badge de statut : (libellé, fond, texte).
 typedef BadgeSpec = (String label, Color bg, Color fg);
 
-BadgeSpec sessionStatusSpec(TutorSessionStatus s) => switch (s) {
+BadgeSpec sessionStatusSpec(Translations tr, TutorSessionStatus s) =>
+    switch (s) {
       TutorSessionStatus.confirmed => (
-          'Confirmée',
+          tr.tutor.status.confirmed,
           AppPalette.successBg,
           AppPalette.success
         ),
       TutorSessionStatus.completed => (
-          'Terminée',
+          tr.tutor.status.completed,
           AppPalette.successBg,
           AppPalette.success
         ),
       TutorSessionStatus.inProgress => (
-          'En cours',
+          tr.tutor.status.inProgress,
           AppPalette.warningBg,
           AppPalette.warning
         ),
       TutorSessionStatus.pending => (
-          'À confirmer',
+          tr.tutor.status.pending,
           AppPalette.warningBg,
           AppPalette.warning
         ),
