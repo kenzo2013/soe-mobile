@@ -4,6 +4,7 @@ import '../../../../core/error/exception_mapper.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/error/result.dart';
 import '../../domain/entities/school_class.dart';
+import '../../domain/entities/subject.dart';
 import '../../domain/repositories/references_repository.dart';
 import '../datasources/references_remote_datasource.dart';
 
@@ -18,6 +19,15 @@ class ReferencesRepositoryImpl implements ReferencesRepository {
   }) async {
     try {
       return Ok(await _ds.list(education: education, section: section));
+    } on DioException catch (e) {
+      return Err(ExceptionMapper.fromDio(e));
+    }
+  }
+
+  @override
+  Future<Result<List<Subject>, Failure>> listSubjects() async {
+    try {
+      return Ok(await _ds.subjects());
     } on DioException catch (e) {
       return Err(ExceptionMapper.fromDio(e));
     }

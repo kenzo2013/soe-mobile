@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../references/data/school_meta_mapping.dart';
 import '../../domain/entities/child.dart';
-import '../school_meta_mapping.dart';
 
 part 'child_dto.freezed.dart';
 part 'child_dto.g.dart';

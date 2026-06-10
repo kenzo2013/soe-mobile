@@ -12,5 +12,6 @@ extension UserDtoX on UserDto {
         phone: attributes.phone,
         lang: attributes.lang,
         photoUrl: attributes.avatarUrl,
+        multiRole: attributes.multiRole ?? false,
       );
 }

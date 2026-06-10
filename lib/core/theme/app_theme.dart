@@ -39,6 +39,8 @@ abstract final class AppTheme {
       textTheme: textTheme,
       primaryTextTheme: textTheme,
       appBarTheme: AppBarTheme(
+        // Titres alignés à gauche partout (défaut iOS = centré).
+        centerTitle: false,
         titleTextStyle: AppTypography.pageTitle.copyWith(color: AppPalette.ink),
       ),
       inputDecorationTheme: const InputDecorationTheme(

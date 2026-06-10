@@ -176,8 +176,11 @@ class ParentDrawer extends ConsumerWidget {
                   children: [
                     _drawerSecondary(
                       icon: Icons.settings_outlined,
-                      label: 'Paramètres',
-                      onTap: () {},
+                      label: 'Mon compte',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.push(RouteNames.account);
+                      },
                     ),
                     const SizedBox(height: 8),
                     _drawerSecondary(

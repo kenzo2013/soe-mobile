@@ -8,7 +8,8 @@ class ParentRemoteDatasource {
   final Dio _dio;
 
   Future<ParentDashboardDto> fetchDashboard() async {
-    final r = await _dio.get<Map<String, dynamic>>(ApiEndpoints.parentsDashboard);
+    final r =
+        await _dio.get<Map<String, dynamic>>(ApiEndpoints.parentsDashboard);
     final body = r.data!;
     final data = (body['data'] as Map<String, dynamic>?) ?? body;
 
@@ -21,12 +22,54 @@ class ParentRemoteDatasource {
         .map(_flattenStudent)
         .toList();
 
+    // `recent_reservations` arrivent aussi au format JSON:API imbriqué
+    // (`attributes.tutoring_requests[0]...`) → on aplatit pour le DTO résumé.
+    final rawRes = (data['recent_reservations'] as List?) ?? const [];
+    final flatRes = rawRes
+        .whereType<Map<String, dynamic>>()
+        .map(_flattenReservationSummary)
+        .toList();
+
     final flatData = <String, dynamic>{
       ...data,
       'students': flatStudents,
+      'recent_reservations': flatRes,
     };
 
     return ParentDashboardDto.fromJson(flatData);
+  }
+
+  static Map<String, dynamic> _attrs(Object? node) {
+    if (node is! Map) return const {};
+    final a = node['attributes'];
+    return a is Map
+        ? {
+            ...a.cast<String, dynamic>(),
+            if (node['id'] != null) 'id': node['id'],
+          }
+        : node.cast<String, dynamic>();
+  }
+
+  static Map<String, dynamic> _flattenReservationSummary(
+    Map<String, dynamic> json,
+  ) {
+    final a = _attrs(json);
+    final reqs = (a['tutoring_requests'] as List?) ?? const [];
+    final req = reqs.isEmpty ? const <String, dynamic>{} : _attrs(reqs.first);
+    final student = _attrs(req['student']);
+    final subjects = ((req['subjects'] as List?) ?? const [])
+        .map((s) =>
+            s is Map ? (_attrs(s)['name'] ?? '').toString() : s.toString())
+        .where((s) => s.isNotEmpty)
+        .toList();
+    return {
+      'id': json['id']?.toString() ?? a['id']?.toString() ?? '',
+      'reference': a['reference'],
+      'status': a['status'],
+      'child_name': student['full_name'],
+      'subjects': subjects,
+      'amount': a['total_amount'] ?? req['amount'],
+    };
   }
 
   static Map<String, dynamic> _flattenStudent(Map<String, dynamic> json) {

@@ -18,6 +18,11 @@ import '../providers.dart' show authRepositoryProvider;
 final currentUserProvider = FutureProvider<User?>((ref) async {
   final storage = ref.watch(secureStorageProvider);
 
+  // Recalcule à chaque changement de token (login / logout / switch de rôle) :
+  // sinon le provider sert un `null` mis en cache au logout même après une
+  // reconnexion réussie.
+  ref.watch(authTokenProvider);
+
   // 1) cache local
   final raw = await storage.read(StorageKeys.currentUser);
   if (raw != null && raw.isNotEmpty) {
@@ -33,6 +38,7 @@ final currentUserProvider = FutureProvider<User?>((ref) async {
         phone: j['phone']?.toString(),
         lang: j['lang']?.toString(),
         photoUrl: j['photo_url']?.toString(),
+        multiRole: j['multi_role'] == true,
       );
     } catch (_) {
       // JSON corrompu → on tombe sur le fallback API

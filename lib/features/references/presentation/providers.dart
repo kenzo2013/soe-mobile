@@ -4,10 +4,10 @@ import '../../../core/providers/core_providers.dart';
 import '../data/datasources/references_remote_datasource.dart';
 import '../data/repositories/references_repository_impl.dart';
 import '../domain/entities/school_class.dart';
+import '../domain/entities/subject.dart';
 import '../domain/repositories/references_repository.dart';
 
-final referencesRemoteDatasourceProvider =
-    Provider<ReferencesRemoteDatasource>(
+final referencesRemoteDatasourceProvider = Provider<ReferencesRemoteDatasource>(
   (ref) => ReferencesRemoteDatasource(ref.watch(dioProvider)),
 );
 
@@ -28,4 +28,11 @@ final schoolClassesProvider = FutureProvider.autoDispose
         section: filter.section,
       );
   return r.valueOrNull ?? SchoolClassReferences.empty;
+});
+
+/// Catalogue des matières (`GET /common/subjects`). Mis en cache pour la
+/// session (autoDispose : rechargé quand plus aucun écran ne l'observe).
+final subjectsProvider = FutureProvider.autoDispose<List<Subject>>((ref) async {
+  final r = await ref.read(referencesRepositoryProvider).listSubjects();
+  return r.valueOrNull ?? const [];
 });

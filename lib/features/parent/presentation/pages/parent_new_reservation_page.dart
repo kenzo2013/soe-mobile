@@ -7,6 +7,7 @@ import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/soe_toast.dart';
+import '../../../references/presentation/providers.dart';
 import '../../domain/entities/child.dart';
 import '../../domain/entities/reservation_detail.dart';
 import '../providers.dart';
@@ -22,24 +23,13 @@ class _ParentNewReservationPageState
     extends ConsumerState<ParentNewReservationPage> {
   int _step = 0;
   Child? _child;
+
+  /// Identifiants (UUID) des matières sélectionnées — issus de
+  /// `GET /common/subjects` (le backend attend des `subject_ids` réels).
   final Set<String> _subjects = {};
   int _frequency = 2;
   DateTime _start = DateTime.now().add(const Duration(days: 7));
   TutorGenderPref _genderPref = TutorGenderPref.noPreference;
-
-  // NOTE(api): catalogue de matieres temporaire (libelles statiques). Le CDC
-  // §4.4 attend des UUID dans subject_ids ; a remplacer par l'endpoint
-  // matieres des qu'il est livre cote back.
-  static const _subjectsCatalog = [
-    'Mathématiques',
-    'Physique-Chimie',
-    'Français',
-    'Anglais',
-    'SVT',
-    'Histoire-Géographie',
-    'Philosophie',
-    'Espagnol',
-  ];
 
   bool _canContinue() {
     switch (_step) {
@@ -124,13 +114,12 @@ class _ParentNewReservationPageState
                     key: const ValueKey(0),
                     selectedChild: _child,
                     selectedSubjects: _subjects,
-                    catalog: _subjectsCatalog,
                     onChildChanged: (c) => setState(() => _child = c),
-                    onToggleSubject: (s) => setState(() {
-                      if (_subjects.contains(s)) {
-                        _subjects.remove(s);
+                    onToggleSubject: (id) => setState(() {
+                      if (_subjects.contains(id)) {
+                        _subjects.remove(id);
                       } else {
-                        _subjects.add(s);
+                        _subjects.add(id);
                       }
                     }),
                   ),
@@ -253,13 +242,11 @@ class _Step1 extends ConsumerWidget {
     super.key,
     required this.selectedChild,
     required this.selectedSubjects,
-    required this.catalog,
     required this.onChildChanged,
     required this.onToggleSubject,
   });
   final Child? selectedChild;
   final Set<String> selectedSubjects;
-  final List<String> catalog;
   final ValueChanged<Child> onChildChanged;
   final ValueChanged<String> onToggleSubject;
 
@@ -401,18 +388,30 @@ class _Step1 extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final s in catalog)
-              _SubjectChip(
-                label: s,
-                selected: selectedSubjects.contains(s),
-                onTap: () => onToggleSubject(s),
+        ref.watch(subjectsProvider).when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (_, __) => const Text(
+                'Impossible de charger les matières',
+                style: TextStyle(color: AppPalette.danger, fontSize: 12),
               ),
-          ],
-        ),
+              data: (subjects) => subjects.isEmpty
+                  ? const Text(
+                      'Aucune matière disponible',
+                      style: TextStyle(color: AppPalette.n700, fontSize: 12),
+                    )
+                  : Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final s in subjects)
+                          _SubjectChip(
+                            label: s.name,
+                            selected: selectedSubjects.contains(s.id),
+                            onTap: () => onToggleSubject(s.id),
+                          ),
+                      ],
+                    ),
+            ),
       ],
     );
   }
@@ -712,7 +711,7 @@ class _GenderTile extends StatelessWidget {
   }
 }
 
-class _Step3 extends StatelessWidget {
+class _Step3 extends ConsumerWidget {
   const _Step3({
     super.key,
     required this.child,
@@ -722,13 +721,22 @@ class _Step3 extends StatelessWidget {
     required this.genderPref,
   });
   final Child? child;
+
+  /// UUID des matières sélectionnées (résolus en noms pour l'affichage).
   final List<String> subjects;
   final int frequency;
   final DateTime start;
   final TutorGenderPref genderPref;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final subjectNames = ref.watch(subjectsProvider).maybeWhen(
+          data: (all) {
+            final byId = {for (final s in all) s.id: s.name};
+            return subjects.map((id) => byId[id] ?? id).toList();
+          },
+          orElse: () => subjects,
+        );
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       children: [
@@ -792,7 +800,7 @@ class _Step3 extends StatelessWidget {
                   ),
                 ),
               Container(height: 1, color: AppPalette.n100),
-              _row('Matières', subjects.join(' · ')),
+              _row('Matières', subjectNames.join(' · ')),
               _row(
                 'Démarrage',
                 DateFormat('d MMM yyyy', 'fr').format(start),

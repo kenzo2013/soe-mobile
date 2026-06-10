@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/routes.dart';
+import '../../features/common/presentation/routes.dart';
 import '../../features/parent/presentation/routes.dart';
 import '../../features/tutor/presentation/routes.dart';
 import 'route_guards.dart';
@@ -22,7 +23,7 @@ GoRouter buildRouter({required AuthGuard guard}) {
       ...authRoutes(),
       ...parentRoutes(),
       ...tutorRoutes(),
-      // ...commonRoutes(),
+      ...commonRoutes(),
     ],
     errorBuilder: (context, state) => const _SplashPlaceholder(),
   );

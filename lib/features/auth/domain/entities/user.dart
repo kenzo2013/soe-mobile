@@ -10,6 +10,7 @@ class User {
     this.phone,
     this.lang,
     this.photoUrl,
+    this.multiRole = false,
   });
 
   final String id;
@@ -21,6 +22,10 @@ class User {
   final String? phone;
   final String? lang;
   final String? photoUrl;
+
+  /// `true` si le compte possède plusieurs rôles (bascule possible via
+  /// `/role_switch`). Sinon, l'ajout passe par `/role_addition`.
+  final bool multiRole;
 
   String get fullName => '$firstName $lastName';
 

@@ -34,11 +34,55 @@ abstract final class RouteNames {
 
   // Tutor shell
   static const String tutorDashboard = '/tutor';
-  static const String tutorJobs = '/tutor/jobs';
-  static const String tutorSessions = '/tutor/sessions';
-  static const String tutorProfile = '/tutor/profile';
 
-  // Common
+  // Tutor · Mon profil
+  static const String tutorProfile = '/tutor/profile';
+  static const String tutorProfileBio = '/tutor/profile/bio';
+  static const String tutorProfileTrainings = '/tutor/profile/trainings';
+  static const String tutorProfileWorks = '/tutor/profile/works';
+  static const String tutorProfileIdentities = '/tutor/profile/identities';
+  static const String tutorProfileCourses = '/tutor/profile/courses';
+  static const String tutorProfileAvailabilities =
+      '/tutor/profile/availabilities';
+
+  // Tutor · Offres d'emploi
+  static const String tutorJobs = '/tutor/jobs';
+  static String tutorJobDetail(String id) => '/tutor/jobs/$id';
+  static String tutorJobApply(String id) => '/tutor/jobs/$id/apply';
+
+  // Tutor · Mes cours
+  static const String tutorCourses = '/tutor/courses';
+  static String tutorCourseDetail(String id) => '/tutor/courses/$id';
+  static String tutorCourseSchedules(String id) =>
+      '/tutor/courses/$id/schedules';
+
+  // Tutor · Séances
+  static const String tutorSessions = '/tutor/sessions';
+  static String tutorSessionDetail(String id) => '/tutor/sessions/$id';
+  static String tutorSessionEdit(String id) => '/tutor/sessions/$id/edit';
+  static String tutorSessionReport(String id) => '/tutor/sessions/$id/report';
+
+  // Tutor · Rémunérations
+  static const String tutorRemunerations = '/tutor/remunerations';
+
+  // Tutor · Infos de paiement
+  static const String tutorPayment = '/tutor/payment';
+  static const String tutorPaymentAddBank = '/tutor/payment/bank';
+  static const String tutorPaymentDetail = '/tutor/payment/detail';
+
+  // Tutor · Contrats
+  static const String tutorContracts = '/tutor/contracts';
+
+  // Common · Mon compte
   static const String account = '/account';
+  static const String accountProfile = '/account/profile';
+  static const String accountPassword = '/account/password';
+  static const String accountAddress = '/account/address';
+  static const String accountRole = '/account/role';
+  static const String accountNotificationPrefs =
+      '/account/notification-preferences';
+
+  // Common · Notifications
   static const String notifications = '/notifications';
+  static String notificationDetail(String id) => '/notifications/$id';
 }

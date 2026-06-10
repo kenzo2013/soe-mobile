@@ -309,9 +309,8 @@ class ParentInvitationsListPage extends ConsumerWidget {
         ? state.items
         : const <ParentInvitation>[];
     final count = items.length;
-    final subtitle = count == 0
-        ? null
-        : '$count personne${count > 1 ? "s" : ""}';
+    final subtitle =
+        count == 0 ? null : '$count personne${count > 1 ? "s" : ""}';
     return _Shell(
       title: 'Invitations',
       subtitle: subtitle,
@@ -348,9 +347,12 @@ class ParentInvitationsListPage extends ConsumerWidget {
               ),
             ),
             if (items.isEmpty)
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: const _EmptyState(
+              const SliverFillRemaining(
+                // L'enfant `_EmptyState` est lui-même un ListView (scrollable) :
+                // `hasScrollBody: true` évite le calcul d'intrinsèques interdit
+                // dans un viewport (sinon crash + page blanche).
+                hasScrollBody: true,
+                child: _EmptyState(
                   message: 'Aucune invitation envoyée',
                 ),
               )
@@ -360,8 +362,7 @@ class ParentInvitationsListPage extends ConsumerWidget {
                 sliver: SliverList.separated(
                   itemCount: items.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 10),
-                  itemBuilder: (_, i) =>
-                      _InvitationCard(invitation: items[i]),
+                  itemBuilder: (_, i) => _InvitationCard(invitation: items[i]),
                 ),
               ),
           ],
@@ -470,24 +471,26 @@ class _InvitationCard extends StatelessWidget {
     // unknown : on suppose que l'invitation est juste partie sans statut
     // explicite cote back → fallback "Envoyée" (style info teal).
     final (label, bg, fg) = switch (invitation.status) {
-      InvitationStatus.pending ||
-      InvitationStatus.unknown =>
-        ('Envoyée', AppPalette.infoBg, AppPalette.teal),
+      InvitationStatus.pending || InvitationStatus.unknown => (
+          'Envoyée',
+          AppPalette.infoBg,
+          AppPalette.teal
+        ),
       InvitationStatus.accepted => (
-        'Acceptée',
-        AppPalette.successBg,
-        AppPalette.success,
-      ),
+          'Acceptée',
+          AppPalette.successBg,
+          AppPalette.success,
+        ),
       InvitationStatus.rejected => (
-        'Refusée',
-        AppPalette.dangerBg,
-        AppPalette.danger,
-      ),
+          'Refusée',
+          AppPalette.dangerBg,
+          AppPalette.danger,
+        ),
       InvitationStatus.expired => (
-        'Expirée',
-        AppPalette.n100,
-        AppPalette.n700,
-      ),
+          'Expirée',
+          AppPalette.n100,
+          AppPalette.n700,
+        ),
     };
     final name = (invitation.fullName ?? '').isEmpty
         ? invitation.email
@@ -551,7 +554,9 @@ class _InvitationCard extends StatelessWidget {
                 if ((invitation.phone ?? '').isNotEmpty) ...[
                   const SizedBox(height: 2),
                   Text(
-                    invitation.phone!,
+                    // Normalise un éventuel « ++ » hérité (données créées avant
+                    // le fix d'envoi) en un seul « + ».
+                    invitation.phone!.replaceFirst(RegExp(r'^\++'), '+'),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -566,8 +571,7 @@ class _InvitationCard extends StatelessWidget {
           const SizedBox(width: 8),
           // Badge status — taille sm
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
               color: bg,
               borderRadius: BorderRadius.circular(999),
@@ -643,7 +647,8 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
       civility: _civility,
       firstName: _firstName.text.trim(),
       lastName: _lastName.text.trim(),
-      phone: '+${_country.callingCode}$phoneDigits',
+      // `callingCode` inclut déjà le « + » (ex. « +237 ») → ne pas le doubler.
+      phone: '${_country.callingCode}$phoneDigits',
       linkWithChildren: _link,
     ));
     if (!mounted) return;
@@ -740,9 +745,12 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
               border: OutlineInputBorder(),
             ),
             items: const [
-              DropdownMenuItem(value: InvitationLink.father, child: Text('Père')),
-              DropdownMenuItem(value: InvitationLink.mother, child: Text('Mère')),
-              DropdownMenuItem(value: InvitationLink.guardian, child: Text('Tuteur légal')),
+              DropdownMenuItem(
+                  value: InvitationLink.father, child: Text('Père')),
+              DropdownMenuItem(
+                  value: InvitationLink.mother, child: Text('Mère')),
+              DropdownMenuItem(
+                  value: InvitationLink.guardian, child: Text('Tuteur légal')),
             ],
             onChanged: (v) =>
                 setState(() => _link = v ?? InvitationLink.father),
@@ -782,9 +790,8 @@ class ParentContractsListPage extends ConsumerWidget {
       activeRoute: '/parent/contracts',
       body: _asyncList<Contract>(
         state: state as AsyncListState<Contract>,
-        onRetry: () => ref
-            .read(contractsListViewModelProvider(null).notifier)
-            .refresh(),
+        onRetry: () =>
+            ref.read(contractsListViewModelProvider(null).notifier).refresh(),
         onLoaded: (items) => items.isEmpty
             ? const _EmptyState(message: 'Aucun contrat pour le moment')
             : ListView.separated(
@@ -805,10 +812,22 @@ class _ContractCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final signed = contract.status == ContractStatus.signed;
     final (label, bg, fg) = switch (contract.status) {
-      ContractStatus.signed => ('Signé', AppPalette.successBg, AppPalette.success),
-      ContractStatus.unsigned => ('À signer', AppPalette.warningBg, AppPalette.warning),
+      ContractStatus.signed => (
+          'Signé',
+          AppPalette.successBg,
+          AppPalette.success
+        ),
+      ContractStatus.unsigned => (
+          'À signer',
+          AppPalette.warningBg,
+          AppPalette.warning
+        ),
       ContractStatus.expired => ('Expiré', AppPalette.n100, AppPalette.n700),
-      ContractStatus.terminated => ('Résilié', AppPalette.dangerBg, AppPalette.danger),
+      ContractStatus.terminated => (
+          'Résilié',
+          AppPalette.dangerBg,
+          AppPalette.danger
+        ),
       ContractStatus.unknown => ('—', AppPalette.n100, AppPalette.n700),
     };
     return SoeCard(

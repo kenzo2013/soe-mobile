@@ -185,5 +185,6 @@ class AuthRepositoryImpl implements AuthRepository {
         if (u.phone != null) 'phone': u.phone,
         if (u.lang != null) 'lang': u.lang,
         if (u.photoUrl != null) 'photo_url': u.photoUrl,
+        'multi_role': u.multiRole,
       };
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 
 class ParentGreetHeader extends StatelessWidget {
@@ -84,7 +86,9 @@ class ParentGreetHeader extends StatelessWidget {
                         ),
                       ),
                       const Spacer(),
-                      Stack(
+                      GestureDetector(
+                        onTap: () => context.push(RouteNames.notifications),
+                        child: Stack(
                         children: [
                           Container(
                             width: 40,
@@ -117,6 +121,7 @@ class ParentGreetHeader extends StatelessWidget {
                               ),
                             ),
                         ],
+                        ),
                       ),
                     ],
                   ),

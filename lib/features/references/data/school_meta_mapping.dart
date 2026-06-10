@@ -1,11 +1,10 @@
-/// Helpers de mapping entre les libellés affichés (`data.educations` et
-/// `data.sections` de l'API `/common/school_classes`) et les enums
-/// stockés en base (champs `student.education` et `student.section`).
+/// Conversion entre les libellés affichés (pickers Niveau/Section) et les
+/// enums attendus/renvoyés par l'API (`general`, `francophone`, …).
 ///
-/// L'API renvoie 2 vocabulaires différents :
-/// - `data.educations` : ["Primaire", "Secondaire", "Général", "Technique"]
-/// - `student.attributes.education` : "primary" / "secondary" / "general" / "technic"
-/// On centralise ici la conversion pour ne pas dupliquer la table.
+/// Historiquement `GET /common/school_classes` renvoyait `data.educations`
+/// en libellés ; il renvoie désormais les enums (`general`, `primary`, …).
+/// On centralise ici la conversion pour que toute l'app manipule des libellés
+/// et n'envoie/affiche les enums qu'au niveau réseau.
 abstract final class SchoolMetaMapping {
   // ── Education ──────────────────────────────────────────────
   static const Map<String, String> _educationLabelToApi = {
@@ -36,8 +35,7 @@ abstract final class SchoolMetaMapping {
   }
 
   // ── Section ────────────────────────────────────────────────
-  /// "Francophone" → "francophone" — simple lowercase suffit ici
-  /// (pas d'accent à gérer).
+  /// "Francophone" → "francophone" — simple lowercase suffit ici.
   static String? sectionLabelToApi(String? label) =>
       (label == null || label.isEmpty) ? null : label.toLowerCase();
 
