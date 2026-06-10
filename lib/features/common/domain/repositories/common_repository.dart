@@ -6,6 +6,7 @@ import '../../../auth/domain/entities/user.dart';
 import '../entities/account_address.dart';
 import '../entities/app_notification.dart';
 import '../entities/notification_preferences.dart';
+import '../entities/service_contract.dart';
 
 /// Contrat des écrans communs (CDC §6) — Mon compte, rôle, préférences,
 /// notifications. Implémenté côté Data.
@@ -48,6 +49,15 @@ abstract class CommonRepository {
   Future<Result<void, Failure>> markNotificationRead(String id);
   Future<Result<void, Failure>> markAllNotificationsRead();
   Future<Result<void, Failure>> deleteNotification(String id);
+
+  // ── Contrats ──────────────────────────────────────────────
+  Future<Result<List<ServiceContract>, Failure>> getContracts();
+  Future<Result<void, Failure>> signContract(String id, File signature);
+  Future<Result<void, Failure>> signAmendment(
+    String contractId,
+    String amendmentId,
+    File signature,
+  );
 }
 
 /// Paramètres de mise à jour du profil. Tous optionnels : seuls les champs

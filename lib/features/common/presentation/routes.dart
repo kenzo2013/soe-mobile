@@ -2,12 +2,14 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/routing/route_names.dart';
 import '../domain/entities/app_notification.dart';
+import '../domain/entities/service_contract.dart';
 import 'pages/account_address_page.dart';
 import 'pages/account_hub_page.dart';
 import 'pages/account_notification_prefs_page.dart';
 import 'pages/account_password_page.dart';
 import 'pages/account_personal_info_page.dart';
 import 'pages/account_role_page.dart';
+import 'pages/contract_detail_page.dart';
 import 'pages/notification_detail_page.dart';
 import 'pages/notifications_center_page.dart';
 
@@ -38,6 +40,13 @@ List<RouteBase> commonRoutes() => [
       GoRoute(
         path: RouteNames.accountNotificationPrefs,
         builder: (context, state) => const AccountNotificationPrefsPage(),
+      ),
+
+      // Contrat — détail (partagé parent + tuteur), via state.extra
+      GoRoute(
+        path: RouteNames.contractDetail,
+        builder: (context, state) =>
+            ContractDetailPage(contract: state.extra! as ServiceContract),
       ),
 
       // Notifications

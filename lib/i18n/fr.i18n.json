@@ -835,7 +835,17 @@
     "programs": {
       "title": "Programmes",
       "empty": "Aucun programme disponible",
-      "percentComplete": "{{percent}}% complet"
+      "quoteAccepted": "Devis accepté",
+      "quoteProposed": "Devis proposé",
+      "quotePending": "En attente",
+      "quoteRejected": "Devis rejeté",
+      "quoteNegotiating": "En négociation",
+      "subjects": "Matières",
+      "tutor": "Tuteur",
+      "schedule": "Planning hebdomadaire",
+      "frequency": "{{n}} séance(s) / semaine",
+      "period": "Du {{from}} au {{to}}",
+      "perMonth": "{{amount}} FCFA / mois"
     },
     "invitations": {
       "title": "Invitations",
@@ -1045,5 +1055,26 @@
       "emptyAll": "Aucune réservation",
       "emptyCategory": "Aucune réservation dans cette catégorie"
     }
+  },
+  "contracts": {
+    "title": "Contrats",
+    "empty": "Aucun contrat pour le moment",
+    "toSign": "À signer",
+    "signed": "Signé",
+    "badgeToSign": "À signer",
+    "badgeSigned": "Signé",
+    "contentTitle": "Contenu du contrat",
+    "amendmentsTitle": "Avenants",
+    "amendment": "Avenant",
+    "sign": "Signer le contrat",
+    "signAmendment": "Signer l'avenant",
+    "view": "Voir le contrat",
+    "signInFrame": "Signez dans le cadre ci-dessous",
+    "clear": "Effacer",
+    "pleaseSign": "Veuillez signer avant de valider",
+    "signSuccess": "Contrat signé",
+    "amendmentSigned": "Avenant signé",
+    "toSignBannerOne": "{{count}} document à signer",
+    "toSignBannerMany": "{{count}} documents à signer"
   }
 }

@@ -95,6 +95,25 @@ class ReservationsRemoteDatasource {
         .toList();
   }
 
+  /// L'API renvoie les montants en chaîne décimale (`"80000.0"`). On les
+  /// normalise en `num` pour le DTO (`amount as num?` sinon crash de cast).
+  static num? _num(Object? v) {
+    if (v == null) return null;
+    if (v is num) return v;
+    return num.tryParse(v.toString());
+  }
+
+  /// Statut effectif pour l'UI : l'état du devis (`quote_status` :
+  /// proposed_price / negotiation / rejected) prime sur le statut de la
+  /// réservation (`status` : pending / active …) tant que le devis n'est pas
+  /// accepté — sinon le détail n'affiche pas les actions Accepter/Négocier.
+  static String? _effectiveStatus(Map<String, dynamic> a) {
+    final qs = a['quote_status']?.toString();
+    const quoteStates = {'proposed_price', 'negotiation', 'rejected'};
+    if (qs != null && quoteStates.contains(qs)) return qs;
+    return a['status']?.toString();
+  }
+
   Map<String, dynamic> _summaryJson(Map<String, dynamic> raw) {
     final a = _attrs(raw);
     final req = _firstRequest(a);
@@ -102,10 +121,10 @@ class ReservationsRemoteDatasource {
     return {
       'id': raw['id']?.toString() ?? a['id']?.toString() ?? '',
       'reference': a['reference'],
-      'status': a['status'],
+      'status': _effectiveStatus(a),
       'child_name': student['full_name'],
       'subjects': _subjects(req),
-      'amount': a['total_amount'] ?? req['amount'],
+      'amount': _num(a['total_amount'] ?? req['amount']),
     };
   }
 
@@ -118,15 +137,15 @@ class ReservationsRemoteDatasource {
     return {
       'id': raw['id']?.toString() ?? a['id']?.toString() ?? '',
       'reference': a['reference'],
-      'status': a['status'],
+      'status': _effectiveStatus(a),
       'child_id': student['id']?.toString(),
       'child_name': student['full_name'],
       'subjects': _subjects(req),
-      'frequency': (req['frequency'] as num?)?.toInt() ?? 1,
+      'frequency': _num(req['frequency'])?.toInt() ?? 1,
       'estimated_start_date': req['estimated_start_date'],
       'preferred_tutor_gender': req['preferred_tutor_gender'],
       'location': loc.isEmpty ? null : loc,
-      'amount': a['total_amount'] ?? req['amount'],
+      'amount': _num(a['total_amount'] ?? req['amount']),
       'program_text': a['program_text'],
       'created_at': a['created_at'],
     };

@@ -68,8 +68,15 @@ class ParentRemoteDatasource {
       'status': a['status'],
       'child_name': student['full_name'],
       'subjects': subjects,
-      'amount': a['total_amount'] ?? req['amount'],
+      // Montants en chaîne décimale ("80000.0") -> num pour le DTO.
+      'amount': _num(a['total_amount'] ?? req['amount']),
     };
+  }
+
+  static num? _num(Object? v) {
+    if (v == null) return null;
+    if (v is num) return v;
+    return num.tryParse(v.toString());
   }
 
   static Map<String, dynamic> _flattenStudent(Map<String, dynamic> json) {

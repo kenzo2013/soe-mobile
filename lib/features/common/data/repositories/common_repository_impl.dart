@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 
@@ -12,6 +13,7 @@ import '../../../auth/domain/entities/user.dart';
 import '../../domain/entities/account_address.dart';
 import '../../domain/entities/app_notification.dart';
 import '../../domain/entities/notification_preferences.dart';
+import '../../domain/entities/service_contract.dart';
 import '../../domain/repositories/common_repository.dart';
 import '../datasources/common_remote_datasource.dart';
 
@@ -178,6 +180,45 @@ class CommonRepositoryImpl implements CommonRepository {
   Future<Result<void, Failure>> deleteNotification(String id) async {
     try {
       await _remote.deleteNotification(id);
+      return const Ok(null);
+    } on DioException catch (e) {
+      return Err(ExceptionMapper.fromDio(e));
+    } catch (_) {
+      return const Err(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Result<List<ServiceContract>, Failure>> getContracts() async {
+    try {
+      return Ok(await _remote.getContracts());
+    } on DioException catch (e) {
+      return Err(ExceptionMapper.fromDio(e));
+    } catch (_) {
+      return const Err(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Result<void, Failure>> signContract(String id, File signature) async {
+    try {
+      await _remote.signContract(id, signature);
+      return const Ok(null);
+    } on DioException catch (e) {
+      return Err(ExceptionMapper.fromDio(e));
+    } catch (_) {
+      return const Err(UnknownFailure());
+    }
+  }
+
+  @override
+  Future<Result<void, Failure>> signAmendment(
+    String contractId,
+    String amendmentId,
+    File signature,
+  ) async {
+    try {
+      await _remote.signAmendment(contractId, amendmentId, signature);
       return const Ok(null);
     } on DioException catch (e) {
       return Err(ExceptionMapper.fromDio(e));

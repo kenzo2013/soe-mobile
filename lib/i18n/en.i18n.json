@@ -835,7 +835,17 @@
     "programs": {
       "title": "Programs",
       "empty": "No programs available",
-      "percentComplete": "{{percent}}% complete"
+      "quoteAccepted": "Quote accepted",
+      "quoteProposed": "Quote proposed",
+      "quotePending": "Pending",
+      "quoteRejected": "Quote rejected",
+      "quoteNegotiating": "Negotiating",
+      "subjects": "Subjects",
+      "tutor": "Tutor",
+      "schedule": "Weekly schedule",
+      "frequency": "{{n}} session(s) / week",
+      "period": "From {{from}} to {{to}}",
+      "perMonth": "{{amount}} FCFA / month"
     },
     "invitations": {
       "title": "Invitations",
@@ -1045,5 +1055,26 @@
       "emptyAll": "No reservations",
       "emptyCategory": "No reservations in this category"
     }
+  },
+  "contracts": {
+    "title": "Contracts",
+    "empty": "No contract yet",
+    "toSign": "To sign",
+    "signed": "Signed",
+    "badgeToSign": "To sign",
+    "badgeSigned": "Signed",
+    "contentTitle": "Contract content",
+    "amendmentsTitle": "Amendments",
+    "amendment": "Amendment",
+    "sign": "Sign contract",
+    "signAmendment": "Sign amendment",
+    "view": "View contract",
+    "signInFrame": "Sign in the frame below",
+    "clear": "Clear",
+    "pleaseSign": "Please sign before confirming",
+    "signSuccess": "Contract signed",
+    "amendmentSigned": "Amendment signed",
+    "toSignBannerOne": "{{count}} document to sign",
+    "toSignBannerMany": "{{count}} documents to sign"
   }
 }

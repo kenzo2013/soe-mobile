@@ -7,6 +7,7 @@ import '../data/repositories/common_repository_impl.dart';
 import '../domain/entities/account_address.dart';
 import '../domain/entities/app_notification.dart';
 import '../domain/entities/notification_preferences.dart';
+import '../domain/entities/service_contract.dart';
 import '../domain/repositories/common_repository.dart';
 
 // ── Data ────────────────────────────────────────────────────
@@ -44,6 +45,15 @@ final notificationPreferencesProvider =
 final notificationsProvider =
     FutureProvider.autoDispose<List<AppNotification>>((ref) async {
   final r = await ref.watch(commonRepositoryProvider).getNotifications();
+  return switch (r) {
+    Ok(:final value) => value,
+    Err(:final failure) => throw failure,
+  };
+});
+
+final contractsProvider =
+    FutureProvider.autoDispose<List<ServiceContract>>((ref) async {
+  final r = await ref.watch(commonRepositoryProvider).getContracts();
   return switch (r) {
     Ok(:final value) => value,
     Err(:final failure) => throw failure,

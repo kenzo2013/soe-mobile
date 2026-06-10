@@ -5,16 +5,21 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/data/countries.dart';
+import '../../../../core/error/failure.dart';
+import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/soe_phone_field.dart';
 import '../../../../i18n/translations.g.dart';
-import '../../domain/entities/contract.dart';
+import '../../../auth/presentation/providers/current_user_provider.dart';
+import '../../../common/presentation/providers.dart';
+import '../../../common/presentation/widgets/contract_card.dart';
 import '../../domain/entities/parent_invitation.dart';
 import '../../domain/entities/parent_program.dart';
 import '../../domain/entities/parent_review.dart';
@@ -213,77 +218,212 @@ class ParentProgramsListPage extends ConsumerWidget {
             : ListView.separated(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                 itemCount: items.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
-                itemBuilder: (_, i) {
-                  final p = items[i];
-                  return SoeCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          p.title,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: AppPalette.ink,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${p.subject} · ${p.level}',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppPalette.n700,
-                          ),
-                        ),
-                        if (p.description != null) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            p.description!,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppPalette.ink,
-                              height: 1.4,
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 12),
-                        Stack(
-                          children: [
-                            Container(
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: AppPalette.n300,
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                            ),
-                            FractionallySizedBox(
-                              widthFactor: p.progress.clamp(0.0, 1.0),
-                              child: Container(
-                                height: 6,
-                                decoration: BoxDecoration(
-                                  color: AppPalette.success,
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          tr.parent.programs.percentComplete(
-                            percent: (p.progress * 100).round(),
-                          ),
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppPalette.n700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (_, i) => _ProgramCard(program: items[i]),
               ),
+      ),
+    );
+  }
+}
+
+String _programQuoteLabel(Translations tr, String status) {
+  final s = status.toLowerCase();
+  if (s.contains('accept')) return tr.parent.programs.quoteAccepted;
+  if (s.contains('reject') || s.contains('refus')) {
+    return tr.parent.programs.quoteRejected;
+  }
+  if (s.contains('negocia') || s.contains('negotia')) {
+    return tr.parent.programs.quoteNegotiating;
+  }
+  if (s.contains('propos') || s.contains('price')) {
+    return tr.parent.programs.quoteProposed;
+  }
+  return tr.parent.programs.quotePending;
+}
+
+String _formatAmount(int amount) => amount
+    .toString()
+    .replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]} ');
+
+class _ProgramCard extends StatelessWidget {
+  const _ProgramCard({required this.program});
+  final ParentProgram program;
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = Translations.of(context);
+    return SoeCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // En-tête : référence + statut devis + montant mensuel
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  program.reference,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppPalette.ink,
+                  ),
+                ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppPalette.infoBg,
+                  borderRadius: BorderRadius.circular(99),
+                ),
+                child: Text(
+                  _programQuoteLabel(tr, program.quoteStatus),
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: AppPalette.teal,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (program.totalAmount > 0) ...[
+            const SizedBox(height: 4),
+            Text(
+              tr.parent.programs.perMonth(
+                amount: _formatAmount(program.totalAmount),
+              ),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppPalette.teal,
+              ),
+            ),
+          ],
+          for (final line in program.lines) ...[
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Divider(height: 1, color: AppPalette.n300),
+            ),
+            _ProgramLineView(line: line),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ProgramLineView extends StatelessWidget {
+  const _ProgramLineView({required this.line});
+  final ProgramLine line;
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = Translations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Élève + classe
+        Text(
+          line.studentName,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: AppPalette.ink,
+          ),
+        ),
+        if (line.schoolClass.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              line.schoolClass,
+              style: const TextStyle(fontSize: 11, color: AppPalette.n700),
+            ),
+          ),
+        const SizedBox(height: 10),
+        if (line.subjects.isNotEmpty)
+          _ProgramRow(
+            label: tr.parent.programs.subjects,
+            value: line.subjects.join(', '),
+          ),
+        if (line.tutors.isNotEmpty)
+          _ProgramRow(
+            label: tr.parent.programs.tutor,
+            value: line.tutors.join(', '),
+          ),
+        if (line.frequency > 0)
+          _ProgramRow(
+            label: tr.parent.programs.schedule,
+            value: tr.parent.programs.frequency(n: line.frequency),
+          ),
+        if (line.startDate != null && line.endDate != null)
+          _ProgramRow(
+            label: '',
+            value: tr.parent.programs
+                .period(from: line.startDate!, to: line.endDate!),
+          ),
+        if (line.schedules.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final s in line.schedules)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppPalette.n100,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '${s.day} · ${s.timeSlot}',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: AppPalette.ink,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _ProgramRow extends StatelessWidget {
+  const _ProgramRow({required this.label, required this.value});
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (label.isNotEmpty)
+            SizedBox(
+              width: 88,
+              child: Text(
+                label,
+                style: const TextStyle(fontSize: 11, color: AppPalette.n700),
+              ),
+            ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AppPalette.ink,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -801,129 +941,32 @@ class ParentContractsListPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context);
-    final state = ref.watch(contractsListViewModelProvider(null));
+    final async = ref.watch(contractsProvider);
+    final lang = ref.watch(currentUserProvider).asData?.value?.lang ?? 'fr';
     return _Shell(
-      title: tr.parent.contracts.title,
+      title: tr.contracts.title,
       activeRoute: '/parent/contracts',
-      body: _asyncList<Contract>(
-        state: state as AsyncListState<Contract>,
-        onRetry: () =>
-            ref.read(contractsListViewModelProvider(null).notifier).refresh(),
-        onLoaded: (items) => items.isEmpty
-            ? _EmptyState(message: tr.parent.contracts.empty)
+      body: async.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => ErrorView(
+          failure: e is Failure ? e : const UnknownFailure(),
+          onRetry: () => ref.invalidate(contractsProvider),
+        ),
+        data: (items) => items.isEmpty
+            ? _EmptyState(message: tr.contracts.empty)
             : ListView.separated(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                 itemCount: items.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 10),
-                itemBuilder: (_, i) => _ContractCard(contract: items[i]),
-              ),
-      ),
-    );
-  }
-}
-
-class _ContractCard extends StatelessWidget {
-  const _ContractCard({required this.contract});
-  final Contract contract;
-  @override
-  Widget build(BuildContext context) {
-    final tr = Translations.of(context);
-    final signed = contract.status == ContractStatus.signed;
-    final (label, bg, fg) = switch (contract.status) {
-      ContractStatus.signed => (
-          tr.parent.contracts.statusSigned,
-          AppPalette.successBg,
-          AppPalette.success
-        ),
-      ContractStatus.unsigned => (
-          tr.parent.contracts.statusUnsigned,
-          AppPalette.warningBg,
-          AppPalette.warning
-        ),
-      ContractStatus.expired => (
-          tr.parent.contracts.statusExpired,
-          AppPalette.n100,
-          AppPalette.n700
-        ),
-      ContractStatus.terminated => (
-          tr.parent.contracts.statusTerminated,
-          AppPalette.dangerBg,
-          AppPalette.danger
-        ),
-      ContractStatus.unknown => (
-          '—',
-          AppPalette.n100,
-          AppPalette.n700
-        ),
-    };
-    return SoeCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  contract.title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppPalette.ink,
+                itemBuilder: (_, i) => ContractCard(
+                  contract: items[i],
+                  lang: lang,
+                  onTap: () => context.push(
+                    RouteNames.contractDetail,
+                    extra: items[i],
                   ),
                 ),
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: bg,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: fg,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            [
-              if (contract.childName != null) contract.childName!,
-              if (contract.tutorName != null) contract.tutorName!,
-              DateFormat('d MMM y', 'fr').format(contract.createdAt),
-            ].join(' · '),
-            style: const TextStyle(fontSize: 11, color: AppPalette.n700),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              if (contract.pdfUrl != null)
-                OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.picture_as_pdf_outlined, size: 16),
-                  label: Text(tr.parent.contracts.pdf,
-                      style: const TextStyle(fontSize: 12)),
-                ),
-              const Spacer(),
-              if (!signed)
-                FilledButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.edit, size: 16),
-                  label: Text(tr.parent.contracts.sign,
-                      style: const TextStyle(fontSize: 12)),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppPalette.teal,
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-            ],
-          ),
-        ],
       ),
     );
   }

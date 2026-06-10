@@ -85,4 +85,7 @@ abstract final class RouteNames {
   // Common · Notifications
   static const String notifications = '/notifications';
   static String notificationDetail(String id) => '/notifications/$id';
+
+  // Common · Contrats (détail partagé parent + tuteur)
+  static const String contractDetail = '/contracts/detail';
 }

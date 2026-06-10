@@ -8,6 +8,7 @@ import '../../../auth/data/dtos/user_dto.dart';
 import '../../domain/entities/account_address.dart';
 import '../../domain/entities/app_notification.dart';
 import '../../domain/entities/notification_preferences.dart';
+import '../../domain/entities/service_contract.dart';
 import '../../domain/repositories/common_repository.dart';
 import '../mappers/notification_mapper.dart';
 
@@ -157,6 +158,68 @@ class CommonRemoteDatasource {
 
   Future<void> deleteNotification(String id) async {
     await _dio.delete<void>('${ApiEndpoints.notifications}/$id');
+  }
+
+  // ── Contrats ──────────────────────────────────────────────
+  Future<List<ServiceContract>> getContracts() async {
+    final r = await _dio.get<Map<String, dynamic>>(ApiEndpoints.contracts);
+    final list = (r.data?['data'] as List?) ?? const [];
+    return list.whereType<Map<String, dynamic>>().map(_contractFromJson).toList();
+  }
+
+  /// Signature du contrat : multipart `contract[signature]` + `contract[signed]`.
+  Future<ServiceContract> signContract(String id, File signature) async {
+    final form = FormData.fromMap({
+      'contract[signature]': await _multipart(signature),
+      'contract[signed]': 'true',
+    });
+    final r = await _dio.patch<Map<String, dynamic>>(
+      '${ApiEndpoints.contracts}/$id',
+      data: form,
+    );
+    return _contractFromJson(
+      (r.data?['data'] as Map<String, dynamic>?) ?? r.data ?? {},
+    );
+  }
+
+  /// Signature d'un avenant : `amendment[signature]` + `amendment[signed]`.
+  Future<void> signAmendment(
+    String contractId,
+    String amendmentId,
+    File signature,
+  ) async {
+    final form = FormData.fromMap({
+      'amendment[signature]': await _multipart(signature),
+      'amendment[signed]': 'true',
+    });
+    await _dio.patch<Map<String, dynamic>>(
+      '${ApiEndpoints.contracts}/$contractId/amendments/$amendmentId',
+      data: form,
+    );
+  }
+
+  static ServiceContract _contractFromJson(Map<String, dynamic> node) {
+    final a = _attrs(node);
+    final rawAmend = (a['amendments'] as List?) ?? const [];
+    return ServiceContract(
+      id: (node['id'] ?? a['id'] ?? '').toString(),
+      reference: (a['reference'] ?? '').toString(),
+      signed: a['signed'] == true,
+      contentFr: (a['content_fr'] ?? a['content'] ?? '').toString(),
+      contentEn: (a['content_en'] ?? '').toString(),
+      createdAt: DateTime.tryParse((a['created_at'] ?? '').toString()),
+      amendments: rawAmend.whereType<Map<String, dynamic>>().map((m) {
+        final ma = _attrs(m);
+        return ContractAmendment(
+          id: (m['id'] ?? ma['id'] ?? '').toString(),
+          reference: (ma['reference'] ?? '').toString(),
+          signed: ma['signed'] == true,
+          contentFr: (ma['content_fr'] ?? '').toString(),
+          contentEn: (ma['content_en'] ?? '').toString(),
+          createdAt: DateTime.tryParse((ma['created_at'] ?? '').toString()),
+        );
+      }).toList(),
+    );
   }
 
   // ── Helpers ───────────────────────────────────────────────

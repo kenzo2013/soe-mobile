@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/network/api_endpoints.dart';
 import '../../domain/entities/contract.dart';
@@ -36,16 +37,22 @@ class MiscRemoteDatasource {
   // CDC §11.5 : rating = entier 1..5.
   static ParentReview _parseReview(Map<String, dynamic> j) {
     final a = _attrs(j);
+    // L'API renvoie le tuteur imbriqué (`tutor:{attributes:{full_name}}`) et
+    // les matières en objets (`[{id,name}]`).
+    final tutor = _attrs(a['tutor']);
+    final rating = a['rating'];
     return ParentReview(
-      id: j['id']?.toString() ?? '',
-      tutorId: a['tutor_id']?.toString() ?? '',
-      tutorName: a['tutor_name']?.toString() ?? '—',
-      rating: (a['rating'] as num?)?.toInt() ?? 0,
+      id: j['id']?.toString() ?? a['id']?.toString() ?? '',
+      tutorId: (tutor['id'] ?? a['tutor_id'])?.toString() ?? '',
+      tutorName: (tutor['full_name'] ?? a['tutor_name'])?.toString() ?? '—',
+      rating: rating is num ? rating.toInt() : (num.tryParse('$rating') ?? 0).toInt(),
       comment: a['comment']?.toString() ?? '',
       createdAt: DateTime.tryParse(a['created_at']?.toString() ?? '') ??
           DateTime.now(),
       subjects: ((a['subjects'] as List?) ?? const [])
-          .map((e) => e.toString())
+          .map((e) =>
+              e is Map ? (_attrs(e)['name'] ?? '').toString() : e.toString())
+          .where((s) => s.isNotEmpty)
           .toList(),
     );
   }
@@ -57,25 +64,60 @@ class MiscRemoteDatasource {
     return list.cast<Map<String, dynamic>>().map(_parseProgram).toList();
   }
 
+  // Format d'affichage des dates de programme (`2026-05-10` -> `10 mai 2026`).
+  static final DateFormat _progDate = DateFormat('d MMM y', 'fr');
+
+  static String? _fmtDate(Object? raw) {
+    final s = raw?.toString();
+    if (s == null || s.isEmpty) return null;
+    final d = DateTime.tryParse(s);
+    return d == null ? s : _progDate.format(d);
+  }
+
   static ParentProgram _parseProgram(Map<String, dynamic> j) {
     final a = _attrs(j);
-    return ParentProgram(
-      id: j['id']?.toString() ?? '',
-      title: a['title']?.toString() ?? '—',
-      subject: a['subject']?.toString() ?? '',
-      level: a['level']?.toString() ?? '',
-      progress: (a['progress'] as num?)?.toDouble() ?? 0.0,
-      description: a['description']?.toString(),
-      modules: ((a['modules'] as List?) ?? const [])
-          .cast<Map<String, dynamic>>()
-          .map((m) {
-        final ma = _attrs(m);
-        return ProgramModule(
-          id: m['id']?.toString() ?? '',
-          title: ma['title']?.toString() ?? '',
-          progress: (ma['progress'] as num?)?.toDouble() ?? 0.0,
+    final rawLines = (a['programs'] as List?) ?? const [];
+    final lines = rawLines.whereType<Map<String, dynamic>>().map((p) {
+      final student = _attrs(p['student']);
+      final schoolClass = _attrs(student['school_class']);
+      final subjects = ((p['subjects'] as List?) ?? const [])
+          .map((e) => e is Map ? (_attrs(e)['name'] ?? '').toString() : e.toString())
+          .where((s) => s.isNotEmpty)
+          .toList();
+      final tutors = ((p['tutors'] as List?) ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map((t) => _attrs(t)['full_name']?.toString() ?? '')
+          .where((s) => s.isNotEmpty)
+          .toList();
+      final schedules = ((p['schedules'] as List?) ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map((s) {
+        final sa = _attrs(s);
+        return ProgramSchedule(
+          day: (sa['localized_day'] ?? sa['day'] ?? '').toString(),
+          timeSlot: (sa['time_slot'] ?? '').toString(),
         );
-      }).toList(),
+      }).where((s) => s.day.isNotEmpty).toList();
+      return ProgramLine(
+        studentName: student['full_name']?.toString() ?? '—',
+        schoolClass: (schoolClass['formatted_name'] ?? schoolClass['name'] ?? '')
+            .toString(),
+        subjects: subjects,
+        tutors: tutors,
+        schedules: schedules,
+        frequency: (p['frequency'] as num?)?.toInt() ?? 0,
+        startDate: _fmtDate(p['start_date']),
+        endDate: _fmtDate(p['end_date']),
+      );
+    }).toList();
+
+    return ParentProgram(
+      id: j['id']?.toString() ?? a['id']?.toString() ?? '',
+      reference: a['reference']?.toString() ?? '',
+      quoteStatus: (a['quote_status'] ?? a['status'] ?? '').toString(),
+      totalAmount:
+          (num.tryParse(a['total_amount']?.toString() ?? '') ?? 0).toInt(),
+      lines: lines,
     );
   }
 
@@ -186,8 +228,10 @@ class MiscRemoteDatasource {
   /// Helper : si la reponse suit le format JSON:API
   /// (`{id, type, attributes: {...}}`), retourne `attributes`. Sinon, le map
   /// est deja plat → on le retourne tel quel.
-  static Map<String, dynamic> _attrs(Map<String, dynamic> j) {
-    final a = j['attributes'];
-    return a is Map<String, dynamic> ? a : j;
+  static Map<String, dynamic> _attrs(Object? node) {
+    if (node is! Map) return const {};
+    final a = node['attributes'];
+    if (a is Map) return a.cast<String, dynamic>();
+    return node.cast<String, dynamic>();
   }
 }
