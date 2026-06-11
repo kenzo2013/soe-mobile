@@ -167,8 +167,8 @@ class _RoleTile extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       body,
-                      style: AppTypography.bodySm
-                          .copyWith(color: AppPalette.n700),
+                      style:
+                          AppTypography.bodySm.copyWith(color: AppPalette.n700),
                     ),
                   ],
                 ),

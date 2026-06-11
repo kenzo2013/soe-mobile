@@ -21,6 +21,7 @@ abstract interface class InvitationsRepository {
 
 abstract interface class ContractsRepository {
   Future<Result<List<Contract>, Failure>> list();
+
   /// `signatureBytes` = export PNG du canvas tactile.
   Future<Result<Contract, Failure>> sign(String id, List<int> signatureBytes);
 }

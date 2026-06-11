@@ -97,7 +97,8 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
               (c.schoolClassId ?? '').isEmpty ? null : c.schoolClassId;
           // L'API renvoie l'adresse en string "neighborhood, city" — on
           // tente une separation simple sur la virgule.
-          final addr = (c.address ?? '').split(',').map((s) => s.trim()).toList();
+          final addr =
+              (c.address ?? '').split(',').map((s) => s.trim()).toList();
           if (addr.isNotEmpty) _neighborhood.text = addr.first;
           if (addr.length > 1) _city.text = addr[1];
           _gender = c.gender;
@@ -147,8 +148,9 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
         scrolledUnderElevation: 0,
         leading: const SoeBackButton(),
         leadingWidth: 72,
-        title: Text(
-            isEdit ? tr.parent.childForm.editTitle : tr.parent.childForm.newTitle),
+        title: Text(isEdit
+            ? tr.parent.childForm.editTitle
+            : tr.parent.childForm.newTitle),
         titleTextStyle: const TextStyle(
           color: AppPalette.ink,
           fontSize: 18,
@@ -240,8 +242,8 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
                     ]),
                     error: (_, __) => Row(children: [
                       Expanded(
-                          child:
-                              _ClassPickerError(label: tr.parent.childForm.level)),
+                          child: _ClassPickerError(
+                              label: tr.parent.childForm.level)),
                       const SizedBox(width: 10),
                       Expanded(
                           child: _ClassPickerError(
@@ -282,15 +284,14 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
                 builder: (context, ref, _) {
                   final async = ref.watch(schoolClassesProvider(_classFilter));
                   return async.when(
-                    loading: () =>
-                        _ClassPickerSkeleton(label: tr.parent.childForm.schoolClass),
-                    error: (_, __) =>
-                        _ClassPickerError(label: tr.parent.childForm.schoolClass),
+                    loading: () => _ClassPickerSkeleton(
+                        label: tr.parent.childForm.schoolClass),
+                    error: (_, __) => _ClassPickerError(
+                        label: tr.parent.childForm.schoolClass),
                     data: (refs) => _ClassPicker(
                       value: _schoolClassId,
                       options: refs.classes,
-                      onChanged: (id) =>
-                          setState(() => _schoolClassId = id),
+                      onChanged: (id) => setState(() => _schoolClassId = id),
                     ),
                   );
                 },
@@ -313,8 +314,7 @@ class _ParentChildFormPageState extends ConsumerState<ParentChildFormPage> {
                 client: ref.watch(googlePlacesClientProvider),
                 hint: tr.parent.childForm.neighborhoodHint,
                 onPlaceSelected: (p) {
-                  _neighborhood.text =
-                      p.neighborhood ?? p.formattedAddress;
+                  _neighborhood.text = p.neighborhood ?? p.formattedAddress;
                   _city.text = p.city;
                   _country = p.country;
                   _countryCode = p.countryCode;
@@ -452,11 +452,13 @@ class _AvatarUploader extends StatelessWidget {
   final File? file;
   final VoidCallback onTap;
 
-  bool get _hasImage => file != null || (imageUrl != null && imageUrl!.isNotEmpty);
+  bool get _hasImage =>
+      file != null || (imageUrl != null && imageUrl!.isNotEmpty);
 
   ImageProvider? get _imageProvider {
     if (file != null) return FileImage(file!);
-    if (imageUrl != null && imageUrl!.isNotEmpty) return NetworkImage(imageUrl!);
+    if (imageUrl != null && imageUrl!.isNotEmpty)
+      return NetworkImage(imageUrl!);
     return null;
   }
 
@@ -469,9 +471,8 @@ class _AvatarUploader extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           CustomPaint(
-            painter: _hasImage
-                ? null
-                : _DashedCirclePainter(color: AppPalette.teal),
+            painter:
+                _hasImage ? null : _DashedCirclePainter(color: AppPalette.teal),
             child: Container(
               width: 96,
               height: 96,
@@ -630,8 +631,7 @@ class _ClassPicker extends StatelessWidget {
     final tr = Translations.of(context);
     // Sécurité : si l'id sélectionné n'est plus dans les options, on
     // l'oublie pour éviter un assert de DropdownButton.
-    final safeValue =
-        options.any((c) => c.id == value) ? value : null;
+    final safeValue = options.any((c) => c.id == value) ? value : null;
     return _Dropdown<String?>(
       label: tr.parent.childForm.schoolClass,
       value: safeValue,
@@ -733,7 +733,8 @@ class _ClassPickerError extends StatelessWidget {
               Expanded(
                 child: Text(
                   tr.parent.childForm.loadClassesError,
-                  style: const TextStyle(fontSize: 12, color: AppPalette.warning),
+                  style:
+                      const TextStyle(fontSize: 12, color: AppPalette.warning),
                 ),
               ),
             ],

@@ -156,8 +156,7 @@ class _SoePlacesAutocompleteFieldState
         ] else if (_serviceUnavailable) ...[
           const SizedBox(height: 6),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: AppPalette.warningBg,
               borderRadius: AppRadius.rMd,
@@ -201,8 +200,7 @@ class _PredictionTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Row(
           children: [
-            const Icon(Icons.place_outlined,
-                size: 18, color: AppPalette.teal),
+            const Icon(Icons.place_outlined, size: 18, color: AppPalette.teal),
             const SizedBox(width: 10),
             Expanded(
               child: Column(

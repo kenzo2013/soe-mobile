@@ -33,8 +33,7 @@ class _SignupStep1PageState extends ConsumerState<SignupStep1Page> {
     final s = ref.read(registerFlowViewModelProvider);
     _firstName = TextEditingController(text: s.firstName)
       ..addListener(_syncFlow);
-    _lastName = TextEditingController(text: s.lastName)
-      ..addListener(_syncFlow);
+    _lastName = TextEditingController(text: s.lastName)..addListener(_syncFlow);
     _civility = s.civility;
     _lang = s.lang;
   }
@@ -80,8 +79,7 @@ class _SignupStep1PageState extends ConsumerState<SignupStep1Page> {
                 const SizedBox(height: 6),
                 Text(
                   tr.signup.step1.subtitle,
-                  style: AppTypography.bodySm
-                      .copyWith(color: AppPalette.n700),
+                  style: AppTypography.bodySm.copyWith(color: AppPalette.n700),
                 ),
                 const SizedBox(height: 24),
                 SoeFieldLabel(tr.signup.step1.civility),
@@ -117,8 +115,9 @@ class _SignupStep1PageState extends ConsumerState<SignupStep1Page> {
                   hint: tr.signup.step1.firstNameHint,
                   leadingIcon: Icons.person_outline,
                   textInputAction: TextInputAction.next,
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? tr.errors.required : null,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? tr.errors.required
+                      : null,
                 ),
                 const SizedBox(height: 12),
                 SoeFieldLabel(tr.signup.step1.lastName),
@@ -127,8 +126,9 @@ class _SignupStep1PageState extends ConsumerState<SignupStep1Page> {
                   hint: tr.signup.step1.lastNameHint,
                   leadingIcon: Icons.person_outline,
                   textInputAction: TextInputAction.done,
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? tr.errors.required : null,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? tr.errors.required
+                      : null,
                 ),
                 const SizedBox(height: 14),
                 SoeFieldLabel(tr.signup.step1.lang),

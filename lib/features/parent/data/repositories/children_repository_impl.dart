@@ -54,8 +54,7 @@ class ChildrenRepositoryImpl implements ChildrenRepository {
     File? photo,
   }) async {
     try {
-      final dto =
-          await _ds.update(id, childParamsToJson(params), photo: photo);
+      final dto = await _ds.update(id, childParamsToJson(params), photo: photo);
       return Ok(dto.toEntity());
     } on DioException catch (e) {
       return Err(ExceptionMapper.fromDio(e));

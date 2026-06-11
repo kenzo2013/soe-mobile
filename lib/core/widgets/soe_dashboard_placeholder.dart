@@ -55,8 +55,7 @@ class SoeDashboardPlaceholder extends ConsumerWidget {
                 child: Icon(icon, size: 44, color: AppPalette.teal),
               ),
               const SizedBox(height: 24),
-              Text(title,
-                  style: AppTypography.h1, textAlign: TextAlign.center),
+              Text(title, style: AppTypography.h1, textAlign: TextAlign.center),
               const SizedBox(height: 10),
               Text(
                 subtitle,

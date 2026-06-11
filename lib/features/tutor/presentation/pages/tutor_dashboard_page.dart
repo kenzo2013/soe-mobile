@@ -129,8 +129,8 @@ class _Loaded extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            tr.tutor.dashboard.planned(
-                                count: data.todaySessions.length),
+                            tr.tutor.dashboard
+                                .planned(count: data.todaySessions.length),
                             style: const TextStyle(
                               fontSize: 11,
                               color: AppPalette.n700,

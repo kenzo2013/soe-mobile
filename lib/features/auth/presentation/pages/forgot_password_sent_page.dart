@@ -100,8 +100,7 @@ class _ForgotPasswordSentPageState
       );
     });
 
-    final isLoading =
-        state.maybeWhen(loading: () => true, orElse: () => false);
+    final isLoading = state.maybeWhen(loading: () => true, orElse: () => false);
 
     return Scaffold(
       backgroundColor: AppPalette.white,
@@ -169,8 +168,7 @@ class _ForgotPasswordSentPageState
                 size: SoeButtonSize.lg,
                 fullWidth: true,
                 loading: isLoading,
-                onPressed:
-                    (_code.length != 6 || isLoading) ? null : _verify,
+                onPressed: (_code.length != 6 || isLoading) ? null : _verify,
               ),
               const SizedBox(height: 14),
               Container(

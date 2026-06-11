@@ -86,7 +86,8 @@ class _CountryPicker extends StatelessWidget {
 
   Widget _row(BuildContext context, Country c) {
     final isSelected = c.code == selected.code;
-    final trailing = mode == SoeCountryPickerMode.phone ? c.callingCode : c.code;
+    final trailing =
+        mode == SoeCountryPickerMode.phone ? c.callingCode : c.code;
     return Material(
       color: Colors.transparent,
       child: InkWell(

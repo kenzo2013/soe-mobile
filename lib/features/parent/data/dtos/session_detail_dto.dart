@@ -68,8 +68,7 @@ extension SessionDetailDtoX on SessionDetailDto {
                 summary: report!.summary,
                 attachments: report!.attachments,
                 rating: report!.rating,
-                submittedAt:
-                    DateTime.tryParse(report!.submittedAt ?? ''),
+                submittedAt: DateTime.tryParse(report!.submittedAt ?? ''),
               ),
         tasks: tasks
             .map((t) => SessionTask(

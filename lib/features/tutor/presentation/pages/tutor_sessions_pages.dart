@@ -289,8 +289,7 @@ class TutorSessionDetailPage extends ConsumerWidget {
                               ),
                               Text(
                                 tr.tutor.sessions.reservationLine(
-                                    classe: s.classe,
-                                    ref: s.reservationRef),
+                                    classe: s.classe, ref: s.reservationRef),
                                 style: const TextStyle(
                                     fontSize: 11, color: AppPalette.n700),
                               ),
@@ -708,7 +707,8 @@ class _TimeField extends StatelessWidget {
                 child: TextField(
                   controller: controller,
                   keyboardType: TextInputType.datetime,
-                  decoration: const InputDecoration.collapsed(hintText: 'HH:mm'),
+                  decoration:
+                      const InputDecoration.collapsed(hintText: 'HH:mm'),
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,

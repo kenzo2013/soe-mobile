@@ -124,8 +124,7 @@ class _SourceSheet extends StatelessWidget {
                     icon: Icons.photo_camera_outlined,
                     label: 'Caméra',
                     description: 'Prendre une photo',
-                    onTap: () =>
-                        Navigator.of(context).pop(AvatarSource.camera),
+                    onTap: () => Navigator.of(context).pop(AvatarSource.camera),
                   ),
                 ),
                 const SizedBox(width: 14),

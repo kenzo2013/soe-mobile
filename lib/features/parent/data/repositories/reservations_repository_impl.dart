@@ -23,8 +23,7 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
   }
 
   @override
-  Future<Result<List<ReservationSummary>, Failure>> list() =>
-      _guard(() async {
+  Future<Result<List<ReservationSummary>, Failure>> list() => _guard(() async {
         final dtos = await _ds.list();
         return dtos.map((e) => e.toEntity()).toList();
       });
@@ -50,6 +49,5 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
   @override
   Future<Result<ReservationDetail, Failure>> negotiate(
           String id, int proposedAmount) =>
-      _guard(() async =>
-          (await _ds.negotiate(id, proposedAmount)).toEntity());
+      _guard(() async => (await _ds.negotiate(id, proposedAmount)).toEntity());
 }

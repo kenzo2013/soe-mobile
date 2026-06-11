@@ -153,8 +153,7 @@ Future<void> showWorkSheet(
   final key = 'work:${existing?.id ?? 'new'}';
   return _showSheet(
     context,
-    title:
-        existing == null ? tr.tutor.forms.newWork : tr.tutor.forms.editWork,
+    title: existing == null ? tr.tutor.forms.newWork : tr.tutor.forms.editWork,
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setState) => Column(
         mainAxisSize: MainAxisSize.min,
@@ -266,8 +265,8 @@ Future<void> showAvailabilitySheet(BuildContext context, WidgetRef ref) {
                       controller: from, label: tr.tutor.forms.start)),
               const SizedBox(width: 10),
               Expanded(
-                  child: SoeTextField(
-                      controller: to, label: tr.tutor.forms.end)),
+                  child:
+                      SoeTextField(controller: to, label: tr.tutor.forms.end)),
             ],
           ),
           const SizedBox(height: 20),
@@ -397,14 +396,12 @@ Future<void> showIdentitySheet(
             children: [
               Expanded(
                 child: SoeTextField(
-                    controller: birthday,
-                    label: tr.tutor.forms.birthDate),
+                    controller: birthday, label: tr.tutor.forms.birthDate),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: SoeTextField(
-                    controller: expiration,
-                    label: tr.tutor.forms.expiration),
+                    controller: expiration, label: tr.tutor.forms.expiration),
               ),
             ],
           ),

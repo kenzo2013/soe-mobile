@@ -11,7 +11,8 @@ class ChildrenRemoteDatasource {
   final Dio _dio;
 
   Future<List<ChildDto>> list() async {
-    final r = await _dio.get<Map<String, dynamic>>(ApiEndpoints.parentsStudents);
+    final r =
+        await _dio.get<Map<String, dynamic>>(ApiEndpoints.parentsStudents);
     final body = r.data!;
     final list = (body['data'] as List?) ?? const [];
     return list

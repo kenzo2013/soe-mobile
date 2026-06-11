@@ -6,15 +6,13 @@ import '../storage/storage_keys.dart';
 import 'core_providers.dart';
 
 /// Locale courante. Persistée dans `PreferencesStorage`. Défaut : FR.
-final localeProvider =
-    StateNotifierProvider<LocaleNotifier, AppLocale>((ref) {
+final localeProvider = StateNotifierProvider<LocaleNotifier, AppLocale>((ref) {
   final prefs = ref.watch(preferencesStorageProvider);
   return LocaleNotifier(prefs);
 });
 
 class LocaleNotifier extends StateNotifier<AppLocale> {
-  LocaleNotifier(this._prefs)
-      : super(_load(_prefs)) {
+  LocaleNotifier(this._prefs) : super(_load(_prefs)) {
     LocaleSettings.setLocaleSync(state);
   }
 

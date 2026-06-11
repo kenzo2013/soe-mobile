@@ -45,7 +45,8 @@ class CheckoutViewModel extends StateNotifier<CheckoutState> {
 }
 
 class PaymentReceiptViewModel extends StateNotifier<PaymentReceiptState> {
-  PaymentReceiptViewModel(this._get) : super(const PaymentReceiptState.initial());
+  PaymentReceiptViewModel(this._get)
+      : super(const PaymentReceiptState.initial());
   final GetPaymentReceipt _get;
   Future<void> load(String id) async {
     state = const PaymentReceiptState.loading();

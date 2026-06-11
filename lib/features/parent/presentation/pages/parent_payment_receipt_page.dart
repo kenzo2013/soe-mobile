@@ -95,7 +95,8 @@ class ParentPaymentReceiptPage extends ConsumerWidget {
                       ),
                     _row(
                       tr.parent.paymentReceipt.date,
-                      DateFormat('d MMM yyyy · HH:mm', 'fr').format(p.createdAt),
+                      DateFormat('d MMM yyyy · HH:mm', 'fr')
+                          .format(p.createdAt),
                     ),
                     _row(
                       tr.parent.paymentReceipt.method,
@@ -170,8 +171,7 @@ class ParentPaymentReceiptPage extends ConsumerWidget {
       };
 
   Widget _row(String k, String v, {bool last = false}) => Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           border: last
               ? null

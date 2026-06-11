@@ -1,6 +1,13 @@
 /// Catégorie métier d'une notification — pilote l'icône, la couleur et la
 /// navigation (CDC §6.2). Alignée sur les types renvoyés par l'API.
-enum NotificationKind { reservation, session, payment, review, contract, system }
+enum NotificationKind {
+  reservation,
+  session,
+  payment,
+  review,
+  contract,
+  system
+}
 
 extension NotificationKindX on NotificationKind {
   /// Mappe un `type`/`category` API arbitraire vers une catégorie connue.

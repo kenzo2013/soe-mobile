@@ -22,8 +22,8 @@ sealed class ReservationDetailState with _$ReservationDetailState {
   const factory ReservationDetailState.loaded(ReservationDetail detail) =
       _DLoaded;
   const factory ReservationDetailState.acting() = _DActing;
-  const factory ReservationDetailState.actionSuccess(
-      ReservationDetail detail) = _DActionSuccess;
+  const factory ReservationDetailState.actionSuccess(ReservationDetail detail) =
+      _DActionSuccess;
   const factory ReservationDetailState.error(Failure failure) = _DError;
 }
 

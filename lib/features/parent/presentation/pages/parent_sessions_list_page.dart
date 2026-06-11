@@ -321,7 +321,8 @@ class _CalendarView extends StatelessWidget {
       Color(0xFFD9619E), // rose
       Color(0xFF5B7FD9), // bleu
     ];
-    final h = subject.codeUnits.fold<int>(0, (a, b) => (a + b) % palette.length);
+    final h =
+        subject.codeUnits.fold<int>(0, (a, b) => (a + b) % palette.length);
     return palette[h];
   }
 
@@ -338,9 +339,8 @@ class _CalendarView extends StatelessWidget {
     final today = DateTime.now();
     final todayIdx = _dayIndex(today);
     final totalH = (_endHour - _startHour) * _hourPx;
-    final weekSessions = sessions
-        .where((s) => _dayIndex(s.startAt) != null)
-        .toList();
+    final weekSessions =
+        sessions.where((s) => _dayIndex(s.startAt) != null).toList();
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -779,7 +779,8 @@ class _SessionRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = Translations.of(context);
     final now = DateTime.now();
-    final endAt = session.startAt.add(Duration(minutes: session.durationMinutes));
+    final endAt =
+        session.startAt.add(Duration(minutes: session.durationMinutes));
     final isLive = session.status == SessionStatus.pending &&
         now.isAfter(session.startAt) &&
         now.isBefore(endAt);
@@ -924,7 +925,11 @@ class _ListEmptyView extends StatelessWidget {
     final tr = Translations.of(context);
     // Affiche 3 jours "skeletons" pour montrer la structure même sans données
     final today = DateTime.now();
-    final days = [today, today.add(const Duration(days: 1)), today.add(const Duration(days: 2))];
+    final days = [
+      today,
+      today.add(const Duration(days: 1)),
+      today.add(const Duration(days: 2))
+    ];
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       itemCount: days.length + 1,

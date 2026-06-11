@@ -6,7 +6,8 @@ import '../entities/reservation_summary.dart';
 abstract interface class ReservationsRepository {
   Future<Result<List<ReservationSummary>, Failure>> list();
   Future<Result<ReservationDetail, Failure>> get(String id);
-  Future<Result<ReservationDetail, Failure>> create(NewReservationParams params);
+  Future<Result<ReservationDetail, Failure>> create(
+      NewReservationParams params);
   Future<Result<ReservationDetail, Failure>> accept(String id);
   Future<Result<ReservationDetail, Failure>> reject(String id);
   Future<Result<ReservationDetail, Failure>> negotiate(

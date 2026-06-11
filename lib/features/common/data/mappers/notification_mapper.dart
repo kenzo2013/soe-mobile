@@ -30,10 +30,8 @@ abstract final class NotificationMapper {
       read: read,
       timeLabel: _timeLabel(created),
       createdAt: created,
-      resourceType:
-          (j['resource_type'] ?? j['notifiable_type'])?.toString(),
-      resourceId:
-          (j['resource_id'] ?? j['notifiable_id'])?.toString(),
+      resourceType: (j['resource_type'] ?? j['notifiable_type'])?.toString(),
+      resourceId: (j['resource_id'] ?? j['notifiable_id'])?.toString(),
     );
   }
 

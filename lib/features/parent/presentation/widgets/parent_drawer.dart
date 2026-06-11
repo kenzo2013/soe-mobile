@@ -75,7 +75,8 @@ class ParentDrawer extends ConsumerWidget {
     final items = _itemsOf(tr);
     final userAsync = ref.watch(currentUserProvider);
     final user = userAsync.asData?.value;
-    final name = user == null ? '' : '${user.firstName} ${user.lastName}'.trim();
+    final name =
+        user == null ? '' : '${user.firstName} ${user.lastName}'.trim();
     final roleLine = user == null
         ? tr.parent.drawer.notConnected
         : (user.role.name == "parent"
@@ -433,8 +434,7 @@ class _DrawerRow extends StatelessWidget {
                             ? Colors.white
                             : Colors.white.withValues(alpha: 0.85),
                         fontSize: 14,
-                        fontWeight:
-                            active ? FontWeight.w600 : FontWeight.w500,
+                        fontWeight: active ? FontWeight.w600 : FontWeight.w500,
                       ),
                     ),
                   ],

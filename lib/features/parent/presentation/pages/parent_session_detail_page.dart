@@ -67,7 +67,8 @@ class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tr = Translations.of(context);
-    final dateLine = DateFormat('EEEE d MMMM · HH:mm', 'fr').format(detail.startAt);
+    final dateLine =
+        DateFormat('EEEE d MMMM · HH:mm', 'fr').format(detail.startAt);
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       children: [

@@ -28,7 +28,8 @@ class TutorCoursesRemoteDatasource {
         if (reservationId != null) 'reservation_id': reservationId,
       },
     );
-    return TutorCourseDetailDto.fromJson(_detailJson(TutorApi.dataObject(r.data)));
+    return TutorCourseDetailDto.fromJson(
+        _detailJson(TutorApi.dataObject(r.data)));
   }
 
   // La réponse `/tutors/students/:id` imbrique tout : `student.{age,gender}`,
@@ -37,13 +38,15 @@ class TutorCoursesRemoteDatasource {
   static Map<String, dynamic> _detailJson(Map<String, dynamic> raw) {
     final student = (raw['student'] as Map?) ?? const {};
     final reqs = raw['tutoring_requests'];
-    final req =
-        (reqs is List && reqs.isNotEmpty && reqs.first is Map) ? reqs.first as Map : const {};
+    final req = (reqs is List && reqs.isNotEmpty && reqs.first is Map)
+        ? reqs.first as Map
+        : const {};
     final slots = ((raw['schedules'] as List?) ?? const [])
         .whereType<Map>()
         .map((s) => {
               'day': (s['localized_day'] ?? s['day'] ?? '').toString(),
-              'time_range': (s['time_slot'] ?? s['time_range'] ?? '').toString(),
+              'time_range':
+                  (s['time_slot'] ?? s['time_range'] ?? '').toString(),
               'subject': (s['subject'] ?? '').toString(),
             })
         .toList();

@@ -195,8 +195,7 @@ class _PrefsGridState extends ConsumerState<_PrefsGrid> {
                           child: Center(
                             child: _Toggle(
                               on: _prefs.categories[i].isOn(ch),
-                              onTap: () =>
-                                  _toggle(_prefs.categories[i], ch),
+                              onTap: () => _toggle(_prefs.categories[i], ch),
                             ),
                           ),
                         ),
@@ -220,7 +219,8 @@ class _PrefsGridState extends ConsumerState<_PrefsGrid> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.check, size: 14, color: AppPalette.success),
+                    const Icon(Icons.check,
+                        size: 14, color: AppPalette.success),
                     const SizedBox(width: 6),
                     Text(
                       tr.account.notificationPrefs.savedHint,

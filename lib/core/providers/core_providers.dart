@@ -40,7 +40,8 @@ final authGuardProvider = Provider<AuthGuard>((ref) {
   return AuthGuard(
     isAuthenticated: () => ref.read(authTokenProvider) != null,
     currentRole: () => ref.read(currentRoleProvider),
-    onboardingDone: () =>
-        ref.read(preferencesStorageProvider).readBool(StorageKeys.onboardingDoneFlag),
+    onboardingDone: () => ref
+        .read(preferencesStorageProvider)
+        .readBool(StorageKeys.onboardingDoneFlag),
   );
 });

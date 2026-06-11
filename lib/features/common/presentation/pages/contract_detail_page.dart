@@ -134,8 +134,9 @@ class ContractDetailPage extends ConsumerWidget {
       ref,
       actionKey: 'sign_amendment:${a.id}',
       successMessage: Translations.of(context).contracts.amendmentSigned,
-      op: (file) =>
-          ref.read(commonRepositoryProvider).signAmendment(contractId, a.id, file),
+      op: (file) => ref
+          .read(commonRepositoryProvider)
+          .signAmendment(contractId, a.id, file),
     );
   }
 }

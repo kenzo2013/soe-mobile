@@ -1,4 +1,11 @@
-enum PaymentStatus { pending, processing, completed, failed, cancelled, unknown }
+enum PaymentStatus {
+  pending,
+  processing,
+  completed,
+  failed,
+  cancelled,
+  unknown
+}
 
 enum PaymentMethod { mtnMomo, orangeMoney, unknown }
 

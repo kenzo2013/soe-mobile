@@ -115,7 +115,8 @@ class _AccountPasswordPageState extends ConsumerState<AccountPasswordPage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.lock_outline, size: 16, color: AppPalette.info),
+                const Icon(Icons.lock_outline,
+                    size: 16, color: AppPalette.info),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(

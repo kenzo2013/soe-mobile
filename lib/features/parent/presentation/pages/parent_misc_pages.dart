@@ -270,8 +270,7 @@ class _ProgramCard extends StatelessWidget {
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: AppPalette.infoBg,
                   borderRadius: BorderRadius.circular(99),

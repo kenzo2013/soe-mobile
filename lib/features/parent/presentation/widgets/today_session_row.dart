@@ -15,7 +15,8 @@ class TodaySessionRow extends StatelessWidget {
     // pas encore validee/refusee. Plus de SessionStatus.inProgress dans
     // l'API (CDC §11.5 : pending|completed|approved|rejected).
     final now = DateTime.now();
-    final endAt = session.startAt.add(Duration(minutes: session.durationMinutes));
+    final endAt =
+        session.startAt.add(Duration(minutes: session.durationMinutes));
     final isLive = session.status == SessionStatus.pending &&
         now.isAfter(session.startAt) &&
         now.isBefore(endAt);

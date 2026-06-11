@@ -75,8 +75,7 @@ class _SoeOtpFieldState extends State<SoeOtpField> {
     }
     final value = _value;
     widget.onChanged?.call(value);
-    if (value.length == widget.length &&
-        !value.contains(RegExp(r'[^0-9]'))) {
+    if (value.length == widget.length && !value.contains(RegExp(r'[^0-9]'))) {
       widget.onCompleted?.call(value);
     }
   }
@@ -95,10 +94,10 @@ class _SoeOtpFieldState extends State<SoeOtpField> {
         LayoutBuilder(
           builder: (context, constraints) {
             const spacing = 10.0;
-            final cellSize = ((constraints.maxWidth -
-                        spacing * (widget.length - 1)) /
-                    widget.length)
-                .clamp(40.0, 72.0);
+            final cellSize =
+                ((constraints.maxWidth - spacing * (widget.length - 1)) /
+                        widget.length)
+                    .clamp(40.0, 72.0);
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: List.generate(widget.length, (i) {
@@ -120,8 +119,7 @@ class _SoeOtpFieldState extends State<SoeOtpField> {
           const SizedBox(height: 6),
           Text(
             widget.errorText!,
-            style:
-                AppTypography.caption.copyWith(color: AppPalette.danger),
+            style: AppTypography.caption.copyWith(color: AppPalette.danger),
           ),
         ],
       ],

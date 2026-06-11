@@ -22,8 +22,7 @@ class ReviewsRepositoryImpl implements ReviewsRepository {
   const ReviewsRepositoryImpl(this._ds);
   final MiscRemoteDatasource _ds;
   @override
-  Future<Result<List<ParentReview>, Failure>> list() =>
-      _guard(_ds.listReviews);
+  Future<Result<List<ParentReview>, Failure>> list() => _guard(_ds.listReviews);
   @override
   Future<Result<ParentReview, Failure>> create(ReviewParams params) =>
       _guard(() => _ds.createReview(params));

@@ -141,7 +141,8 @@ class AuthRemoteDatasource {
 
   /// Devise-JWT renvoie le token via l'en-tête `Authorization: Bearer <jwt>`.
   String _extractBearer(Headers headers) {
-    final raw = headers.value('authorization') ?? headers.value('Authorization');
+    final raw =
+        headers.value('authorization') ?? headers.value('Authorization');
     if (raw == null || raw.isEmpty) {
       throw DioException(
         requestOptions: RequestOptions(path: ApiEndpoints.login),

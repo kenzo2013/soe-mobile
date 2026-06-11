@@ -30,9 +30,8 @@ void main() {
   });
 
   test('forwards to repo on valid input', () async {
-    when(() =>
-            repo.verifyConfirmationCode(email: any(named: 'email'), code: any(named: 'code')))
-        .thenAnswer(
+    when(() => repo.verifyConfirmationCode(
+        email: any(named: 'email'), code: any(named: 'code'))).thenAnswer(
       (_) async => const Ok<User, Failure>(
         User(
           id: '1',

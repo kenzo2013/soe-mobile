@@ -128,8 +128,7 @@ class _ParentReservationsListPageState
           Expanded(
             child: state.when(
               initial: () => const Center(child: CircularProgressIndicator()),
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (f) => ErrorView(
                 failure: f,
                 onRetry: () => ref

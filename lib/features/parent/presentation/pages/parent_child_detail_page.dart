@@ -28,8 +28,7 @@ class ParentChildDetailPage extends ConsumerStatefulWidget {
       _ParentChildDetailPageState();
 }
 
-class _ParentChildDetailPageState
-    extends ConsumerState<ParentChildDetailPage> {
+class _ParentChildDetailPageState extends ConsumerState<ParentChildDetailPage> {
   int _tab = 2; // emploi du temps par défaut
 
   @override
@@ -143,8 +142,8 @@ class _Hero extends StatelessWidget {
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.edit_outlined, color: Colors.white),
-                  onPressed: () => context
-                      .push(RouteNames.parentStudentEdit(child.id)),
+                  onPressed: () =>
+                      context.push(RouteNames.parentStudentEdit(child.id)),
                 ),
                 const SizedBox(width: 8),
               ],
@@ -293,8 +292,7 @@ class _DetailsTab extends StatelessWidget {
           _row(tr.parent.childDetail.lastName, child.lastName),
           _row(tr.parent.childDetail.age,
               tr.parent.childDetail.ageValue(age: child.age)),
-          _row(tr.parent.childDetail.gender,
-              _genderLabel(tr, child.gender)),
+          _row(tr.parent.childDetail.gender, _genderLabel(tr, child.gender)),
           if (child.classe != null)
             _row(tr.parent.childDetail.schoolClass, child.classe!),
           if (child.section != null)
@@ -361,8 +359,7 @@ class _SubjectsTab extends StatelessWidget {
         children: [
           for (final s in subjects)
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: AppPalette.infoBg,
                 borderRadius: BorderRadius.circular(999),

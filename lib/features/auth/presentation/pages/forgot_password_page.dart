@@ -85,8 +85,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                 const SizedBox(height: 8),
                 Text(
                   tr.forgotPassword.subtitle,
-                  style:
-                      AppTypography.bodySm.copyWith(color: AppPalette.n700),
+                  style: AppTypography.bodySm.copyWith(color: AppPalette.n700),
                 ),
                 const SizedBox(height: 24),
                 SoeTextField(
@@ -148,8 +147,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
 
   String _label(Failure f, Translations tr) => switch (f) {
         NetworkFailure() => tr.errors.network,
-        ValidationFailure(:final message) =>
-          message ?? tr.errors.emailInvalid,
+        ValidationFailure(:final message) => message ?? tr.errors.emailInvalid,
         NotFoundFailure() => tr.errors.notFound,
         _ => tr.errors.unknown,
       };

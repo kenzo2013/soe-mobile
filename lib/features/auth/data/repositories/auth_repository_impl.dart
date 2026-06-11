@@ -77,7 +77,8 @@ class AuthRepositoryImpl implements AuthRepository {
     required String code,
   }) async {
     try {
-      final dto = await _remote.verifyConfirmationCode(email: email, code: code);
+      final dto =
+          await _remote.verifyConfirmationCode(email: email, code: code);
       return Ok(dto.data.toEntity());
     } on DioException catch (e) {
       return Err(ExceptionMapper.fromDio(e));
