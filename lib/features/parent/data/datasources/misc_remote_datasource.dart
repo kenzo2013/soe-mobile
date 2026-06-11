@@ -74,6 +74,19 @@ class MiscRemoteDatasource {
     return d == null ? s : _progDate.format(d);
   }
 
+  // `localized_day` revient en anglais côté API → on traduit en français.
+  static const _frDays = {
+    'monday': 'Lundi',
+    'tuesday': 'Mardi',
+    'wednesday': 'Mercredi',
+    'thursday': 'Jeudi',
+    'friday': 'Vendredi',
+    'saturday': 'Samedi',
+    'sunday': 'Dimanche',
+  };
+
+  static String _frDay(String day) => _frDays[day.toLowerCase()] ?? day;
+
   static ParentProgram _parseProgram(Map<String, dynamic> j) {
     final a = _attrs(j);
     final rawLines = (a['programs'] as List?) ?? const [];
@@ -94,7 +107,7 @@ class MiscRemoteDatasource {
           .map((s) {
         final sa = _attrs(s);
         return ProgramSchedule(
-          day: (sa['localized_day'] ?? sa['day'] ?? '').toString(),
+          day: _frDay((sa['localized_day'] ?? sa['day'] ?? '').toString()),
           timeSlot: (sa['time_slot'] ?? '').toString(),
         );
       }).where((s) => s.day.isNotEmpty).toList();

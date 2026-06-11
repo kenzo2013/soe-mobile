@@ -93,7 +93,10 @@ class ContractCard extends StatelessWidget {
                     size: 14, color: AppPalette.teal),
                 const SizedBox(width: 6),
                 Text(
-                  '${c.amendments.length} ${tr.contracts.amendmentsTitle.toLowerCase()}',
+                  c.amendments.length <= 1
+                      ? tr.contracts.amendmentCountOne(count: c.amendments.length)
+                      : tr.contracts.amendmentCountOther(
+                          count: c.amendments.length),
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,

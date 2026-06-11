@@ -1075,6 +1075,8 @@
     "signSuccess": "Contract signed",
     "amendmentSigned": "Amendment signed",
     "toSignBannerOne": "{{count}} document to sign",
-    "toSignBannerMany": "{{count}} documents to sign"
+    "toSignBannerMany": "{{count}} documents to sign",
+    "amendmentCountOne": "{{count}} amendment",
+    "amendmentCountOther": "{{count}} amendments"
   }
 }

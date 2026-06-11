@@ -1075,6 +1075,8 @@
     "signSuccess": "Contrat signé",
     "amendmentSigned": "Avenant signé",
     "toSignBannerOne": "{{count}} document à signer",
-    "toSignBannerMany": "{{count}} documents à signer"
+    "toSignBannerMany": "{{count}} documents à signer",
+    "amendmentCountOne": "{{count}} avenant",
+    "amendmentCountOther": "{{count}} avenants"
   }
 }
