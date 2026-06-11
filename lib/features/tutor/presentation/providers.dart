@@ -274,10 +274,11 @@ final tutorActiveCoursesViewModelProvider = StateNotifierProvider.autoDispose<
 
 final tutorCourseDetailViewModelProvider = StateNotifierProvider.autoDispose
     .family<TutorCourseDetailViewModel, AsyncItemState<TutorCourseDetail>,
-        String>(
-  (ref, studentId) =>
-      TutorCourseDetailViewModel(ref.watch(getTutorCourseProvider))
-        ..load(studentId),
+        ({String studentId, String? reservationId})>(
+  (ref, key) => TutorCourseDetailViewModel(
+    ref.watch(getTutorCourseProvider),
+    reservationId: key.reservationId,
+  )..load(key.studentId),
 );
 
 final tutorSessionsListViewModelProvider = StateNotifierProvider.autoDispose<

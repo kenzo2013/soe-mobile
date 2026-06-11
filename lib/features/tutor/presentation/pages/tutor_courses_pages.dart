@@ -83,8 +83,9 @@ class TutorActiveCoursesPage extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: 10),
                   child: _CourseCard(
                     course: c,
-                    onTap: () =>
-                        context.push(RouteNames.tutorCourseDetail(c.id)),
+                    onTap: () => context.push(
+                      '${RouteNames.tutorCourseDetail(c.studentId.isNotEmpty ? c.studentId : c.id)}?reservation_id=${c.id}',
+                    ),
                   ),
                 ),
             ],
@@ -237,13 +238,19 @@ class _CourseCard extends StatelessWidget {
 // Détail cours (élève + emploi du temps)
 // ════════════════════════════════════════════════════════════
 class TutorCourseDetailPage extends ConsumerWidget {
-  const TutorCourseDetailPage({super.key, required this.id});
+  const TutorCourseDetailPage({super.key, required this.id, this.reservationId});
+
+  /// Id de l'élève.
   final String id;
+
+  /// Id de la réservation/cours (requis par `/tutors/students/:id`).
+  final String? reservationId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context);
-    final state = ref.watch(tutorCourseDetailViewModelProvider(id));
+    final key = (studentId: id, reservationId: reservationId);
+    final state = ref.watch(tutorCourseDetailViewModelProvider(key));
     return Scaffold(
       backgroundColor: AppPalette.n100,
       appBar: TutorAppBar(
@@ -256,7 +263,7 @@ class TutorCourseDetailPage extends ConsumerWidget {
         error: (f) => ErrorView(
           failure: f,
           onRetry: () => ref
-              .read(tutorCourseDetailViewModelProvider(id).notifier)
+              .read(tutorCourseDetailViewModelProvider(key).notifier)
               .load(id),
         ),
         loaded: (c) => ListView(
@@ -413,7 +420,8 @@ class TutorManageSchedulesPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context);
-    final state = ref.watch(tutorCourseDetailViewModelProvider(id));
+    final state = ref.watch(
+        tutorCourseDetailViewModelProvider((studentId: id, reservationId: null)));
     final days = [
       tr.tutor.days.monday,
       tr.tutor.days.tuesday,

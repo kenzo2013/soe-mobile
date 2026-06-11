@@ -21,9 +21,14 @@ class TutorActiveCourse {
     required this.subjects,
     required this.schedule,
     required this.start,
+    this.studentId = '',
   });
 
+  /// Id de la réservation/cours.
   final String id;
+
+  /// Id de l'élève (pour charger le détail `/tutors/students/:id`).
+  final String studentId;
   final String reference;
   final String student;
   final String classe;

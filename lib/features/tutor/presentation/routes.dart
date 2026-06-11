@@ -75,8 +75,10 @@ List<RouteBase> tutorRoutes() => [
       ),
       GoRoute(
         path: '/tutor/courses/:id',
-        builder: (context, state) =>
-            TutorCourseDetailPage(id: state.pathParameters['id']!),
+        builder: (context, state) => TutorCourseDetailPage(
+          id: state.pathParameters['id']!,
+          reservationId: state.uri.queryParameters['reservation_id'],
+        ),
         routes: [
           GoRoute(
             path: 'schedules',

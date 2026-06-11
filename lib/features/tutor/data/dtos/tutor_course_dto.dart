@@ -53,7 +53,8 @@ abstract class TutorCourseDetailDto with _$TutorCourseDetailDto {
 
 extension TutorActiveCourseDtoX on TutorActiveCourseDto {
   TutorActiveCourse toEntity() => TutorActiveCourse(
-        id: studentId ?? id,
+        id: id,
+        studentId: studentId ?? '',
         reference: reference,
         student: student,
         classe: classe,

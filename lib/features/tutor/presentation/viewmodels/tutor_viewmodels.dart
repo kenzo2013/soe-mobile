@@ -62,8 +62,8 @@ class TutorActiveCoursesViewModel
 }
 
 class TutorCourseDetailViewModel extends AsyncItemViewModel<TutorCourseDetail> {
-  TutorCourseDetailViewModel(GetTutorCourse uc)
-      : super((id) => uc(studentId: id));
+  TutorCourseDetailViewModel(GetTutorCourse uc, {String? reservationId})
+      : super((id) => uc(studentId: id, reservationId: reservationId));
 }
 
 // ── Séances ──────────────────────────────────────────────────
