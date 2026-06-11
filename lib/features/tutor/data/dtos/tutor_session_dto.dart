@@ -18,9 +18,9 @@ abstract class TutorSessionDto with _$TutorSessionDto {
     @JsonKey(readValue: _student) @Default('') String student,
     @JsonKey(readValue: _subject) @Default('') String subject,
     @Default('') String status,
-    @JsonKey(name: 'editable') @Default(false) bool editable,
-    @JsonKey(name: 'report_available') @Default(false) bool reportAvailable,
-    @JsonKey(name: 'report_submitted') @Default(false) bool reportSubmitted,
+    @JsonKey(readValue: _editable) @Default(false) bool editable,
+    @JsonKey(readValue: _reportAvailable) @Default(false) bool reportAvailable,
+    @JsonKey(readValue: _reportSubmitted) @Default(false) bool reportSubmitted,
   }) = _TutorSessionDto;
   factory TutorSessionDto.fromJson(Map<String, dynamic> json) =>
       _$TutorSessionDtoFromJson(json);
@@ -42,8 +42,8 @@ abstract class TutorSessionDetailDto with _$TutorSessionDetailDto {
     @JsonKey(readValue: _classe) @Default('') String classe,
     @JsonKey(readValue: _reservationRef) @Default('') String reservationRef,
     @Default('') String status,
-    @JsonKey(name: 'editable') @Default(false) bool editable,
-    @JsonKey(name: 'report_available') @Default(false) bool reportAvailable,
+    @JsonKey(readValue: _editable) @Default(false) bool editable,
+    @JsonKey(readValue: _reportAvailable) @Default(false) bool reportAvailable,
   }) = _TutorSessionDetailDto;
   factory TutorSessionDetailDto.fromJson(Map<String, dynamic> json) =>
       _$TutorSessionDetailDtoFromJson(json);
@@ -143,6 +143,24 @@ String? _combineDateTime(Object? date, Object? time) {
   final hh = l.hour.toString().padLeft(2, '0');
   final mm = l.minute.toString().padLeft(2, '0');
   return '${d}T$hh:$mm:00';
+}
+
+// L'API détail expose `editable?` / `report_available?` (avec `?`).
+// La liste n'a que `has_report` → on dérive « rapport dû ».
+bool _asBool(Object? v) => v == true || v == 'true';
+
+Object? _editable(Map<dynamic, dynamic> j, String _) =>
+    _asBool(j['editable?'] ?? j['editable']);
+
+Object? _reportSubmitted(Map<dynamic, dynamic> j, String _) =>
+    _asBool(j['report_submitted'] ?? j['has_report']);
+
+Object? _reportAvailable(Map<dynamic, dynamic> j, String _) {
+  final explicit = j['report_available?'] ?? j['report_available'];
+  if (explicit != null) return _asBool(explicit);
+  // Dérivation pour la liste : séance approuvée et rapport non encore soumis.
+  final submitted = _asBool(j['report_submitted'] ?? j['has_report']);
+  return j['status'] == 'approved' && !submitted;
 }
 
 Object? _student(Map<dynamic, dynamic> j, String _) {

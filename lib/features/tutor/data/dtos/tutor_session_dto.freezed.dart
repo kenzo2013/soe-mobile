@@ -32,11 +32,11 @@ mixin _$TutorSessionDto {
   @JsonKey(readValue: _subject)
   String get subject => throw _privateConstructorUsedError;
   String get status => throw _privateConstructorUsedError;
-  @JsonKey(name: 'editable')
+  @JsonKey(readValue: _editable)
   bool get editable => throw _privateConstructorUsedError;
-  @JsonKey(name: 'report_available')
+  @JsonKey(readValue: _reportAvailable)
   bool get reportAvailable => throw _privateConstructorUsedError;
-  @JsonKey(name: 'report_submitted')
+  @JsonKey(readValue: _reportSubmitted)
   bool get reportSubmitted => throw _privateConstructorUsedError;
 
   /// Serializes this TutorSessionDto to a JSON map.
@@ -63,9 +63,9 @@ abstract class $TutorSessionDtoCopyWith<$Res> {
       @JsonKey(readValue: _student) String student,
       @JsonKey(readValue: _subject) String subject,
       String status,
-      @JsonKey(name: 'editable') bool editable,
-      @JsonKey(name: 'report_available') bool reportAvailable,
-      @JsonKey(name: 'report_submitted') bool reportSubmitted});
+      @JsonKey(readValue: _editable) bool editable,
+      @JsonKey(readValue: _reportAvailable) bool reportAvailable,
+      @JsonKey(readValue: _reportSubmitted) bool reportSubmitted});
 }
 
 /// @nodoc
@@ -155,9 +155,9 @@ abstract class _$$TutorSessionDtoImplCopyWith<$Res>
       @JsonKey(readValue: _student) String student,
       @JsonKey(readValue: _subject) String subject,
       String status,
-      @JsonKey(name: 'editable') bool editable,
-      @JsonKey(name: 'report_available') bool reportAvailable,
-      @JsonKey(name: 'report_submitted') bool reportSubmitted});
+      @JsonKey(readValue: _editable) bool editable,
+      @JsonKey(readValue: _reportAvailable) bool reportAvailable,
+      @JsonKey(readValue: _reportSubmitted) bool reportSubmitted});
 }
 
 /// @nodoc
@@ -240,9 +240,9 @@ class _$TutorSessionDtoImpl extends _TutorSessionDto {
       @JsonKey(readValue: _student) this.student = '',
       @JsonKey(readValue: _subject) this.subject = '',
       this.status = '',
-      @JsonKey(name: 'editable') this.editable = false,
-      @JsonKey(name: 'report_available') this.reportAvailable = false,
-      @JsonKey(name: 'report_submitted') this.reportSubmitted = false})
+      @JsonKey(readValue: _editable) this.editable = false,
+      @JsonKey(readValue: _reportAvailable) this.reportAvailable = false,
+      @JsonKey(readValue: _reportSubmitted) this.reportSubmitted = false})
       : super._();
 
   factory _$TutorSessionDtoImpl.fromJson(Map<String, dynamic> json) =>
@@ -270,13 +270,13 @@ class _$TutorSessionDtoImpl extends _TutorSessionDto {
   @JsonKey()
   final String status;
   @override
-  @JsonKey(name: 'editable')
+  @JsonKey(readValue: _editable)
   final bool editable;
   @override
-  @JsonKey(name: 'report_available')
+  @JsonKey(readValue: _reportAvailable)
   final bool reportAvailable;
   @override
-  @JsonKey(name: 'report_submitted')
+  @JsonKey(readValue: _reportSubmitted)
   final bool reportSubmitted;
 
   @override
@@ -346,9 +346,9 @@ abstract class _TutorSessionDto extends TutorSessionDto {
           @JsonKey(readValue: _student) final String student,
           @JsonKey(readValue: _subject) final String subject,
           final String status,
-          @JsonKey(name: 'editable') final bool editable,
-          @JsonKey(name: 'report_available') final bool reportAvailable,
-          @JsonKey(name: 'report_submitted') final bool reportSubmitted}) =
+          @JsonKey(readValue: _editable) final bool editable,
+          @JsonKey(readValue: _reportAvailable) final bool reportAvailable,
+          @JsonKey(readValue: _reportSubmitted) final bool reportSubmitted}) =
       _$TutorSessionDtoImpl;
   const _TutorSessionDto._() : super._();
 
@@ -375,13 +375,13 @@ abstract class _TutorSessionDto extends TutorSessionDto {
   @override
   String get status;
   @override
-  @JsonKey(name: 'editable')
+  @JsonKey(readValue: _editable)
   bool get editable;
   @override
-  @JsonKey(name: 'report_available')
+  @JsonKey(readValue: _reportAvailable)
   bool get reportAvailable;
   @override
-  @JsonKey(name: 'report_submitted')
+  @JsonKey(readValue: _reportSubmitted)
   bool get reportSubmitted;
 
   /// Create a copy of TutorSessionDto
@@ -415,9 +415,9 @@ mixin _$TutorSessionDetailDto {
   @JsonKey(readValue: _reservationRef)
   String get reservationRef => throw _privateConstructorUsedError;
   String get status => throw _privateConstructorUsedError;
-  @JsonKey(name: 'editable')
+  @JsonKey(readValue: _editable)
   bool get editable => throw _privateConstructorUsedError;
-  @JsonKey(name: 'report_available')
+  @JsonKey(readValue: _reportAvailable)
   bool get reportAvailable => throw _privateConstructorUsedError;
 
   /// Serializes this TutorSessionDetailDto to a JSON map.
@@ -446,8 +446,8 @@ abstract class $TutorSessionDetailDtoCopyWith<$Res> {
       @JsonKey(readValue: _classe) String classe,
       @JsonKey(readValue: _reservationRef) String reservationRef,
       String status,
-      @JsonKey(name: 'editable') bool editable,
-      @JsonKey(name: 'report_available') bool reportAvailable});
+      @JsonKey(readValue: _editable) bool editable,
+      @JsonKey(readValue: _reportAvailable) bool reportAvailable});
 }
 
 /// @nodoc
@@ -546,8 +546,8 @@ abstract class _$$TutorSessionDetailDtoImplCopyWith<$Res>
       @JsonKey(readValue: _classe) String classe,
       @JsonKey(readValue: _reservationRef) String reservationRef,
       String status,
-      @JsonKey(name: 'editable') bool editable,
-      @JsonKey(name: 'report_available') bool reportAvailable});
+      @JsonKey(readValue: _editable) bool editable,
+      @JsonKey(readValue: _reportAvailable) bool reportAvailable});
 }
 
 /// @nodoc
@@ -638,8 +638,8 @@ class _$TutorSessionDetailDtoImpl implements _TutorSessionDetailDto {
       @JsonKey(readValue: _classe) this.classe = '',
       @JsonKey(readValue: _reservationRef) this.reservationRef = '',
       this.status = '',
-      @JsonKey(name: 'editable') this.editable = false,
-      @JsonKey(name: 'report_available') this.reportAvailable = false});
+      @JsonKey(readValue: _editable) this.editable = false,
+      @JsonKey(readValue: _reportAvailable) this.reportAvailable = false});
 
   factory _$TutorSessionDetailDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$TutorSessionDetailDtoImplFromJson(json);
@@ -672,10 +672,10 @@ class _$TutorSessionDetailDtoImpl implements _TutorSessionDetailDto {
   @JsonKey()
   final String status;
   @override
-  @JsonKey(name: 'editable')
+  @JsonKey(readValue: _editable)
   final bool editable;
   @override
-  @JsonKey(name: 'report_available')
+  @JsonKey(readValue: _reportAvailable)
   final bool reportAvailable;
 
   @override
@@ -749,8 +749,8 @@ abstract class _TutorSessionDetailDto implements TutorSessionDetailDto {
           @JsonKey(readValue: _classe) final String classe,
           @JsonKey(readValue: _reservationRef) final String reservationRef,
           final String status,
-          @JsonKey(name: 'editable') final bool editable,
-          @JsonKey(name: 'report_available') final bool reportAvailable}) =
+          @JsonKey(readValue: _editable) final bool editable,
+          @JsonKey(readValue: _reportAvailable) final bool reportAvailable}) =
       _$TutorSessionDetailDtoImpl;
 
   factory _TutorSessionDetailDto.fromJson(Map<String, dynamic> json) =
@@ -782,10 +782,10 @@ abstract class _TutorSessionDetailDto implements TutorSessionDetailDto {
   @override
   String get status;
   @override
-  @JsonKey(name: 'editable')
+  @JsonKey(readValue: _editable)
   bool get editable;
   @override
-  @JsonKey(name: 'report_available')
+  @JsonKey(readValue: _reportAvailable)
   bool get reportAvailable;
 
   /// Create a copy of TutorSessionDetailDto

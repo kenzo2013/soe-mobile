@@ -16,9 +16,11 @@ _$TutorSessionDtoImpl _$$TutorSessionDtoImplFromJson(
       student: _student(json, 'student') as String? ?? '',
       subject: _subject(json, 'subject') as String? ?? '',
       status: json['status'] as String? ?? '',
-      editable: json['editable'] as bool? ?? false,
-      reportAvailable: json['report_available'] as bool? ?? false,
-      reportSubmitted: json['report_submitted'] as bool? ?? false,
+      editable: _editable(json, 'editable') as bool? ?? false,
+      reportAvailable:
+          _reportAvailable(json, 'reportAvailable') as bool? ?? false,
+      reportSubmitted:
+          _reportSubmitted(json, 'reportSubmitted') as bool? ?? false,
     );
 
 Map<String, dynamic> _$$TutorSessionDtoImplToJson(
@@ -32,8 +34,8 @@ Map<String, dynamic> _$$TutorSessionDtoImplToJson(
       'subject': instance.subject,
       'status': instance.status,
       'editable': instance.editable,
-      'report_available': instance.reportAvailable,
-      'report_submitted': instance.reportSubmitted,
+      'reportAvailable': instance.reportAvailable,
+      'reportSubmitted': instance.reportSubmitted,
     };
 
 _$TutorSessionDetailDtoImpl _$$TutorSessionDetailDtoImplFromJson(
@@ -48,8 +50,9 @@ _$TutorSessionDetailDtoImpl _$$TutorSessionDetailDtoImplFromJson(
       classe: _classe(json, 'classe') as String? ?? '',
       reservationRef: _reservationRef(json, 'reservationRef') as String? ?? '',
       status: json['status'] as String? ?? '',
-      editable: json['editable'] as bool? ?? false,
-      reportAvailable: json['report_available'] as bool? ?? false,
+      editable: _editable(json, 'editable') as bool? ?? false,
+      reportAvailable:
+          _reportAvailable(json, 'reportAvailable') as bool? ?? false,
     );
 
 Map<String, dynamic> _$$TutorSessionDetailDtoImplToJson(
@@ -65,5 +68,5 @@ Map<String, dynamic> _$$TutorSessionDetailDtoImplToJson(
       'reservationRef': instance.reservationRef,
       'status': instance.status,
       'editable': instance.editable,
-      'report_available': instance.reportAvailable,
+      'reportAvailable': instance.reportAvailable,
     };
