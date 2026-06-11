@@ -476,6 +476,8 @@ mixin _$SessionDetailDto {
   String? get subject => throw _privateConstructorUsedError;
   @JsonKey(name: 'tutor_name')
   String? get tutorName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'tutor_id')
+  String? get tutorId => throw _privateConstructorUsedError;
   @JsonKey(name: 'child_name')
   String? get childName => throw _privateConstructorUsedError;
   String? get status => throw _privateConstructorUsedError;
@@ -506,6 +508,7 @@ abstract class $SessionDetailDtoCopyWith<$Res> {
       @JsonKey(name: 'duration_minutes') int durationMinutes,
       String? subject,
       @JsonKey(name: 'tutor_name') String? tutorName,
+      @JsonKey(name: 'tutor_id') String? tutorId,
       @JsonKey(name: 'child_name') String? childName,
       String? status,
       String? location,
@@ -536,6 +539,7 @@ class _$SessionDetailDtoCopyWithImpl<$Res, $Val extends SessionDetailDto>
     Object? durationMinutes = null,
     Object? subject = freezed,
     Object? tutorName = freezed,
+    Object? tutorId = freezed,
     Object? childName = freezed,
     Object? status = freezed,
     Object? location = freezed,
@@ -563,6 +567,10 @@ class _$SessionDetailDtoCopyWithImpl<$Res, $Val extends SessionDetailDto>
       tutorName: freezed == tutorName
           ? _value.tutorName
           : tutorName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      tutorId: freezed == tutorId
+          ? _value.tutorId
+          : tutorId // ignore: cast_nullable_to_non_nullable
               as String?,
       childName: freezed == childName
           ? _value.childName
@@ -620,6 +628,7 @@ abstract class _$$SessionDetailDtoImplCopyWith<$Res>
       @JsonKey(name: 'duration_minutes') int durationMinutes,
       String? subject,
       @JsonKey(name: 'tutor_name') String? tutorName,
+      @JsonKey(name: 'tutor_id') String? tutorId,
       @JsonKey(name: 'child_name') String? childName,
       String? status,
       String? location,
@@ -649,6 +658,7 @@ class __$$SessionDetailDtoImplCopyWithImpl<$Res>
     Object? durationMinutes = null,
     Object? subject = freezed,
     Object? tutorName = freezed,
+    Object? tutorId = freezed,
     Object? childName = freezed,
     Object? status = freezed,
     Object? location = freezed,
@@ -676,6 +686,10 @@ class __$$SessionDetailDtoImplCopyWithImpl<$Res>
       tutorName: freezed == tutorName
           ? _value.tutorName
           : tutorName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      tutorId: freezed == tutorId
+          ? _value.tutorId
+          : tutorId // ignore: cast_nullable_to_non_nullable
               as String?,
       childName: freezed == childName
           ? _value.childName
@@ -714,6 +728,7 @@ class _$SessionDetailDtoImpl implements _SessionDetailDto {
       @JsonKey(name: 'duration_minutes') this.durationMinutes = 60,
       this.subject,
       @JsonKey(name: 'tutor_name') this.tutorName,
+      @JsonKey(name: 'tutor_id') this.tutorId,
       @JsonKey(name: 'child_name') this.childName,
       this.status,
       this.location,
@@ -739,6 +754,9 @@ class _$SessionDetailDtoImpl implements _SessionDetailDto {
   @JsonKey(name: 'tutor_name')
   final String? tutorName;
   @override
+  @JsonKey(name: 'tutor_id')
+  final String? tutorId;
+  @override
   @JsonKey(name: 'child_name')
   final String? childName;
   @override
@@ -760,7 +778,7 @@ class _$SessionDetailDtoImpl implements _SessionDetailDto {
 
   @override
   String toString() {
-    return 'SessionDetailDto(id: $id, startAt: $startAt, durationMinutes: $durationMinutes, subject: $subject, tutorName: $tutorName, childName: $childName, status: $status, location: $location, notes: $notes, report: $report, tasks: $tasks)';
+    return 'SessionDetailDto(id: $id, startAt: $startAt, durationMinutes: $durationMinutes, subject: $subject, tutorName: $tutorName, tutorId: $tutorId, childName: $childName, status: $status, location: $location, notes: $notes, report: $report, tasks: $tasks)';
   }
 
   @override
@@ -775,6 +793,7 @@ class _$SessionDetailDtoImpl implements _SessionDetailDto {
             (identical(other.subject, subject) || other.subject == subject) &&
             (identical(other.tutorName, tutorName) ||
                 other.tutorName == tutorName) &&
+            (identical(other.tutorId, tutorId) || other.tutorId == tutorId) &&
             (identical(other.childName, childName) ||
                 other.childName == childName) &&
             (identical(other.status, status) || other.status == status) &&
@@ -794,6 +813,7 @@ class _$SessionDetailDtoImpl implements _SessionDetailDto {
       durationMinutes,
       subject,
       tutorName,
+      tutorId,
       childName,
       status,
       location,
@@ -825,6 +845,7 @@ abstract class _SessionDetailDto implements SessionDetailDto {
       @JsonKey(name: 'duration_minutes') final int durationMinutes,
       final String? subject,
       @JsonKey(name: 'tutor_name') final String? tutorName,
+      @JsonKey(name: 'tutor_id') final String? tutorId,
       @JsonKey(name: 'child_name') final String? childName,
       final String? status,
       final String? location,
@@ -848,6 +869,9 @@ abstract class _SessionDetailDto implements SessionDetailDto {
   @override
   @JsonKey(name: 'tutor_name')
   String? get tutorName;
+  @override
+  @JsonKey(name: 'tutor_id')
+  String? get tutorId;
   @override
   @JsonKey(name: 'child_name')
   String? get childName;

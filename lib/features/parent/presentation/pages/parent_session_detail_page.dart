@@ -4,11 +4,13 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/error_view.dart';
+import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/session_detail.dart';
 import '../../domain/entities/session_summary.dart';
 import '../providers.dart';
+import '../widgets/review_sheet.dart';
 
 class ParentSessionDetailPage extends ConsumerWidget {
   const ParentSessionDetailPage({super.key, required this.id});
@@ -38,15 +40,30 @@ class ParentSessionDetailPage extends ConsumerWidget {
           onRetry: () =>
               ref.read(sessionDetailViewModelProvider(id).notifier).load(id),
         ),
-        loaded: (d) => _Body(detail: d),
+        loaded: (d) => _Body(
+          detail: d,
+          // Avis possible une fois la séance approuvée/terminée et le tuteur connu.
+          onRate: (d.tutorId != null &&
+                  d.tutorId!.isNotEmpty &&
+                  (d.status == SessionStatus.approved ||
+                      d.status == SessionStatus.completed))
+              ? () => showReviewSheet(
+                    context,
+                    ref,
+                    tutorId: d.tutorId!,
+                    tutorName: d.tutorName,
+                  )
+              : null,
+        ),
       ),
     );
   }
 }
 
 class _Body extends StatelessWidget {
-  const _Body({required this.detail});
+  const _Body({required this.detail, this.onRate});
   final SessionDetail detail;
+  final VoidCallback? onRate;
   @override
   Widget build(BuildContext context) {
     final tr = Translations.of(context);
@@ -187,6 +204,15 @@ class _Body extends StatelessWidget {
                 height: 1.6,
               ),
             ),
+          ),
+        ],
+        if (onRate != null) ...[
+          const SizedBox(height: 24),
+          SoeButton(
+            label: Translations.of(context).parent.reviews.rateTutor,
+            icon: Icons.star_outline,
+            fullWidth: true,
+            onPressed: onRate,
           ),
         ],
       ],

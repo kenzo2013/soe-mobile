@@ -830,7 +830,15 @@
     },
     "reviews": {
       "title": "Mes avis",
-      "empty": "Aucun avis donné pour le moment"
+      "empty": "Aucun avis donné pour le moment",
+      "rateTutor": "Noter le tuteur",
+      "formTitle": "Votre avis",
+      "ratingLabel": "Votre note",
+      "commentLabel": "Commentaire",
+      "commentHint": "Partagez votre expérience…",
+      "submit": "Publier l'avis",
+      "posted": "Avis publié",
+      "pleaseRate": "Sélectionnez une note"
     },
     "programs": {
       "title": "Programmes",

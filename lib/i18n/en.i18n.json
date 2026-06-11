@@ -830,7 +830,15 @@
     },
     "reviews": {
       "title": "My reviews",
-      "empty": "No reviews yet"
+      "empty": "No reviews yet",
+      "rateTutor": "Rate tutor",
+      "formTitle": "Your review",
+      "ratingLabel": "Your rating",
+      "commentLabel": "Comment",
+      "commentHint": "Share your experience…",
+      "submit": "Post review",
+      "posted": "Review posted",
+      "pleaseRate": "Select a rating"
     },
     "programs": {
       "title": "Programs",

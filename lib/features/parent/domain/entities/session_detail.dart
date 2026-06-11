@@ -35,6 +35,7 @@ class SessionDetail {
     required this.tutorName,
     required this.childName,
     required this.status,
+    this.tutorId,
     this.location,
     this.notes,
     this.report,
@@ -47,6 +48,9 @@ class SessionDetail {
   final String subject;
   final String tutorName;
   final String childName;
+
+  /// Id du tuteur (pour déposer un avis depuis la séance).
+  final String? tutorId;
   final SessionStatus status;
   final String? location;
   final String? notes;

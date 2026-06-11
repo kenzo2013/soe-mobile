@@ -75,6 +75,36 @@ class SessionsRemoteDatasource {
     final r = await _dio.get<Map<String, dynamic>>(
         '${ApiEndpoints.parentsSessions}/$id/details');
     final data = (r.data!['data'] as Map<String, dynamic>?) ?? r.data!;
-    return SessionDetailDto.fromJson(data);
+    return SessionDetailDto.fromJson(_detailJson(data));
+  }
+
+  // Aplatit le détail JSON:API (tuteur/élève imbriqués, date+heures séparées)
+  // pour le DTO, et expose `tutor_id` (avis depuis la séance).
+  static Map<String, dynamic> _detailJson(Map<String, dynamic> raw) {
+    final a = _attrs(raw);
+    final tutorNode = a['tutor'];
+    final tutor = _attrs(tutorNode);
+    final student = _attrs(a['student']);
+    // L'id est au niveau du nœud JSON:API (pas dans attributes) — `_attrs`
+    // ne renvoie que les attributs.
+    final tutorId = tutorNode is Map ? tutorNode['id']?.toString() : null;
+    final subjects = ((a['subjects'] as List?) ?? const [])
+        .map((s) =>
+            s is Map ? (_attrs(s)['name'] ?? '').toString() : s.toString())
+        .where((s) => s.isNotEmpty)
+        .toList();
+    return {
+      'id': raw['id']?.toString() ?? a['id']?.toString() ?? '',
+      'start_at': _combine(a['date'], a['start_at']),
+      'duration_minutes': _durationMinutes(a['start_at'], a['end_at']),
+      'subject': subjects.isEmpty ? null : subjects.join(', '),
+      'tutor_name': tutor['full_name'],
+      'tutor_id': tutorId,
+      'child_name': student['full_name'],
+      'status': a['status'],
+      'notes': a['comment'],
+      if (a['report'] != null) 'report': a['report'],
+      if (a['tasks'] != null) 'tasks': a['tasks'],
+    };
   }
 }
