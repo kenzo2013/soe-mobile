@@ -74,11 +74,13 @@ Map<String, dynamic> initiatePaymentToJson(InitiatePaymentParams p) {
 }
 
 /// CDC §11.5 : payment_method = orange_money | mtn_money | bank_transfer | cash
-PaymentMethod _parseMethod(String? raw) => switch (raw) {
-      'mtn_money' || 'mtn_momo' || 'cm.mtn' => PaymentMethod.mtnMomo,
-      'orange_money' || 'cm.orange' => PaymentMethod.orangeMoney,
-      _ => PaymentMethod.unknown,
-    };
+// L'API renvoie des libellés variés ("MTN Money", "mtn_momo", "cm.mtn"…).
+PaymentMethod _parseMethod(String? raw) {
+  final v = (raw ?? '').toLowerCase();
+  if (v.contains('mtn')) return PaymentMethod.mtnMomo;
+  if (v.contains('orange')) return PaymentMethod.orangeMoney;
+  return PaymentMethod.unknown;
+}
 
 /// CDC §11.5 : payment.status = pending | processing | completed | failed
 PaymentStatus _parseStatus(String? raw) => switch (raw) {
