@@ -91,11 +91,11 @@ class ParentDrawer extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 24, 20, 18),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(20, 24, 20, 18),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: const SoeBrandLogo(
+                  child: SoeBrandLogo(
                     width: 96,
                     onDark: true,
                     variant: SoeBrandLogoVariant.full,

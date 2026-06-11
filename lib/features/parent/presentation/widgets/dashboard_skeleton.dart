@@ -23,8 +23,8 @@ class DashboardSkeleton extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             itemCount: 4,
             separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemBuilder: (_, __) => Column(
-              children: const [
+            itemBuilder: (_, __) => const Column(
+              children: [
                 SoeSkeleton(width: 56, height: 56, borderRadius: _circle),
                 SizedBox(height: 6),
                 SoeSkeleton(width: 36, height: 9),
@@ -38,10 +38,10 @@ class DashboardSkeleton extends StatelessWidget {
         SoeCard(
           child: Column(
             children: List.generate(3, (_) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 10),
                 child: Row(
-                  children: const [
+                  children: [
                     SoeSkeleton(width: 52, height: 52, borderRadius: _r10),
                     SizedBox(width: 12),
                     Expanded(
@@ -66,10 +66,10 @@ class DashboardSkeleton extends StatelessWidget {
         SoeCard(
           child: Column(
             children: List.generate(2, (_) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 10),
                 child: Row(
-                  children: const [
+                  children: [
                     SoeSkeleton(width: 36, height: 36, borderRadius: _r10),
                     SizedBox(width: 12),
                     Expanded(

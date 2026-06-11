@@ -451,9 +451,9 @@ class _Skeleton extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       itemCount: 3,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (_, __) => SoeCard(
+      itemBuilder: (_, __) => const SoeCard(
         child: Row(
-          children: const [
+          children: [
             SoeSkeleton(
               width: 52,
               height: 52,

@@ -27,6 +27,9 @@ jobs:
       - name: Format check
         run: dart format --set-exit-if-changed .
 
+      - name: i18n codegen (slang)
+        run: dart run slang
+
       - name: Analyze
         run: flutter analyze --fatal-infos
 

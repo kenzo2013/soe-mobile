@@ -15,6 +15,10 @@ import '../data/repositories/payments_repository_impl.dart';
 import '../data/repositories/reservations_repository_impl.dart';
 import '../data/repositories/sessions_repository_impl.dart';
 import '../data/repositories/tutor_profile_repository_impl.dart';
+import '../domain/entities/contract.dart';
+import '../domain/entities/parent_invitation.dart';
+import '../domain/entities/parent_program.dart';
+import '../domain/entities/parent_review.dart';
 import '../domain/repositories/children_repository.dart';
 import '../domain/repositories/parent_dashboard_repository.dart';
 import '../domain/repositories/misc_repositories.dart';
@@ -167,25 +171,26 @@ final contractsRepositoryProvider = Provider<ContractsRepository>(
 );
 
 final reviewsListViewModelProvider = StateNotifierProvider.autoDispose
-    .family<ReviewsListViewModel, AsyncListState, Object?>(
+    .family<ReviewsListViewModel, AsyncListState<ParentReview>, Object?>(
   (ref, _) =>
       ReviewsListViewModel(ref.watch(reviewsRepositoryProvider))..load(),
 );
 
 final programsListViewModelProvider = StateNotifierProvider.autoDispose
-    .family<ProgramsListViewModel, AsyncListState, Object?>(
+    .family<ProgramsListViewModel, AsyncListState<ParentProgram>, Object?>(
   (ref, _) =>
       ProgramsListViewModel(ref.watch(programsRepositoryProvider))..load(),
 );
 
 final invitationsListViewModelProvider = StateNotifierProvider.autoDispose
-    .family<InvitationsListViewModel, AsyncListState, Object?>(
+    .family<InvitationsListViewModel, AsyncListState<ParentInvitation>,
+        Object?>(
   (ref, _) => InvitationsListViewModel(ref.watch(invitationsRepositoryProvider))
     ..load(),
 );
 
 final contractsListViewModelProvider = StateNotifierProvider.autoDispose
-    .family<ContractsListViewModel, AsyncListState, Object?>(
+    .family<ContractsListViewModel, AsyncListState<Contract>, Object?>(
   (ref, _) =>
       ContractsListViewModel(ref.watch(contractsRepositoryProvider))..load(),
 );
