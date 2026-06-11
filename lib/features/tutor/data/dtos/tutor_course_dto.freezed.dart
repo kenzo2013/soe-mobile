@@ -23,13 +23,13 @@ mixin _$TutorActiveCourseDto {
   String get id => throw _privateConstructorUsedError;
   @JsonKey(readValue: _reference)
   String get reference => throw _privateConstructorUsedError;
-  @JsonKey(name: 'student_id')
+  @JsonKey(readValue: _studentId)
   String? get studentId => throw _privateConstructorUsedError;
   @JsonKey(readValue: _student)
   String get student => throw _privateConstructorUsedError;
   @JsonKey(readValue: _classe)
   String get classe => throw _privateConstructorUsedError;
-  @JsonKey(name: 'subjects')
+  @JsonKey(readValue: _courseSubjects)
   List<dynamic> get subjects => throw _privateConstructorUsedError;
   @JsonKey(readValue: _schedule)
   String get schedule => throw _privateConstructorUsedError;
@@ -55,10 +55,10 @@ abstract class $TutorActiveCourseDtoCopyWith<$Res> {
   $Res call(
       {String id,
       @JsonKey(readValue: _reference) String reference,
-      @JsonKey(name: 'student_id') String? studentId,
+      @JsonKey(readValue: _studentId) String? studentId,
       @JsonKey(readValue: _student) String student,
       @JsonKey(readValue: _classe) String classe,
-      @JsonKey(name: 'subjects') List<dynamic> subjects,
+      @JsonKey(readValue: _courseSubjects) List<dynamic> subjects,
       @JsonKey(readValue: _schedule) String schedule,
       @JsonKey(name: 'created_at') String? createdAt});
 }
@@ -136,10 +136,10 @@ abstract class _$$TutorActiveCourseDtoImplCopyWith<$Res>
   $Res call(
       {String id,
       @JsonKey(readValue: _reference) String reference,
-      @JsonKey(name: 'student_id') String? studentId,
+      @JsonKey(readValue: _studentId) String? studentId,
       @JsonKey(readValue: _student) String student,
       @JsonKey(readValue: _classe) String classe,
-      @JsonKey(name: 'subjects') List<dynamic> subjects,
+      @JsonKey(readValue: _courseSubjects) List<dynamic> subjects,
       @JsonKey(readValue: _schedule) String schedule,
       @JsonKey(name: 'created_at') String? createdAt});
 }
@@ -209,10 +209,10 @@ class _$TutorActiveCourseDtoImpl implements _TutorActiveCourseDto {
   const _$TutorActiveCourseDtoImpl(
       {this.id = '',
       @JsonKey(readValue: _reference) this.reference = '',
-      @JsonKey(name: 'student_id') this.studentId,
+      @JsonKey(readValue: _studentId) this.studentId,
       @JsonKey(readValue: _student) this.student = '',
       @JsonKey(readValue: _classe) this.classe = '',
-      @JsonKey(name: 'subjects')
+      @JsonKey(readValue: _courseSubjects)
       final List<dynamic> subjects = const <dynamic>[],
       @JsonKey(readValue: _schedule) this.schedule = '',
       @JsonKey(name: 'created_at') this.createdAt})
@@ -228,7 +228,7 @@ class _$TutorActiveCourseDtoImpl implements _TutorActiveCourseDto {
   @JsonKey(readValue: _reference)
   final String reference;
   @override
-  @JsonKey(name: 'student_id')
+  @JsonKey(readValue: _studentId)
   final String? studentId;
   @override
   @JsonKey(readValue: _student)
@@ -238,7 +238,7 @@ class _$TutorActiveCourseDtoImpl implements _TutorActiveCourseDto {
   final String classe;
   final List<dynamic> _subjects;
   @override
-  @JsonKey(name: 'subjects')
+  @JsonKey(readValue: _courseSubjects)
   List<dynamic> get subjects {
     if (_subjects is EqualUnmodifiableListView) return _subjects;
     // ignore: implicit_dynamic_type
@@ -311,10 +311,10 @@ abstract class _TutorActiveCourseDto implements TutorActiveCourseDto {
   const factory _TutorActiveCourseDto(
           {final String id,
           @JsonKey(readValue: _reference) final String reference,
-          @JsonKey(name: 'student_id') final String? studentId,
+          @JsonKey(readValue: _studentId) final String? studentId,
           @JsonKey(readValue: _student) final String student,
           @JsonKey(readValue: _classe) final String classe,
-          @JsonKey(name: 'subjects') final List<dynamic> subjects,
+          @JsonKey(readValue: _courseSubjects) final List<dynamic> subjects,
           @JsonKey(readValue: _schedule) final String schedule,
           @JsonKey(name: 'created_at') final String? createdAt}) =
       _$TutorActiveCourseDtoImpl;
@@ -328,7 +328,7 @@ abstract class _TutorActiveCourseDto implements TutorActiveCourseDto {
   @JsonKey(readValue: _reference)
   String get reference;
   @override
-  @JsonKey(name: 'student_id')
+  @JsonKey(readValue: _studentId)
   String? get studentId;
   @override
   @JsonKey(readValue: _student)
@@ -337,7 +337,7 @@ abstract class _TutorActiveCourseDto implements TutorActiveCourseDto {
   @JsonKey(readValue: _classe)
   String get classe;
   @override
-  @JsonKey(name: 'subjects')
+  @JsonKey(readValue: _courseSubjects)
   List<dynamic> get subjects;
   @override
   @JsonKey(readValue: _schedule)

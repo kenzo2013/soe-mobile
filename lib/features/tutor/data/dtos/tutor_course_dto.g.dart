@@ -11,10 +11,11 @@ _$TutorActiveCourseDtoImpl _$$TutorActiveCourseDtoImplFromJson(
     _$TutorActiveCourseDtoImpl(
       id: json['id'] as String? ?? '',
       reference: _reference(json, 'reference') as String? ?? '',
-      studentId: json['student_id'] as String?,
+      studentId: _studentId(json, 'studentId') as String?,
       student: _student(json, 'student') as String? ?? '',
       classe: _classe(json, 'classe') as String? ?? '',
-      subjects: json['subjects'] as List<dynamic>? ?? const <dynamic>[],
+      subjects: _courseSubjects(json, 'subjects') as List<dynamic>? ??
+          const <dynamic>[],
       schedule: _schedule(json, 'schedule') as String? ?? '',
       createdAt: json['created_at'] as String?,
     );
@@ -24,7 +25,7 @@ Map<String, dynamic> _$$TutorActiveCourseDtoImplToJson(
     <String, dynamic>{
       'id': instance.id,
       'reference': instance.reference,
-      'student_id': instance.studentId,
+      'studentId': instance.studentId,
       'student': instance.student,
       'classe': instance.classe,
       'subjects': instance.subjects,

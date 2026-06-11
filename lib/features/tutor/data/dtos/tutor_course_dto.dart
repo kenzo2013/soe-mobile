@@ -14,10 +14,10 @@ abstract class TutorActiveCourseDto with _$TutorActiveCourseDto {
   const factory TutorActiveCourseDto({
     @Default('') String id,
     @JsonKey(readValue: _reference) @Default('') String reference,
-    @JsonKey(name: 'student_id') String? studentId,
+    @JsonKey(readValue: _studentId) String? studentId,
     @JsonKey(readValue: _student) @Default('') String student,
     @JsonKey(readValue: _classe) @Default('') String classe,
-    @JsonKey(name: 'subjects') @Default(<dynamic>[]) List<dynamic> subjects,
+    @JsonKey(readValue: _courseSubjects) @Default(<dynamic>[]) List<dynamic> subjects,
     @JsonKey(readValue: _schedule) @Default('') String schedule,
     @JsonKey(name: 'created_at') String? createdAt,
   }) = _TutorActiveCourseDto;
@@ -89,8 +89,27 @@ String _gender(String g) => switch (g) {
 Object? _reference(Map<dynamic, dynamic> j, String _) =>
     j['reference'] ?? j['ref'] ?? (j['id']?.toString());
 
+/// Pour un cours actif, les infos élève/matières/horaires sont sous
+/// `tutoring_requests[0]`. Sinon (réponse détail élève), on lit `j` directement.
+Map<dynamic, dynamic> _firstReq(Map<dynamic, dynamic> j) {
+  final reqs = j['tutoring_requests'];
+  if (reqs is List && reqs.isNotEmpty && reqs.first is Map) {
+    return reqs.first as Map<dynamic, dynamic>;
+  }
+  return j;
+}
+
+Object? _studentId(Map<dynamic, dynamic> j, String _) {
+  final s = _firstReq(j)['student'] ?? j['student'];
+  if (s is Map) return s['id']?.toString();
+  return j['student_id']?.toString();
+}
+
+Object? _courseSubjects(Map<dynamic, dynamic> j, String _) =>
+    _firstReq(j)['subjects'] ?? j['subjects'] ?? const <dynamic>[];
+
 Object? _student(Map<dynamic, dynamic> j, String _) {
-  final s = j['student'] ?? j['child'];
+  final s = _firstReq(j)['student'] ?? j['student'] ?? j['child'];
   if (s is Map) {
     final fn = s['first_name'] ?? '';
     final ln = s['last_name'] ?? '';
@@ -102,14 +121,38 @@ Object? _student(Map<dynamic, dynamic> j, String _) {
 
 Object? _classe(Map<dynamic, dynamic> j, String _) {
   final sc = j['school_class'] ?? j['classe'];
-  if (sc is Map) return sc['name'] ?? sc['abbr'];
-  final student = j['student'];
+  if (sc is Map) return sc['name'] ?? sc['abbr'] ?? sc['formatted_name'];
+  final student = _firstReq(j)['student'] ?? j['student'];
   if (student is Map) {
     final ssc = student['school_class'];
-    if (ssc is Map) return ssc['name'] ?? ssc['abbr'];
+    if (ssc is Map) return ssc['formatted_name'] ?? ssc['name'] ?? ssc['abbr'];
   }
   return sc ?? '';
 }
 
-Object? _schedule(Map<dynamic, dynamic> j, String _) =>
-    j['schedule'] ?? j['schedule_summary'] ?? '';
+const _frShortDays = {
+  'monday': 'Lun',
+  'tuesday': 'Mar',
+  'wednesday': 'Mer',
+  'thursday': 'Jeu',
+  'friday': 'Ven',
+  'saturday': 'Sam',
+  'sunday': 'Dim',
+};
+
+Object? _schedule(Map<dynamic, dynamic> j, String _) {
+  final existing = j['schedule'] ?? j['schedule_summary'];
+  if (existing is String && existing.isNotEmpty) return existing;
+  final sch = _firstReq(j)['schedules'];
+  if (sch is List && sch.isNotEmpty) {
+    final days = sch
+        .whereType<Map<dynamic, dynamic>>()
+        .map((s) =>
+            (s['localized_day'] ?? s['day'] ?? '').toString().toLowerCase())
+        .map((d) => _frShortDays[d] ?? (d.isNotEmpty ? d : ''))
+        .where((d) => d.isNotEmpty)
+        .toList();
+    if (days.isNotEmpty) return days.join(' · ');
+  }
+  return '';
+}
