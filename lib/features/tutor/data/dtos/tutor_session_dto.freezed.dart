@@ -21,9 +21,9 @@ TutorSessionDto _$TutorSessionDtoFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$TutorSessionDto {
   String get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'start_at')
+  @JsonKey(readValue: _startAt)
   String? get startAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'end_at')
+  @JsonKey(readValue: _endAt)
   String? get endAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'duration_minutes')
   int? get durationMinutes => throw _privateConstructorUsedError;
@@ -57,8 +57,8 @@ abstract class $TutorSessionDtoCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'start_at') String? startAt,
-      @JsonKey(name: 'end_at') String? endAt,
+      @JsonKey(readValue: _startAt) String? startAt,
+      @JsonKey(readValue: _endAt) String? endAt,
       @JsonKey(name: 'duration_minutes') int? durationMinutes,
       @JsonKey(readValue: _student) String student,
       @JsonKey(readValue: _subject) String subject,
@@ -149,8 +149,8 @@ abstract class _$$TutorSessionDtoImplCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      @JsonKey(name: 'start_at') String? startAt,
-      @JsonKey(name: 'end_at') String? endAt,
+      @JsonKey(readValue: _startAt) String? startAt,
+      @JsonKey(readValue: _endAt) String? endAt,
       @JsonKey(name: 'duration_minutes') int? durationMinutes,
       @JsonKey(readValue: _student) String student,
       @JsonKey(readValue: _subject) String subject,
@@ -234,8 +234,8 @@ class __$$TutorSessionDtoImplCopyWithImpl<$Res>
 class _$TutorSessionDtoImpl extends _TutorSessionDto {
   const _$TutorSessionDtoImpl(
       {this.id = '',
-      @JsonKey(name: 'start_at') this.startAt,
-      @JsonKey(name: 'end_at') this.endAt,
+      @JsonKey(readValue: _startAt) this.startAt,
+      @JsonKey(readValue: _endAt) this.endAt,
       @JsonKey(name: 'duration_minutes') this.durationMinutes,
       @JsonKey(readValue: _student) this.student = '',
       @JsonKey(readValue: _subject) this.subject = '',
@@ -252,10 +252,10 @@ class _$TutorSessionDtoImpl extends _TutorSessionDto {
   @JsonKey()
   final String id;
   @override
-  @JsonKey(name: 'start_at')
+  @JsonKey(readValue: _startAt)
   final String? startAt;
   @override
-  @JsonKey(name: 'end_at')
+  @JsonKey(readValue: _endAt)
   final String? endAt;
   @override
   @JsonKey(name: 'duration_minutes')
@@ -340,8 +340,8 @@ class _$TutorSessionDtoImpl extends _TutorSessionDto {
 abstract class _TutorSessionDto extends TutorSessionDto {
   const factory _TutorSessionDto(
           {final String id,
-          @JsonKey(name: 'start_at') final String? startAt,
-          @JsonKey(name: 'end_at') final String? endAt,
+          @JsonKey(readValue: _startAt) final String? startAt,
+          @JsonKey(readValue: _endAt) final String? endAt,
           @JsonKey(name: 'duration_minutes') final int? durationMinutes,
           @JsonKey(readValue: _student) final String student,
           @JsonKey(readValue: _subject) final String subject,
@@ -358,10 +358,10 @@ abstract class _TutorSessionDto extends TutorSessionDto {
   @override
   String get id;
   @override
-  @JsonKey(name: 'start_at')
+  @JsonKey(readValue: _startAt)
   String? get startAt;
   @override
-  @JsonKey(name: 'end_at')
+  @JsonKey(readValue: _endAt)
   String? get endAt;
   @override
   @JsonKey(name: 'duration_minutes')
@@ -402,9 +402,9 @@ mixin _$TutorSessionDetailDto {
   String get id => throw _privateConstructorUsedError;
   @JsonKey(readValue: _subject)
   String get subject => throw _privateConstructorUsedError;
-  @JsonKey(name: 'start_at')
+  @JsonKey(readValue: _startAt)
   String? get startAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'end_at')
+  @JsonKey(readValue: _endAt)
   String? get endAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'duration_minutes')
   int? get durationMinutes => throw _privateConstructorUsedError;
@@ -439,8 +439,8 @@ abstract class $TutorSessionDetailDtoCopyWith<$Res> {
   $Res call(
       {String id,
       @JsonKey(readValue: _subject) String subject,
-      @JsonKey(name: 'start_at') String? startAt,
-      @JsonKey(name: 'end_at') String? endAt,
+      @JsonKey(readValue: _startAt) String? startAt,
+      @JsonKey(readValue: _endAt) String? endAt,
       @JsonKey(name: 'duration_minutes') int? durationMinutes,
       @JsonKey(readValue: _student) String student,
       @JsonKey(readValue: _classe) String classe,
@@ -539,8 +539,8 @@ abstract class _$$TutorSessionDetailDtoImplCopyWith<$Res>
   $Res call(
       {String id,
       @JsonKey(readValue: _subject) String subject,
-      @JsonKey(name: 'start_at') String? startAt,
-      @JsonKey(name: 'end_at') String? endAt,
+      @JsonKey(readValue: _startAt) String? startAt,
+      @JsonKey(readValue: _endAt) String? endAt,
       @JsonKey(name: 'duration_minutes') int? durationMinutes,
       @JsonKey(readValue: _student) String student,
       @JsonKey(readValue: _classe) String classe,
@@ -631,8 +631,8 @@ class _$TutorSessionDetailDtoImpl implements _TutorSessionDetailDto {
   const _$TutorSessionDetailDtoImpl(
       {this.id = '',
       @JsonKey(readValue: _subject) this.subject = '',
-      @JsonKey(name: 'start_at') this.startAt,
-      @JsonKey(name: 'end_at') this.endAt,
+      @JsonKey(readValue: _startAt) this.startAt,
+      @JsonKey(readValue: _endAt) this.endAt,
       @JsonKey(name: 'duration_minutes') this.durationMinutes,
       @JsonKey(readValue: _student) this.student = '',
       @JsonKey(readValue: _classe) this.classe = '',
@@ -651,10 +651,10 @@ class _$TutorSessionDetailDtoImpl implements _TutorSessionDetailDto {
   @JsonKey(readValue: _subject)
   final String subject;
   @override
-  @JsonKey(name: 'start_at')
+  @JsonKey(readValue: _startAt)
   final String? startAt;
   @override
-  @JsonKey(name: 'end_at')
+  @JsonKey(readValue: _endAt)
   final String? endAt;
   @override
   @JsonKey(name: 'duration_minutes')
@@ -742,8 +742,8 @@ abstract class _TutorSessionDetailDto implements TutorSessionDetailDto {
   const factory _TutorSessionDetailDto(
           {final String id,
           @JsonKey(readValue: _subject) final String subject,
-          @JsonKey(name: 'start_at') final String? startAt,
-          @JsonKey(name: 'end_at') final String? endAt,
+          @JsonKey(readValue: _startAt) final String? startAt,
+          @JsonKey(readValue: _endAt) final String? endAt,
           @JsonKey(name: 'duration_minutes') final int? durationMinutes,
           @JsonKey(readValue: _student) final String student,
           @JsonKey(readValue: _classe) final String classe,
@@ -762,10 +762,10 @@ abstract class _TutorSessionDetailDto implements TutorSessionDetailDto {
   @JsonKey(readValue: _subject)
   String get subject;
   @override
-  @JsonKey(name: 'start_at')
+  @JsonKey(readValue: _startAt)
   String? get startAt;
   @override
-  @JsonKey(name: 'end_at')
+  @JsonKey(readValue: _endAt)
   String? get endAt;
   @override
   @JsonKey(name: 'duration_minutes')

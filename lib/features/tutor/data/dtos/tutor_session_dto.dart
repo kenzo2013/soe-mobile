@@ -12,8 +12,8 @@ part 'tutor_session_dto.g.dart';
 abstract class TutorSessionDto with _$TutorSessionDto {
   const factory TutorSessionDto({
     @Default('') String id,
-    @JsonKey(name: 'start_at') String? startAt,
-    @JsonKey(name: 'end_at') String? endAt,
+    @JsonKey(readValue: _startAt) String? startAt,
+    @JsonKey(readValue: _endAt) String? endAt,
     @JsonKey(name: 'duration_minutes') int? durationMinutes,
     @JsonKey(readValue: _student) @Default('') String student,
     @JsonKey(readValue: _subject) @Default('') String subject,
@@ -35,8 +35,8 @@ abstract class TutorSessionDetailDto with _$TutorSessionDetailDto {
   const factory TutorSessionDetailDto({
     @Default('') String id,
     @JsonKey(readValue: _subject) @Default('') String subject,
-    @JsonKey(name: 'start_at') String? startAt,
-    @JsonKey(name: 'end_at') String? endAt,
+    @JsonKey(readValue: _startAt) String? startAt,
+    @JsonKey(readValue: _endAt) String? endAt,
     @JsonKey(name: 'duration_minutes') int? durationMinutes,
     @JsonKey(readValue: _student) @Default('') String student,
     @JsonKey(readValue: _classe) @Default('') String classe,
@@ -125,6 +125,25 @@ String _relativeDay(DateTime d, DateFormat fmt) {
 
 String _cap(String s) =>
     s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';
+
+// L'API sépare `date` (jour) et `start_at`/`end_at` (heures, année 2000).
+// On recombine pour obtenir l'horodatage réel de la séance.
+Object? _startAt(Map<dynamic, dynamic> j, String _) =>
+    _combineDateTime(j['date'], j['start_at']);
+
+Object? _endAt(Map<dynamic, dynamic> j, String _) =>
+    _combineDateTime(j['date'], j['end_at']);
+
+String? _combineDateTime(Object? date, Object? time) {
+  final d = date?.toString();
+  final t = DateTime.tryParse(time?.toString() ?? '');
+  if (d == null || d.isEmpty) return time?.toString();
+  if (t == null) return d;
+  final l = t.toLocal();
+  final hh = l.hour.toString().padLeft(2, '0');
+  final mm = l.minute.toString().padLeft(2, '0');
+  return '${d}T$hh:$mm:00';
+}
 
 Object? _student(Map<dynamic, dynamic> j, String _) {
   final s = j['student'] ?? j['child'];

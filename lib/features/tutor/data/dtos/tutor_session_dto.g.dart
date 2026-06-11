@@ -10,8 +10,8 @@ _$TutorSessionDtoImpl _$$TutorSessionDtoImplFromJson(
         Map<String, dynamic> json) =>
     _$TutorSessionDtoImpl(
       id: json['id'] as String? ?? '',
-      startAt: json['start_at'] as String?,
-      endAt: json['end_at'] as String?,
+      startAt: _startAt(json, 'startAt') as String?,
+      endAt: _endAt(json, 'endAt') as String?,
       durationMinutes: (json['duration_minutes'] as num?)?.toInt(),
       student: _student(json, 'student') as String? ?? '',
       subject: _subject(json, 'subject') as String? ?? '',
@@ -25,8 +25,8 @@ Map<String, dynamic> _$$TutorSessionDtoImplToJson(
         _$TutorSessionDtoImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'start_at': instance.startAt,
-      'end_at': instance.endAt,
+      'startAt': instance.startAt,
+      'endAt': instance.endAt,
       'duration_minutes': instance.durationMinutes,
       'student': instance.student,
       'subject': instance.subject,
@@ -41,8 +41,8 @@ _$TutorSessionDetailDtoImpl _$$TutorSessionDetailDtoImplFromJson(
     _$TutorSessionDetailDtoImpl(
       id: json['id'] as String? ?? '',
       subject: _subject(json, 'subject') as String? ?? '',
-      startAt: json['start_at'] as String?,
-      endAt: json['end_at'] as String?,
+      startAt: _startAt(json, 'startAt') as String?,
+      endAt: _endAt(json, 'endAt') as String?,
       durationMinutes: (json['duration_minutes'] as num?)?.toInt(),
       student: _student(json, 'student') as String? ?? '',
       classe: _classe(json, 'classe') as String? ?? '',
@@ -57,8 +57,8 @@ Map<String, dynamic> _$$TutorSessionDetailDtoImplToJson(
     <String, dynamic>{
       'id': instance.id,
       'subject': instance.subject,
-      'start_at': instance.startAt,
-      'end_at': instance.endAt,
+      'startAt': instance.startAt,
+      'endAt': instance.endAt,
       'duration_minutes': instance.durationMinutes,
       'student': instance.student,
       'classe': instance.classe,
