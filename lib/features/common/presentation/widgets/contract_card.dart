@@ -62,7 +62,9 @@ class ContractCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(99),
                 ),
                 child: Text(
-                  c.signed ? tr.contracts.badgeSigned : tr.contracts.badgeToSign,
+                  c.signed
+                      ? tr.contracts.badgeSigned
+                      : tr.contracts.badgeToSign,
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -94,9 +96,10 @@ class ContractCard extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   c.amendments.length <= 1
-                      ? tr.contracts.amendmentCountOne(count: c.amendments.length)
-                      : tr.contracts.amendmentCountOther(
-                          count: c.amendments.length),
+                      ? tr.contracts
+                          .amendmentCountOne(count: c.amendments.length)
+                      : tr.contracts
+                          .amendmentCountOther(count: c.amendments.length),
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,

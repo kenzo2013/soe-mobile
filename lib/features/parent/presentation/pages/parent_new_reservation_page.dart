@@ -414,8 +414,8 @@ class _Step1 extends ConsumerWidget {
               data: (subjects) => subjects.isEmpty
                   ? Text(
                       tr.parent.reservation.subjectsEmpty,
-                      style: const TextStyle(
-                          color: AppPalette.n700, fontSize: 12),
+                      style:
+                          const TextStyle(color: AppPalette.n700, fontSize: 12),
                     )
                   : Wrap(
                       spacing: 8,
@@ -836,7 +836,8 @@ class _Step3 extends ConsumerWidget {
                   tr.parent.reservation.summaryTutor,
                   switch (genderPref) {
                     TutorGenderPref.male => tr.parent.reservation.genderMale,
-                    TutorGenderPref.female => tr.parent.reservation.genderFemale,
+                    TutorGenderPref.female =>
+                      tr.parent.reservation.genderFemale,
                     TutorGenderPref.noPreference =>
                       tr.parent.reservation.genderNoPreference,
                   },

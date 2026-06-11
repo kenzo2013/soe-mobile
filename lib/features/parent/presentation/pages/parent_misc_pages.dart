@@ -3,6 +3,8 @@
 /// dans une vague d'enrichissement dédiée.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -115,7 +117,7 @@ class ParentReviewsListPage extends ConsumerWidget {
       title: tr.parent.reviews.title,
       activeRoute: '/parent/reviews',
       body: _asyncList<ParentReview>(
-        state: state as AsyncListState<ParentReview>,
+        state: state,
         onRetry: () =>
             ref.read(reviewsListViewModelProvider(null).notifier).refresh(),
         onLoaded: (items) => items.isEmpty
@@ -210,7 +212,7 @@ class ParentProgramsListPage extends ConsumerWidget {
       title: tr.parent.programs.title,
       activeRoute: '/parent/programs',
       body: _asyncList<ParentProgram>(
-        state: state as AsyncListState<ParentProgram>,
+        state: state,
         onRetry: () =>
             ref.read(programsListViewModelProvider(null).notifier).refresh(),
         onLoaded: (items) => items.isEmpty
@@ -270,8 +272,7 @@ class _ProgramCard extends StatelessWidget {
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: AppPalette.infoBg,
                   borderRadius: BorderRadius.circular(99),
@@ -471,7 +472,7 @@ class ParentInvitationsListPage extends ConsumerWidget {
         ),
       ],
       body: _asyncList<ParentInvitation>(
-        state: state as AsyncListState<ParentInvitation>,
+        state: state,
         onRetry: () =>
             ref.read(invitationsListViewModelProvider(null).notifier).refresh(),
         onLoaded: (items) => CustomScrollView(
@@ -811,7 +812,8 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
             SnackBar(content: Text(tr.parent.invitations.inviteFailed)),
           );
     if (r.isOk) {
-      ref.read(invitationsListViewModelProvider(null).notifier).refresh();
+      unawaited(
+          ref.read(invitationsListViewModelProvider(null).notifier).refresh());
     }
   }
 
@@ -841,7 +843,7 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
           Row(children: [
             Expanded(
               child: DropdownButtonFormField<String>(
-                value: _civility,
+                initialValue: _civility,
                 decoration: InputDecoration(
                   labelText: tr.parent.invitations.civility,
                   border: const OutlineInputBorder(),
@@ -892,7 +894,7 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
           ),
           const SizedBox(height: 10),
           DropdownButtonFormField<InvitationLink>(
-            value: _link,
+            initialValue: _link,
             decoration: InputDecoration(
               labelText: tr.parent.invitations.linkWithChildren,
               border: const OutlineInputBorder(),

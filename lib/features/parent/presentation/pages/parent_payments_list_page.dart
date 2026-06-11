@@ -60,12 +60,14 @@ class _Loaded extends StatelessWidget {
     final tr = Translations.of(context);
     final now = DateTime.now();
     final thisMonth = items
-        .where((p) => p.createdAt.year == now.year && p.createdAt.month == now.month)
+        .where((p) =>
+            p.createdAt.year == now.year && p.createdAt.month == now.month)
         .toList();
     final totalSpent = thisMonth
         .where((p) => p.status == PaymentStatus.completed)
         .fold<int>(0, (s, p) => s + p.amount);
-    final ok = thisMonth.where((p) => p.status == PaymentStatus.completed).length;
+    final ok =
+        thisMonth.where((p) => p.status == PaymentStatus.completed).length;
     final processing =
         thisMonth.where((p) => p.status == PaymentStatus.processing).length;
     final failed =
@@ -106,13 +108,14 @@ class _Loaded extends StatelessWidget {
               const SizedBox(height: 14),
               Row(
                 children: [
-                  _miniStat('$ok', tr.parent.payments.statSucceeded, Colors.white),
-                  const SizedBox(width: 22),
                   _miniStat(
-                      '$processing', tr.parent.payments.statProcessing, AppPalette.warning),
+                      '$ok', tr.parent.payments.statSucceeded, Colors.white),
                   const SizedBox(width: 22),
-                  _miniStat(
-                      '$failed', tr.parent.payments.statFailed, const Color(0xFFFF8A8A)),
+                  _miniStat('$processing', tr.parent.payments.statProcessing,
+                      AppPalette.warning),
+                  const SizedBox(width: 22),
+                  _miniStat('$failed', tr.parent.payments.statFailed,
+                      const Color(0xFFFF8A8A)),
                 ],
               ),
             ],
@@ -162,7 +165,8 @@ class _Loaded extends StatelessWidget {
               children: [
                 for (var i = 0; i < items.length; i++) ...[
                   InkWell(
-                    onTap: () => context.push('/parent/payments/${items[i].id}'),
+                    onTap: () =>
+                        context.push('/parent/payments/${items[i].id}'),
                     child: _PaymentRow(payment: items[i]),
                   ),
                   if (i < items.length - 1)
@@ -284,16 +288,31 @@ class _PaymentRow extends StatelessWidget {
 
   Widget _statusBadge(Translations tr, PaymentStatus s) {
     final (label, bg, fg) = switch (s) {
-      PaymentStatus.completed =>
-        (tr.parent.payments.statusCompleted, AppPalette.successBg, AppPalette.success),
-      PaymentStatus.processing =>
-        (tr.parent.payments.statusProcessing, AppPalette.infoBg, AppPalette.teal),
-      PaymentStatus.pending =>
-        (tr.parent.payments.statusPending, AppPalette.warningBg, AppPalette.warning),
-      PaymentStatus.failed =>
-        (tr.parent.payments.statusFailed, AppPalette.dangerBg, AppPalette.danger),
-      PaymentStatus.cancelled =>
-        (tr.parent.payments.statusCancelled, AppPalette.n100, AppPalette.n700),
+      PaymentStatus.completed => (
+          tr.parent.payments.statusCompleted,
+          AppPalette.successBg,
+          AppPalette.success
+        ),
+      PaymentStatus.processing => (
+          tr.parent.payments.statusProcessing,
+          AppPalette.infoBg,
+          AppPalette.teal
+        ),
+      PaymentStatus.pending => (
+          tr.parent.payments.statusPending,
+          AppPalette.warningBg,
+          AppPalette.warning
+        ),
+      PaymentStatus.failed => (
+          tr.parent.payments.statusFailed,
+          AppPalette.dangerBg,
+          AppPalette.danger
+        ),
+      PaymentStatus.cancelled => (
+          tr.parent.payments.statusCancelled,
+          AppPalette.n100,
+          AppPalette.n700
+        ),
       PaymentStatus.unknown => ('—', AppPalette.n100, AppPalette.n700),
     };
     return Container(

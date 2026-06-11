@@ -107,11 +107,10 @@ class _SignupStep2PageState extends ConsumerState<SignupStep2Page> {
                   leadingIcon: Icons.mail_outline,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
-                  validator: (v) =>
-                      (v == null ||
-                              !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(v))
-                          ? tr.errors.emailInvalid
-                          : null,
+                  validator: (v) => (v == null ||
+                          !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(v))
+                      ? tr.errors.emailInvalid
+                      : null,
                 ),
                 const SizedBox(height: 14),
                 SoeFieldLabel(tr.signup.step2.phone),
@@ -130,8 +129,8 @@ class _SignupStep2PageState extends ConsumerState<SignupStep2Page> {
                   padding: const EdgeInsets.only(top: 6, left: 14),
                   child: Text(
                     tr.signup.step2.phoneHelp,
-                    style: AppTypography.caption
-                        .copyWith(color: AppPalette.n700),
+                    style:
+                        AppTypography.caption.copyWith(color: AppPalette.n700),
                   ),
                 ),
                 const SizedBox(height: 18),

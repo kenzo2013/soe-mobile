@@ -59,7 +59,8 @@ class _LogoutSheet extends StatelessWidget {
                 color: AppPalette.dangerBg,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.logout, size: 28, color: AppPalette.danger),
+              child:
+                  const Icon(Icons.logout, size: 28, color: AppPalette.danger),
             ),
             const SizedBox(height: 14),
             Text(

@@ -28,22 +28,26 @@ class TutorCoursesRemoteDatasource {
         if (reservationId != null) 'reservation_id': reservationId,
       },
     );
-    return TutorCourseDetailDto.fromJson(_detailJson(TutorApi.dataObject(r.data)));
+    return TutorCourseDetailDto.fromJson(
+        _detailJson(TutorApi.dataObject(r.data)));
   }
 
   // La réponse `/tutors/students/:id` imbrique tout : `student.{age,gender}`,
   // `tutoring_requests[0].subjects`, `schedules[]` (localized_day / time_slot).
   // On aplatit pour le DTO.
   static Map<String, dynamic> _detailJson(Map<String, dynamic> raw) {
-    final student = (raw['student'] as Map?) ?? const {};
+    final student = (raw['student'] as Map<dynamic, dynamic>?) ??
+        const <dynamic, dynamic>{};
     final reqs = raw['tutoring_requests'];
-    final req =
-        (reqs is List && reqs.isNotEmpty && reqs.first is Map) ? reqs.first as Map : const {};
+    final req = (reqs is List && reqs.isNotEmpty && reqs.first is Map)
+        ? reqs.first as Map<dynamic, dynamic>
+        : const <dynamic, dynamic>{};
     final slots = ((raw['schedules'] as List?) ?? const [])
-        .whereType<Map>()
+        .whereType<Map<dynamic, dynamic>>()
         .map((s) => {
               'day': (s['localized_day'] ?? s['day'] ?? '').toString(),
-              'time_range': (s['time_slot'] ?? s['time_range'] ?? '').toString(),
+              'time_range':
+                  (s['time_slot'] ?? s['time_range'] ?? '').toString(),
               'subject': (s['subject'] ?? '').toString(),
             })
         .toList();
@@ -52,7 +56,7 @@ class TutorCoursesRemoteDatasource {
       'student': student,
       'age': student['age'] ?? 0,
       'gender': student['gender'] ?? '',
-      'subjects': req['subjects'] ?? const [],
+      'subjects': req['subjects'] ?? const <dynamic>[],
       'slots': slots,
     };
   }

@@ -181,7 +181,7 @@ class _DetailView extends ConsumerWidget {
   void _openNegotiate(BuildContext context, ReservationDetailViewModel vm) {
     final tr = Translations.of(context);
     final controller = TextEditingController();
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: AppPalette.white,

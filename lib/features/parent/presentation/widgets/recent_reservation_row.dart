@@ -91,24 +91,42 @@ class RecentReservationRow extends StatelessWidget {
 
   Widget _statusBadge(Translations tr, ReservationStatus s) {
     final (label, tone) = switch (s) {
-      ReservationStatus.draft =>
-        (tr.parent.dashboard.reservationStatusDraft, SoeBadgeTone.neutral),
-      ReservationStatus.pending =>
-        (tr.parent.dashboard.reservationStatusPending, SoeBadgeTone.warning),
-      ReservationStatus.proposedPrice =>
-        (tr.parent.dashboard.reservationStatusProposedPrice, SoeBadgeTone.warning),
-      ReservationStatus.negotiation =>
-        (tr.parent.dashboard.reservationStatusNegotiation, SoeBadgeTone.info),
-      ReservationStatus.accepted =>
-        (tr.parent.dashboard.reservationStatusAccepted, SoeBadgeTone.success),
-      ReservationStatus.active =>
-        (tr.parent.dashboard.reservationStatusActive, SoeBadgeTone.success),
-      ReservationStatus.completed =>
-        (tr.parent.dashboard.reservationStatusCompleted, SoeBadgeTone.success),
-      ReservationStatus.rejected =>
-        (tr.parent.dashboard.reservationStatusRejected, SoeBadgeTone.danger),
-      ReservationStatus.cancelled =>
-        (tr.parent.dashboard.reservationStatusCancelled, SoeBadgeTone.neutral),
+      ReservationStatus.draft => (
+          tr.parent.dashboard.reservationStatusDraft,
+          SoeBadgeTone.neutral
+        ),
+      ReservationStatus.pending => (
+          tr.parent.dashboard.reservationStatusPending,
+          SoeBadgeTone.warning
+        ),
+      ReservationStatus.proposedPrice => (
+          tr.parent.dashboard.reservationStatusProposedPrice,
+          SoeBadgeTone.warning
+        ),
+      ReservationStatus.negotiation => (
+          tr.parent.dashboard.reservationStatusNegotiation,
+          SoeBadgeTone.info
+        ),
+      ReservationStatus.accepted => (
+          tr.parent.dashboard.reservationStatusAccepted,
+          SoeBadgeTone.success
+        ),
+      ReservationStatus.active => (
+          tr.parent.dashboard.reservationStatusActive,
+          SoeBadgeTone.success
+        ),
+      ReservationStatus.completed => (
+          tr.parent.dashboard.reservationStatusCompleted,
+          SoeBadgeTone.success
+        ),
+      ReservationStatus.rejected => (
+          tr.parent.dashboard.reservationStatusRejected,
+          SoeBadgeTone.danger
+        ),
+      ReservationStatus.cancelled => (
+          tr.parent.dashboard.reservationStatusCancelled,
+          SoeBadgeTone.neutral
+        ),
       ReservationStatus.unknown => ('—', SoeBadgeTone.neutral),
     };
     return SoeBadge(label: label, tone: tone);

@@ -71,8 +71,7 @@ class _NotificationsCenterPageState
   Widget build(BuildContext context) {
     final tr = Translations.of(context);
     final async = ref.watch(notificationsProvider);
-    final unreadCount =
-        async.asData?.value.where((n) => !n.read).length ?? 0;
+    final unreadCount = async.asData?.value.where((n) => !n.read).length ?? 0;
 
     return Scaffold(
       backgroundColor: AppPalette.n100,
@@ -94,7 +93,8 @@ class _NotificationsCenterPageState
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: AppPalette.n300),
               ),
-              child: const Icon(Icons.done_all, size: 18, color: AppPalette.teal),
+              child:
+                  const Icon(Icons.done_all, size: 18, color: AppPalette.teal),
             ),
           ),
         ),
@@ -169,7 +169,8 @@ class _GroupedList extends StatelessWidget {
     // Groupe par jour en conservant l'ordre d'arrivée.
     final groups = <String, List<AppNotification>>{};
     for (final n in items) {
-      groups.putIfAbsent(NotificationMapper.dayGroup(n.createdAt), () => [])
+      groups
+          .putIfAbsent(NotificationMapper.dayGroup(n.createdAt), () => [])
           .add(n);
     }
     return ListView(

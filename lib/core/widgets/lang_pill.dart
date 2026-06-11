@@ -77,8 +77,7 @@ class _Flag extends StatelessWidget {
       height: 12,
       child: Row(
         children: [
-          for (final c in colors)
-            Expanded(child: Container(color: c)),
+          for (final c in colors) Expanded(child: Container(color: c)),
         ],
       ),
     );

@@ -24,62 +24,62 @@ class ParentQuoteCta extends StatelessWidget {
         ],
       ),
       child: Material(
-      color: AppPalette.yellow,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
+        color: AppPalette.yellow,
         borderRadius: BorderRadius.circular(14),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: AppPalette.ink,
-                  borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: AppPalette.ink,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.add,
+                    color: AppPalette.yellow,
+                    size: 18,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.add,
-                  color: AppPalette.yellow,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tr.parent.dashboard.quoteCtaTitle,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppPalette.ink,
+                          height: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        tr.parent.dashboard.quoteCtaSubtitle,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Color(0xB3010814),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.chevron_right,
+                  color: AppPalette.ink,
                   size: 18,
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      tr.parent.dashboard.quoteCtaTitle,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: AppPalette.ink,
-                        height: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      tr.parent.dashboard.quoteCtaSubtitle,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Color(0xB3010814),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(
-                Icons.chevron_right,
-                color: AppPalette.ink,
-                size: 18,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }

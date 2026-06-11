@@ -85,41 +85,41 @@ class _BellButton extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.push(RouteNames.notifications),
       child: Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: onDark
-                ? Colors.white.withValues(alpha: 0.10)
-                : AppPalette.white,
-            borderRadius: BorderRadius.circular(10),
-            border: onDark ? null : Border.all(color: AppPalette.n300),
-          ),
-          child: Icon(
-            Icons.notifications_outlined,
-            size: 20,
-            color: onDark ? Colors.white : AppPalette.ink,
-          ),
-        ),
-        Positioned(
-          top: 8,
-          right: 9,
-          child: Container(
-            width: 8,
-            height: 8,
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-              color: AppPalette.danger,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: onDark ? AppPalette.tealDark : AppPalette.white,
-                width: 1.5,
+              color: onDark
+                  ? Colors.white.withValues(alpha: 0.10)
+                  : AppPalette.white,
+              borderRadius: BorderRadius.circular(10),
+              border: onDark ? null : Border.all(color: AppPalette.n300),
+            ),
+            child: Icon(
+              Icons.notifications_outlined,
+              size: 20,
+              color: onDark ? Colors.white : AppPalette.ink,
+            ),
+          ),
+          Positioned(
+            top: 8,
+            right: 9,
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: AppPalette.danger,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: onDark ? AppPalette.tealDark : AppPalette.white,
+                  width: 1.5,
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
       ),
     );
   }

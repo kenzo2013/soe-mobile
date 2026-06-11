@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
@@ -128,8 +127,7 @@ class _ParentReservationsListPageState
           Expanded(
             child: state.when(
               initial: () => const Center(child: CircularProgressIndicator()),
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (f) => ErrorView(
                 failure: f,
                 onRetry: () => ref
@@ -188,6 +186,3 @@ class _ParentReservationsListPageState
     );
   }
 }
-
-// helper for fcfa (currently unused but keeps import clean)
-String _fcfa(int n) => '${NumberFormat.decimalPattern("fr_FR").format(n)} FCFA';

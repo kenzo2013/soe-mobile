@@ -33,9 +33,12 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   Widget build(BuildContext context) {
     final tr = Translations.of(context);
     final slides = [
-      _Slide(title: tr.onboarding.slide1.title, body: tr.onboarding.slide1.body),
-      _Slide(title: tr.onboarding.slide2.title, body: tr.onboarding.slide2.body),
-      _Slide(title: tr.onboarding.slide3.title, body: tr.onboarding.slide3.body),
+      _Slide(
+          title: tr.onboarding.slide1.title, body: tr.onboarding.slide1.body),
+      _Slide(
+          title: tr.onboarding.slide2.title, body: tr.onboarding.slide2.body),
+      _Slide(
+          title: tr.onboarding.slide3.title, body: tr.onboarding.slide3.body),
     ];
 
     return Scaffold(

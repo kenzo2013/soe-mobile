@@ -45,7 +45,9 @@ class MiscRemoteDatasource {
       id: j['id']?.toString() ?? a['id']?.toString() ?? '',
       tutorId: (tutor['id'] ?? a['tutor_id'])?.toString() ?? '',
       tutorName: (tutor['full_name'] ?? a['tutor_name'])?.toString() ?? '—',
-      rating: rating is num ? rating.toInt() : (num.tryParse('$rating') ?? 0).toInt(),
+      rating: rating is num
+          ? rating.toInt()
+          : (num.tryParse('$rating') ?? 0).toInt(),
       comment: a['comment']?.toString() ?? '',
       createdAt: DateTime.tryParse(a['created_at']?.toString() ?? '') ??
           DateTime.now(),
@@ -59,7 +61,8 @@ class MiscRemoteDatasource {
 
   // ── Programs ───────────────────────────────────────────
   Future<List<ParentProgram>> listPrograms() async {
-    final r = await _dio.get<Map<String, dynamic>>('/parents/proposed_programs');
+    final r =
+        await _dio.get<Map<String, dynamic>>('/parents/proposed_programs');
     final list = (r.data!['data'] as List?) ?? const [];
     return list.cast<Map<String, dynamic>>().map(_parseProgram).toList();
   }
@@ -94,7 +97,8 @@ class MiscRemoteDatasource {
       final student = _attrs(p['student']);
       final schoolClass = _attrs(student['school_class']);
       final subjects = ((p['subjects'] as List?) ?? const [])
-          .map((e) => e is Map ? (_attrs(e)['name'] ?? '').toString() : e.toString())
+          .map((e) =>
+              e is Map ? (_attrs(e)['name'] ?? '').toString() : e.toString())
           .where((s) => s.isNotEmpty)
           .toList();
       final tutors = ((p['tutors'] as List?) ?? const [])
@@ -105,16 +109,19 @@ class MiscRemoteDatasource {
       final schedules = ((p['schedules'] as List?) ?? const [])
           .whereType<Map<String, dynamic>>()
           .map((s) {
-        final sa = _attrs(s);
-        return ProgramSchedule(
-          day: _frDay((sa['localized_day'] ?? sa['day'] ?? '').toString()),
-          timeSlot: (sa['time_slot'] ?? '').toString(),
-        );
-      }).where((s) => s.day.isNotEmpty).toList();
+            final sa = _attrs(s);
+            return ProgramSchedule(
+              day: _frDay((sa['localized_day'] ?? sa['day'] ?? '').toString()),
+              timeSlot: (sa['time_slot'] ?? '').toString(),
+            );
+          })
+          .where((s) => s.day.isNotEmpty)
+          .toList();
       return ProgramLine(
         studentName: student['full_name']?.toString() ?? '—',
-        schoolClass: (schoolClass['formatted_name'] ?? schoolClass['name'] ?? '')
-            .toString(),
+        schoolClass:
+            (schoolClass['formatted_name'] ?? schoolClass['name'] ?? '')
+                .toString(),
         subjects: subjects,
         tutors: tutors,
         schedules: schedules,

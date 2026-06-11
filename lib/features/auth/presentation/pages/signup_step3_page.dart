@@ -30,8 +30,7 @@ class _SignupStep3PageState extends ConsumerState<SignupStep3Page> {
   void initState() {
     super.initState();
     final s = ref.read(registerFlowViewModelProvider);
-    _password = TextEditingController(text: s.password)
-      ..addListener(_syncFlow);
+    _password = TextEditingController(text: s.password)..addListener(_syncFlow);
     _confirm = TextEditingController(text: s.passwordConfirmation)
       ..addListener(_syncFlow);
   }
@@ -83,8 +82,9 @@ class _SignupStep3PageState extends ConsumerState<SignupStep3Page> {
                   label: '',
                   hint: tr.signup.step3.passwordHint,
                   textInputAction: TextInputAction.next,
-                  validator: (v) =>
-                      (v == null || v.length < 6) ? tr.errors.passwordTooShort : null,
+                  validator: (v) => (v == null || v.length < 6)
+                      ? tr.errors.passwordTooShort
+                      : null,
                 ),
                 const SizedBox(height: 12),
                 SoeFieldLabel(tr.signup.step3.confirm),
@@ -92,16 +92,17 @@ class _SignupStep3PageState extends ConsumerState<SignupStep3Page> {
                   controller: _confirm,
                   label: '',
                   hint: tr.signup.step3.confirmHint,
-                  validator: (v) => v != _password.text
-                      ? tr.errors.passwordMismatch
-                      : null,
+                  validator: (v) =>
+                      v != _password.text ? tr.errors.passwordMismatch : null,
                 ),
                 const SizedBox(height: 16),
                 _StrengthMeter(
                   state: flow,
                   label: tr.signup.step3.strengthLabel,
                   rules: [
-                    _Rule(label: tr.signup.step3.rule6Chars, ok: flow.password.length >= 6),
+                    _Rule(
+                        label: tr.signup.step3.rule6Chars,
+                        ok: flow.password.length >= 6),
                     _Rule(
                       label: tr.signup.step3.ruleMixCase,
                       ok: RegExp('[A-Z]').hasMatch(flow.password) &&
@@ -186,9 +187,8 @@ class _StrengthMeter extends StatelessWidget {
                     duration: const Duration(milliseconds: 180),
                     height: 4,
                     decoration: BoxDecoration(
-                      color: i < strength
-                          ? AppPalette.success
-                          : AppPalette.n300,
+                      color:
+                          i < strength ? AppPalette.success : AppPalette.n300,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),

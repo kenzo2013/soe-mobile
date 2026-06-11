@@ -238,7 +238,8 @@ class _CourseCard extends StatelessWidget {
 // Détail cours (élève + emploi du temps)
 // ════════════════════════════════════════════════════════════
 class TutorCourseDetailPage extends ConsumerWidget {
-  const TutorCourseDetailPage({super.key, required this.id, this.reservationId});
+  const TutorCourseDetailPage(
+      {super.key, required this.id, this.reservationId});
 
   /// Id de l'élève.
   final String id;
@@ -287,8 +288,8 @@ class TutorCourseDetailPage extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          tr.tutor.courses.ageGender(
-                              age: c.age, gender: c.gender),
+                          tr.tutor.courses
+                              .ageGender(age: c.age, gender: c.gender),
                           style: const TextStyle(
                             fontSize: 11,
                             color: AppPalette.n700,
@@ -420,8 +421,8 @@ class TutorManageSchedulesPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context);
-    final state = ref.watch(
-        tutorCourseDetailViewModelProvider((studentId: id, reservationId: null)));
+    final state = ref.watch(tutorCourseDetailViewModelProvider(
+        (studentId: id, reservationId: null)));
     final days = [
       tr.tutor.days.monday,
       tr.tutor.days.tuesday,

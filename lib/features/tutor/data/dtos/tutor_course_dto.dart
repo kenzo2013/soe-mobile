@@ -17,7 +17,9 @@ abstract class TutorActiveCourseDto with _$TutorActiveCourseDto {
     @JsonKey(readValue: _studentId) String? studentId,
     @JsonKey(readValue: _student) @Default('') String student,
     @JsonKey(readValue: _classe) @Default('') String classe,
-    @JsonKey(readValue: _courseSubjects) @Default(<dynamic>[]) List<dynamic> subjects,
+    @JsonKey(readValue: _courseSubjects)
+    @Default(<dynamic>[])
+    List<dynamic> subjects,
     @JsonKey(readValue: _schedule) @Default('') String schedule,
     @JsonKey(name: 'created_at') String? createdAt,
   }) = _TutorActiveCourseDto;

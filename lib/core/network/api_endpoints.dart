@@ -5,7 +5,8 @@ abstract final class ApiEndpoints {
   static const String logout = '/users/logout';
   static const String register = '/users/register';
   static const String confirmation = '/users/confirmation';
-  static const String confirmationVerifyCode = '/users/confirmation/verify_code';
+  static const String confirmationVerifyCode =
+      '/users/confirmation/verify_code';
   static const String passwordReset = '/users/password';
   static const String passwordVerifyCode = '/users/password/verify_code';
   static const String passwordResetWithCode = '/users/password/reset_with_code';

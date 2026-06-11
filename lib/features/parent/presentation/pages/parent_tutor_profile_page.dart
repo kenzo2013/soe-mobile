@@ -450,8 +450,7 @@ class _AvailabilityWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tr = Translations.of(context);
-    final activeDays =
-        profile.availabilities.map((a) => a.weekday).toSet();
+    final activeDays = profile.availabilities.map((a) => a.weekday).toSet();
     return SoeCard(
       child: Column(
         children: [
@@ -491,8 +490,8 @@ class _AvailabilityWidget extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 profile.availabilities
-                    .map((a) =>
-                        '${_weekdayLabel(tr, a.weekday)} ${a.timeRange}')
+                    .map(
+                        (a) => '${_weekdayLabel(tr, a.weekday)} ${a.timeRange}')
                     .join(' · '),
                 style: const TextStyle(
                   fontSize: 11,

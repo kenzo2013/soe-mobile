@@ -14,8 +14,8 @@ class PaymentsRemoteDatasource {
   final Dio _dio;
 
   Future<List<PaymentDto>> list() async {
-    final r = await _dio
-        .get<Map<String, dynamic>>(ApiEndpoints.parentsPayments);
+    final r =
+        await _dio.get<Map<String, dynamic>>(ApiEndpoints.parentsPayments);
     final list = (r.data!['data'] as List?) ?? const [];
     return list
         .whereType<Map<String, dynamic>>()
@@ -24,8 +24,8 @@ class PaymentsRemoteDatasource {
   }
 
   Future<PaymentDto> get(String id) async {
-    final r = await _dio.get<Map<String, dynamic>>(
-        '${ApiEndpoints.parentsPayments}/$id');
+    final r = await _dio
+        .get<Map<String, dynamic>>('${ApiEndpoints.parentsPayments}/$id');
     final data = (r.data!['data'] as Map<String, dynamic>?) ?? r.data!;
     return PaymentDto.fromJson(_paymentJson(data));
   }

@@ -164,7 +164,10 @@ class CommonRemoteDatasource {
   Future<List<ServiceContract>> getContracts() async {
     final r = await _dio.get<Map<String, dynamic>>(ApiEndpoints.contracts);
     final list = (r.data?['data'] as List?) ?? const [];
-    return list.whereType<Map<String, dynamic>>().map(_contractFromJson).toList();
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(_contractFromJson)
+        .toList();
   }
 
   /// Signature du contrat : multipart `contract[signature]` + `contract[signed]`.
@@ -235,24 +238,21 @@ class CommonRemoteDatasource {
   }
 
   static AccountAddress _addressFromJson(Map<String, dynamic> j) {
-    double? toD(Object? v) =>
-        v == null ? null : double.tryParse(v.toString());
+    double? toD(Object? v) => v == null ? null : double.tryParse(v.toString());
     return AccountAddress(
       id: j['id']?.toString(),
-      address: (j['address'] ?? j['formatted_address'] ?? j['line1'])
+      address:
+          (j['address'] ?? j['formatted_address'] ?? j['line1'])?.toString(),
+      complement: (j['address2'] ?? j['address_complement'] ?? j['complement'])
           ?.toString(),
-      complement:
-          (j['address2'] ?? j['address_complement'] ?? j['complement'])
-              ?.toString(),
       neighborhood:
           (j['neighborhood'] ?? j['quarter'] ?? j['district'])?.toString(),
       city: j['city']?.toString(),
       region: (j['region'] ?? j['state'])?.toString(),
       country: j['country']?.toString(),
       countryCode: (j['country_code'] ?? j['countryCode'])?.toString(),
-      landmark:
-          (j['landmark'] ?? j['point_of_reference'] ?? j['reference'])
-              ?.toString(),
+      landmark: (j['landmark'] ?? j['point_of_reference'] ?? j['reference'])
+          ?.toString(),
       latitude: toD(j['latitude'] ?? j['lat']),
       longitude: toD(j['longitude'] ?? j['lng'] ?? j['lon']),
     );

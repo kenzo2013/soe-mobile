@@ -161,8 +161,7 @@ class _ChildCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           InkWell(
-            onTap: () =>
-                context.push(RouteNames.parentStudentDetail(child.id)),
+            onTap: () => context.push(RouteNames.parentStudentDetail(child.id)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -235,8 +234,8 @@ class _ChildCard extends StatelessWidget {
                 child: _CardAction(
                   icon: Icons.calendar_month_outlined,
                   label: tr.parent.children.schedule,
-                  onTap: () => context
-                      .push(RouteNames.parentStudentDetail(child.id)),
+                  onTap: () =>
+                      context.push(RouteNames.parentStudentDetail(child.id)),
                 ),
               ),
               Container(width: 1, height: 36, color: AppPalette.n100),
@@ -452,9 +451,9 @@ class _Skeleton extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       itemCount: 3,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (_, __) => SoeCard(
+      itemBuilder: (_, __) => const SoeCard(
         child: Row(
-          children: const [
+          children: [
             SoeSkeleton(
               width: 52,
               height: 52,

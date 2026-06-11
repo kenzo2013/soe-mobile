@@ -16,8 +16,7 @@ class EmailConfirmedPage extends ConsumerStatefulWidget {
   const EmailConfirmedPage({super.key});
 
   @override
-  ConsumerState<EmailConfirmedPage> createState() =>
-      _EmailConfirmedPageState();
+  ConsumerState<EmailConfirmedPage> createState() => _EmailConfirmedPageState();
 }
 
 class _EmailConfirmedPageState extends ConsumerState<EmailConfirmedPage> {

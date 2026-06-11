@@ -481,8 +481,10 @@ class _HowStep extends StatelessWidget {
 String _todayLine(Translations tr, int sessionCount) {
   final fmt = DateFormat('EEEE d MMMM', 'fr');
   final date = fmt.format(DateTime.now());
-  if (sessionCount == 0) return tr.parent.dashboard.dateLineNoSession(date: date);
-  if (sessionCount == 1) return tr.parent.dashboard.dateLineOneSession(date: date);
+  if (sessionCount == 0)
+    return tr.parent.dashboard.dateLineNoSession(date: date);
+  if (sessionCount == 1)
+    return tr.parent.dashboard.dateLineOneSession(date: date);
   return tr.parent.dashboard.dateLineManySessions(
     date: date,
     count: sessionCount,

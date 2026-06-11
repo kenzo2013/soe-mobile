@@ -110,8 +110,7 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
       );
     });
 
-    final isLoading =
-        state.maybeWhen(loading: () => true, orElse: () => false);
+    final isLoading = state.maybeWhen(loading: () => true, orElse: () => false);
 
     return Scaffold(
       backgroundColor: AppPalette.white,
@@ -128,8 +127,7 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
                 const SizedBox(height: 6),
                 Text(
                   tr.signup.step4.subtitle,
-                  style:
-                      AppTypography.bodySm.copyWith(color: AppPalette.n700),
+                  style: AppTypography.bodySm.copyWith(color: AppPalette.n700),
                 ),
                 const SizedBox(height: 18),
                 SoeFieldLabel(tr.signup.step4.search),
@@ -159,10 +157,9 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
                             controller: _city,
                             hint: tr.signup.step4.cityHint,
                             textInputAction: TextInputAction.done,
-                            validator: (v) =>
-                                (v == null || v.trim().isEmpty)
-                                    ? tr.errors.required
-                                    : null,
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? tr.errors.required
+                                : null,
                           ),
                         ],
                       ),
@@ -227,9 +224,7 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
                   size: SoeButtonSize.lg,
                   fullWidth: true,
                   loading: isLoading,
-                  onPressed: isLoading
-                      ? null
-                      : () => _onSubmit(flow, tr),
+                  onPressed: isLoading ? null : () => _onSubmit(flow, tr),
                 ),
               ],
             ),
@@ -320,10 +315,8 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
   }
 
   String _label(Failure f, Translations tr) => switch (f) {
-        ConflictFailure(:final message) =>
-          message ?? tr.errors.validation,
-        ValidationFailure(:final message) =>
-          message ?? tr.errors.validation,
+        ConflictFailure(:final message) => message ?? tr.errors.validation,
+        ValidationFailure(:final message) => message ?? tr.errors.validation,
         NetworkFailure() => tr.errors.network,
         _ => tr.errors.unknown,
       };

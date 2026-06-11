@@ -140,8 +140,8 @@ class _HubBody extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                tr.tutor.profile.reviewsSuffix(
-                                    count: profile.reviews),
+                                tr.tutor.profile
+                                    .reviewsSuffix(count: profile.reviews),
                                 style: const TextStyle(
                                   color: Colors.white60,
                                   fontSize: 11,
@@ -442,8 +442,7 @@ class TutorTrainingsPage extends ConsumerWidget {
                                       size: 12, color: AppPalette.n700),
                                   const SizedBox(width: 4),
                                   Text(
-                                    tr.tutor.profile
-                                        .obtainedIn(date: t.date),
+                                    tr.tutor.profile.obtainedIn(date: t.date),
                                     style: const TextStyle(
                                       fontSize: 11,
                                       color: AppPalette.n700,
@@ -1143,7 +1142,8 @@ class TutorAvailabilitiesPage extends ConsumerWidget {
                                                   context,
                                                   ref,
                                                   actionKey: 'avail_del',
-                                                  successMessage: tr.tutor
+                                                  successMessage: tr
+                                                      .tutor
                                                       .profile
                                                       .availabilityDeleted,
                                                   popOnSuccess: false,

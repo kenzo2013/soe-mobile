@@ -9,8 +9,8 @@ class SessionsRemoteDatasource {
   final Dio _dio;
 
   Future<List<SessionSummaryDto>> list() async {
-    final r = await _dio
-        .get<Map<String, dynamic>>(ApiEndpoints.parentsSessions);
+    final r =
+        await _dio.get<Map<String, dynamic>>(ApiEndpoints.parentsSessions);
     final list = (r.data!['data'] as List?) ?? const [];
     return list
         .whereType<Map<String, dynamic>>()
@@ -26,7 +26,8 @@ class SessionsRemoteDatasource {
     final tutor = _attrs(a['tutor']);
     final student = _attrs(a['student']);
     final subjects = ((a['subjects'] as List?) ?? const [])
-        .map((s) => s is Map ? (_attrs(s)['name'] ?? '').toString() : s.toString())
+        .map((s) =>
+            s is Map ? (_attrs(s)['name'] ?? '').toString() : s.toString())
         .where((s) => s.isNotEmpty)
         .toList();
     return {

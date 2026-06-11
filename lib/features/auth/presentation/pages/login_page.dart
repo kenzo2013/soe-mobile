@@ -75,155 +75,151 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         backgroundColor: AppPalette.teal,
         body: SafeArea(
           child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 22),
-              child: Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(0, 12, 0, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [LangPill(dark: true)],
-                    ),
+            padding: const EdgeInsets.symmetric(horizontal: 22),
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 12, 0, 0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [LangPill(dark: true)],
                   ),
-                  const SizedBox(height: 8),
-                  const SoeBrandLogo(width: 150, onDark: true),
-                  const SizedBox(height: 14),
-                  Text(
-                    tr.login.welcome,
-                    style: AppTypography.h2
-                        .copyWith(color: AppPalette.white, height: 1.2),
-                    textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                const SoeBrandLogo(width: 150, onDark: true),
+                const SizedBox(height: 14),
+                Text(
+                  tr.login.welcome,
+                  style: AppTypography.h2
+                      .copyWith(color: AppPalette.white, height: 1.2),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 18),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(22),
+                  decoration: const BoxDecoration(
+                    color: AppPalette.white,
+                    borderRadius: AppRadius.rXxl,
+                    boxShadow: AppShadows.lg,
                   ),
-                  const SizedBox(height: 18),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(22),
-                    decoration: const BoxDecoration(
-                      color: AppPalette.white,
-                      borderRadius: AppRadius.rXxl,
-                      boxShadow: AppShadows.lg,
-                    ),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            tr.login.title,
-                            textAlign: TextAlign.center,
-                            style: AppTypography.h3
-                                .copyWith(color: AppPalette.teal),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          tr.login.title,
+                          textAlign: TextAlign.center,
+                          style:
+                              AppTypography.h3.copyWith(color: AppPalette.teal),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          tr.login.subtitleGeneric,
+                          textAlign: TextAlign.center,
+                          style: AppTypography.bodySm
+                              .copyWith(color: AppPalette.n700),
+                        ),
+                        const SizedBox(height: 18),
+                        SoeTextField(
+                          controller: _email,
+                          label: tr.login.email,
+                          hint: tr.login.emailHint,
+                          leadingIcon: Icons.mail_outline,
+                          keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                          validator: (v) => (v == null || !v.contains('@'))
+                              ? tr.errors.emailInvalid
+                              : null,
+                        ),
+                        const SizedBox(height: 12),
+                        SoePasswordField(
+                          controller: _password,
+                          label: tr.login.password,
+                          hint: tr.login.passwordHint,
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (_) => _onSubmit(),
+                          validator: (v) => (v == null || v.isEmpty)
+                              ? tr.errors.required
+                              : null,
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: SoeButton(
+                            label: tr.login.forgotPassword,
+                            variant: SoeButtonVariant.link,
+                            size: SoeButtonSize.sm,
+                            onPressed: () =>
+                                context.push(RouteNames.passwordForgot),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            tr.login.subtitleGeneric,
-                            textAlign: TextAlign.center,
-                            style: AppTypography.bodySm
-                                .copyWith(color: AppPalette.n700),
-                          ),
-                          const SizedBox(height: 18),
-                          SoeTextField(
-                            controller: _email,
-                            label: tr.login.email,
-                            hint: tr.login.emailHint,
-                            leadingIcon: Icons.mail_outline,
-                            keyboardType: TextInputType.emailAddress,
-                            textInputAction: TextInputAction.next,
-                            validator: (v) =>
-                                (v == null || !v.contains('@'))
-                                    ? tr.errors.emailInvalid
-                                    : null,
-                          ),
-                          const SizedBox(height: 12),
-                          SoePasswordField(
-                            controller: _password,
-                            label: tr.login.password,
-                            hint: tr.login.passwordHint,
-                            textInputAction: TextInputAction.done,
-                            onFieldSubmitted: (_) => _onSubmit(),
-                            validator: (v) => (v == null || v.isEmpty)
-                                ? tr.errors.required
-                                : null,
-                          ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: SoeButton(
-                              label: tr.login.forgotPassword,
-                              variant: SoeButtonVariant.link,
-                              size: SoeButtonSize.sm,
-                              onPressed: () =>
-                                  context.push(RouteNames.passwordForgot),
+                        ),
+                        const SizedBox(height: 8),
+                        SoeButton(
+                          label: isLoading ? tr.login.loading : tr.login.submit,
+                          size: SoeButtonSize.lg,
+                          fullWidth: true,
+                          loading: isLoading,
+                          onPressed: isLoading ? null : _onSubmit,
+                        ),
+                        const SizedBox(height: 18),
+                        Row(
+                          children: [
+                            const Expanded(
+                              child: Divider(color: AppPalette.n300),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          SoeButton(
-                            label: isLoading
-                                ? tr.login.loading
-                                : tr.login.submit,
-                            size: SoeButtonSize.lg,
-                            fullWidth: true,
-                            loading: isLoading,
-                            onPressed: isLoading ? null : _onSubmit,
-                          ),
-                          const SizedBox(height: 18),
-                          Row(
-                            children: [
-                              const Expanded(
-                                child: Divider(color: AppPalette.n300),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
                               ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                ),
-                                child: Text(
-                                  tr.common.or,
-                                  style: AppTypography.caption
-                                      .copyWith(color: AppPalette.n500),
-                                ),
+                              child: Text(
+                                tr.common.or,
+                                style: AppTypography.caption
+                                    .copyWith(color: AppPalette.n500),
                               ),
-                              const Expanded(
-                                child: Divider(color: AppPalette.n300),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Wrap(
-                            alignment: WrapAlignment.center,
-                            children: [
-                              Text(
-                                '${tr.login.noAccount} ',
-                                style: AppTypography.bodySm
-                                    .copyWith(color: AppPalette.n700),
-                              ),
-                              GestureDetector(
-                                onTap: () =>
-                                    context.go(RouteNames.roleChoice),
-                                child: Text(
-                                  tr.login.signUp,
-                                  style: AppTypography.bodySm.copyWith(
-                                    color: AppPalette.teal,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                            ),
+                            const Expanded(
+                              child: Divider(color: AppPalette.n300),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          children: [
+                            Text(
+                              '${tr.login.noAccount} ',
+                              style: AppTypography.bodySm
+                                  .copyWith(color: AppPalette.n700),
+                            ),
+                            GestureDetector(
+                              onTap: () => context.go(RouteNames.roleChoice),
+                              child: Text(
+                                tr.login.signUp,
+                                style: AppTypography.bodySm.copyWith(
+                                  color: AppPalette.teal,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  Text(
-                    tr.common.copyright,
-                    style: AppTypography.caption
-                        .copyWith(color: AppPalette.white.withValues(alpha: .7)),
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  tr.common.copyright,
+                  style: AppTypography.caption
+                      .copyWith(color: AppPalette.white.withValues(alpha: .7)),
+                ),
+              ],
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 
   void _onSubmit() {

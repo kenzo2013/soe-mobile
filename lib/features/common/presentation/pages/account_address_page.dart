@@ -118,7 +118,8 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
       successMessage: tr.account.address.saved,
       popOnSuccess: false,
       op: () async {
-        final r = await ref.read(commonRepositoryProvider).updateAddress(updated);
+        final r =
+            await ref.read(commonRepositoryProvider).updateAddress(updated);
         return switch (r) {
           Ok() => const Ok<void, Failure>(null),
           Err(:final failure) => Err<void, Failure>(failure),

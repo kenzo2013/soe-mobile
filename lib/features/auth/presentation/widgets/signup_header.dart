@@ -32,8 +32,8 @@ class SignupHeader extends StatelessWidget implements PreferredSizeWidget {
                 ),
                 Text(
                   tr.signup.step(current: step, total: total),
-                  style: AppTypography.label
-                      .copyWith(color: AppPalette.n700, fontWeight: FontWeight.w600),
+                  style: AppTypography.label.copyWith(
+                      color: AppPalette.n700, fontWeight: FontWeight.w600),
                 ),
               ],
             ),

@@ -6,8 +6,7 @@ import '../../domain/entities/reservation_detail.dart';
 import '../../domain/usecases/reservations_usecases.dart';
 import 'reservations_states.dart';
 
-class ReservationsListViewModel
-    extends StateNotifier<ReservationsListState> {
+class ReservationsListViewModel extends StateNotifier<ReservationsListState> {
   ReservationsListViewModel(this._list)
       : super(const ReservationsListState.initial());
   final ListReservations _list;
@@ -24,8 +23,7 @@ class ReservationsListViewModel
   Future<void> refresh() => load();
 }
 
-class ReservationDetailViewModel
-    extends StateNotifier<ReservationDetailState> {
+class ReservationDetailViewModel extends StateNotifier<ReservationDetailState> {
   ReservationDetailViewModel({
     required this.getDetail,
     required this.accept,
@@ -64,7 +62,8 @@ class ReservationDetailViewModel
 }
 
 class NewReservationViewModel extends StateNotifier<NewReservationState> {
-  NewReservationViewModel(this._create) : super(const NewReservationState.editing());
+  NewReservationViewModel(this._create)
+      : super(const NewReservationState.editing());
   final CreateReservation _create;
 
   Future<void> submit(NewReservationParams params) async {

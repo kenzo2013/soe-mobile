@@ -15,6 +15,10 @@ import '../data/repositories/payments_repository_impl.dart';
 import '../data/repositories/reservations_repository_impl.dart';
 import '../data/repositories/sessions_repository_impl.dart';
 import '../data/repositories/tutor_profile_repository_impl.dart';
+import '../domain/entities/contract.dart';
+import '../domain/entities/parent_invitation.dart';
+import '../domain/entities/parent_program.dart';
+import '../domain/entities/parent_review.dart';
 import '../domain/repositories/children_repository.dart';
 import '../domain/repositories/parent_dashboard_repository.dart';
 import '../domain/repositories/misc_repositories.dart';
@@ -59,11 +63,10 @@ final getParentDashboardProvider = Provider<GetParentDashboard>(
   (ref) => GetParentDashboard(ref.watch(parentDashboardRepositoryProvider)),
 );
 
-final parentDashboardViewModelProvider =
-    StateNotifierProvider.autoDispose<ParentDashboardViewModel,
-        ParentDashboardState>(
-  (ref) => ParentDashboardViewModel(ref.watch(getParentDashboardProvider))
-    ..load(),
+final parentDashboardViewModelProvider = StateNotifierProvider.autoDispose<
+    ParentDashboardViewModel, ParentDashboardState>(
+  (ref) =>
+      ParentDashboardViewModel(ref.watch(getParentDashboardProvider))..load(),
 );
 
 // ── Children ─────────────────────────────────────────────────
@@ -72,8 +75,7 @@ final childrenRemoteDatasourceProvider = Provider<ChildrenRemoteDatasource>(
 );
 
 final childrenRepositoryProvider = Provider<ChildrenRepository>(
-  (ref) =>
-      ChildrenRepositoryImpl(ref.watch(childrenRemoteDatasourceProvider)),
+  (ref) => ChildrenRepositoryImpl(ref.watch(childrenRemoteDatasourceProvider)),
 );
 
 final listChildrenProvider = Provider<ListChildren>(
@@ -84,13 +86,13 @@ final saveChildProvider = Provider<SaveChild>(
   (ref) => SaveChild(ref.watch(childrenRepositoryProvider)),
 );
 
-final childrenListViewModelProvider = StateNotifierProvider.autoDispose<
-    ChildrenListViewModel, ChildrenListState>(
+final childrenListViewModelProvider =
+    StateNotifierProvider.autoDispose<ChildrenListViewModel, ChildrenListState>(
   (ref) => ChildrenListViewModel(ref.watch(listChildrenProvider))..load(),
 );
 
-final childFormViewModelProvider = StateNotifierProvider.autoDispose<
-    ChildFormViewModel, ChildFormState>(
+final childFormViewModelProvider =
+    StateNotifierProvider.autoDispose<ChildFormViewModel, ChildFormState>(
   (ref) => ChildFormViewModel(ref.watch(saveChildProvider)),
 );
 
@@ -131,8 +133,8 @@ final negotiateReservationProvider = Provider<NegotiateReservation>(
 
 final reservationsListViewModelProvider = StateNotifierProvider.autoDispose<
     ReservationsListViewModel, ReservationsListState>(
-  (ref) => ReservationsListViewModel(ref.watch(listReservationsProvider))
-    ..load(),
+  (ref) =>
+      ReservationsListViewModel(ref.watch(listReservationsProvider))..load(),
 );
 
 final reservationDetailViewModelProvider = StateNotifierProvider.autoDispose
@@ -169,26 +171,26 @@ final contractsRepositoryProvider = Provider<ContractsRepository>(
 );
 
 final reviewsListViewModelProvider = StateNotifierProvider.autoDispose
-    .family<ReviewsListViewModel, AsyncListState, Object?>(
+    .family<ReviewsListViewModel, AsyncListState<ParentReview>, Object?>(
   (ref, _) =>
       ReviewsListViewModel(ref.watch(reviewsRepositoryProvider))..load(),
 );
 
 final programsListViewModelProvider = StateNotifierProvider.autoDispose
-    .family<ProgramsListViewModel, AsyncListState, Object?>(
+    .family<ProgramsListViewModel, AsyncListState<ParentProgram>, Object?>(
   (ref, _) =>
       ProgramsListViewModel(ref.watch(programsRepositoryProvider))..load(),
 );
 
 final invitationsListViewModelProvider = StateNotifierProvider.autoDispose
-    .family<InvitationsListViewModel, AsyncListState, Object?>(
-  (ref, _) =>
-      InvitationsListViewModel(ref.watch(invitationsRepositoryProvider))
-        ..load(),
+    .family<InvitationsListViewModel, AsyncListState<ParentInvitation>,
+        Object?>(
+  (ref, _) => InvitationsListViewModel(ref.watch(invitationsRepositoryProvider))
+    ..load(),
 );
 
 final contractsListViewModelProvider = StateNotifierProvider.autoDispose
-    .family<ContractsListViewModel, AsyncListState, Object?>(
+    .family<ContractsListViewModel, AsyncListState<Contract>, Object?>(
   (ref, _) =>
       ContractsListViewModel(ref.watch(contractsRepositoryProvider))..load(),
 );
@@ -214,8 +216,8 @@ final getPaymentReceiptProvider = Provider<GetPaymentReceipt>(
   (ref) => GetPaymentReceipt(ref.watch(paymentsRepositoryProvider)),
 );
 
-final paymentsListViewModelProvider = StateNotifierProvider.autoDispose<
-    PaymentsListViewModel, PaymentsListState>(
+final paymentsListViewModelProvider =
+    StateNotifierProvider.autoDispose<PaymentsListViewModel, PaymentsListState>(
   (ref) => PaymentsListViewModel(ref.watch(listPaymentsProvider))..load(),
 );
 
@@ -247,8 +249,8 @@ final getSessionDetailProvider = Provider<GetSessionDetail>(
   (ref) => GetSessionDetail(ref.watch(sessionsRepositoryProvider)),
 );
 
-final sessionsListViewModelProvider = StateNotifierProvider.autoDispose<
-    SessionsListViewModel, SessionsListState>(
+final sessionsListViewModelProvider =
+    StateNotifierProvider.autoDispose<SessionsListViewModel, SessionsListState>(
   (ref) => SessionsListViewModel(ref.watch(listSessionsProvider))..load(),
 );
 

@@ -24,11 +24,13 @@ class _RoleMeta {
 const _parentMeta = _RoleMeta('parent', Icons.group_outlined);
 const _tutorMeta = _RoleMeta('tutor', Icons.school_outlined);
 
-String _roleLabel(Translations tr, _RoleMeta meta) =>
-    meta.key == 'tutor' ? tr.account.role.tutorLabel : tr.account.role.parentLabel;
+String _roleLabel(Translations tr, _RoleMeta meta) => meta.key == 'tutor'
+    ? tr.account.role.tutorLabel
+    : tr.account.role.parentLabel;
 
-String _roleDesc(Translations tr, _RoleMeta meta) =>
-    meta.key == 'tutor' ? tr.account.role.tutorDesc : tr.account.role.parentDesc;
+String _roleDesc(Translations tr, _RoleMeta meta) => meta.key == 'tutor'
+    ? tr.account.role.tutorDesc
+    : tr.account.role.parentDesc;
 
 /// 5 · Mon rôle — switch / ajout (design `CommonRoleSwitch`).
 class AccountRolePage extends ConsumerWidget {
@@ -81,9 +83,7 @@ class AccountRolePage extends ConsumerWidget {
               meta: other,
               actionLabel: tr.account.role.switchAction,
               loading: submitting,
-              onTap: submitting
-                  ? null
-                  : () => _switch(context, ref, other.key),
+              onTap: submitting ? null : () => _switch(context, ref, other.key),
             )
           else ...[
             _OtherRoleCard(
@@ -96,8 +96,7 @@ class AccountRolePage extends ConsumerWidget {
                   ? tr.account.role.becomeTutor
                   : tr.account.role.becomeParent,
               loading: submitting,
-              onTap:
-                  submitting ? null : () => _add(context, ref, other.key),
+              onTap: submitting ? null : () => _add(context, ref, other.key),
             ),
             const SizedBox(height: 10),
             Text(

@@ -48,7 +48,8 @@ class SoePlaceResult {
       final types = c.types;
       if (types.contains('locality')) {
         city = c.name;
-      } else if (city == null && types.contains('administrative_area_level_2')) {
+      } else if (city == null &&
+          types.contains('administrative_area_level_2')) {
         city = c.name;
       }
       if (types.contains('country')) {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -82,7 +84,7 @@ class _ReviewSheetState extends ConsumerState<_ReviewSheet> {
       case Ok():
         SoeToast.show(context,
             message: tr.parent.reviews.posted, tone: SoeToastTone.success);
-        ref.read(reviewsListViewModelProvider(null).notifier).load();
+        unawaited(ref.read(reviewsListViewModelProvider(null).notifier).load());
         Navigator.of(context).pop();
       case Err():
         SoeToast.show(context,

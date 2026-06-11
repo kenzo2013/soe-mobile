@@ -115,8 +115,7 @@ extension TutorProfileDtoX on TutorProfileDto {
                   author: e.authorName ?? '—',
                   rating: e.rating,
                   comment: e.comment ?? '',
-                  date: DateTime.tryParse(e.createdAt ?? '') ??
-                      DateTime.now(),
+                  date: DateTime.tryParse(e.createdAt ?? '') ?? DateTime.now(),
                 ))
             .toList(),
       );

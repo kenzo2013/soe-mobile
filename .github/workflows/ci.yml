@@ -27,6 +27,9 @@ jobs:
       - name: Format check
         run: dart format --set-exit-if-changed .
 
+      - name: i18n codegen (slang)
+        run: dart run slang
+
       - name: Analyze
         run: flutter analyze --fatal-infos
 
@@ -38,7 +41,8 @@ jobs:
           sudo apt-get update && sudo apt-get install -y lcov
           lcov --remove coverage/lcov.info \
             '*/*.g.dart' '*/*.freezed.dart' '*/i18n/*' \
-            -o coverage/lcov.cleaned.info
+            -o coverage/lcov.cleaned.info \
+            --ignore-errors unused
           PCT=$(lcov --summary coverage/lcov.cleaned.info 2>&1 | grep -oP 'lines\.*: \K[0-9.]+')
           echo "Coverage: $PCT%"
           awk -v p="$PCT" 'BEGIN { exit (p+0 < 80) ? 1 : 0 }'

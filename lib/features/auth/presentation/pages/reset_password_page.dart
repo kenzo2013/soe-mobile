@@ -65,8 +65,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
       );
     });
 
-    final isLoading =
-        state.maybeWhen(loading: () => true, orElse: () => false);
+    final isLoading = state.maybeWhen(loading: () => true, orElse: () => false);
 
     return Scaffold(
       backgroundColor: AppPalette.white,
@@ -125,8 +124,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.check,
-                          size: 16, color: AppPalette.teal),
+                      const Icon(Icons.check, size: 16, color: AppPalette.teal),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
@@ -169,8 +167,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
   }
 
   String _label(Failure f, Translations tr) => switch (f) {
-        ValidationFailure(:final message) =>
-          message ?? tr.errors.validation,
+        ValidationFailure(:final message) => message ?? tr.errors.validation,
         UnauthorizedFailure() => tr.errors.unauthorized,
         NetworkFailure() => tr.errors.network,
         _ => tr.errors.unknown,

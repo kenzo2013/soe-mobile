@@ -57,9 +57,8 @@ class SoeButton extends StatelessWidget {
         fontSize: s.fontSize,
         fontWeight: FontWeight.w700,
         letterSpacing: 0.1,
-        decoration: variant == SoeButtonVariant.link
-            ? TextDecoration.underline
-            : null,
+        decoration:
+            variant == SoeButtonVariant.link ? TextDecoration.underline : null,
       ),
     );
 

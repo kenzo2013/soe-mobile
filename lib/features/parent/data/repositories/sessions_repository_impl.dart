@@ -23,8 +23,8 @@ class SessionsRepositoryImpl implements SessionsRepository {
   }
 
   @override
-  Future<Result<List<SessionSummary>, Failure>> list() => _guard(() async =>
-      (await _ds.list()).map((e) => e.toEntity()).toList());
+  Future<Result<List<SessionSummary>, Failure>> list() =>
+      _guard(() async => (await _ds.list()).map((e) => e.toEntity()).toList());
 
   @override
   Future<Result<SessionDetail, Failure>> get(String id) =>

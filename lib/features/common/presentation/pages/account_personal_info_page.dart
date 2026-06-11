@@ -104,7 +104,8 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
       actionKey: 'profile',
       successMessage: tr.account.personalInfo.saved,
       op: () async {
-        final r = await ref.read(commonRepositoryProvider).updateProfile(params);
+        final r =
+            await ref.read(commonRepositoryProvider).updateProfile(params);
         return switch (r) {
           Ok() => const Ok<void, Failure>(null),
           Err(:final failure) => Err<void, Failure>(failure),
@@ -117,8 +118,8 @@ class _ProfileFormState extends ConsumerState<_ProfileForm> {
   @override
   Widget build(BuildContext context) {
     final tr = Translations.of(context);
-    final submitting =
-        ref.watch(commonActionViewModelProvider('profile')) is CommonActionSubmitting;
+    final submitting = ref.watch(commonActionViewModelProvider('profile'))
+        is CommonActionSubmitting;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
