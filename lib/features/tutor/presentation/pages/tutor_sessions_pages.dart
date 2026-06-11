@@ -678,6 +678,52 @@ class _Field extends StatelessWidget {
   }
 }
 
+/// Champ heure éditable (HH:mm) pour le rapport de séance.
+class _TimeField extends StatelessWidget {
+  const _TimeField({required this.label, required this.controller});
+  final String label;
+  final TextEditingController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: const TextStyle(fontSize: 11, color: AppPalette.n700)),
+        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: AppPalette.n50,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppPalette.n300),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.schedule_outlined,
+                  size: 14, color: AppPalette.teal),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  keyboardType: TextInputType.datetime,
+                  decoration: const InputDecoration.collapsed(hintText: 'HH:mm'),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: AppPalette.ink,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 // ════════════════════════════════════════════════════════════
 // Rapport de séance (avec signature)
 // ════════════════════════════════════════════════════════════
@@ -693,16 +739,17 @@ class TutorSessionReportPage extends ConsumerStatefulWidget {
 class _TutorSessionReportPageState
     extends ConsumerState<TutorSessionReportPage> {
   final _signature = TutorSignatureController();
-  final _proceedings = TextEditingController(
-    text: 'Chapitre : Théorème de Pythagore\n'
-        '- Énoncé et démonstration\n'
-        "- 5 exercices d'application",
-  );
+  final _proceedings = TextEditingController();
+  final _start = TextEditingController();
+  final _end = TextEditingController();
+  bool _prefilled = false;
 
   @override
   void dispose() {
     _signature.dispose();
     _proceedings.dispose();
+    _start.dispose();
+    _end.dispose();
     super.dispose();
   }
 
@@ -731,13 +778,16 @@ class _TutorSessionReportPageState
         widget.id,
         TutorSessionReportParams(
           date: _today(),
-          startAt: '10:05',
-          endAt: '12:00',
+          startAt: _start.text.trim(),
+          endAt: _end.text.trim(),
           proceedings: _proceedings.text.trim(),
           signature: file,
         ),
       ),
     );
+    // Rafraîchit le détail + la liste pour refléter le rapport soumis.
+    ref.invalidate(tutorSessionDetailViewModelProvider(widget.id));
+    ref.invalidate(tutorSessionsListViewModelProvider);
   }
 
   @override
@@ -746,6 +796,26 @@ class _TutorSessionReportPageState
     final submitting = ref.watch(
       tutorActionViewModelProvider('report:${widget.id}'),
     ) is TutorActionSubmitting;
+    final detail =
+        ref.watch(tutorSessionDetailViewModelProvider(widget.id)).when(
+              initial: () => null,
+              loading: () => null,
+              error: (_) => null,
+              loaded: (d) => d,
+            );
+    if (detail != null && !_prefilled) {
+      final parts = detail.timeRange.split(RegExp(r'[–-]'));
+      if (parts.length >= 2) {
+        _start.text = parts[0].trim();
+        _end.text = parts[1].trim();
+      }
+      _prefilled = true;
+    }
+    final headerText = detail == null
+        ? tr.tutor.sessions.reportSubtitle
+        : [detail.student, detail.subject, detail.dateLine]
+            .where((s) => s.isNotEmpty)
+            .join(' · ');
     return Scaffold(
       backgroundColor: AppPalette.n100,
       appBar: TutorAppBar(
@@ -761,15 +831,15 @@ class _TutorSessionReportPageState
               color: AppPalette.teal.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.description_outlined,
+                const Icon(Icons.description_outlined,
                     size: 14, color: AppPalette.teal),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    'Junior Talla · Mathématiques · 13 mai 2026',
-                    style: TextStyle(
+                    headerText,
+                    style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: AppPalette.teal,
@@ -785,17 +855,17 @@ class _TutorSessionReportPageState
             child: Row(
               children: [
                 Expanded(
-                  child: _Field(
-                      label: tr.tutor.sessions.effectiveStart,
-                      value: '10:05',
-                      icon: Icons.schedule_outlined),
+                  child: _TimeField(
+                    label: tr.tutor.sessions.effectiveStart,
+                    controller: _start,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: _Field(
-                      label: tr.tutor.sessions.effectiveEnd,
-                      value: '12:00',
-                      icon: Icons.schedule_outlined),
+                  child: _TimeField(
+                    label: tr.tutor.sessions.effectiveEnd,
+                    controller: _end,
+                  ),
                 ),
               ],
             ),
