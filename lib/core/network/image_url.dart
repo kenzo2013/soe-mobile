@@ -1,18 +1,18 @@
 import '../env/env.dart';
 
-/// Resout une URL d'image potentiellement relative en URL absolue.
+/// Resolves a possibly relative image URL into an absolute one.
 ///
-/// Le backend renvoie certaines images (avatars, blobs ActiveStorage) sous
-/// forme de chemin relatif a la racine du host, ex :
-/// `/rails/active_storage/blobs/redirect/.../photo.jpg`.
-/// `NetworkImage` exige une URL absolue → on prefixe avec l'origin de l'API
-/// (`scheme://host`, sans le suffixe `/api/v1` du baseUrl).
+/// The backend returns some images (avatars, ActiveStorage blobs) as a path relative to the
+/// host root, e.g. `/rails/active_storage/blobs/redirect/.../photo.jpg`. `NetworkImage` needs
+/// an absolute URL, so the API origin (`scheme://host`) is prefixed. Without a configured API
+/// (tests, before bootstrap) a relative path cannot be resolved: null, never a crash.
 abstract final class ImageUrl {
-  static String? resolve(String? url) {
+  static String? resolve(String? url, {String? origin}) {
     if (url == null || url.isEmpty) return null;
-    final u = Uri.tryParse(url);
-    if (u != null && u.hasScheme) return url; // deja absolu
-    final origin = Uri.parse(Env.apiBaseUrl).origin; // https://host
-    return '$origin${url.startsWith('/') ? '' : '/'}$url';
+    final uri = Uri.tryParse(url);
+    if (uri != null && uri.hasScheme) return url; // already absolute
+    final base = origin ?? Env.apiOrigin;
+    if (base == null) return null;
+    return '$base${url.startsWith('/') ? '' : '/'}$url';
   }
 }

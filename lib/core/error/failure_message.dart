@@ -14,6 +14,7 @@ String failureMessage(Failure failure, Translations tr) => switch (failure) {
       ConflictFailure(:final message) => message ?? tr.errors.conflict,
       ValidationFailure(:final message) => message ?? tr.errors.validation,
       ServerFailure(:final message) => message ?? tr.errors.server,
+      RateLimitedFailure(:final message) => message ?? tr.errors.rateLimited,
       CancelledFailure() => tr.errors.cancelled,
       UnknownFailure() => tr.errors.unknown,
     };
