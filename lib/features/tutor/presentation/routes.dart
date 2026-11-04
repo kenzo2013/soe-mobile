@@ -4,21 +4,15 @@ import '../../../core/routing/route_names.dart';
 import '../domain/entities/tutor_payment_method.dart';
 import 'pages/tutor_contracts_page.dart';
 import 'pages/tutor_courses_pages.dart';
-import 'pages/tutor_dashboard_page.dart';
 import 'pages/tutor_jobs_pages.dart';
 import 'pages/tutor_payment_pages.dart';
 import 'pages/tutor_profile_pages.dart';
-import 'pages/tutor_remunerations_page.dart';
 import 'pages/tutor_sessions_pages.dart';
 
 /// Sous-routes du flux Tuteur. Agrégées par le router racine via
 /// `...tutorRoutes()`. **Interdit** de déclarer ces routes ailleurs.
 List<RouteBase> tutorRoutes() => [
       // 01 · Tableau de bord
-      GoRoute(
-        path: RouteNames.tutorDashboard,
-        builder: (context, state) => const TutorDashboardPage(),
-      ),
 
       // 02 · Mon profil
       GoRoute(
@@ -70,10 +64,6 @@ List<RouteBase> tutorRoutes() => [
 
       // 04 · Mes cours
       GoRoute(
-        path: RouteNames.tutorCourses,
-        builder: (context, state) => const TutorActiveCoursesPage(),
-      ),
-      GoRoute(
         path: '/tutor/courses/:id',
         builder: (context, state) => TutorCourseDetailPage(
           id: state.pathParameters['id']!,
@@ -89,10 +79,6 @@ List<RouteBase> tutorRoutes() => [
       ),
 
       // 05 · Séances
-      GoRoute(
-        path: RouteNames.tutorSessions,
-        builder: (context, state) => const TutorSessionsListPage(),
-      ),
       GoRoute(
         path: '/tutor/sessions/:id',
         builder: (context, state) =>
@@ -112,10 +98,6 @@ List<RouteBase> tutorRoutes() => [
       ),
 
       // 06 · Rémunérations
-      GoRoute(
-        path: RouteNames.tutorRemunerations,
-        builder: (context, state) => const TutorRemunerationsPage(),
-      ),
 
       // 07 · Infos de paiement
       GoRoute(

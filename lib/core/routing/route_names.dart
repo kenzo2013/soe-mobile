@@ -31,9 +31,11 @@ abstract final class RouteNames {
   static const String parentReservationNew = '/parent/reservations/new';
   static const String parentSessions = '/parent/sessions';
   static const String parentPayments = '/parent/payments';
+  static const String parentMore = '/parent/more';
 
   // Tutor shell
   static const String tutorDashboard = '/tutor';
+  static const String tutorMore = '/tutor/more';
 
   // Tutor · Mon profil
   static const String tutorProfile = '/tutor/profile';
