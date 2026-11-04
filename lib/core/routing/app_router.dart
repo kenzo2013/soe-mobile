@@ -1,4 +1,7 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../providers/core_providers.dart';
 
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/routes.dart';
@@ -7,6 +10,14 @@ import '../../features/parent/presentation/routes.dart';
 import '../../features/tutor/presentation/routes.dart';
 import 'route_guards.dart';
 import 'route_names.dart';
+
+/// The app router, built once per guard: a language change must not rebuild it (that sent
+/// the user back to the start, e.g. to the first welcome slide).
+final routerProvider = Provider<GoRouter>((ref) {
+  final router = buildRouter(guard: ref.watch(authGuardProvider));
+  ref.onDispose(router.dispose);
+  return router;
+});
 
 /// Router racine — n'agrège que les sous-routes des features.
 ///

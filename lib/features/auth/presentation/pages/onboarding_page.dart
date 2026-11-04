@@ -19,8 +19,9 @@ import '../../../../i18n/translations.g.dart';
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
 
-  /// Width from which the tablet layout (with the brand panel) is used.
-  static const double tabletBreakpoint = 700;
+  /// The tablet layout (with the brand panel) needs a tablet (shortest side) and room.
+  static const double tabletShortestSide = 600;
+  static const double tabletMinWidth = 700;
 
   @override
   ConsumerState<OnboardingPage> createState() => _OnboardingPageState();
@@ -67,19 +68,31 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             Row(
               children: [
                 const SoeBrandLogo(width: 56),
-                const Spacer(),
-                const LangSegmented(),
-                if (!_isLast)
-                  TextButton(
-                    onPressed: () => _goTo(_slides.length - 1),
-                    style: TextButton.styleFrom(
-                      minimumSize: const Size(44, 44),
-                      foregroundColor: AppPalette.teal500,
-                    ),
-                    child: Text(tr.onboarding.skip,
-                        style: AppTypography.label
-                            .copyWith(color: AppPalette.teal500)),
+                const SizedBox(width: 8),
+                // Large system fonts: the switch and « Passer » go on two lines
+                // instead of pushing « Passer » off screen.
+                Expanded(
+                  child: Wrap(
+                    alignment: WrapAlignment.end,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      const LangSegmented(),
+                      if (!_isLast)
+                        TextButton(
+                          onPressed: () => _goTo(_slides.length - 1),
+                          style: TextButton.styleFrom(
+                            minimumSize: const Size(44, 44),
+                            foregroundColor: AppPalette.teal500,
+                          ),
+                          child: Text(
+                            tr.onboarding.skip,
+                            style: AppTypography.label
+                                .copyWith(color: AppPalette.teal500),
+                          ),
+                        ),
+                    ],
                   ),
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -137,7 +150,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       backgroundColor: AppPalette.white,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          if (constraints.maxWidth < OnboardingPage.tabletBreakpoint) {
+          // A tablet, not a phone turned sideways: decided on the shortest side.
+          final shortestSide = MediaQuery.sizeOf(context).shortestSide;
+          if (shortestSide < OnboardingPage.tabletShortestSide ||
+              constraints.maxWidth < OnboardingPage.tabletMinWidth) {
             return content;
           }
           return Row(
@@ -307,7 +323,8 @@ class _BrandPanel extends StatelessWidget {
             ),
           ),
           SafeArea(
-            child: Padding(
+            // Scrolls when the panel is narrow or the system font is large.
+            child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(28, 48, 28, 28),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -356,7 +373,7 @@ class _BrandPanel extends StatelessWidget {
                         ],
                       ),
                     ),
-                  const Spacer(),
+                  const SizedBox(height: 24),
                   Text(panel.footer,
                       style: AppTypography.caption
                           .copyWith(color: AppPalette.ink400)),
