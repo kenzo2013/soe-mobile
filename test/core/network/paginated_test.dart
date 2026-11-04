@@ -25,5 +25,6 @@ void main() {
 
     expect(page.items, isEmpty);
     expect(page.hasMore, isFalse);
+    expect(page.perPage, Paginated.defaultPerPage);
   });
 }

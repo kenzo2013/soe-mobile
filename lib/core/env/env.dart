@@ -10,8 +10,8 @@ abstract final class Env {
   /// API v1 base URL, e.g. `https://my-tunnel.trycloudflare.com/api/v1`.
   static const String apiBaseUrl = String.fromEnvironment('API_BASE_URL');
 
-  /// API v2 base URL, derived from [apiBaseUrl] (same host, `/api/v2`).
-  static String get apiV2BaseUrl => v2BaseUrlFrom(apiBaseUrl);
+  /// API v2 base URL, derived from [apiBaseUrl] (same origin, `/api/v2`); empty when unusable.
+  static String get apiV2BaseUrl => v2BaseUrlFrom(apiBaseUrl) ?? '';
 
   static const String oneSignalAppId =
       String.fromEnvironment('ONESIGNAL_APP_ID');
@@ -26,22 +26,34 @@ abstract final class Env {
   static bool get isStaging => flavor == 'staging';
   static bool get isDev => flavor == 'dev';
 
-  /// Fails at startup when the API URL is missing, with the command to fix it.
-  static void ensureConfigured() {
-    if (apiBaseUrl.isEmpty) {
+  /// Throws a [StateError] with the command to run when the API URL is missing or unusable.
+  static void ensureConfigured([String url = apiBaseUrl]) {
+    if (url.isEmpty || v2BaseUrlFrom(url) == null) {
       throw StateError(
-        'API_BASE_URL is missing. Run with --dart-define-from-file=env/dev.env '
-        '(see env/example.env; development uses the local server, never staging).',
+        'API_BASE_URL is missing or invalid ("$url"). Expected https://<host>/api/v1. '
+        'Run with --dart-define-from-file=env/dev.env (see env/example.env; development uses '
+        'the local server, never staging).',
       );
     }
   }
 
-  /// `https://host/api/v1` -> `https://host/api/v2`; a URL without `/api/v1` gets `/api/v2` appended.
-  static String v2BaseUrlFrom(String v1BaseUrl) {
-    if (v1BaseUrl.isEmpty) return '';
-    final origin = v1BaseUrl
-        .replaceFirst(RegExp(r'/api/v1/?$'), '')
-        .replaceFirst(RegExp(r'/$'), '');
-    return '$origin/api/v2';
+  /// `https://host/api/v1` (or `https://host`) -> `https://host/api/v2`; anything else -> null.
+  static String? v2BaseUrlFrom(String v1BaseUrl) {
+    final uri = Uri.tryParse(v1BaseUrl);
+    if (uri == null || !uri.hasScheme || uri.host.isEmpty) return null;
+    final path = uri.path.replaceFirst(RegExp(r'/+$'), '');
+    if (path.isNotEmpty && path != '/api/v1') return null;
+    return uri
+        .replace(path: '/api/v2', query: null, fragment: null)
+        .toString()
+        .replaceFirst(RegExp(r'\?$'), '');
+  }
+
+  /// `scheme://host[:port]` of the API, or null when not configured.
+  static String? get apiOrigin {
+    final uri = Uri.tryParse(apiBaseUrl);
+    return uri != null && uri.hasScheme && uri.host.isNotEmpty
+        ? uri.origin
+        : null;
   }
 }

@@ -2,6 +2,9 @@
 ///
 /// Named `Paginated` (not `Page`): `Page` already exists in Flutter and go_router.
 class Paginated<T> {
+  /// Server default page size (Api::V2::BaseController::PER_PAGE), used when meta is absent.
+  static const int defaultPerPage = 20;
+
   const Paginated({
     required this.items,
     required this.page,
@@ -21,7 +24,7 @@ class Paginated<T> {
     return Paginated(
       items: data.map(fromJson).toList(growable: false),
       page: (meta['page'] as num?)?.toInt() ?? 1,
-      perPage: (meta['per_page'] as num?)?.toInt() ?? data.length,
+      perPage: (meta['per_page'] as num?)?.toInt() ?? defaultPerPage,
       totalCount: (meta['total_count'] as num?)?.toInt() ?? data.length,
       totalPages: (meta['total_pages'] as num?)?.toInt() ?? 1,
     );

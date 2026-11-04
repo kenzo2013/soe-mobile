@@ -157,11 +157,43 @@ void main() {
         expect((failure as ConflictFailure).message, 'Devis déjà accepté');
       });
 
-      test('429 -> RateLimitedFailure', () {
-        expect(
-            ExceptionMapper.fromDio(
-                _err(code: 429, data: {'errors': <dynamic>[]})),
-            isA<RateLimitedFailure>());
+      test('429 -> RateLimitedFailure keeping the server advice', () {
+        final failure = ExceptionMapper.fromDio(_err(code: 429, data: {
+          'errors': [
+            {'code': 'rate_limited', 'message': 'Réessayez dans 30 secondes'},
+          ],
+        }));
+
+        expect((failure as RateLimitedFailure).message,
+            'Réessayez dans 30 secondes');
+      });
+
+      test('stable codes win over the translated wording', () {
+        final failure = ExceptionMapper.fromDio(_err(code: 401, data: {
+          'errors': [
+            {
+              'code': 'invalid_credentials',
+              'message': 'E-mail ou mot de passe incorrect'
+            },
+          ],
+        }));
+
+        expect(failure, isA<InvalidCredentialsFailure>());
+      });
+
+      test('a malformed message never crashes the mapping', () {
+        final failure = ExceptionMapper.fromDio(_err(code: 422, data: {
+          'errors': [
+            {'code': 'invalid', 'field': 'email'},
+            {
+              'code': 'invalid',
+              'message': {'fr': 'x'}
+            },
+            {'code': 'invalid', 'message': 'Requis', 'field': 'name'},
+          ],
+        }));
+
+        expect((failure as ValidationFailure).message, 'Requis');
       });
 
       test('401 unauthenticated -> UnauthorizedFailure', () {

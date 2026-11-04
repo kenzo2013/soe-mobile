@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 
 import 'failure.dart';
 
-/// Convertit une `DioException` en `Failure` typée.
+/// Turns a `DioException` into a typed `Failure`.
 ///
 /// Formats of the SOE API:
 /// - v2: `{"errors": [{"code": "invalid", "message": "...", "field": "email"}]}` (translated)
@@ -30,6 +30,8 @@ abstract final class ExceptionMapper {
 
   static Failure _fromStatus(int? code, Object? data) {
     final message = _extractMessage(data);
+    final byCode = _fromV2Code(data, message);
+    if (byCode != null) return byCode;
     switch (code) {
       case 400:
         return ServerFailure(400, message);
@@ -48,7 +50,7 @@ abstract final class ExceptionMapper {
       case 422:
         return ValidationFailure(_extractErrors(data), message);
       case 429:
-        return const RateLimitedFailure();
+        return RateLimitedFailure(message);
       case null:
         return const UnknownFailure();
       default:
@@ -71,14 +73,15 @@ abstract final class ExceptionMapper {
     return const UnauthorizedFailure();
   }
 
-  /// Cherche un message dans :
-  /// - `data["error"]` (Devise)
-  /// - `data["status"]["message"]` (Rails standard SOE)
-  /// - `data["message"]`
+  /// First message found in: v2 `errors[].message`, v1 `error` (Devise),
+  /// v1 `status.message`, `message`.
   static String? _extractMessage(Object? data) {
     if (data is! Map) return null;
-    final v2 = _v2Errors(data);
-    if (v2.isNotEmpty) return v2.first['message'] as String?;
+    final v2Message = _v2Errors(data)
+        .map((error) => error['message'])
+        .whereType<String>()
+        .firstOrNull;
+    if (v2Message != null && v2Message.isNotEmpty) return v2Message;
     final err = data['error'];
     if (err is String && err.isNotEmpty) return err;
     final status = data['status'];
@@ -91,8 +94,7 @@ abstract final class ExceptionMapper {
     return null;
   }
 
-  /// L'API SOE concatène les erreurs en un seul message — pas de map détaillée.
-  /// On retourne une map vide ; le ViewModel affichera `message` directement.
+  /// Per-field validation messages: v2 `errors[]` grouped by `field`, or a v1 `errors` map.
   static Map<String, List<String>> _extractErrors(Object? data) {
     if (data is! Map) return const {};
     final v2 = _v2Errors(data);
@@ -115,6 +117,22 @@ abstract final class ExceptionMapper {
         v is List ? v.map((e) => e.toString()).toList() : [v.toString()],
       ),
     );
+  }
+
+  /// v2 stable codes win over status and message wording (messages are translated).
+  static Failure? _fromV2Code(Object? data, String? message) {
+    if (data is! Map) return null;
+    final code = _v2Errors(data)
+        .map((error) => error['code'])
+        .whereType<String>()
+        .firstOrNull;
+    return switch (code) {
+      'invalid_credentials' => const InvalidCredentialsFailure(),
+      'unconfirmed' => const EmailNotConfirmedFailure(),
+      'unauthenticated' => const UnauthorizedFailure(),
+      'rate_limited' => RateLimitedFailure(message),
+      _ => null,
+    };
   }
 
   /// v2 envelope: `errors` is a list of `{code, message, field}`.

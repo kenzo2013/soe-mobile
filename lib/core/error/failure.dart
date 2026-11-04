@@ -59,9 +59,10 @@ class ServerFailure extends Failure {
   const ServerFailure(this.code, [this.message]);
 }
 
-/// 429: too many attempts (login, codes). The message says to wait.
+/// 429: too many attempts (login, codes). [message] is the server's (translated) wait advice.
 class RateLimitedFailure extends Failure {
-  const RateLimitedFailure();
+  final String? message;
+  const RateLimitedFailure([this.message]);
 }
 
 class CancelledFailure extends Failure {
