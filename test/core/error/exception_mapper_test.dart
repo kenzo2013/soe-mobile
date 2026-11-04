@@ -130,5 +130,52 @@ void main() {
       expect((f as ValidationFailure).message, 'E-mail is invalid');
       expect(f.errors, isEmpty);
     });
+
+    group('API v2 envelope', () {
+      test('422 -> ValidationFailure with messages grouped by field', () {
+        final failure = ExceptionMapper.fromDio(_err(code: 422, data: {
+          'errors': [
+            {'code': 'invalid', 'message': 'E-mail invalide', 'field': 'email'},
+            {'code': 'invalid', 'message': 'Trop court', 'field': 'password'},
+            {'code': 'invalid', 'message': 'Requis', 'field': 'email'},
+          ],
+        }));
+
+        expect(failure, isA<ValidationFailure>());
+        final validation = failure as ValidationFailure;
+        expect(validation.errors['email'], ['E-mail invalide', 'Requis']);
+        expect(validation.message, 'E-mail invalide');
+      });
+
+      test('409 -> ConflictFailure with the translated server message', () {
+        final failure = ExceptionMapper.fromDio(_err(code: 409, data: {
+          'errors': [
+            {'code': 'conflict', 'message': 'Devis déjà accepté'},
+          ],
+        }));
+
+        expect((failure as ConflictFailure).message, 'Devis déjà accepté');
+      });
+
+      test('429 -> RateLimitedFailure', () {
+        expect(
+            ExceptionMapper.fromDio(
+                _err(code: 429, data: {'errors': <dynamic>[]})),
+            isA<RateLimitedFailure>());
+      });
+
+      test('401 unauthenticated -> UnauthorizedFailure', () {
+        final failure = ExceptionMapper.fromDio(_err(code: 401, data: {
+          'errors': [
+            {
+              'code': 'unauthenticated',
+              'message': 'Votre session a expiré. Reconnectez-vous.'
+            },
+          ],
+        }));
+
+        expect(failure, isA<UnauthorizedFailure>());
+      });
+    });
   });
 }

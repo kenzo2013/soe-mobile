@@ -38,6 +38,7 @@
     "conflict": "Conflit détecté.",
     "validation": "Certains champs sont invalides.",
     "server": "Erreur serveur, réessayez plus tard.",
+    "rateLimited": "Trop de tentatives. Réessayez dans quelques minutes.",
     "cancelled": "Opération annulée.",
     "unknown": "Une erreur inattendue est survenue.",
     "emailInvalid": "Format d'email invalide.",

@@ -1,3 +1,4 @@
+import '../env/env.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
@@ -29,6 +30,21 @@ final dioProvider = Provider<Dio>((ref) {
   return HttpClientFactory.create(
     storage: storage,
     logger: logger,
+    onUnauthorized: () async {
+      await storage.delete(StorageKeys.authToken);
+      ref.read(authTokenProvider.notifier).state = null;
+    },
+  );
+});
+
+/// Client of the API v2 (envelope { data, meta, errors }): same interceptors, `/api/v2` base.
+final dioV2Provider = Provider<Dio>((ref) {
+  final storage = ref.watch(secureStorageProvider);
+  final logger = ref.watch(loggerProvider);
+  return HttpClientFactory.create(
+    storage: storage,
+    logger: logger,
+    baseUrl: Env.apiV2BaseUrl,
     onUnauthorized: () async {
       await storage.delete(StorageKeys.authToken);
       ref.read(authTokenProvider.notifier).state = null;

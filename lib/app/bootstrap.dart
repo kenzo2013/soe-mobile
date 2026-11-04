@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/env/env.dart';
 import '../core/providers/core_providers.dart';
 import '../core/storage/preferences_storage.dart';
 import '../core/storage/secure_storage.dart';
@@ -15,6 +16,7 @@ Future<void> bootstrap() async {
   await runZonedGuarded<Future<void>>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      Env.ensureConfigured();
 
       final prefs = await PreferencesStorage.create();
       final secure = SecureStorage();

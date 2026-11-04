@@ -4,10 +4,10 @@ import 'failure.dart';
 
 /// Convertit une `DioException` en `Failure` typée.
 ///
-/// Formats observés sur l'API SOE (api.jeteste.site) :
-/// - `{"error": "..."}`              — Devise (login 401, register 401)
-/// - `{"status": {"code": N, "message": "..."}}` — pattern Rails standard (422, 409, 200)
-/// - body absent ou non-JSON → ServerFailure(code) générique
+/// Formats of the SOE API:
+/// - v2: `{"errors": [{"code": "invalid", "message": "...", "field": "email"}]}` (translated)
+/// - v1: `{"error": "..."}` (Devise) or `{"status": {"code": N, "message": "..."}}`
+/// - no body or not JSON -> generic ServerFailure(code)
 abstract final class ExceptionMapper {
   static Failure fromDio(DioException e) {
     switch (e.type) {
@@ -47,6 +47,8 @@ abstract final class ExceptionMapper {
         return const EmailNotConfirmedFailure();
       case 422:
         return ValidationFailure(_extractErrors(data), message);
+      case 429:
+        return const RateLimitedFailure();
       case null:
         return const UnknownFailure();
       default:
@@ -75,6 +77,8 @@ abstract final class ExceptionMapper {
   /// - `data["message"]`
   static String? _extractMessage(Object? data) {
     if (data is! Map) return null;
+    final v2 = _v2Errors(data);
+    if (v2.isNotEmpty) return v2.first['message'] as String?;
     final err = data['error'];
     if (err is String && err.isNotEmpty) return err;
     final status = data['status'];
@@ -91,6 +95,18 @@ abstract final class ExceptionMapper {
   /// On retourne une map vide ; le ViewModel affichera `message` directement.
   static Map<String, List<String>> _extractErrors(Object? data) {
     if (data is! Map) return const {};
+    final v2 = _v2Errors(data);
+    if (v2.isNotEmpty) {
+      final byField = <String, List<String>>{};
+      for (final error in v2) {
+        final field = error['field'];
+        final message = error['message'];
+        if (field is String && message is String) {
+          byField.putIfAbsent(field, () => []).add(message);
+        }
+      }
+      return byField;
+    }
     final errors = data['errors'];
     if (errors is! Map) return const {};
     return errors.map(
@@ -99,5 +115,12 @@ abstract final class ExceptionMapper {
         v is List ? v.map((e) => e.toString()).toList() : [v.toString()],
       ),
     );
+  }
+
+  /// v2 envelope: `errors` is a list of `{code, message, field}`.
+  static List<Map<dynamic, dynamic>> _v2Errors(Map<dynamic, dynamic> data) {
+    final errors = data['errors'];
+    if (errors is! List) return const [];
+    return errors.whereType<Map<dynamic, dynamic>>().toList();
   }
 }

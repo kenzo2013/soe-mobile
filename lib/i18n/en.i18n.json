@@ -38,6 +38,7 @@
     "conflict": "A conflict occurred.",
     "validation": "Some fields are invalid.",
     "server": "Server error, try again later.",
+    "rateLimited": "Too many attempts. Please try again in a few minutes.",
     "cancelled": "Operation cancelled.",
     "unknown": "An unexpected error occurred.",
     "emailInvalid": "Invalid email format.",
