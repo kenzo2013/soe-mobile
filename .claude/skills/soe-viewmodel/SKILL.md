@@ -1,104 +1,118 @@
 ---
 name: soe-viewmodel
-description: Crée un ViewModel Riverpod SOE + state freezed + tests des 4 états (initial/loading/loaded/error). À utiliser pour chaque écran de feature.
+description: Crée un ViewModel Riverpod SOE (Notifier pour une action ou un formulaire, AsyncNotifier pour charger des données) avec son state freezed et ses tests. À utiliser pour chaque écran de feature, et pour migrer un StateNotifier quand on touche l'écran.
 ---
 
 # soe-viewmodel
 
-Génère un `*_viewmodel.dart` + `*_state.dart` (freezed sealed) + test couvrant tous les états.
+**Décision v2** : `Notifier` / `AsyncNotifier` de Riverpod 2.6, providers déclarés à la main
+(pas de `@riverpod`, pas de code généré pour les providers). `StateNotifier` est l'ancien style :
+on n'en écrit plus, et on migre celui de l'écran qu'on modifie.
 
-## Template state
+| Besoin | Classe | State |
+|---|---|---|
+| Action ou formulaire (connexion, envoi d'un PV, acceptation d'un devis) | `AutoDisposeNotifier<XState>` | freezed sealed : `initial` / `loading` / `success` / `error(Failure)` |
+| Charger des données (liste, détail, tableau de bord) | `AutoDisposeAsyncNotifier<T>` (ou `AutoDisposeFamilyAsyncNotifier<T, Arg>`) | `AsyncValue<T>`, l'erreur est une `Failure` |
+
+## Action ou formulaire — `Notifier`
 
 ```dart
 // lib/features/<feature>/presentation/viewmodels/<name>_state.dart
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:soe/core/error/failure.dart';
-
-part '<name>_state.freezed.dart';
-
 @freezed
-sealed class <Name>State with _$<Name>State {
-  const factory <Name>State.initial() = _Initial;
-  const factory <Name>State.loading() = _Loading;
-  const factory <Name>State.loaded(<Data> data) = _Loaded;
-  const factory <Name>State.error(Failure failure) = _Error;
+sealed class AcceptQuoteState with _$AcceptQuoteState {
+  const factory AcceptQuoteState.initial() = AcceptQuoteInitial;
+  const factory AcceptQuoteState.loading() = AcceptQuoteLoading;
+  const factory AcceptQuoteState.success(Quote quote) = AcceptQuoteSuccess;
+  const factory AcceptQuoteState.error(Failure failure) = AcceptQuoteError;
 }
-```
 
-## Template viewmodel
-
-```dart
 // lib/features/<feature>/presentation/viewmodels/<name>_viewmodel.dart
-@riverpod
-class <Name>ViewModel extends _$<Name>ViewModel {
-  @override
-  <Name>State build() => const <Name>State.initial();
+final acceptQuoteViewModelProvider =
+    NotifierProvider.autoDispose<AcceptQuoteViewModel, AcceptQuoteState>(
+  AcceptQuoteViewModel.new,
+);
 
-  Future<void> <action>(<Input> input) async {
-    state = const <Name>State.loading();
-    final result = await ref.read(<usecase>Provider).call(input: input);
+class AcceptQuoteViewModel extends AutoDisposeNotifier<AcceptQuoteState> {
+  @override
+  AcceptQuoteState build() => const AcceptQuoteState.initial();
+
+  Future<void> accept(String quoteId) async {
+    if (state is AcceptQuoteLoading) return; // no double submit
+    state = const AcceptQuoteState.loading();
+    final result = await ref.read(acceptQuoteUsecaseProvider).call(quoteId: quoteId);
     state = switch (result) {
-      Ok(:final value) => <Name>State.loaded(value),
-      Err(:final failure) => <Name>State.error(failure),
+      Ok(:final value) => AcceptQuoteState.success(value),
+      Err(:final failure) => AcceptQuoteState.error(failure),
     };
   }
 }
 ```
 
-## Règles dures
-- **Aucun `BuildContext`** dans un ViewModel.
-- **Aucun `Fluttertoast` / `showDialog` / navigation** : émettre un state, la View y réagit via `ref.listen`.
-- **Aucun `try/catch`** : le UseCase renvoie un `Result`.
-- **State immuable** (freezed sealed avec `switch` exhaustif).
-- Couverture **≥ 90 %** : tester chaque action publique pour les 4 états.
-
-## Test obligatoire
+## Charger des données — `AsyncNotifier`
 
 ```dart
-// test/features/<feature>/presentation/viewmodels/<name>_viewmodel_test.dart
-class _MockUsecase extends Mock implements <Usecase> {}
+final quotesViewModelProvider =
+    AsyncNotifierProvider.autoDispose<QuotesViewModel, List<Quote>>(QuotesViewModel.new);
 
-void main() {
-  late _MockUsecase usecase;
+class QuotesViewModel extends AutoDisposeAsyncNotifier<List<Quote>> {
+  @override
+  Future<List<Quote>> build() async {
+    final result = await ref.watch(getQuotesUsecaseProvider).call();
+    // The only place a Failure is thrown: AsyncValue captures it as AsyncError(failure).
+    return switch (result) {
+      Ok(:final value) => value,
+      Err(:final failure) => throw failure,
+    };
+  }
 
-  setUp(() => usecase = _MockUsecase());
-
-  ProviderContainer build() => makeContainer(overrides: [
-    <usecase>Provider.overrideWithValue(usecase),
-  ]);
-
-  test('initial state is Initial', () {
-    final c = build();
-    expect(c.read(<name>ViewModelProvider), const <Name>State.initial());
-  });
-
-  test('loading -> loaded on success', () async {
-    when(() => usecase(input: any(named: 'input')))
-      .thenAnswer((_) async => Ok(_fake()));
-    final c = build();
-    final f = c.read(<name>ViewModelProvider.notifier).<action>(_fakeInput());
-    expect(c.read(<name>ViewModelProvider), const <Name>State.loading());
-    await f;
-    expect(c.read(<name>ViewModelProvider), isA<_Loaded>());
-  });
-
-  test('loading -> error on Failure', () async {
-    when(() => usecase(input: any(named: 'input')))
-      .thenAnswer((_) async => const Err(NetworkFailure()));
-    final c = build();
-    await c.read(<name>ViewModelProvider.notifier).<action>(_fakeInput());
-    expect(c.read(<name>ViewModelProvider), isA<_Error>());
-  });
+  Future<void> refresh() async {
+    ref.invalidateSelf();
+    await future;
+  }
 }
 ```
 
-## Side-effects (navigation, toast)
-La View utilise `ref.listen` :
+La page lit `state.when(data:, loading:, error: (e, _) => ErrorView(failure: asFailure(e), …))`.
+Le `throw failure` ci-dessus est le **seul** usage autorisé, dans `build` d'un `AsyncNotifier`,
+pour alimenter `AsyncValue`.
+
+**Prérequis (tâche 0.5)** : `Failure` doit être une exception pour passer la règle
+`only_throw_errors` de very_good_analysis — `sealed class Failure implements Exception`
+dans `lib/core/error/failure.dart` — et `asFailure(Object error)` (dans le même dossier) renvoie
+l'erreur si c'est une `Failure`, sinon `const UnknownFailure()` : une erreur de parsing ou un
+`StateError` ne doit jamais faire planter l'écran d'erreur. Pas de `// ignore:` à la place.
+
+## Migrer un `StateNotifier`
+
+1. `extends StateNotifier<S>` + constructeur `super(initial)` → `extends AutoDisposeNotifier<S>`
+   + `S build() => initial`.
+2. `final Ref _ref` → `ref` hérité ; supprimer le constructeur.
+3. `StateNotifierProvider.autoDispose<V, S>(V.new)` → `NotifierProvider.autoDispose<V, S>(V.new)`.
+4. Les tests passent sans changement de comportement ; `ds_guard` voit `state_notifier` baisser.
+
+## Règles dures
+- Aucun `BuildContext`, aucune navigation, aucun toast, aucun dialogue dans un view model :
+  il émet un state, la page réagit avec `ref.listen`.
+- Aucun `try/catch` : le use case renvoie un `Result`.
+- `ref.watch` dans `build`, `ref.read` dans les méthodes.
+- Protection contre le double envoi sur toute action réseau.
+- State immuable, `switch` exhaustif côté page.
+
+## Tests obligatoires
+
 ```dart
-ref.listen<XState>(xViewModelProvider, (prev, next) {
-  next.whenOrNull(
-    error: (f) => ScaffoldMessenger.of(context).showSnackBar(...),
-    loaded: (_) => context.go('/next'),
-  );
+test('loading then success', () async {
+  when(() => usecase(quoteId: any(named: 'quoteId'))).thenAnswer((_) async => Ok(fakeQuote));
+  final container = makeContainer(overrides: [acceptQuoteUsecaseProvider.overrideWithValue(usecase)]);
+  final sub = container.listen(acceptQuoteViewModelProvider, (_, __) {});
+
+  final future = container.read(acceptQuoteViewModelProvider.notifier).accept('q1');
+  expect(sub.read(), const AcceptQuoteState.loading());
+  await future;
+  expect(sub.read(), AcceptQuoteState.success(fakeQuote));
 });
 ```
+
+Chaque action : `initial`, `loading`, `success`, chaque `Failure` utile, double envoi ignoré.
+Chaque `AsyncNotifier` : données, erreur, `refresh`. Garder le provider vivant avec
+`container.listen` (sinon `autoDispose` le détruit pendant le test).

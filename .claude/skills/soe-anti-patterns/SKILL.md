@@ -1,6 +1,6 @@
 ---
 name: soe-anti-patterns
-description: Audite des fichiers SOE modifiés contre la liste d'anti-patterns interdits (REBUILD_SPEC.md §13). À invoquer avant review / commit.
+description: Audite des fichiers SOE modifiés contre la liste d'anti-patterns interdits (REBUILD_SPEC.md §13, design system, décisions v2, règle 0). À invoquer avant review / commit.
 ---
 
 # soe-anti-patterns
@@ -8,7 +8,7 @@ description: Audite des fichiers SOE modifiés contre la liste d'anti-patterns i
 Scanne les fichiers du périmètre courant et signale les violations.
 
 ## Méthode d'exécution
-1. Identifier les fichiers modifiés : `git diff --name-only HEAD`.
+1. Identifier les fichiers modifiés par la tâche : `git diff --name-only refonte/v2`.
 2. Filtrer `.dart` sous `lib/`.
 3. Pour chaque fichier, rechercher les patterns ci-dessous via `grep`.
 4. Reporter chaque violation avec `file:line` + suggestion de correctif.
@@ -20,6 +20,15 @@ Scanne les fichiers du périmètre courant et signale les violations.
 | `BuildContext` dans `viewmodels/`, `usecases/`, `repositories/`, `datasources/` | Couplage UI ↔ logique | Émettre un state, View réagit via `ref.listen` |
 | `try {` dans `presentation/` (hors widgets purement locaux) | Erreurs gérées hors VM | Le VM expose `error(Failure)`, la page lit le state |
 | `Fluttertoast` ou `showSnackBar` dans `viewmodels/`, `usecases/`, `repositories/` | Couche non-UI affiche UI | Émettre une `Failure`, View affiche le toast |
+| `showSnackBar` / `SnackBar(` **n'importe où** hors `core/widgets/` | Toast hors design system | `SoeToast.show(...)` |
+| `StateNotifier` / `StateNotifierProvider` dans du code nouveau ou modifié | Ancien style (décision v2) | `Notifier` / `AsyncNotifier` (skill `soe-viewmodel`) |
+| `fontSize:`, `TextStyle(`, `Color(0x`, `Colors.x`, `EdgeInsets.all(13)` dans une feature | Contourne les tokens | `AppTypography` / `AppPalette` / `AppSpacing` |
+| `ElevatedButton`, `TextField(`, `showDialog` dans une feature | Material brut | `SoeButton`, `SoeTextField`, `SoeConfirmDialog` |
+| `LinearGradient(`, `BoxShadow(` décoratif | Contraire à la DA v2 | Surface plate `AppPalette` |
+| `Text('…')` avec un littéral | Texte en dur | `Translations.of(context).x` |
+| `.w`, `.h`, `.sp` (flutter_screenutil) | Dépendance abandonnée | Tokens + `LayoutBuilder` |
+| Identifiant, commentaire ou nom de fichier en français | Règle 0 | Renommer en anglais |
+| URL `jeteste.site` ou de production dans `lib/` ou un test | Données de test hors local | `env/*.env`, serveur local |
 | `print(` | Pas de logger | `logger.d('...')` |
 | `setState(` dans `*_page.dart` | Viole MVVM | `ref.watch(viewModelProvider)` |
 | `dartz` ou `fpdart` import | Stack non-officielle | Utiliser `Result<S,F>` maison |
@@ -38,6 +47,10 @@ Scanne les fichiers du périmètre courant et signale les violations.
 
 ## Commandes de scan rapide
 ```bash
+# Design system, StateNotifier, textes en dur (fichiers modifiés)
+python3 tools/ds_guard.py --diff refonte/v2        # files that got worse
+python3 tools/ds_guard.py --files <file.dart>     # every hit of one file
+
 # BuildContext en couches non-UI
 grep -rn "BuildContext" lib/features/*/domain/ lib/features/*/data/ lib/features/*/presentation/viewmodels/ 2>/dev/null
 

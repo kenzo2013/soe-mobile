@@ -57,6 +57,10 @@ GoRouter buildRouter(...) => GoRouter(
 );
 ```
 
+## Onglets
+Les pages racines d'un rôle sont des branches du shell à onglets (skill `soe-tab-shell`) ; les
+pages de détail s'ouvrent au-dessus de la barre d'onglets ou dans la branche selon le Studio.
+
 ## Auth / role guards
 - **Pas de logique d'auth dans la page** : route guard déclaratif dans `core/routing/route_guards.dart`.
 - Routes publiques (login, register, password reset) listées explicitement.

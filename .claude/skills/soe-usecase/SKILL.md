@@ -34,9 +34,9 @@ class <VerbNoun> {
 - Pas d'`import 'package:flutter/...'`, pas de `dio`, pas de `BuildContext`.
 - Provider Riverpod associé dans `presentation/providers.dart` :
   ```dart
-  @riverpod
-  <VerbNoun> <verbNoun>(<VerbNoun>Ref ref) =>
-      <VerbNoun>(ref.watch(<feature>RepositoryProvider));
+  final <verbNoun>UsecaseProvider = Provider.autoDispose<<VerbNoun>>(
+    (ref) => <VerbNoun>(ref.watch(<feature>RepositoryProvider)),
+  );
   ```
 
 ## Test obligatoire (couverture 100 %)
