@@ -77,6 +77,8 @@ flutter:
   generate: true
   assets:
     - assets/logo/
+    # AUT-01 welcome slides (PH-01, PH-05, PH-04, PH-09), portrait 1080 px WebP.
+    - assets/images/onboarding/
 
   # Design system v2 (Studio): Figtree = interface, Literata = titles and numbers (OFL,
   # licences in assets/fonts/OFL-*.txt).

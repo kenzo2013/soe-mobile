@@ -3,7 +3,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../core/providers/core_providers.dart';
 import '../core/providers/locale_provider.dart';
 import '../core/routing/app_router.dart';
 import '../core/theme/app_theme.dart';
@@ -14,9 +13,8 @@ class SoeApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final guard = ref.watch(authGuardProvider);
     final locale = ref.watch(localeProvider);
-    final router = buildRouter(guard: guard);
+    final router = ref.watch(routerProvider);
 
     return TranslationProvider(
       child: ScreenUtilInit(

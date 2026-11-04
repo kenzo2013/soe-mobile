@@ -56,18 +56,52 @@
     "fieldAcceptCgu": "acceptation des CGU"
   },
   "onboarding": {
-    "slide1": {
-      "title": "Trouvez le tuteur idéal",
-      "body": "Des tuteurs certifiés pour un accompagnement scolaire personnalisé à domicile."
+    "skip": "Passer",
+    "next": "Suivant",
+    "createAccount": "Créer mon compte",
+    "haveAccount": "J’ai déjà un compte",
+    "slides": {
+      "tutor": {
+        "title": "Un répétiteur choisi pour votre enfant",
+        "body": "Identité, diplômes, entretien et test : SOE vérifie chaque répétiteur et le choisit pour vous.",
+        "alt": "Une répétitrice SOE aide une élève à faire ses devoirs au salon, sous le regard de sa mère."
+      },
+      "report": {
+        "title": "Chaque séance suivie",
+        "body": "Après chaque cours, un procès-verbal que vous validez ou contestez.",
+        "alt": "Un cahier corrigé au stylo rouge, noté 20 sur 20."
+      },
+      "contract": {
+        "title": "Un contrat clair, signé en ligne",
+        "body": "Vous lisez le contrat et le signez depuis votre téléphone.",
+        "alt": "Un père signe le contrat du doigt sur son téléphone, sous sa véranda."
+      },
+      "payment": {
+        "title": "Payez par Mobile Money",
+        "body": "MTN MoMo ou Orange Money, une facture par mois, sans vous déplacer.",
+        "alt": "Une mère règle la facture par Mobile Money sur son téléphone."
+      }
     },
-    "slide2": {
-      "title": "Suivez chaque séance",
-      "body": "Consultez les rapports, validez les séances et suivez la progression."
+    "panel": {
+      "overline": "Bienvenue",
+      "title": "Le soutien scolaire à domicile, suivi de bout en bout.",
+      "items": {
+        "vetted": {
+          "title": "Répétiteurs vérifiés",
+          "body": "Recrutés et choisis par SOE."
+        },
+        "sessions": {
+          "title": "Séances suivies",
+          "body": "Un PV après chaque cours."
+        },
+        "payment": {
+          "title": "MTN MoMo et Orange Money",
+          "body": "Un reçu pour chaque paiement."
+        }
+      },
+      "footer": "Disponible en français et en anglais."
     },
-    "slide3": {
-      "title": "Payez en toute sécurité",
-      "body": "Réglez vos séances facilement via MTN MoMo ou Orange Money."
-    }
+    "slideLabel": "Diapositive {{current}} sur {{total}}"
   },
   "role": {
     "title": "Comment souhaitez-vous utiliser SOE ?",
@@ -1087,5 +1121,8 @@
     "toSignBannerMany": "{{count}} documents à signer",
     "amendmentCountOne": "{{count}} avenant",
     "amendmentCountOther": "{{count}} avenants"
+  },
+  "splash": {
+    "loading": "Chargement de SOE"
   }
 }
