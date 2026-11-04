@@ -129,8 +129,8 @@ class _Loaded extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            tr.tutor.dashboard.planned(
-                                count: data.todaySessions.length),
+                            tr.tutor.dashboard
+                                .planned(count: data.todaySessions.length),
                             style: const TextStyle(
                               fontSize: 11,
                               color: AppPalette.n700,
@@ -140,7 +140,7 @@ class _Loaded extends StatelessWidget {
                       ),
                     ),
                     InkWell(
-                      onTap: () => context.push(RouteNames.tutorSessions),
+                      onTap: () => context.go(RouteNames.tutorSessions),
                       child: Text(
                         tr.common.seeAll,
                         style: const TextStyle(
@@ -195,7 +195,7 @@ class _Loaded extends StatelessWidget {
                     label: tr.tutor.dashboard.qaReport,
                     sub: tr.tutor.dashboard.qaReportSub,
                     accent: true,
-                    onTap: () => context.push(RouteNames.tutorSessions),
+                    onTap: () => context.go(RouteNames.tutorSessions),
                   ),
                   _QuickAction(
                     icon: Icons.calendar_month_outlined,
@@ -208,7 +208,7 @@ class _Loaded extends StatelessWidget {
                     icon: Icons.payments_outlined,
                     label: tr.tutor.dashboard.qaRemunerations,
                     sub: tr.tutor.dashboard.qaRemunerationsSub,
-                    onTap: () => context.push(RouteNames.tutorRemunerations),
+                    onTap: () => context.go(RouteNames.tutorRemunerations),
                   ),
                 ],
               ),
