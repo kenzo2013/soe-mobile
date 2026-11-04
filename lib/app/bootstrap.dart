@@ -29,6 +29,7 @@ Future<void> bootstrap() async {
 
       final prefs = await PreferencesStorage.create();
       final secure = SecureStorage();
+      await forgetSessionOfPreviousInstall(prefs, secure);
       final initialToken = await secure.read(StorageKeys.authToken);
       final initialRole = await secure.read(StorageKeys.currentRole);
 
@@ -78,4 +79,13 @@ class ConfigurationErrorApp extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A fresh install (no marker, welcome never seen) starts signed out, even when the iOS
+/// keychain still holds the token of a previous install. An app update keeps its session.
+Future<void> forgetSessionOfPreviousInstall(
+    PreferencesStorage prefs, SecureStorage secure) async {
+  if (prefs.readBool(StorageKeys.installMarker)) return;
+  if (!prefs.readBool(StorageKeys.onboardingDoneFlag)) await secure.clear();
+  await prefs.writeBool(StorageKeys.installMarker, value: true);
 }

@@ -39,7 +39,14 @@ class RetryInterceptor extends Interceptor {
     }
   }
 
+  /// Only reads are replayed: a POST or PUT may have reached the server before the
+  /// timeout (a code already used, an account already created).
+  static const _replayableMethods = {'GET', 'HEAD', 'OPTIONS'};
+
   bool _shouldRetry(DioException e) {
+    if (!_replayableMethods.contains(e.requestOptions.method.toUpperCase())) {
+      return false;
+    }
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:

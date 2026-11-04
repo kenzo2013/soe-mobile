@@ -44,7 +44,11 @@ class AuthGuard {
       return isPublic ? null : RouteNames.login;
     }
 
-    if (loc == RouteNames.login || loc.startsWith(RouteNames.register)) {
+    // Signed in: the sign-in and sign-up screens send home, except AUT-08 (account activated),
+    // which follows the e-mail code.
+    if (loc == RouteNames.login ||
+        (loc.startsWith(RouteNames.register) &&
+            loc != RouteNames.emailConfirmed)) {
       return _homeForRole(currentRole());
     }
 

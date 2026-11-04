@@ -131,6 +131,10 @@ abstract final class ExceptionMapper {
       'unconfirmed' => const EmailNotConfirmedFailure(),
       'unauthenticated' => const UnauthorizedFailure(),
       'rate_limited' => RateLimitedFailure(message),
+      'code_invalid' => CodeFailure(CodeProblem.invalid, message),
+      'code_expired' => CodeFailure(CodeProblem.expired, message),
+      'code_locked' => CodeFailure(CodeProblem.locked, message),
+      'link_expired' => LinkExpiredFailure(message),
       _ => null,
     };
   }

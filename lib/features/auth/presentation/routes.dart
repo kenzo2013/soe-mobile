@@ -45,9 +45,7 @@ List<RouteBase> authRoutes() => [
       ),
       GoRoute(
         path: RouteNames.emailSent,
-        builder: (context, state) => EmailSentPage(
-          email: state.uri.queryParameters['email'],
-        ),
+        builder: (context, state) => const EmailSentPage(),
       ),
       GoRoute(
         path: RouteNames.emailConfirmed,
@@ -59,15 +57,10 @@ List<RouteBase> authRoutes() => [
       ),
       GoRoute(
         path: RouteNames.passwordForgotSent,
-        builder: (context, state) => ForgotPasswordSentPage(
-          email: state.uri.queryParameters['email'],
-        ),
+        builder: (context, state) => const ForgotPasswordSentPage(),
       ),
       GoRoute(
         path: RouteNames.passwordReset,
-        builder: (context, state) => ResetPasswordPage(
-          email: state.uri.queryParameters['email'] ?? '',
-          code: state.uri.queryParameters['code'] ?? '',
-        ),
+        builder: (context, state) => const ResetPasswordPage(),
       ),
     ];

@@ -53,7 +53,11 @@
     "fieldFirstName": "first name",
     "fieldLastName": "last name",
     "fieldCity": "city",
-    "fieldAcceptCgu": "Terms acceptance"
+    "fieldAcceptCgu": "Terms acceptance",
+    "codeInvalid": "Incorrect code. Check the 6 digits you received.",
+    "codeExpired": "This code has expired. Ask for a new one.",
+    "codeLocked": "Too many attempts. Wait an hour before asking for a new code.",
+    "linkExpired": "This step has expired: start again from the beginning."
   },
   "onboarding": {
     "skip": "Skip",
@@ -1124,5 +1128,133 @@
   },
   "splash": {
     "loading": "Loading SOE"
+  },
+  "auth": {
+    "step": "Step {{current}} of {{total}}",
+    "continue": "Continue",
+    "missing": "Missing: {{fields}}.",
+    "signIn": {
+      "heading": "Welcome back",
+      "lead": "Sign in with your e-mail or your phone.",
+      "login": "E-mail or phone",
+      "loginHint": "name@example.com or 6XX XX XX XX",
+      "password": "Password",
+      "passwordHint": "Your password",
+      "forgot": "Forgot your password?",
+      "submit": "Sign in",
+      "missing": "Enter your username and your password.",
+      "noAccount": "No account yet?",
+      "signUp": "Create an account"
+    },
+    "profile": {
+      "heading": "Welcome to SOE",
+      "lead": "To start, tell us what you are looking for.",
+      "parentTitle": "I am looking for a tutor for my child",
+      "parentText": "Quote requests, session follow-up, payments",
+      "tutorTitle": "I want to become a tutor",
+      "tutorText": "Offers, file, sessions, earnings",
+      "later": "You can add the other profile later from your account.",
+      "missing": "Choose a profile to continue.",
+      "signedUp": "Already registered?",
+      "signIn": "Sign in"
+    },
+    "identity": {
+      "heading": "Who are you?",
+      "leadParent": "This information will appear on your contract.",
+      "leadTutor": "This information will appear on your file and your engagement letter.",
+      "civility": "Title",
+      "mr": "Mr",
+      "mrs": "Mrs",
+      "firstName": "First name",
+      "firstNameHint": "E.g. Mireille",
+      "lastName": "Last name",
+      "lastNameHint": "E.g. Mbarga",
+      "lang": "App language",
+      "linkWithChildren": "Your link with the child",
+      "father": "Father",
+      "mother": "Mother",
+      "legalGuardian": "Legal representative"
+    },
+    "contact": {
+      "heading": "How can we reach you?",
+      "phone": "Phone (+237)",
+      "phoneHint": "6XX XX XX XX",
+      "email": "E-mail",
+      "emailHint": "name@example.com",
+      "emailHelp": "The verification code will be sent to this address.",
+      "phoneUseParent": "Your phone is used for session reminders and Mobile Money payment. It is never shown publicly.",
+      "phoneUseTutor": "Your phone is used for session reminders and for paying your earnings by Mobile Money. It is never shown publicly."
+    },
+    "password": {
+      "heading": "Choose your password",
+      "lead": "It protects your account: never share it, not even with SOE.",
+      "password": "Password",
+      "confirmation": "Confirm the password",
+      "ruleLength": "At least 8 characters",
+      "ruleUppercase": "One uppercase letter",
+      "ruleDigit": "One digit",
+      "ruleSpecial": "One special character"
+    },
+    "address": {
+      "heading": "Where do you live?",
+      "leadParent": "Your address is only given to the tutor once the contract is signed.",
+      "leadTutor": "It is used to offer you families near you. It is never shown publicly.",
+      "neighborhood": "Neighbourhood",
+      "neighborhoodHint": "E.g. Makepe",
+      "city": "City",
+      "landmark": "Landmark (optional)",
+      "landmarkHint": "E.g. blue gate after the pharmacy",
+      "termsOfUse": "I accept the terms of use",
+      "termsOfSale": "I accept the terms of sale",
+      "privacy": "I accept the processing of my data under the privacy policy",
+      "consents": "agreements",
+      "submit": "Create my account"
+    },
+    "code": {
+      "heading": "Verify your e-mail address",
+      "lead": "Enter the 6-digit code sent to {{email}}. It is valid for 15 minutes.",
+      "submit": "Verify",
+      "missing": "Enter the 6 digits.",
+      "resend": "Send the code again",
+      "resendIn": "Send the code again in {{seconds}} s",
+      "resent": "A new code has just been sent.",
+      "restart": "Start again"
+    },
+    "welcome": {
+      "heading": "Your account is activated",
+      "next": "What comes next",
+      "parentLead": "Add your first child: your quote request comes right after.",
+      "parentStep1": "Add your child",
+      "parentStep1Text": "Class, section, address",
+      "parentStep2": "Describe the need",
+      "parentStep2Text": "SOE sends you a quote to accept",
+      "parentStep3": "SOE introduces the tutor",
+      "parentCta": "Add my first child",
+      "tutorLead": "Complete your file: SOE reviews it before offering you families.",
+      "tutorSections": "Your file in 7 sections",
+      "tutorDelay": "File review time: to be confirmed by SOE.",
+      "tutorCta": "Complete my file",
+      "tutorSectionList": [
+        "Introduction",
+        "Education",
+        "Experience",
+        "Subjects and classes",
+        "Availability",
+        "Identity document",
+        "Payment method"
+      ]
+    },
+    "reset": {
+      "heading": "Forgot your password",
+      "lead": "Enter the e-mail or the phone of your account.",
+      "submit": "Get a code",
+      "missing": "Enter your e-mail or your phone.",
+      "codeHeading": "Enter the code",
+      "codeLead": "If an account exists for {{login}}, you will receive a 6-digit code by e-mail. It is valid for 15 minutes.",
+      "codeSubmit": "Confirm the code",
+      "passwordHeading": "New password",
+      "passwordLead": "Choose a password you do not use anywhere else.",
+      "passwordSubmit": "Save and sign in"
+    }
   }
 }

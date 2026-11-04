@@ -16,5 +16,12 @@ String failureMessage(Failure failure, Translations tr) => switch (failure) {
       ServerFailure(:final message) => message ?? tr.errors.server,
       RateLimitedFailure(:final message) => message ?? tr.errors.rateLimited,
       CancelledFailure() => tr.errors.cancelled,
+      CodeFailure(:final problem, :final message) => message ??
+          switch (problem) {
+            CodeProblem.invalid => tr.errors.codeInvalid,
+            CodeProblem.expired => tr.errors.codeExpired,
+            CodeProblem.locked => tr.errors.codeLocked,
+          },
+      LinkExpiredFailure(:final message) => message ?? tr.errors.linkExpired,
       UnknownFailure() => tr.errors.unknown,
     };

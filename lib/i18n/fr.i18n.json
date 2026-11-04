@@ -53,7 +53,11 @@
     "fieldFirstName": "prénom",
     "fieldLastName": "nom",
     "fieldCity": "ville",
-    "fieldAcceptCgu": "acceptation des CGU"
+    "fieldAcceptCgu": "acceptation des CGU",
+    "codeInvalid": "Code incorrect. Vérifiez les 6 chiffres reçus.",
+    "codeExpired": "Ce code a expiré. Demandez-en un nouveau.",
+    "codeLocked": "Trop d’essais. Patientez une heure avant de demander un nouveau code.",
+    "linkExpired": "Cette étape a expiré : recommencez depuis le début."
   },
   "onboarding": {
     "skip": "Passer",
@@ -1124,5 +1128,133 @@
   },
   "splash": {
     "loading": "Chargement de SOE"
+  },
+  "auth": {
+    "step": "Étape {{current}} sur {{total}}",
+    "continue": "Continuer",
+    "missing": "Il manque : {{fields}}.",
+    "signIn": {
+      "heading": "Bon retour parmi nous",
+      "lead": "Connectez-vous avec votre e-mail ou votre téléphone.",
+      "login": "E-mail ou téléphone",
+      "loginHint": "nom@exemple.com ou 6XX XX XX XX",
+      "password": "Mot de passe",
+      "passwordHint": "Votre mot de passe",
+      "forgot": "Mot de passe oublié ?",
+      "submit": "Se connecter",
+      "missing": "Saisissez votre identifiant et votre mot de passe.",
+      "noAccount": "Pas encore de compte ?",
+      "signUp": "Créer un compte"
+    },
+    "profile": {
+      "heading": "Bienvenue sur SOE",
+      "lead": "Pour commencer, dites-nous ce que vous cherchez.",
+      "parentTitle": "Je cherche un répétiteur pour mon enfant",
+      "parentText": "Demande de devis, suivi des séances, paiements",
+      "tutorTitle": "Je veux devenir répétiteur",
+      "tutorText": "Offres, dossier, séances, rémunérations",
+      "later": "Vous pourrez ajouter l’autre profil plus tard depuis votre compte.",
+      "missing": "Choisissez un profil pour continuer.",
+      "signedUp": "Déjà inscrit ?",
+      "signIn": "Se connecter"
+    },
+    "identity": {
+      "heading": "Qui êtes-vous ?",
+      "leadParent": "Ces informations figureront sur votre contrat.",
+      "leadTutor": "Ces informations figureront sur votre dossier et votre lettre de mission.",
+      "civility": "Civilité",
+      "mr": "M.",
+      "mrs": "Mme",
+      "firstName": "Prénom",
+      "firstNameHint": "Ex. Mireille",
+      "lastName": "Nom",
+      "lastNameHint": "Ex. Mbarga",
+      "lang": "Langue de l’application",
+      "linkWithChildren": "Votre lien avec l’enfant",
+      "father": "Père",
+      "mother": "Mère",
+      "legalGuardian": "Représentant légal"
+    },
+    "contact": {
+      "heading": "Comment vous joindre ?",
+      "phone": "Téléphone (+237)",
+      "phoneHint": "6XX XX XX XX",
+      "email": "E-mail",
+      "emailHint": "nom@exemple.com",
+      "emailHelp": "Le code de vérification sera envoyé à cette adresse.",
+      "phoneUseParent": "Votre téléphone sert aux rappels de séance et au paiement Mobile Money. Il n’est jamais affiché publiquement.",
+      "phoneUseTutor": "Votre téléphone sert aux rappels de séance et au versement de votre rémunération par Mobile Money. Il n’est jamais affiché publiquement."
+    },
+    "password": {
+      "heading": "Choisissez votre mot de passe",
+      "lead": "Il protège votre compte : ne le communiquez à personne, pas même à SOE.",
+      "password": "Mot de passe",
+      "confirmation": "Confirmer le mot de passe",
+      "ruleLength": "8 caractères minimum",
+      "ruleUppercase": "Une majuscule",
+      "ruleDigit": "Un chiffre",
+      "ruleSpecial": "Un caractère spécial"
+    },
+    "address": {
+      "heading": "Où habitez-vous ?",
+      "leadParent": "Votre adresse n’est communiquée au répétiteur qu’après la signature du contrat.",
+      "leadTutor": "Elle sert à vous proposer des familles proches de chez vous. Elle n’est jamais affichée publiquement.",
+      "neighborhood": "Quartier",
+      "neighborhoodHint": "Ex. Makepe",
+      "city": "Ville",
+      "landmark": "Point de repère (facultatif)",
+      "landmarkHint": "Ex. portail bleu après la pharmacie",
+      "termsOfUse": "J’accepte les conditions générales d’utilisation",
+      "termsOfSale": "J’accepte les conditions générales de vente",
+      "privacy": "J’accepte le traitement de mes données selon la politique de confidentialité",
+      "consents": "accords",
+      "submit": "Créer mon compte"
+    },
+    "code": {
+      "heading": "Vérifiez votre adresse e-mail",
+      "lead": "Saisissez le code à 6 chiffres envoyé à {{email}}. Il est valable 15 minutes.",
+      "submit": "Vérifier",
+      "missing": "Saisissez les 6 chiffres.",
+      "resend": "Renvoyer le code",
+      "resendIn": "Renvoyer le code dans {{seconds}} s",
+      "resent": "Un nouveau code vient d’être envoyé.",
+      "restart": "Recommencer"
+    },
+    "welcome": {
+      "heading": "Votre compte est activé",
+      "next": "La suite",
+      "parentLead": "Ajoutez votre premier enfant : votre demande de devis vous attend juste après.",
+      "parentStep1": "Ajoutez votre enfant",
+      "parentStep1Text": "Classe, section, adresse",
+      "parentStep2": "Décrivez le besoin",
+      "parentStep2Text": "SOE vous envoie un devis à accepter",
+      "parentStep3": "SOE vous présente le répétiteur",
+      "parentCta": "Ajouter mon premier enfant",
+      "tutorLead": "Complétez votre dossier : SOE l’examine avant de vous proposer des familles.",
+      "tutorSections": "Votre dossier en 7 sections",
+      "tutorDelay": "Délai de validation du dossier : à confirmer par SOE.",
+      "tutorCta": "Compléter mon dossier",
+      "tutorSectionList": [
+        "Présentation",
+        "Formations",
+        "Expériences",
+        "Matières et classes",
+        "Disponibilités",
+        "Pièce d’identité",
+        "Moyen de paiement"
+      ]
+    },
+    "reset": {
+      "heading": "Mot de passe oublié",
+      "lead": "Indiquez l’e-mail ou le téléphone de votre compte.",
+      "submit": "Recevoir un code",
+      "missing": "Saisissez votre e-mail ou votre téléphone.",
+      "codeHeading": "Saisissez le code",
+      "codeLead": "Si un compte existe pour {{login}}, vous allez recevoir un code à 6 chiffres par e-mail. Il est valable 15 minutes.",
+      "codeSubmit": "Valider le code",
+      "passwordHeading": "Nouveau mot de passe",
+      "passwordLead": "Choisissez un mot de passe que vous n’utilisez pas ailleurs.",
+      "passwordSubmit": "Enregistrer et me connecter"
+    }
   }
 }
