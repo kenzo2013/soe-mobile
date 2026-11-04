@@ -25,7 +25,7 @@ class QuotesPage extends ConsumerWidget {
       body: quotes.when(
         loading: () => const QuotesSkeleton(),
         error: (error, _) => ErrorView(
-          failure: error as Failure,
+          failure: asFailure(error), // never `as Failure`: a parsing error is not a Failure
           onRetry: () => ref.invalidate(quotesViewModelProvider),
         ),
         data: (items) => items.isEmpty

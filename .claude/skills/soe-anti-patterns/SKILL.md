@@ -48,7 +48,8 @@ Scanne les fichiers du périmètre courant et signale les violations.
 ## Commandes de scan rapide
 ```bash
 # Design system, StateNotifier, textes en dur (fichiers modifiés)
-python3 tools/ds_guard.py --files $(git diff --name-only refonte/v2 -- 'lib/*.dart')
+python3 tools/ds_guard.py --diff refonte/v2        # files that got worse
+python3 tools/ds_guard.py --files <file.dart>     # every hit of one file
 
 # BuildContext en couches non-UI
 grep -rn "BuildContext" lib/features/*/domain/ lib/features/*/data/ lib/features/*/presentation/viewmodels/ 2>/dev/null

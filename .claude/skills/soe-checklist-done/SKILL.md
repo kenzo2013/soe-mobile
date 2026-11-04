@@ -41,9 +41,9 @@ flutter test --coverage
 ### 5. Design system, textes, règle 0
 ```bash
 python3 tools/ds_guard.py --check
-python3 tools/ds_guard.py --files $(git diff --name-only refonte/v2 -- 'lib/*.dart')
+python3 tools/ds_guard.py --diff refonte/v2
 ```
-- ✅ Aucun seuil dépassé ; **aucune occurrence dans les fichiers créés** par la tâche.
+- ✅ Aucun seuil dépassé ; aucun fichier modifié n'empire ; **aucune occurrence dans les fichiers créés**.
 - ✅ Textes FR et EN ajoutés ensemble, `dart run slang` relancé.
 - ✅ Code, commentaires, fichiers en anglais.
 - ✅ Écran comparé au Studio sur simulateur à 390 et 834 (captures dans le rendu).

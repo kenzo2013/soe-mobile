@@ -40,18 +40,19 @@ class QuotesRemoteDatasource {
   const QuotesRemoteDatasource(this._dio);
   final Dio _dio;
 
-  Future<Page<QuoteDto>> fetchQuotes({int page = 1}) async {
+  Future<Paginated<QuoteDto>> fetchQuotes({int page = 1}) async {
     final response = await _dio.get<Map<String, dynamic>>(
       ApiEndpointsV2.parentQuotes,
       queryParameters: {'page': page},
     );
-    return Page.fromEnvelope(response.data!, QuoteDto.fromJson);
+    return Paginated.fromEnvelope(response.data!, QuoteDto.fromJson);
   }
 }
 ```
 
-`Page<T>` (items + `page`, `totalPages`, `hasMore`) et `Page.fromEnvelope` sont dans `lib/core/network/`
-(tâche 0.6). Le repository convertit `DioException` → `Failure` via `ExceptionMapper.fromDio`
+`Paginated<T>` (items + `page`, `totalPages`, `hasMore`) et `Paginated.fromEnvelope` sont dans
+`lib/core/network/` (tâche 0.6). Pas `Page<T>` : ce nom existe déjà dans Flutter et go_router.
+Le repository convertit `DioException` → `Failure` via `ExceptionMapper.fromDio`
 (skill `soe-repository`), qui lit `errors[]` du corps v2.
 
 ## Règles

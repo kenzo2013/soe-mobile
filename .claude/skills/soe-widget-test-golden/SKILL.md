@@ -37,8 +37,13 @@ Un test par état : chargement (squelette), vide, erreur (+ « Réessayer » rap
 model), contenu, et chaque variante métier ; un test par action (le bon appel est fait,
 le toast ou la navigation suit).
 
-`pumpAppWith` doit fournir la locale et les traductions (`TranslationProvider`) : s'il ne le
-fait pas encore, l'ajouter au helper plutôt que dans chaque test.
+**Prérequis (tâche 0.5)** — les deux templates ne fonctionnent qu'une fois ces helpers livrés :
+- `pumpAppWith` enveloppe l'app dans `TranslationProvider` avec une locale fixe (`fr` par défaut,
+  paramètre `locale:`) ; aujourd'hui il ne le fait pas et toute page qui appelle
+  `Translations.of(context)` échoue ;
+- `soeGoldenWrapper({AppLocale locale = AppLocale.fr})` dans `test/helpers/golden.dart` :
+  thème, traductions, `MediaQuery` de base.
+Tant qu'ils n'existent pas, les créer avant d'écrire le premier test qui en a besoin.
 
 ## Goldens
 

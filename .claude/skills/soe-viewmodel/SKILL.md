@@ -66,15 +66,21 @@ class QuotesViewModel extends AutoDisposeAsyncNotifier<List<Quote>> {
   }
 
   Future<void> refresh() async {
-    state = const AsyncLoading<List<Quote>>().copyWithPrevious(state);
-    state = await AsyncValue.guard(build);
+    ref.invalidateSelf();
+    await future;
   }
 }
 ```
 
-La page lit `state.when(data:, loading:, error: (e, _) => ErrorView(failure: e as Failure, …))`.
-`Failure` est une classe : le `throw` ci-dessus est le **seul** usage autorisé, dans `build`
-d'un `AsyncNotifier`, pour alimenter `AsyncValue`.
+La page lit `state.when(data:, loading:, error: (e, _) => ErrorView(failure: asFailure(e), …))`.
+Le `throw failure` ci-dessus est le **seul** usage autorisé, dans `build` d'un `AsyncNotifier`,
+pour alimenter `AsyncValue`.
+
+**Prérequis (tâche 0.5)** : `Failure` doit être une exception pour passer la règle
+`only_throw_errors` de very_good_analysis — `sealed class Failure implements Exception`
+dans `lib/core/error/failure.dart` — et `asFailure(Object error)` (dans le même dossier) renvoie
+l'erreur si c'est une `Failure`, sinon `const UnknownFailure()` : une erreur de parsing ou un
+`StateError` ne doit jamais faire planter l'écran d'erreur. Pas de `// ignore:` à la place.
 
 ## Migrer un `StateNotifier`
 

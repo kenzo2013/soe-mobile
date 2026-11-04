@@ -9,4 +9,4 @@ noms de fichiers, routes. Seuls les textes AFFICHÉS restent en français (`lib/
 🎨 **Tout écran se construit avec les widgets `Soe*` et les tokens `App*`** (skill `soe-design-system`).
 Écart mesuré : `python3 tools/ds_guard.py --check`.
 
-✅ Avant de rendre : `dart format --set-exit-if-changed . && flutter analyze && flutter test && python3 tools/ds_guard.py --check`.
+✅ Avant de rendre : `dart format --set-exit-if-changed . && flutter analyze && flutter test && python3 tools/ds_guard.py --check && python3 tools/ds_guard.py --diff refonte/v2`.

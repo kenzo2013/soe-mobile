@@ -77,7 +77,7 @@ slang (i18n), flutter_secure_storage, mocktail, golden_toolkit, patrol, very_goo
 | Lancer en local | `flutter run --target=lib/main_dev.dart --dart-define-from-file=env/dev.env` |
 | Format / analyse | `dart format --set-exit-if-changed .` · `flutter analyze` |
 | Tests | `flutter test` · goldens : `flutter test --update-goldens` (seulement si le changement visuel est voulu) |
-| Design system | `python3 tools/ds_guard.py --check` · détail : `--files <fichiers>` |
+| Design system | `python3 tools/ds_guard.py --check` · fichiers de la tâche : `--diff refonte/v2` · détail : `--files <fichier>` |
 
 ## Interdits
 
