@@ -6,6 +6,7 @@ import '../../domain/entities/auth_flow.dart';
 import '../../domain/entities/auth_session.dart';
 import '../../domain/entities/sign_up_answers.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../../../../core/providers/core_providers.dart';
 import '../providers.dart';
 
 /// Busy flag, the last failure, and per-field errors of a screen.
@@ -73,7 +74,13 @@ class SignUpState extends FlowState {
 
 class SignUpController extends Notifier<SignUpState> {
   @override
-  SignUpState build() => const SignUpState();
+  SignUpState build() {
+    // The answers hold a password: they never outlive a sign-in or a sign-out.
+    ref.listen(authTokenProvider, (previous, next) {
+      if (previous != next) reset();
+    });
+    return const SignUpState();
+  }
 
   void update(SignUpAnswers Function(SignUpAnswers) change) =>
       state = SignUpState(
@@ -100,7 +107,8 @@ class SignUpController extends Notifier<SignUpState> {
     state = SignUpState(answers: state.answers, busy: true);
     switch (await ref.read(authRepositoryProvider).signUp(state.answers)) {
       case Ok(:final value):
-        state = SignUpState(answers: state.answers);
+        // The account exists: the answers (password included) are no longer needed.
+        reset();
         ref
             .read(confirmationControllerProvider.notifier)
             .start(value, afterSignUp: true);
@@ -137,6 +145,9 @@ class ConfirmationState extends FlowState {
 class ConfirmationController extends Notifier<ConfirmationState> {
   @override
   ConfirmationState build() => const ConfirmationState();
+
+  /// The check expired: forget it (the screen goes back to the start).
+  void abandon() => state = const ConfirmationState();
 
   void start(PendingConfirmation pending, {bool afterSignUp = false}) =>
       state = ConfirmationState(pending: pending, afterSignUp: afterSignUp);
@@ -220,6 +231,9 @@ class PasswordResetState extends FlowState {
 class PasswordResetController extends Notifier<PasswordResetState> {
   @override
   PasswordResetState build() => const PasswordResetState();
+
+  /// The reset expired: forget it (the screen goes back to step 1).
+  void abandon() => state = const PasswordResetState();
 
   AuthRepository get _repo => ref.read(authRepositoryProvider);
 

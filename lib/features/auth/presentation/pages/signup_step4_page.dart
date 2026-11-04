@@ -93,7 +93,14 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
         hint: missing.isEmpty ? null : auth.missing(fields: missing.join(', ')),
       ),
       children: [
-        AuthErrorText(failure: state.failure),
+        AuthErrorText(failure: state.failure, shownFields: const {
+          'neighborhood',
+          'city',
+          'landmark',
+          'accept_terms_of_use',
+          'accept_terms_of_sale',
+          'accept_privacy',
+        }),
         AuthHeading(
             title: tr.heading,
             lead: answers.isParent ? tr.leadParent : tr.leadTutor),

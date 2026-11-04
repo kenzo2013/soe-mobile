@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:soe/core/error/failure.dart';
 import 'package:soe/core/error/result.dart';
+import 'package:soe/core/providers/core_providers.dart';
 import 'package:soe/core/routing/route_names.dart';
+import 'package:soe/features/auth/presentation/providers.dart';
 import 'package:soe/core/widgets/soe_button.dart';
 import 'package:soe/features/auth/domain/entities/auth_flow.dart';
 import 'package:soe/features/auth/domain/entities/sign_up_answers.dart';
+import 'package:soe/features/auth/presentation/controllers/auth_controllers.dart';
 
 import 'auth_test_app.dart';
 
@@ -159,5 +163,77 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('tutor-home'), findsOneWidget);
+  });
+
+  testWidgets('an expired code offers to start again', (tester) async {
+    final repository = FakeAuthRepository()
+      ..signInResult =
+          const Ok(ConfirmationRequired(FakeAuthRepository.pending));
+    await pumpAuthApp(tester, repository, start: RouteNames.login);
+    await _enter(tester, 'E-mail ou téléphone', 'a@example.com');
+    await _enter(tester, 'Mot de passe', 'secret');
+    await tester.tap(_button('Se connecter'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).first, '999999');
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Recommencer'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Bon retour parmi nous'), findsOneWidget);
+  });
+
+  testWidgets('step 4 shows a refusal about a field of an earlier step',
+      (tester) async {
+    final repository = FakeAuthRepository()
+      ..signUpResult = const Err(ValidationFailure({
+        'email': ['Cet e-mail est déjà utilisé.'],
+      }));
+    await pumpAuthApp(tester, repository, start: RouteNames.registerStep4);
+    final container =
+        ProviderScope.containerOf(tester.element(find.byType(Scaffold).first));
+    container.read(signUpControllerProvider.notifier).update((a) => a.copyWith(
+          role: 'parent',
+          city: 'Douala',
+          neighborhood: 'Makepe',
+          acceptTermsOfUse: true,
+          acceptTermsOfSale: true,
+          acceptPrivacy: true,
+        ));
+    await tester.pumpAndSettle();
+    await tester.tap(_button('Créer mon compte'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Cet e-mail est déjà utilisé.'), findsOneWidget);
+  });
+
+  test('the answers (password included) are forgotten once the account exists',
+      () async {
+    final container = ProviderContainer(overrides: [
+      authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
+    ]);
+    addTearDown(container.dispose);
+    final controller = container.read(signUpControllerProvider.notifier);
+    controller.update(
+        (a) => a.copyWith(password: 'Bonjour-2026', email: 'a@example.com'));
+
+    await controller.create();
+
+    expect(container.read(signUpControllerProvider).answers.password, isEmpty);
+    expect(container.read(confirmationControllerProvider).pending, isNotNull);
+  });
+
+  test('the answers are forgotten when someone signs in or out', () async {
+    final container = ProviderContainer(overrides: [
+      authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
+    ]);
+    addTearDown(container.dispose);
+    container
+        .read(signUpControllerProvider.notifier)
+        .update((a) => a.copyWith(password: 'x'));
+
+    container.read(authTokenProvider.notifier).state = 'jwt';
+
+    expect(container.read(signUpControllerProvider).answers.password, isEmpty);
   });
 }

@@ -1217,7 +1217,8 @@
       "missing": "Saisissez les 6 chiffres.",
       "resend": "Renvoyer le code",
       "resendIn": "Renvoyer le code dans {{seconds}} s",
-      "resent": "Un nouveau code vient d’être envoyé."
+      "resent": "Un nouveau code vient d’être envoyé.",
+      "restart": "Recommencer"
     },
     "welcome": {
       "heading": "Votre compte est activé",

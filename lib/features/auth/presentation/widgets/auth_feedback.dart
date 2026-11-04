@@ -15,14 +15,35 @@ String homeForRole(String role) =>
 
 /// A refused action, in plain words (announced to screen readers).
 class AuthErrorText extends StatelessWidget {
-  const AuthErrorText({super.key, required this.failure});
+  const AuthErrorText(
+      {super.key, required this.failure, this.shownFields, this.onRestart});
   final Failure? failure;
+
+  /// Fields the screen shows next to their input. When given, the validation errors of
+  /// the other fields (e.g. an e-mail taken meanwhile, on the last step) are listed here.
+  final Set<String>? shownFields;
+
+  /// For an expired flow: a « Recommencer » button.
+  final VoidCallback? onRestart;
 
   @override
   Widget build(BuildContext context) {
     final failure = this.failure;
-    if (failure == null || failure is ValidationFailure)
-      return const SizedBox.shrink();
+    if (failure == null) return const SizedBox.shrink();
+    final tr = Translations.of(context);
+    final String message;
+    if (failure is ValidationFailure) {
+      final shown = shownFields;
+      if (shown == null) return const SizedBox.shrink();
+      final others = [
+        for (final entry in failure.errors.entries)
+          if (!shown.contains(entry.key)) ...entry.value,
+      ];
+      if (others.isEmpty) return const SizedBox.shrink();
+      message = others.join('\n');
+    } else {
+      message = failureMessage(failure, tr);
+    }
     return Semantics(
       liveRegion: true,
       child: Container(
@@ -38,10 +59,26 @@ class AuthErrorText extends StatelessWidget {
                 color: AppPalette.dangerText, size: 20),
             const SizedBox(width: 8),
             Expanded(
-              child: Text(
-                failureMessage(failure, Translations.of(context)),
-                style:
-                    AppTypography.bodySm.copyWith(color: AppPalette.dangerText),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    message,
+                    style: AppTypography.bodySm
+                        .copyWith(color: AppPalette.dangerText),
+                  ),
+                  if (onRestart != null)
+                    TextButton(
+                      onPressed: onRestart,
+                      style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(44, 44),
+                          foregroundColor: AppPalette.dangerText),
+                      child: Text(tr.auth.code.restart,
+                          style: AppTypography.labelSm
+                              .copyWith(color: AppPalette.dangerText)),
+                    ),
+                ],
               ),
             ),
           ],

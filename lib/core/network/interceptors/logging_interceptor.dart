@@ -64,8 +64,11 @@ class LoggingInterceptor extends Interceptor {
   /// `jsonEncode` pour avoir une sortie lisible et compacte. Les FormData
   /// et bytes sont labelés (pas de dump binaire).
   String _pretty(dynamic body) {
+    body = redact(body);
     if (body is FormData) {
-      final fields = body.fields.map((e) => '${e.key}=${e.value}').join(', ');
+      final fields = body.fields
+          .map((e) => '${e.key}=${_isSecret(e.key) ? _masked : e.value}')
+          .join(', ');
       final files = body.files.map((e) => e.key).join(', ');
       return '<FormData fields=[$fields] files=[$files]>';
     }
@@ -78,5 +81,30 @@ class LoggingInterceptor extends Interceptor {
     } catch (_) {
       return body.toString();
     }
+  }
+
+  static const _masked = '[FILTERED]';
+
+  /// Passwords, codes and tokens never reach the logs, even in a test build.
+  static bool _isSecret(String key) {
+    final name = key.toLowerCase();
+    return name.contains('password') ||
+        name.contains('token') ||
+        name == 'code' ||
+        name == 'authorization';
+  }
+
+  /// [body] with every secret value (at any depth) replaced by [_masked].
+  static dynamic redact(dynamic body) {
+    if (body is Map) {
+      return {
+        for (final entry in body.entries)
+          entry.key: entry.key is String && _isSecret(entry.key as String)
+              ? _masked
+              : redact(entry.value),
+      };
+    }
+    if (body is List) return body.map(redact).toList();
+    return body;
   }
 }

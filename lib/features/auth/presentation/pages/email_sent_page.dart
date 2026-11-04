@@ -68,7 +68,17 @@ class _EmailSentPageState extends ConsumerState<EmailSentPage> {
             title: tr.auth.code.heading,
             lead: tr.auth.code.lead(email: pending.maskedEmail)),
         if (state.failure is! CodeFailure)
-          AuthErrorText(failure: state.failure),
+          AuthErrorText(
+            failure: state.failure,
+            onRestart: state.failure is LinkExpiredFailure
+                ? () {
+                    final afterSignUp = state.afterSignUp;
+                    ref.read(confirmationControllerProvider.notifier).abandon();
+                    context.go(
+                        afterSignUp ? RouteNames.roleChoice : RouteNames.login);
+                  }
+                : null,
+          ),
         SoeOtpField(
           errorText: codeFailure,
           onChanged: (code) => setState(() => _code = code),
@@ -79,6 +89,8 @@ class _EmailSentPageState extends ConsumerState<EmailSentPage> {
         ),
         const SizedBox(height: 12),
         ResendCodeButton(
+          // A new code gives a new pending check: the countdown starts again.
+          key: ObjectKey(pending),
           seconds: pending.resendIn,
           onResend: () async {
             await ref.read(confirmationControllerProvider.notifier).resend();

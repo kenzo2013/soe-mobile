@@ -64,7 +64,17 @@ class _ForgotPasswordSentPageState
             title: tr.auth.reset.codeHeading,
             lead: tr.auth.reset.codeLead(login: state.login)),
         if (state.failure is! CodeFailure)
-          AuthErrorText(failure: state.failure),
+          AuthErrorText(
+            failure: state.failure,
+            onRestart: state.failure is LinkExpiredFailure
+                ? () {
+                    ref
+                        .read(passwordResetControllerProvider.notifier)
+                        .abandon();
+                    context.go(RouteNames.passwordForgot);
+                  }
+                : null,
+          ),
         SoeOtpField(
           errorText: state.failure is CodeFailure
               ? failureMessage(state.failure!, tr)
@@ -77,6 +87,7 @@ class _ForgotPasswordSentPageState
         ),
         const SizedBox(height: 12),
         ResendCodeButton(
+          key: ObjectKey(ticket),
           seconds: ticket.resendIn,
           onResend: () async {
             await ref.read(passwordResetControllerProvider.notifier).resend();

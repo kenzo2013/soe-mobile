@@ -29,6 +29,7 @@ class FakeAuthRepository implements AuthRepository {
   Result<SignInOutcome, Failure> signInResult =
       const Err(InvalidCredentialsFailure());
   Result<void, Failure> validateResult = const Ok(null);
+  Result<PendingConfirmation, Failure>? signUpResult;
   final List<SignUpStep> validatedSteps = [];
   SignUpAnswers? createdWith;
 
@@ -60,15 +61,17 @@ class FakeAuthRepository implements AuthRepository {
   Future<Result<PendingConfirmation, Failure>> signUp(
       SignUpAnswers answers) async {
     createdWith = answers;
-    return const Ok(pending);
+    return signUpResult ?? const Ok(pending);
   }
 
   @override
   Future<Result<AuthSession, Failure>> confirmEmail(
           {required String pendingToken, required String code}) async =>
-      code == '123456'
-          ? Ok(session())
-          : const Err(CodeFailure(CodeProblem.invalid));
+      switch (code) {
+        '123456' => Ok(session()),
+        '999999' => const Err(LinkExpiredFailure()),
+        _ => const Err(CodeFailure(CodeProblem.invalid)),
+      };
 
   @override
   Future<Result<PendingConfirmation, Failure>> resendConfirmation(
