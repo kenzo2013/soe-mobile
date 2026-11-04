@@ -18,3 +18,4 @@ param_case: camel
 string_interpolation: double_braces
 flat_map: false
 timestamp: false
+lazy: false # mobile: both languages loaded at start (setLocaleSync on English must not fail)
