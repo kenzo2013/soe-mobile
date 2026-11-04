@@ -1256,5 +1256,31 @@
       "passwordLead": "Choisissez un mot de passe que vous n’utilisez pas ailleurs.",
       "passwordSubmit": "Enregistrer et me connecter"
     }
+  },
+  "shell": {
+    "parent": {
+      "home": "Accueil",
+      "planning": "Planning",
+      "children": "Enfants",
+      "payments": "Paiements"
+    },
+    "tutor": {
+      "today": "Aujourd’hui",
+      "planning": "Planning",
+      "students": "Élèves",
+      "earnings": "Revenus"
+    },
+    "more": {
+      "tab": "Plus",
+      "title": "Plus",
+      "account": "Mon compte",
+      "notifications": "Notifications",
+      "switchRole": "Changer d’espace",
+      "language": "Langue",
+      "signOut": "Se déconnecter",
+      "parentRole": "Espace parent",
+      "tutorRole": "Espace répétiteur"
+    },
+    "navigation": "Navigation principale"
   }
 }

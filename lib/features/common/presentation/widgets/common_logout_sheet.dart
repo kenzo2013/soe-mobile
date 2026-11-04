@@ -18,6 +18,8 @@ import '../../../auth/presentation/providers/current_user_provider.dart';
 Future<void> showLogoutSheet(BuildContext context, WidgetRef ref) {
   return showModalBottomSheet<void>(
     context: context,
+    // Over the whole screen, tab bar included (it is opened from the « Plus » tab).
+    useRootNavigator: true,
     backgroundColor: Colors.transparent,
     barrierColor: const Color(0x80010814),
     builder: (sheetContext) => _LogoutSheet(parentRef: ref),
@@ -59,7 +61,8 @@ class _LogoutSheet extends StatelessWidget {
                 color: AppPalette.dangerBg,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.logout, size: 28, color: AppPalette.danger),
+              child:
+                  const Icon(Icons.logout, size: 28, color: AppPalette.danger),
             ),
             const SizedBox(height: 14),
             Text(

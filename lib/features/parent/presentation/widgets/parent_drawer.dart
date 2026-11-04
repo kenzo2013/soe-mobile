@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -75,7 +77,8 @@ class ParentDrawer extends ConsumerWidget {
     final items = _itemsOf(tr);
     final userAsync = ref.watch(currentUserProvider);
     final user = userAsync.asData?.value;
-    final name = user == null ? '' : '${user.firstName} ${user.lastName}'.trim();
+    final name =
+        user == null ? '' : '${user.firstName} ${user.lastName}'.trim();
     final roleLine = user == null
         ? tr.parent.drawer.notConnected
         : (user.role.name == "parent"
@@ -164,7 +167,13 @@ class ParentDrawer extends ConsumerWidget {
                       active: active,
                       onTap: () {
                         Navigator.of(context).pop();
-                        if (!active) context.go(it.route);
+                        if (active) return;
+                        // A tab switches tab; any other screen opens over the tabs.
+                        if (RouteNames.tabRoots.contains(it.route)) {
+                          context.go(it.route);
+                        } else {
+                          unawaited(context.push(it.route));
+                        }
                       },
                     );
                   },
@@ -433,8 +442,7 @@ class _DrawerRow extends StatelessWidget {
                             ? Colors.white
                             : Colors.white.withValues(alpha: 0.85),
                         fontSize: 14,
-                        fontWeight:
-                            active ? FontWeight.w600 : FontWeight.w500,
+                        fontWeight: active ? FontWeight.w600 : FontWeight.w500,
                       ),
                     ),
                   ],

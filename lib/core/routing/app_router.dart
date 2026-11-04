@@ -7,6 +7,7 @@ import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/routes.dart';
 import '../../features/common/presentation/routes.dart';
 import '../../features/parent/presentation/routes.dart';
+import '../../features/shell/presentation/routes.dart';
 import '../../features/tutor/presentation/routes.dart';
 import 'route_guards.dart';
 import 'route_names.dart';
@@ -32,6 +33,7 @@ GoRouter buildRouter({required AuthGuard guard}) {
         builder: (context, state) => const SplashPage(),
       ),
       ...authRoutes(),
+      ...shellRoutes(),
       ...parentRoutes(),
       ...tutorRoutes(),
       ...commonRoutes(),

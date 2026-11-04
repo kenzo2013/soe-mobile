@@ -165,7 +165,7 @@ class _LoadedView extends StatelessWidget {
                       _sectionHeader(
                         tr.parent.dashboard.myChildren,
                         actionLabel: tr.common.seeAll,
-                        onAction: () => context.push(RouteNames.parentStudents),
+                        onAction: () => context.go(RouteNames.parentStudents),
                       ),
                       ChildAvatarsRow(
                         students: students,
@@ -177,8 +177,7 @@ class _LoadedView extends StatelessWidget {
                           tr.parent.dashboard.todaySessions,
                           count: sessions.length.toString(),
                           actionLabel: tr.parent.dashboard.calendar,
-                          onAction: () =>
-                              context.push(RouteNames.parentSessions),
+                          onAction: () => context.go(RouteNames.parentSessions),
                         ),
                         SoeCard(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -481,8 +480,10 @@ class _HowStep extends StatelessWidget {
 String _todayLine(Translations tr, int sessionCount) {
   final fmt = DateFormat('EEEE d MMMM', 'fr');
   final date = fmt.format(DateTime.now());
-  if (sessionCount == 0) return tr.parent.dashboard.dateLineNoSession(date: date);
-  if (sessionCount == 1) return tr.parent.dashboard.dateLineOneSession(date: date);
+  if (sessionCount == 0)
+    return tr.parent.dashboard.dateLineNoSession(date: date);
+  if (sessionCount == 1)
+    return tr.parent.dashboard.dateLineOneSession(date: date);
   return tr.parent.dashboard.dateLineManySessions(
     date: date,
     count: sessionCount,

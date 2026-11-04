@@ -31,9 +31,11 @@ abstract final class RouteNames {
   static const String parentReservationNew = '/parent/reservations/new';
   static const String parentSessions = '/parent/sessions';
   static const String parentPayments = '/parent/payments';
+  static const String parentMore = '/parent/more';
 
   // Tutor shell
   static const String tutorDashboard = '/tutor';
+  static const String tutorMore = '/tutor/more';
 
   // Tutor · Mon profil
   static const String tutorProfile = '/tutor/profile';
@@ -88,4 +90,19 @@ abstract final class RouteNames {
 
   // Common · Contrats (détail partagé parent + tuteur)
   static const String contractDetail = '/contracts/detail';
+
+  /// First screens of the tabs (Q5): reached with `go` (switches tab). Any other
+  /// screen opens with `push`, over the tabs, which keep their history.
+  static const Set<String> tabRoots = {
+    parentDashboard,
+    parentSessions,
+    parentStudents,
+    parentPayments,
+    parentMore,
+    tutorDashboard,
+    tutorSessions,
+    tutorCourses,
+    tutorRemunerations,
+    tutorMore,
+  };
 }

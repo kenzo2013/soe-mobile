@@ -1256,5 +1256,31 @@
       "passwordLead": "Choose a password you do not use anywhere else.",
       "passwordSubmit": "Save and sign in"
     }
+  },
+  "shell": {
+    "parent": {
+      "home": "Home",
+      "planning": "Schedule",
+      "children": "Children",
+      "payments": "Payments"
+    },
+    "tutor": {
+      "today": "Today",
+      "planning": "Schedule",
+      "students": "Students",
+      "earnings": "Earnings"
+    },
+    "more": {
+      "tab": "More",
+      "title": "More",
+      "account": "My account",
+      "notifications": "Notifications",
+      "switchRole": "Switch space",
+      "language": "Language",
+      "signOut": "Sign out",
+      "parentRole": "Parent space",
+      "tutorRole": "Tutor space"
+    },
+    "navigation": "Main navigation"
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -146,7 +148,13 @@ class TutorDrawer extends ConsumerWidget {
                       active: active,
                       onTap: () {
                         Navigator.of(context).pop();
-                        if (!active) context.go(it.route);
+                        if (active) return;
+                        // A tab switches tab; any other screen opens over the tabs.
+                        if (RouteNames.tabRoots.contains(it.route)) {
+                          context.go(it.route);
+                        } else {
+                          unawaited(context.push(it.route));
+                        }
                       },
                     );
                   },
