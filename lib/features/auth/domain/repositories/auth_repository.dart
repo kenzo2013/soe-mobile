@@ -1,90 +1,60 @@
 import '../../../../core/error/failure.dart';
 import '../../../../core/error/result.dart';
+import '../entities/auth_flow.dart';
 import '../entities/auth_session.dart';
+import '../entities/sign_up_answers.dart';
 import '../entities/user.dart';
 
-/// Contrat d'accès aux services d'auth — implémenté côté Data.
+/// Authentication with the API v2 (AUT-02 to AUT-11). The flow state lives in the tokens
+/// the API returns (pending e-mail check, reset); a session is stored once signed in.
 abstract class AuthRepository {
-  /// Connecte l'utilisateur. L'API renvoie 401 + EmailNotConfirmedFailure
-  /// tant que l'email n'a pas été confirmé via OTP.
-  Future<Result<AuthSession, Failure>> login({
-    required String email,
+  /// AUT-09 — e-mail or phone (any format) + password.
+  Future<Result<SignInOutcome, Failure>> signIn({
+    required String login,
     required String password,
   });
 
-  /// Inscrit l'utilisateur en mode mobile (code OTP envoyé par email).
-  /// Pas de session retournée : on attend la confirmation par code.
-  Future<Result<User, Failure>> register({
-    required RegisterParams params,
+  /// AUT-02 to AUT-06 — validates one step; field errors come back as [ValidationFailure].
+  Future<Result<void, Failure>> validateSignUpStep({
+    required SignUpStep step,
+    required SignUpAnswers answers,
   });
 
-  /// Renvoie un nouveau code de confirmation par email.
-  Future<Result<void, Failure>> resendConfirmationCode({
-    required String email,
-  });
+  /// AUT-06 — creates the account; a code is sent to the e-mail.
+  Future<Result<PendingConfirmation, Failure>> signUp(SignUpAnswers answers);
 
-  /// Vérifie le code de confirmation et active le compte.
-  Future<Result<User, Failure>> verifyConfirmationCode({
-    required String email,
+  /// AUT-07 — checks the e-mail code, then signed in.
+  Future<Result<AuthSession, Failure>> confirmEmail({
+    required String pendingToken,
     required String code,
   });
 
-  /// Demande un code de réinitialisation par email.
-  Future<Result<void, Failure>> requestPasswordReset({required String email});
+  Future<Result<PendingConfirmation, Failure>> resendConfirmation(
+      String pendingToken);
 
-  /// Vérifie qu'un code de reset est valide (sans le consommer).
-  Future<Result<void, Failure>> verifyResetCode({
-    required String email,
+  /// AUT-10 — same answer whether an account matches the login or not.
+  Future<Result<PasswordResetTicket, Failure>> requestPasswordReset(
+      String login);
+
+  /// AUT-10 — returns the verified token (valid 10 minutes).
+  Future<Result<String, Failure>> verifyResetCode({
+    required String resetToken,
     required String code,
   });
 
-  /// Consomme le code et change le mot de passe.
-  Future<Result<void, Failure>> resetPasswordWithCode({
-    required String email,
-    required String code,
+  Future<Result<PasswordResetTicket, Failure>> resendPasswordReset(
+      String resetToken);
+
+  /// AUT-10 — the new password, then signed in.
+  Future<Result<AuthSession, Failure>> resetPassword({
+    required String verifiedToken,
     required String password,
     required String passwordConfirmation,
   });
 
+  /// AUT-11 — revokes the token and clears the stored session.
   Future<Result<void, Failure>> logout();
 
-  /// Récupère le profil du user connecté via le JWT en storage.
-  /// Persiste le résultat pour les lectures suivantes.
+  /// The signed-in account (GET /me), stored for the next reads.
   Future<Result<User, Failure>> fetchCurrentUser();
-}
-
-class RegisterParams {
-  const RegisterParams({
-    required this.email,
-    required this.password,
-    required this.passwordConfirmation,
-    required this.firstName,
-    required this.lastName,
-    required this.role,
-    required this.acceptCgu,
-    this.civility,
-    this.phone,
-    this.lang = 'fr',
-    this.address,
-    this.neighborhood,
-    this.city,
-    this.country,
-    this.countryCode,
-  });
-
-  final String email;
-  final String password;
-  final String passwordConfirmation;
-  final String firstName;
-  final String lastName;
-  final UserRole role;
-  final bool acceptCgu;
-  final String? civility;
-  final String? phone;
-  final String lang;
-  final String? address;
-  final String? neighborhood;
-  final String? city;
-  final String? country;
-  final String? countryCode;
 }

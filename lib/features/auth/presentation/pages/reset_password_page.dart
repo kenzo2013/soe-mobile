@@ -2,29 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/error/failure.dart';
 import '../../../../core/routing/route_names.dart';
-import '../../../../core/theme/app_palette.dart';
-import '../../../../core/theme/app_radius.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/soe_app_bar.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_text_field.dart';
-import '../../../../core/widgets/soe_toast.dart';
 import '../../../../i18n/translations.g.dart';
-import '../viewmodels/auth_state.dart';
-import '../viewmodels/reset_password_viewmodel.dart';
+import '../../domain/entities/user.dart';
+import '../controllers/auth_controllers.dart';
+import '../widgets/auth_feedback.dart';
+import '../widgets/auth_scaffold.dart';
 
-/// Étape 3 du flow reset par OTP : saisie du nouveau mot de passe.
-/// `email` + `code` viennent de la route précédente (forgot-sent).
+/// AUT-10, step 3 — the new password (4 rules), then signed in.
 class ResetPasswordPage extends ConsumerStatefulWidget {
-  const ResetPasswordPage({
-    super.key,
-    required this.email,
-    required this.code,
-  });
-  final String email;
-  final String code;
+  const ResetPasswordPage({super.key});
 
   @override
   ConsumerState<ResetPasswordPage> createState() => _ResetPasswordPageState();
@@ -32,147 +21,72 @@ class ResetPasswordPage extends ConsumerStatefulWidget {
 
 class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
   final _password = TextEditingController();
-  final _confirm = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+  final _confirmation = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _password.addListener(() => setState(() {}));
+    _confirmation.addListener(() => setState(() {}));
+  }
 
   @override
   void dispose() {
     _password.dispose();
-    _confirm.dispose();
+    _confirmation.dispose();
     super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final session = await ref
+        .read(passwordResetControllerProvider.notifier)
+        .reset(_password.text, _confirmation.text);
+    if (session != null && mounted)
+      context.go(homeForRole(session.user.role.apiValue));
   }
 
   @override
   Widget build(BuildContext context) {
-    final tr = Translations.of(context);
-    final state = ref.watch(resetPasswordViewModelProvider);
-
-    ref.listen<AuthState>(resetPasswordViewModelProvider, (prev, next) {
-      next.whenOrNull(
-        passwordResetSucceeded: () {
-          SoeToast.show(
-            context,
-            message: tr.resetPassword.successToast,
-            tone: SoeToastTone.success,
-          );
-          context.go(RouteNames.login);
-        },
-        error: (failure) => SoeToast.show(
-          context,
-          message: _label(failure, tr),
-          tone: SoeToastTone.danger,
+    final tr = Translations.of(context).auth;
+    final state = ref.watch(passwordResetControllerProvider);
+    if (state.verifiedToken == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.go(RouteNames.passwordForgot);
+      });
+      return const SizedBox.shrink();
+    }
+    final missing = [
+      if (!PasswordRules.allMet(_password.text))
+        tr.password.password.toLowerCase(),
+      if (_confirmation.text.isEmpty) tr.password.confirmation.toLowerCase(),
+    ];
+    return AuthScaffold(
+      bottom: AuthSubmit(
+        button: SoeButton(
+          label: tr.reset.passwordSubmit,
+          onPressed: missing.isEmpty ? _submit : null,
+          loading: state.busy,
+          fullWidth: true,
         ),
-      );
-    });
-
-    final isLoading =
-        state.maybeWhen(loading: () => true, orElse: () => false);
-
-    return Scaffold(
-      backgroundColor: AppPalette.white,
-      appBar: const SoeAppBar(title: ''),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: const BoxDecoration(
-                    color: AppPalette.n300,
-                    borderRadius: AppRadius.rLg,
-                  ),
-                  alignment: Alignment.center,
-                  child: const Icon(Icons.lock_outline,
-                      size: 28, color: AppPalette.teal),
-                ),
-                const SizedBox(height: 18),
-                Text(tr.resetPassword.title, style: AppTypography.h1),
-                const SizedBox(height: 8),
-                Text(
-                  tr.resetPassword.subtitle,
-                  style: AppTypography.bodySm.copyWith(color: AppPalette.n700),
-                ),
-                const SizedBox(height: 22),
-                SoePasswordField(
-                  controller: _password,
-                  label: tr.resetPassword.password,
-                  hint: tr.resetPassword.passwordHint,
-                  textInputAction: TextInputAction.next,
-                  validator: (v) => (v == null || v.length < 6)
-                      ? tr.errors.passwordTooShort
-                      : null,
-                ),
-                const SizedBox(height: 12),
-                SoePasswordField(
-                  controller: _confirm,
-                  label: tr.resetPassword.confirm,
-                  hint: tr.resetPassword.confirmHint,
-                  validator: (v) =>
-                      v != _password.text ? tr.errors.passwordMismatch : null,
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: const BoxDecoration(
-                    color: AppPalette.infoBg,
-                    borderRadius: AppRadius.rMd,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.check,
-                          size: 16, color: AppPalette.teal),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          tr.resetPassword.info,
-                          style: AppTypography.caption
-                              .copyWith(color: AppPalette.n700),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 22),
-                SoeButton(
-                  label: tr.resetPassword.submit,
-                  size: SoeButtonSize.lg,
-                  fullWidth: true,
-                  loading: isLoading,
-                  onPressed: isLoading
-                      ? null
-                      : () {
-                          if (!(_formKey.currentState?.validate() ?? false)) {
-                            return;
-                          }
-                          ref
-                              .read(resetPasswordViewModelProvider.notifier)
-                              .submit(
-                                email: widget.email,
-                                code: widget.code,
-                                password: _password.text,
-                                passwordConfirmation: _confirm.text,
-                              );
-                        },
-                ),
-              ],
-            ),
-          ),
-        ),
+        hint: missing.isEmpty ? null : tr.missing(fields: missing.join(', ')),
       ),
+      children: [
+        AuthHeading(
+            title: tr.reset.passwordHeading, lead: tr.reset.passwordLead),
+        AuthErrorText(failure: state.failure),
+        SoePasswordField(
+            controller: _password,
+            label: tr.password.password,
+            errorText: state.fieldError('password')),
+        const SizedBox(height: 8),
+        PasswordRules(password: _password.text),
+        SoePasswordField(
+          controller: _confirmation,
+          label: tr.password.confirmation,
+          errorText: state.fieldError('password_confirmation'),
+          onFieldSubmitted: (_) => _submit(),
+        ),
+      ],
     );
   }
-
-  String _label(Failure f, Translations tr) => switch (f) {
-        ValidationFailure(:final message) =>
-          message ?? tr.errors.validation,
-        UnauthorizedFailure() => tr.errors.unauthorized,
-        NetworkFailure() => tr.errors.network,
-        _ => tr.errors.unknown,
-      };
 }

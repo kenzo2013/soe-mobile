@@ -1,202 +1,165 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
-import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/lang_pill.dart';
-import '../../../../core/widgets/soe_app_bar.dart';
-import '../../../../core/widgets/soe_brand_logo.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../i18n/translations.g.dart';
-import '../../domain/entities/user.dart';
-import '../viewmodels/register_flow_viewmodel.dart';
+import '../../domain/entities/sign_up_answers.dart';
+import '../controllers/auth_controllers.dart';
+import '../widgets/auth_feedback.dart';
+import '../widgets/auth_scaffold.dart';
 
-class RoleChoicePage extends ConsumerStatefulWidget {
+/// AUT-02 — parent or tutor.
+class RoleChoicePage extends ConsumerWidget {
   const RoleChoicePage({super.key});
 
   @override
-  ConsumerState<RoleChoicePage> createState() => _RoleChoicePageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context).auth.profile;
+    final state = ref.watch(signUpControllerProvider);
+    final controller = ref.read(signUpControllerProvider.notifier);
+    final role = state.answers.role;
 
-class _RoleChoicePageState extends ConsumerState<RoleChoicePage> {
-  UserRole _role = UserRole.parent;
+    Future<void> next() async {
+      if (await controller.validate(SignUpStep.profile) && context.mounted)
+        unawaited(context.push(RouteNames.registerStep1));
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    final tr = Translations.of(context);
-    return Scaffold(
-      backgroundColor: AppPalette.white,
-      appBar: const SoeAppBar(
-        title: '',
-        actions: [
-          Padding(padding: EdgeInsets.only(right: 16), child: LangPill()),
-        ],
+    return AuthScaffold(
+      bottom: AuthSubmit(
+        button: SoeButton(
+          label: Translations.of(context).auth.kContinue,
+          onPressed: role == null ? null : next,
+          loading: state.busy,
+          variant: SoeButtonVariant.secondary,
+          fullWidth: true,
+        ),
+        hint: role == null ? tr.missing : null,
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AuthHeading(title: tr.heading, lead: tr.lead),
+        AuthErrorText(failure: state.failure),
+        for (final (value, icon, title, text) in [
+          ('parent', Icons.person_outline, tr.parentTitle, tr.parentText),
+          ('tutor', Icons.school_outlined, tr.tutorTitle, tr.tutorText),
+        ])
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _ProfileCard(
+              icon: icon,
+              title: title,
+              text: text,
+              selected: role == value,
+              onTap: () =>
+                  controller.update((answers) => answers.copyWith(role: value)),
+            ),
+          ),
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+              color: AppPalette.n50, borderRadius: BorderRadius.circular(14)),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Center(child: SoeBrandLogo(width: 110)),
-              const SizedBox(height: 24),
-              Text(tr.role.title,
-                  style: AppTypography.h2, textAlign: TextAlign.center),
-              const SizedBox(height: 8),
-              Text(
-                tr.role.subtitle,
-                textAlign: TextAlign.center,
-                style: AppTypography.bodySm.copyWith(color: AppPalette.n700),
-              ),
-              const SizedBox(height: 28),
-              _RoleTile(
-                icon: Icons.groups_outlined,
-                title: tr.role.parent.title,
-                body: tr.role.parent.body,
-                selected: _role == UserRole.parent,
-                onTap: () => setState(() => _role = UserRole.parent),
-              ),
-              const SizedBox(height: 12),
-              _RoleTile(
-                icon: Icons.school_outlined,
-                title: tr.role.tutor.title,
-                body: tr.role.tutor.body,
-                selected: _role == UserRole.tutor,
-                onTap: () => setState(() => _role = UserRole.tutor),
-              ),
-              const SizedBox(height: 24),
-              SoeButton(
-                label: tr.common.kContinue,
-                icon: Icons.chevron_right,
-                iconRight: true,
-                size: SoeButtonSize.lg,
-                fullWidth: true,
-                onPressed: () {
-                  ref
-                      .read(registerFlowViewModelProvider.notifier)
-                      .setRole(_role);
-                  context.push(RouteNames.registerStep1);
-                },
-              ),
-              const SizedBox(height: 18),
-              Center(
-                child: Wrap(
-                  alignment: WrapAlignment.center,
-                  children: [
-                    Text('${tr.role.alreadyAccount} ',
-                        style: AppTypography.bodySm
-                            .copyWith(color: AppPalette.n700)),
-                    GestureDetector(
-                      onTap: () => context.go(RouteNames.login),
-                      child: Text(
-                        tr.role.signIn,
-                        style: AppTypography.bodySm.copyWith(
-                          color: AppPalette.teal,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              const Icon(Icons.info_outline,
+                  size: 18, color: AppPalette.teal500),
+              const SizedBox(width: 10),
+              Expanded(
+                  child: Text(tr.later,
+                      style: AppTypography.bodySm
+                          .copyWith(color: AppPalette.ink700))),
             ],
           ),
         ),
-      ),
+        const SizedBox(height: 12),
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text(tr.signedUp,
+                style: AppTypography.bodySm.copyWith(color: AppPalette.ink700)),
+            TextButton(
+              onPressed: () => context.go(RouteNames.login),
+              child: Text(tr.signIn,
+                  style:
+                      AppTypography.label.copyWith(color: AppPalette.teal500)),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
 
-class _RoleTile extends StatelessWidget {
-  const _RoleTile({
+class _ProfileCard extends StatelessWidget {
+  const _ProfileCard({
     required this.icon,
     required this.title,
-    required this.body,
+    required this.text,
     required this.selected,
     required this.onTap,
   });
 
   final IconData icon;
   final String title;
-  final String body;
+  final String text;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = selected ? AppPalette.teal : AppPalette.n300;
-    final iconBg = selected ? AppPalette.teal : AppPalette.n100;
-    final iconColor = selected ? AppPalette.white : AppPalette.teal;
-    final bg = selected ? AppPalette.n300 : AppPalette.white;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: AppRadius.rMd,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: AppRadius.rMd,
-            border: Border.all(color: borderColor, width: 1.5),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: iconBg,
-                  borderRadius: AppRadius.rSm,
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Material(
+        color: selected ? AppPalette.teal50 : AppPalette.n50,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+              color: selected ? AppPalette.teal500 : Colors.transparent,
+              width: 1.5),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                      color: AppPalette.white,
+                      borderRadius: BorderRadius.circular(12)),
+                  child: Icon(icon, color: AppPalette.teal500),
                 ),
-                alignment: Alignment.center,
-                child: Icon(icon, size: 20, color: iconColor),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: AppTypography.h4),
-                    const SizedBox(height: 4),
-                    Text(
-                      body,
-                      style: AppTypography.bodySm
-                          .copyWith(color: AppPalette.n700),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                width: 22,
-                height: 22,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: selected ? AppPalette.teal : AppPalette.n500,
-                    width: 1.5,
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title,
+                          style: AppTypography.label
+                              .copyWith(color: AppPalette.ink900)),
+                      Text(text,
+                          style: AppTypography.caption
+                              .copyWith(color: AppPalette.ink700)),
+                    ],
                   ),
                 ),
-                child: selected
-                    ? Center(
-                        child: Container(
-                          width: 12,
-                          height: 12,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppPalette.teal,
-                          ),
-                        ),
-                      )
-                    : null,
-              ),
-            ],
+                Icon(
+                    selected
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_unchecked,
+                    color: selected ? AppPalette.teal500 : AppPalette.ink400),
+              ],
+            ),
           ),
         ),
       ),

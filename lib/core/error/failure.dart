@@ -65,6 +65,21 @@ class RateLimitedFailure extends Failure {
   const RateLimitedFailure([this.message]);
 }
 
+/// A refused 6-digit code (AUT-07, AUT-10): wrong, expired, or locked after too many tries.
+enum CodeProblem { invalid, expired, locked }
+
+class CodeFailure extends Failure {
+  final CodeProblem problem;
+  final String? message;
+  const CodeFailure(this.problem, [this.message]);
+}
+
+/// The flow token (pending e-mail check, reset) expired: the user starts the flow again.
+class LinkExpiredFailure extends Failure {
+  final String? message;
+  const LinkExpiredFailure([this.message]);
+}
+
 class CancelledFailure extends Failure {
   const CancelledFailure();
 }
