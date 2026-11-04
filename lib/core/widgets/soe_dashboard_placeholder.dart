@@ -55,8 +55,7 @@ class SoeDashboardPlaceholder extends ConsumerWidget {
                 child: Icon(icon, size: 44, color: AppPalette.teal),
               ),
               const SizedBox(height: 24),
-              Text(title,
-                  style: AppTypography.h1, textAlign: TextAlign.center),
+              Text(title, style: AppTypography.h1, textAlign: TextAlign.center),
               const SizedBox(height: 10),
               Text(
                 subtitle,
@@ -84,7 +83,7 @@ class SoeDashboardPlaceholder extends ConsumerWidget {
               SoeButton(
                 label: tr.dashboardPlaceholder.logout,
                 icon: Icons.logout,
-                variant: SoeButtonVariant.secondary,
+                variant: SoeButtonVariant.outline,
                 size: SoeButtonSize.lg,
                 fullWidth: true,
                 onPressed: () => _logout(context, ref, tr),

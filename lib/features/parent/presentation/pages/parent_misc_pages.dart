@@ -949,7 +949,7 @@ class ParentContractsListPage extends ConsumerWidget {
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => ErrorView(
-          failure: e is Failure ? e : const UnknownFailure(),
+          failure: asFailure(e),
           onRetry: () => ref.invalidate(contractsProvider),
         ),
         data: (items) => items.isEmpty

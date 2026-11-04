@@ -37,7 +37,7 @@ class AccountPersonalInfoPage extends ConsumerWidget {
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => ErrorView(
-          failure: e is Failure ? e : const UnknownFailure(),
+          failure: asFailure(e),
           onRetry: () => ref.invalidate(currentUserProvider),
         ),
         data: (user) => user == null

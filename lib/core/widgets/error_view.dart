@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../i18n/translations.g.dart';
 import '../error/failure.dart';
+import '../error/failure_message.dart';
 import '../theme/app_palette.dart';
 import '../theme/app_typography.dart';
 import 'soe_button.dart';
@@ -38,7 +39,7 @@ class ErrorView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              _label(tr, failure),
+              failureMessage(failure, tr),
               textAlign: TextAlign.center,
               style: AppTypography.body,
             ),
@@ -51,19 +52,4 @@ class ErrorView extends StatelessWidget {
       ),
     );
   }
-
-  String _label(Translations tr, Failure f) => switch (f) {
-        NetworkFailure() => tr.errors.network,
-        TimeoutFailure() => tr.errors.timeout,
-        UnauthorizedFailure() => tr.errors.unauthorized,
-        InvalidCredentialsFailure() => tr.errors.invalidCredentials,
-        EmailNotConfirmedFailure() => tr.errors.emailNotConfirmed,
-        ForbiddenFailure() => tr.errors.forbidden,
-        NotFoundFailure() => tr.errors.notFound,
-        ConflictFailure(:final message) => message ?? tr.errors.conflict,
-        ValidationFailure(:final message) => message ?? tr.errors.validation,
-        ServerFailure(:final message) => message ?? tr.errors.server,
-        CancelledFailure() => tr.errors.cancelled,
-        UnknownFailure() => tr.errors.unknown,
-      };
 }

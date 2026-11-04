@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// Radii — design system v2 (Studio): one scale xs 6 · md 14 · lg 20 · xl 28 · pill.
+/// `sm` (10) and `xxl` (24) are v1 values: do not use in new code.
 abstract final class AppRadius {
   static const double xs = 6;
   static const double sm = 10;
