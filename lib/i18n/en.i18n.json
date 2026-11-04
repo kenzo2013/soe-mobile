@@ -56,18 +56,52 @@
     "fieldAcceptCgu": "Terms acceptance"
   },
   "onboarding": {
-    "slide1": {
-      "title": "Find the perfect tutor",
-      "body": "Certified tutors for personalized in-home academic support."
+    "skip": "Skip",
+    "next": "Next",
+    "createAccount": "Create my account",
+    "haveAccount": "I already have an account",
+    "slides": {
+      "tutor": {
+        "title": "A tutor chosen for your child",
+        "body": "ID, diplomas, interview and test: SOE vets every tutor and chooses for you.",
+        "alt": "An SOE tutor helps a student with her homework in the living room, as her mother looks on."
+      },
+      "report": {
+        "title": "Every session followed",
+        "body": "After each lesson, a report you approve or dispute.",
+        "alt": "An exercise book marked in red pen, graded 20 out of 20."
+      },
+      "contract": {
+        "title": "A clear contract, signed online",
+        "body": "You read the contract and sign it from your phone.",
+        "alt": "A father signs the contract with his finger on his phone, on his veranda."
+      },
+      "payment": {
+        "title": "Pay with Mobile Money",
+        "body": "MTN MoMo or Orange Money, one invoice a month, from home.",
+        "alt": "A mother pays the invoice by Mobile Money on her phone."
+      }
     },
-    "slide2": {
-      "title": "Track every session",
-      "body": "Read reports, validate sessions and follow your child's progress."
+    "panel": {
+      "overline": "Welcome",
+      "title": "Home tutoring, followed from start to finish.",
+      "items": {
+        "vetted": {
+          "title": "Vetted tutors",
+          "body": "Recruited and chosen by SOE."
+        },
+        "sessions": {
+          "title": "Sessions followed",
+          "body": "A report after each lesson."
+        },
+        "payment": {
+          "title": "MTN MoMo and Orange Money",
+          "body": "A receipt for every payment."
+        }
+      },
+      "footer": "Available in French and English."
     },
-    "slide3": {
-      "title": "Pay safely",
-      "body": "Pay sessions easily with MTN MoMo or Orange Money."
-    }
+    "slideLabel": "Slide {{current}} of {{total}}"
   },
   "role": {
     "title": "How do you want to use SOE?",
@@ -1087,5 +1121,8 @@
     "toSignBannerMany": "{{count}} documents to sign",
     "amendmentCountOne": "{{count}} amendment",
     "amendmentCountOther": "{{count}} amendments"
+  },
+  "splash": {
+    "loading": "Loading SOE"
   }
 }

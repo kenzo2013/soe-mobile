@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/routes.dart';
 import '../../features/common/presentation/routes.dart';
 import '../../features/parent/presentation/routes.dart';
@@ -18,20 +18,13 @@ GoRouter buildRouter({required AuthGuard guard}) {
     routes: [
       GoRoute(
         path: RouteNames.splash,
-        builder: (context, state) => const _SplashPlaceholder(),
+        builder: (context, state) => const SplashPage(),
       ),
       ...authRoutes(),
       ...parentRoutes(),
       ...tutorRoutes(),
       ...commonRoutes(),
     ],
-    errorBuilder: (context, state) => const _SplashPlaceholder(),
+    errorBuilder: (context, state) => const SplashPage(),
   );
-}
-
-class _SplashPlaceholder extends StatelessWidget {
-  const _SplashPlaceholder();
-  @override
-  Widget build(BuildContext context) =>
-      const Scaffold(body: Center(child: CircularProgressIndicator()));
 }
