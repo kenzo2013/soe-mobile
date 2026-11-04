@@ -149,7 +149,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             alignment: Alignment.centerRight,
                             child: SoeButton(
                               label: tr.login.forgotPassword,
-                              variant: SoeButtonVariant.link,
+                              variant: SoeButtonVariant.tertiary,
                               size: SoeButtonSize.sm,
                               onPressed: () =>
                                   context.push(RouteNames.passwordForgot),

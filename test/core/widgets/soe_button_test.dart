@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:soe/core/theme/app_palette.dart';
 import 'package:soe/core/widgets/soe_button.dart';
 
 import '../../helpers/pump_app.dart';
@@ -21,8 +22,38 @@ void main() {
       tester,
       child: const SoeButton(label: 'Off', onPressed: null),
     );
-    final opacity = tester.widget<Opacity>(find.byType(Opacity).first).opacity;
-    expect(opacity, lessThan(1));
+    // Studio: disabled = n300 background, ink600 text, not announced as enabled.
+    final material = tester.widget<Material>(
+      find
+          .descendant(
+              of: find.byType(SoeButton), matching: find.byType(Material))
+          .first,
+    );
+    expect(material.color, AppPalette.n300);
+    final text = tester.widget<Text>(find.text('Off'));
+    expect(text.style?.color, AppPalette.ink600);
+    expect(tester.getSemantics(find.byType(SoeButton)),
+        matchesSemantics(isButton: true, hasEnabledState: true, label: 'Off'));
+  });
+
+  testWidgets('SoeButton variants follow the Studio matrix', (tester) async {
+    await pumpAppWith(
+      tester,
+      child: Column(children: [
+        SoeButton(label: 'Payer', onPressed: () {}),
+        SoeButton(
+            label: 'Accepter',
+            variant: SoeButtonVariant.secondary,
+            onPressed: () {}),
+      ]),
+    );
+    final colors = tester
+        .widgetList<Material>(find.descendant(
+            of: find.byType(SoeButton), matching: find.byType(Material)))
+        .map((m) => m.color)
+        .toList();
+    expect(colors, [AppPalette.gold400, AppPalette.teal500]);
+    expect(tester.getSize(find.byType(SoeButton).first).height, 52);
   });
 
   testWidgets('SoeButton in loading state shows spinner alongside label',

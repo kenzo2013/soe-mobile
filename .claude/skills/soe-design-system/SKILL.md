@@ -21,17 +21,17 @@ les retirer de l'écran qu'on refait. Les valeurs des tokens sont alignées sur 
 
 | Module | Usage |
 |---|---|
-| `AppPalette` | Couleurs : `teal/tealDeep/tealDark`, `yellow/yellowDeep`, `ink/ink2/ink3`, `n50/n100/n300/n500/n700/n900`, `success/warning/danger/info` (+ leurs `*Bg`), `white`, `brandGradient` |
-| `AppTypography` | `display/h1/h2/h3/h4/subtitle/body/bodySm/label/caption/overline/button` (Poppins) |
+| `AppPalette` | Échelles du Studio : `teal50…teal900`, `gold50/100/400/500/700`, `ink400/600/700/900`, `n0/n50/n100/n300`, `white` ; états `success/warning/danger/info` + `*Text` (texte AA) + `*Bg` ; `subject*` ; rôles `surfacePage/Soft/Sunken/Card/Nav`, `text/text2/text3`, `border`, `onDark/onDark2`, `overlay*`. Les noms v1 (`teal`, `yellow`, `ink2`, `brandGradient`…) restent pour les écrans v1, pas pour le nouveau code. |
+| `AppTypography` | **Literata** : `display` 32, `h1` 28, `h2` 24, `h3` 20, `numberXl/L/M` · **Figtree** : `title` 18, `bodyLg` 17, `body` 16, `bodySm` 14, `label` 14/600, `labelSm` 13, `caption` 13, `overline` 12, `buttonLg` 16/700, `button` 15, `buttonSm` 14. Polices intégrées dans `assets/fonts/` (OFL). `h4`, `pageTitle`, `subtitle` = noms v1. |
 | `AppSpacing` | `xs(4) / sm(8) / md(12) / lg(16) / xl(20) / xxl(24) / xxxl(32) / xxxxl(40) / huge(48) / mega(64)` |
-| `AppRadius` | `xs(6) / sm(10) / md(14) / lg(20) / xxl(24) / xl(28) / pill(999)` + `BorderRadius` prêts |
-| `AppShadows` | ⚠️ hérité : pas d'ombre décorative en v2 |
+| `AppRadius` | `xs(6) / md(14) / lg(20) / xl(28) / pill(999)` + `BorderRadius` prêts (`sm` 10 et `xxl` 24 = v1) |
+| `AppShadows` | `e1`, `e2` : couches flottantes seulement (menus, feuilles, dialogues, toasts). `sm/md/lg/brand/cta` = v1 |
 
 ## Widgets — `lib/core/widgets/`
 
 | Widget | Quand l'utiliser |
 |---|---|
-| `SoeButton` | Tout bouton. Variantes : `primary` (CTA jaune), `secondary` (outline teal), `tertiary` (ghost), `link`, `onBrand` / `onBrandGhost` (sur surface marque), `danger`. Tailles `sm(36) / md(48) / lg(56)`. Props : `icon`, `iconRight`, `loading`, `fullWidth`. |
+| `SoeButton` | Tout bouton, toujours en pilule. Variantes = matrice du Studio et noms du web : `primary` (or, un par écran), `secondary` (teal plein), `outline`, `tertiary` (texte), `danger`, `dangerOutline`, `onBrand` (contour sur teal 800). Tailles `sm 40 / md 48 / lg 52` (défaut `lg` sur mobile). Props : `icon`, `iconRight`, `loading`, `loadingLabel`, `fullWidth`. Désactivé = fond n300, texte ink600. |
 | `SoeIconButton` | Icône seule 44×44, variantes filled/outline. |
 | `SoeFab` | FAB jaune 56 (CTA flottant). |
 | `SoeTextField` | Champ texte avec label, icône optionnelle, état erreur (halo rouge). |
@@ -70,7 +70,7 @@ les retirer de l'écran qu'on refait. Les valeurs des tokens sont alignées sur 
 7. **Pas de `Padding(EdgeInsets.all(N))`** avec N hors grid 4px : utiliser `AppSpacing.*`.
 8. **Bouton jaune (CTA primary) = 1 par écran maximum** — design rule.
 9. **AppBar marque (`brand: true`)** réservée aux écrans top-of-flow (onboarding, splash, brand pages).
-10. Sur **surface marque** (fond teal plein), n'utiliser que `onBrand` / `onBrandGhost` pour les boutons (jamais `secondary` qui suppose fond clair).
+10. Sur **surface marque** (fond `surfaceNav`), n'utiliser que `primary` (or) et `onBrand` pour les boutons.
 11. **Pas de `TextStyle(...)` construit dans une page** : partir d'un style `AppTypography.*` et `copyWith` si besoin.
 12. **Pas de `LinearGradient` / `BoxShadow` décoratif** (v2).
 13. **Pas de `showDialog` / `AlertDialog` brut** : `SoeConfirmDialog`.

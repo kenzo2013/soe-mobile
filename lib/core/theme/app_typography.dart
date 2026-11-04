@@ -2,130 +2,81 @@ import 'package:flutter/material.dart';
 
 import 'app_palette.dart';
 
-/// Typographie SOE — design system officiel.
+/// SOE typography — design system v2 (Studio, "Fondations").
 ///
-/// Police : Poppins bundlée localement dans `assets/fonts/`. Plus aucun
-/// téléchargement runtime (auparavant via google_fonts qui fallback sur
-/// Roboto si le DL échoue, ce qui rendait les gras moins prononcés).
+/// Two families bundled in `assets/fonts/` (OFL): **Literata** for titles and big numbers,
+/// **Figtree** for the interface. Mobile sizes = the Studio "-m" roles (h1 28, h2 24).
+/// Mirror of the web `.t-*` classes (`soe/app/javascript/design/tokens.cjs`).
 abstract final class AppTypography {
-  static const String fontFamily = 'Poppins';
+  static const String displayFamily = 'Literata';
+  static const String uiFamily = 'Figtree';
 
-  static TextStyle _poppins({
-    required FontWeight weight,
-    required double size,
-    required double height,
+  /// Kept for code that reads the family name (v1). Same as [uiFamily].
+  static const String fontFamily = uiFamily;
+
+  static TextStyle _style(
+    String family,
+    FontWeight weight,
+    double size,
+    double lineHeight, {
     double? letterSpacing,
-    Color color = AppPalette.ink,
+    Color color = AppPalette.text,
   }) {
     return TextStyle(
-      fontFamily: fontFamily,
+      fontFamily: family,
       fontWeight: weight,
       fontSize: size,
-      height: height,
+      height: lineHeight / size,
       letterSpacing: letterSpacing,
       color: color,
     );
   }
 
-  // Display 32/40 · 700 · -0.5
-  static TextStyle get display => _poppins(
-        weight: FontWeight.w700,
-        size: 32,
-        height: 40 / 32,
-        letterSpacing: -0.5,
-      );
+  // ── Literata (titles, numbers) ──
+  /// Hero of a screen (web h2 size). 32/40.
+  static TextStyle get display =>
+      _style(displayFamily, FontWeight.w500, 32, 40, color: AppPalette.teal800);
 
-  // H1 26/34 · 700 · -0.3
-  static TextStyle get h1 => _poppins(
-        weight: FontWeight.w700,
-        size: 26,
-        height: 34 / 26,
-        letterSpacing: -0.3,
-      );
+  /// Page title on mobile (Studio h1-m). 28/36.
+  static TextStyle get h1 =>
+      _style(displayFamily, FontWeight.w500, 28, 36, color: AppPalette.teal800);
 
-  // H2 22/30 · 700 · -0.2
-  static TextStyle get h2 => _poppins(
-        weight: FontWeight.w700,
-        size: 22,
-        height: 30 / 22,
-        letterSpacing: -0.2,
-      );
+  /// Section title on mobile (Studio h2-m). 24/32.
+  static TextStyle get h2 =>
+      _style(displayFamily, FontWeight.w500, 24, 32, color: AppPalette.teal800);
 
-  // H3 18/26 · 700 · -0.1
-  static TextStyle get h3 => _poppins(
-        weight: FontWeight.w700,
-        size: 18,
-        height: 26 / 18,
-        letterSpacing: -0.1,
-      );
+  /// Card or block title. 20/28.
+  static TextStyle get h3 =>
+      _style(displayFamily, FontWeight.w500, 20, 28, color: AppPalette.teal800);
 
-  // H4 16/24 · 600 · 0
-  static TextStyle get h4 => _poppins(
-        weight: FontWeight.w600,
-        size: 16,
-        height: 24 / 16,
-      );
+  static TextStyle get numberXl =>
+      _style(displayFamily, FontWeight.w500, 44, 48, color: AppPalette.teal800);
+  static TextStyle get numberL =>
+      _style(displayFamily, FontWeight.w500, 32, 38, color: AppPalette.teal800);
+  static TextStyle get numberM =>
+      _style(displayFamily, FontWeight.w500, 24, 30, color: AppPalette.teal800);
 
-  /// Titre de page (AppBar) — design SOE officiel : Poppins **700** 16px.
-  static TextStyle get pageTitle => _poppins(
-        weight: FontWeight.w700,
-        size: 16,
-        height: 1.2,
-      );
+  // ── Figtree (interface) ──
+  static TextStyle get title => _style(uiFamily, FontWeight.w600, 18, 24);
+  static TextStyle get bodyLg => _style(uiFamily, FontWeight.w400, 17, 26);
+  static TextStyle get body => _style(uiFamily, FontWeight.w400, 16, 24);
+  static TextStyle get bodySm =>
+      _style(uiFamily, FontWeight.w400, 14, 21, color: AppPalette.text2);
+  static TextStyle get label => _style(uiFamily, FontWeight.w600, 14, 20);
+  static TextStyle get labelSm => _style(uiFamily, FontWeight.w600, 13, 18);
+  static TextStyle get caption =>
+      _style(uiFamily, FontWeight.w400, 13, 18, color: AppPalette.text2);
 
-  // Subtitle 15/22 · 600
-  static TextStyle get subtitle => _poppins(
-        weight: FontWeight.w600,
-        size: 15,
-        height: 22 / 15,
-      );
+  /// Uppercase eyebrow. Apply `.toUpperCase()` to the text.
+  static TextStyle get overline => _style(uiFamily, FontWeight.w700, 12, 16,
+      letterSpacing: 0.96, color: AppPalette.teal500);
 
-  // Body 14/22 · 400
-  static TextStyle get body => _poppins(
-        weight: FontWeight.w400,
-        size: 14,
-        height: 22 / 14,
-      );
+  static TextStyle get buttonLg => _style(uiFamily, FontWeight.w700, 16, 20);
+  static TextStyle get button => _style(uiFamily, FontWeight.w600, 15, 20);
+  static TextStyle get buttonSm => _style(uiFamily, FontWeight.w600, 14, 18);
 
-  // Body small 13/20 · 400
-  static TextStyle get bodySm => _poppins(
-        weight: FontWeight.w400,
-        size: 13,
-        height: 20 / 13,
-        color: AppPalette.ink2,
-      );
-
-  // Label 12/16 · 500 · 0.2
-  static TextStyle get label => _poppins(
-        weight: FontWeight.w500,
-        size: 12,
-        height: 16 / 12,
-        letterSpacing: 0.2,
-        color: AppPalette.ink2,
-      );
-
-  // Caption 11/16 · 400 · 0.1
-  static TextStyle get caption => _poppins(
-        weight: FontWeight.w400,
-        size: 11,
-        height: 16 / 11,
-        letterSpacing: 0.1,
-        color: AppPalette.ink2,
-      );
-
-  // Overline 11/16 · 700 · 1.0 · UPPER
-  static TextStyle get overline => _poppins(
-        weight: FontWeight.w700,
-        size: 11,
-        height: 16 / 11,
-        letterSpacing: 1,
-        color: AppPalette.teal,
-      );
-
-  // Bouton 14 · 600
-  static TextStyle get button => _poppins(
-        weight: FontWeight.w600,
-        size: 14,
-        height: 1.2,
-      );
+  // ── v1 names (kept until every screen is rebuilt; do not use in new code) ──
+  static TextStyle get h4 => title;
+  static TextStyle get pageTitle => title;
+  static TextStyle get subtitle => _style(uiFamily, FontWeight.w600, 16, 24);
 }

@@ -1,9 +1,16 @@
 /// Erreurs métier typées exposées à la Presentation.
 ///
 /// Le ViewModel pattern-matche sur ces variantes ; la View en déduit le message.
-sealed class Failure {
+// Implements Exception so that an AsyncNotifier may `throw failure` in `build` (the only
+// allowed throw: AsyncValue captures it) without breaking the `only_throw_errors` lint.
+sealed class Failure implements Exception {
   const Failure();
 }
+
+/// Any error captured by an AsyncValue as a Failure: a parsing error or a StateError must
+/// never crash the error screen.
+Failure asFailure(Object error) =>
+    error is Failure ? error : const UnknownFailure();
 
 class NetworkFailure extends Failure {
   const NetworkFailure();

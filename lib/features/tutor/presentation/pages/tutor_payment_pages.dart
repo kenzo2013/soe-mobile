@@ -764,7 +764,7 @@ class TutorPaymentDetailPage extends ConsumerWidget {
           if (!m.isDefault) ...[
             SoeButton(
               label: tr.tutor.payment.setDefault,
-              variant: SoeButtonVariant.secondary,
+              variant: SoeButtonVariant.outline,
               fullWidth: true,
               onPressed: () => runTutorAction(
                 context,

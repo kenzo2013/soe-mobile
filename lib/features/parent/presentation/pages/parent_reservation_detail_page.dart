@@ -157,7 +157,7 @@ class _DetailView extends ConsumerWidget {
               Expanded(
                 child: SoeButton(
                   label: tr.parent.reservationDetail.negotiate,
-                  variant: SoeButtonVariant.secondary,
+                  variant: SoeButtonVariant.outline,
                   icon: Icons.handshake_outlined,
                   onPressed: () => _openNegotiate(context, vm),
                 ),
