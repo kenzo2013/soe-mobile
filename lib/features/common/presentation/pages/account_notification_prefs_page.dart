@@ -33,7 +33,7 @@ class AccountNotificationPrefsPage extends ConsumerWidget {
         skipLoadingOnReload: true,
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => ErrorView(
-          failure: e is Failure ? e : const UnknownFailure(),
+          failure: asFailure(e),
           onRetry: () => ref.invalidate(notificationPreferencesProvider),
         ),
         data: (prefs) => prefs.categories.isEmpty

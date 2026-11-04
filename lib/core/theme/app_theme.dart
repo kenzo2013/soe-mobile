@@ -30,7 +30,8 @@ abstract final class AppTheme {
       labelSmall: AppTypography.caption,
     );
 
-    // Studio fields: label above, soft fill, no border at rest, 2 px ring on focus / error.
+    // Studio fields: label above, soft fill, 2 px ring on focus / error. A 1.5 px n300 border at
+    // rest keeps the v1 inputs visible on the page (the Soe* fields draw their own states).
     const fieldRadius = AppRadius.rMd;
     return ThemeData(
       useMaterial3: true,
@@ -39,7 +40,9 @@ abstract final class AppTheme {
       // Every Text without an explicit style inherits Figtree (otherwise Roboto / SF).
       fontFamily: AppTypography.uiFamily,
       textTheme: textTheme,
-      primaryTextTheme: textTheme,
+      // Text drawn on the primary colour (teal 500) is white.
+      primaryTextTheme: textTheme.apply(
+          bodyColor: AppPalette.white, displayColor: AppPalette.white),
       appBarTheme: AppBarTheme(
         // Titles aligned left everywhere (iOS default = centred).
         centerTitle: false,
@@ -51,9 +54,13 @@ abstract final class AppTheme {
         fillColor: AppPalette.surfaceSoft,
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
-            borderRadius: fieldRadius, borderSide: BorderSide.none),
+          borderRadius: fieldRadius,
+          borderSide: BorderSide(color: AppPalette.n300, width: 1.5),
+        ),
         enabledBorder: OutlineInputBorder(
-            borderRadius: fieldRadius, borderSide: BorderSide.none),
+          borderRadius: fieldRadius,
+          borderSide: BorderSide(color: AppPalette.n300, width: 1.5),
+        ),
         focusedBorder: OutlineInputBorder(
           borderRadius: fieldRadius,
           borderSide: BorderSide(color: AppPalette.teal500, width: 2),

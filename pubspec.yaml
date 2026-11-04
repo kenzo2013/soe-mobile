@@ -91,6 +91,8 @@ flutter:
           weight: 600
         - asset: assets/fonts/Figtree-Bold.ttf
           weight: 700
+        - asset: assets/fonts/Figtree-ExtraBold.ttf
+          weight: 800
     - family: Literata
       fonts:
         - asset: assets/fonts/Literata-Regular.ttf

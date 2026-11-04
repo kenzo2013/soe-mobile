@@ -82,6 +82,8 @@ class SoeButton extends StatelessWidget {
       button: true,
       enabled: !_disabled,
       label: loading ? (loadingLabel ?? label) : label,
+      // excludeSemantics drops the InkWell action: the tap must be declared here.
+      onTap: _disabled ? null : onPressed,
       excludeSemantics: true,
       child: Material(
         color: spec.background,
@@ -94,7 +96,8 @@ class SoeButton extends StatelessWidget {
             constraints: BoxConstraints(minHeight: height, minWidth: height),
             child: Padding(
               padding: EdgeInsets.symmetric(
-                  horizontal: size == SoeButtonSize.sm ? AppSpacing.lg : AppSpacing.xl),
+                  horizontal:
+                      size == SoeButtonSize.sm ? AppSpacing.lg : AppSpacing.xl),
               child: _content(
                   textStyle.copyWith(color: spec.foreground), spec.foreground),
             ),
@@ -105,14 +108,15 @@ class SoeButton extends StatelessWidget {
   }
 
   Widget _content(TextStyle style, Color color) {
-    final text = Flexible(
-      child: Text(
-        loading ? (loadingLabel ?? label) : label,
-        style: style,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
+    final label = Text(
+      loading ? (loadingLabel ?? this.label) : this.label,
+      style: style,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
+    // Flexible only when the width is bounded (full width): a hugging button may sit in a
+    // horizontal list or a Row without Expanded.
+    final text = fullWidth ? Flexible(child: label) : label;
     final leading = loading
         ? SizedBox(
             width: 18,

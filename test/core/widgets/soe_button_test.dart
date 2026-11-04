@@ -71,4 +71,37 @@ void main() {
     // (« Connexion en cours… »).
     expect(find.text('Saving'), findsOneWidget);
   });
+
+  testWidgets('SoeButton can be activated by a screen reader', (tester) async {
+    var taps = 0;
+    final handle = tester.ensureSemantics();
+    await pumpAppWith(
+      tester,
+      child: SoeButton(label: 'Payer', onPressed: () => taps++),
+    );
+    expect(
+      tester.getSemantics(find.byType(SoeButton)),
+      matchesSemantics(
+          isButton: true,
+          hasEnabledState: true,
+          isEnabled: true,
+          hasTapAction: true,
+          label: 'Payer'),
+    );
+    tester.semantics.tap(find.semantics.byLabel('Payer'));
+    expect(taps, 1);
+    handle.dispose();
+  });
+
+  testWidgets('SoeButton hugging its label fits in an unbounded Row',
+      (tester) async {
+    await pumpAppWith(
+      tester,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(children: [SoeButton(label: 'Modifier', onPressed: () {})]),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+  });
 }

@@ -34,7 +34,7 @@ class TutorContractsPage extends ConsumerWidget {
       body: async.when(
         loading: () => const TutorLoading(),
         error: (e, _) => ErrorView(
-          failure: e is Failure ? e : const UnknownFailure(),
+          failure: asFailure(e),
           onRetry: () => ref.invalidate(contractsProvider),
         ),
         data: (contracts) => contracts.isEmpty

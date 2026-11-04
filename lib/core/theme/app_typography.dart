@@ -11,9 +11,6 @@ abstract final class AppTypography {
   static const String displayFamily = 'Literata';
   static const String uiFamily = 'Figtree';
 
-  /// Kept for code that reads the family name (v1). Same as [uiFamily].
-  static const String fontFamily = uiFamily;
-
   static TextStyle _style(
     String family,
     FontWeight weight,
