@@ -7,6 +7,9 @@ description: Crée l'interface Domain Repository + son implémentation Data + DT
 
 Génère interface Domain + impl Data + DataSource + DTO + Mapper + tests.
 
+**API v2** : pour un endpoint `/api/v2`, lire la skill `soe-api-v2` (enveloppe `{ data, meta, errors }`,
+erreurs, pagination). Le datasource ci-dessous montre la forme v1 (`r.data!['data']`).
+
 ## Fichiers à créer
 
 ### 1. Interface (Domain)
