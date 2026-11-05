@@ -66,6 +66,19 @@ void main() {
       expect(find.text('Ma qualité'), findsNothing);
     });
 
+    testWidgets('the section tiles of a row share one height (tablet)',
+        (tester) async {
+      await pumpAccountApp(tester, api: _apiWithAddress(), location: '/more');
+      tester.view.physicalSize = const Size(1024, 1800);
+      await tester.pumpAndSettle();
+
+      final heights = [
+        for (var i = 0; i < 4; i++)
+          tester.getSize(find.byKey(ValueKey('account-tile-$i'))).height
+      ];
+      expect(heights.toSet(), hasLength(1));
+    });
+
     testWidgets('« Plus » shows the links of the tutor space', (tester) async {
       await pumpAccountApp(tester,
           api: _apiWithAddress(),

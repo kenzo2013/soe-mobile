@@ -343,12 +343,43 @@ class SpaceTabView extends StatelessWidget {
     );
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      body: onRefresh == null
-          ? list
-          : RefreshIndicator(
-              onRefresh: onRefresh!, edgeOffset: insets.top, child: list),
+      body: Stack(children: [
+        Positioned.fill(
+          child: onRefresh == null
+              ? list
+              : RefreshIndicator(
+                  onRefresh: onRefresh!, edgeOffset: insets.top, child: list),
+        ),
+        // Once the band has scrolled away, the cards pass under a band of its colour, not
+        // under the bare status bar.
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: insets.top,
+          child: _StatusBarBand(color: band.color),
+        ),
+      ]),
     );
   }
+}
+
+/// The strip behind the status bar, in the band's colour (that of the role by default), with
+/// light icons.
+class _StatusBarBand extends ConsumerWidget {
+  const _StatusBarBand({this.color});
+
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) =>
+      AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: ColoredBox(
+          key: const Key('status-bar-band'),
+          color: color ?? AppPalette.band(ref.watch(currentRoleProvider)),
+        ),
+      );
 }
 
 /// The content of a band or a screen, at most [spaceContentMaxWidth] wide, centred.

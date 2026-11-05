@@ -151,10 +151,16 @@ class _Grid extends StatelessWidget {
           for (final channel in prefs.channels)
             Padding(
               padding: const EdgeInsets.only(bottom: 6),
-              child: Text(channel.label,
-                  textAlign: TextAlign.center,
-                  style:
-                      AppTypography.caption.copyWith(color: AppPalette.text2)),
+              // One line, shrunk if the column is narrow (« WhatsApp » never breaks).
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(channel.label,
+                    maxLines: 1,
+                    softWrap: false,
+                    textAlign: TextAlign.center,
+                    style: AppTypography.caption
+                        .copyWith(color: AppPalette.text2)),
+              ),
             ),
         ]),
         for (final category in prefs.categories)
