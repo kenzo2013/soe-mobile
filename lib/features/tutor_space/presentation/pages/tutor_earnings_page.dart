@@ -20,6 +20,7 @@ import '../tutor_space_routes.dart';
 import '../widgets/tutor_download.dart';
 import '../widgets/tutor_panel.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/widgets/tab_top_bar.dart';
 
 String _number(int value) =>
     NumberFormat.decimalPattern('fr').format(value).replaceAll(',', ' ');
@@ -37,7 +38,8 @@ class TutorEarningsPage extends ConsumerWidget {
     final tr = Translations.of(context).tutorSpace.earnings;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      body: SafeArea(
+      body: TabBody(
+        title: Translations.of(context).shell.tutor.earnings,
         child: RefreshIndicator(
           onRefresh: () => ref.refresh(tutorEarningsProvider.future),
           child: TutorAsyncBody<TutorEarnings>(

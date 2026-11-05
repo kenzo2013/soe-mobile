@@ -14,6 +14,7 @@ import '../../data/tutor_models.dart';
 import '../providers.dart';
 import '../tutor_space_routes.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/widgets/tab_top_bar.dart';
 
 /// The colour of a session state (planning dots, the list's bar, the legend).
 Color tutorStateColor(String state) => switch (state) {
@@ -94,7 +95,8 @@ class _TutorPlanningPageState extends ConsumerState<TutorPlanningPage> {
     final sessions = value.valueOrNull ?? const <TutorSession>[];
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      body: SafeArea(
+      body: TabBody(
+        title: Translations.of(context).shell.tutor.planning,
         child: RefreshIndicator(
           onRefresh: () => ref.refresh(tutorSessionsProvider(query).future),
           child: ListView(

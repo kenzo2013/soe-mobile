@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/soe_bottom_nav.dart';
+import 'more_sheet.dart';
 
 /// One tab of a role's space.
 class ShellTab {
@@ -16,8 +20,9 @@ class ShellTab {
 }
 
 /// The frame of a signed-in space (Q5): a tab bar of 4 tabs + « Plus » on a phone, a
-/// rail on a tablet. Each tab keeps its own history (go_router branches).
-class RoleShell extends StatelessWidget {
+/// rail on a tablet. Each tab keeps its own history (go_router branches). On a phone, « Plus »
+/// (the last tab) opens its menu as a sheet over the open tab.
+class RoleShell extends ConsumerWidget {
   const RoleShell(
       {super.key, required this.navigationShell, required this.tabs});
 
@@ -32,7 +37,7 @@ class RoleShell extends StatelessWidget {
       initialLocation: index == navigationShell.currentIndex);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final tablet = MediaQuery.sizeOf(context).shortestSide >= railShortestSide;
     if (!tablet) {
       return Scaffold(
@@ -43,7 +48,13 @@ class RoleShell extends StatelessWidget {
               SoeBottomNavItem(icon: tab.icon, label: tab.label)
           ],
           currentIndex: navigationShell.currentIndex,
-          onTap: _open,
+          onTap: (index) {
+            if (index == tabs.length - 1) {
+              unawaited(showMoreSheet(context, ref));
+            } else {
+              _open(index);
+            }
+          },
         ),
       );
     }

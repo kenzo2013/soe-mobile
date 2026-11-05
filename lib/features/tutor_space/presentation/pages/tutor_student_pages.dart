@@ -17,6 +17,7 @@ import '../tutor_offer_providers.dart';
 import '../tutor_space_routes.dart';
 import '../widgets/tutor_offer_ui.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/widgets/tab_top_bar.dart';
 
 /// REP-14 — the pupils, a tab of the tutor shell: one card each with the class, the subjects,
 /// the neighbourhood, the state and the approved weekly times (or the start).
@@ -28,7 +29,8 @@ class TutorStudentsPage extends ConsumerWidget {
     final tr = Translations.of(context).tutorSpace.students;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      body: SafeArea(
+      body: TabBody(
+        title: Translations.of(context).shell.tutor.students,
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Padding(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_palette.dart';
-import '../theme/app_radius.dart';
 
 /// Chip filtre SOE — état `selected` = teal plein, sinon outline.
 class SoeChip extends StatelessWidget {
@@ -18,26 +17,26 @@ class SoeChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = selected ? AppPalette.teal : AppPalette.white;
-    final fg = selected ? AppPalette.white : AppPalette.n700;
-    final border = selected ? AppPalette.teal : AppPalette.n300;
+    final bg = selected ? AppPalette.teal800 : AppPalette.white;
+    final fg = selected ? AppPalette.white : AppPalette.text;
+    final border = selected ? AppPalette.teal800 : AppPalette.n300;
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: AppRadius.rXs,
+        borderRadius: BorderRadius.circular(99),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
             color: bg,
-            borderRadius: AppRadius.rXs,
+            borderRadius: BorderRadius.circular(99),
             border: Border.all(color: border, width: 1.5),
           ),
           child: Text(
             label,
             style: TextStyle(
               color: fg,
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
           ),

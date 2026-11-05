@@ -7,51 +7,72 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../i18n/translations.g.dart';
+import '../../../common/presentation/widgets/more_entry.dart';
 import '../providers.dart';
 import '../tutor_space_routes.dart';
 
 /// The tutor entries of « Plus » (REP-01, variant « Menu Plus »): offers, applications, the
-/// file, the contracts (with what is left to sign), the payout methods and the quality view. The account, the
-/// switch of space and the sign-out stay with the shared « Plus » page.
+/// file, the contracts (with what is left to sign), the payout methods and the quality view.
+List<MoreEntry> tutorMoreEntries(BuildContext context, WidgetRef ref) {
+  final tr = Translations.of(context).tutorSpace.nav;
+  final toSign = ref.watch(tutorContractsProvider).valueOrNull?.fold<int>(
+          0,
+          (sum, contract) =>
+              sum + (contract.canSign ? 1 : 0) + contract.amendmentsToSign) ??
+      0;
+  return [
+    (
+      icon: Icons.work_outline,
+      label: tr.offers,
+      hint: null,
+      route: TutorSpaceRoutes.offers
+    ),
+    (
+      icon: Icons.insert_drive_file_outlined,
+      label: tr.applications,
+      hint: null,
+      route: TutorSpaceRoutes.applications
+    ),
+    (
+      icon: Icons.badge_outlined,
+      label: tr.file,
+      hint: null,
+      route: TutorSpaceRoutes.file
+    ),
+    (
+      icon: Icons.draw_outlined,
+      label: tr.contracts,
+      hint: toSign > 0 ? tr.contractsToSign(n: toSign) : null,
+      route: TutorSpaceRoutes.contracts
+    ),
+    (
+      icon: Icons.account_balance_wallet_outlined,
+      label: tr.payoutMethods,
+      hint: null,
+      route: TutorSpaceRoutes.payoutMethods
+    ),
+    (
+      icon: Icons.star_border,
+      label: tr.quality,
+      hint: null,
+      route: TutorSpaceRoutes.quality
+    ),
+  ];
+}
+
+/// The tutor entries as rows, in the « Plus » page of a tablet.
 class TutorMoreLinks extends ConsumerWidget {
   const TutorMoreLinks({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final tr = Translations.of(context).tutorSpace.nav;
-    final toSign = ref.watch(tutorContractsProvider).valueOrNull?.fold<int>(
-            0,
-            (sum, contract) =>
-                sum + (contract.canSign ? 1 : 0) + contract.amendmentsToSign) ??
-        0;
-    return Column(children: [
-      _Link(
-          icon: Icons.work_outline,
-          label: tr.offers,
-          route: TutorSpaceRoutes.offers),
-      _Link(
-          icon: Icons.insert_drive_file_outlined,
-          label: tr.applications,
-          route: TutorSpaceRoutes.applications),
-      _Link(
-          icon: Icons.badge_outlined,
-          label: tr.file,
-          route: TutorSpaceRoutes.file),
-      _Link(
-          icon: Icons.draw_outlined,
-          label: tr.contracts,
-          subtitle: toSign > 0 ? tr.contractsToSign(n: toSign) : null,
-          route: TutorSpaceRoutes.contracts),
-      _Link(
-          icon: Icons.account_balance_wallet_outlined,
-          label: tr.payoutMethods,
-          route: TutorSpaceRoutes.payoutMethods),
-      _Link(
-          icon: Icons.insights_outlined,
-          label: tr.quality,
-          route: TutorSpaceRoutes.quality),
-    ]);
-  }
+  Widget build(BuildContext context, WidgetRef ref) => Column(children: [
+        for (final entry in tutorMoreEntries(context, ref))
+          _Link(
+              icon: entry.icon,
+              label: entry.label,
+              subtitle: entry.hint,
+              route: entry.route),
+      ]);
 }
 
 class _Link extends StatelessWidget {
