@@ -80,7 +80,6 @@ class _PersonalFormState extends ConsumerState<_PersonalForm> {
   late final _email = TextEditingController(text: widget.user.email);
   final _password = TextEditingController();
   late String? _civility = widget.user.civility;
-  late String _lang = widget.user.lang == 'en' ? 'en' : 'fr';
   File? _photo;
   bool _saving = false;
   Failure? _error;
@@ -125,7 +124,6 @@ class _PersonalFormState extends ConsumerState<_PersonalForm> {
   bool get _profileChanged =>
       _photo != null ||
       _civility != widget.user.civility ||
-      _lang != (widget.user.lang == 'en' ? 'en' : 'fr') ||
       _firstName.text.trim() != widget.user.firstName ||
       _lastName.text.trim() != widget.user.lastName;
 
@@ -156,15 +154,11 @@ class _PersonalFormState extends ConsumerState<_PersonalForm> {
           civility: _civility,
           firstName: _firstName.text.trim(),
           lastName: _lastName.text.trim(),
-          lang: _lang,
+          // The app speaks the phone's language: the account follows it.
+          lang: ref.read(localeProvider).languageCode,
           photo: _photo,
         );
         await _storeUser(json);
-        if (_lang != ref.read(localeProvider).languageCode) {
-          await ref
-              .read(localeProvider.notifier)
-              .set(_lang == 'en' ? AppLocale.en : AppLocale.fr);
-        }
         _photo = null;
       }
       if (contact == null) {
@@ -271,28 +265,6 @@ class _PersonalFormState extends ConsumerState<_PersonalForm> {
               ],
               selected: _civility,
               onChanged: (value) => setState(() => _civility = value),
-            ),
-            AccountFieldLabel(tr.language),
-            DropdownButtonHideUnderline(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppPalette.border, width: 1.5),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: DropdownButton<String>(
-                  value: _lang,
-                  items: [
-                    DropdownMenuItem(
-                        value: 'fr',
-                        child: Text(Translations.of(context).languages.fr)),
-                    DropdownMenuItem(
-                        value: 'en',
-                        child: Text(Translations.of(context).languages.en)),
-                  ],
-                  onChanged: (value) => setState(() => _lang = value ?? _lang),
-                ),
-              ),
             ),
             AccountFieldLabel(tr.firstName),
             SoeTextField(

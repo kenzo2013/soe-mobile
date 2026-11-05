@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/lang_segmented.dart';
 import '../../../../core/widgets/soe_brand_logo.dart';
 import '../../../../i18n/translations.g.dart';
 
@@ -55,7 +54,6 @@ class AuthScaffold extends StatelessWidget {
                             style: AppTypography.labelSm
                                 .copyWith(color: AppPalette.ink700),
                           ),
-                        const LangSegmented(),
                       ],
                     ),
                   ),

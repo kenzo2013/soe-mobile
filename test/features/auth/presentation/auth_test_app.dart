@@ -11,7 +11,6 @@ import 'package:soe/core/providers/core_providers.dart';
 import 'package:soe/core/routing/route_names.dart';
 import 'package:soe/core/storage/preferences_storage.dart';
 import 'package:soe/core/storage/secure_storage.dart';
-import 'package:soe/core/storage/storage_keys.dart';
 import 'package:soe/core/theme/app_theme.dart';
 import 'package:soe/features/auth/domain/entities/auth_flow.dart';
 import 'package:soe/features/auth/domain/entities/auth_session.dart';
@@ -121,7 +120,7 @@ Future<void> pumpAuthApp(WidgetTester tester, FakeAuthRepository repository,
   tester.view.physicalSize = const Size(390, 1200);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  SharedPreferences.setMockInitialValues({StorageKeys.preferredLang: 'fr'});
+  SharedPreferences.setMockInitialValues({});
   final prefs = PreferencesStorage(await SharedPreferences.getInstance());
   final storage = _Storage();
   when(() => storage.write(any(), any())).thenAnswer((_) async {});

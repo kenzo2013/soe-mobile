@@ -8,7 +8,6 @@ import '../../../../core/providers/core_providers.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/lang_segmented.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../i18n/translations.g.dart';
 import '../../../auth/presentation/providers/current_user_provider.dart';
@@ -161,20 +160,6 @@ class AccountHubView extends ConsumerWidget {
               onPressed: () => unawaited(showLogoutSheet(context, ref)),
             ),
           ),
-        ),
-        AccountCard(
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            AccountCardTitle(tr.hub.language),
-            Row(children: [
-              Expanded(
-                child: Text(tr.hub.application,
-                    style:
-                        AppTypography.body.copyWith(color: AppPalette.text2)),
-              ),
-              const LangSegmented(),
-            ]),
-          ]),
         ),
       ],
     );

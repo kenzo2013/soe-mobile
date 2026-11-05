@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soe/core/providers/core_providers.dart';
 import 'package:soe/core/routing/route_names.dart';
 import 'package:soe/core/storage/preferences_storage.dart';
-import 'package:soe/core/storage/storage_keys.dart';
 import 'package:soe/core/theme/app_theme.dart';
 import 'package:soe/features/auth/domain/entities/user.dart';
 import 'package:soe/features/auth/presentation/providers/current_user_provider.dart';
@@ -40,7 +39,7 @@ Future<void> _pump(WidgetTester tester,
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  SharedPreferences.setMockInitialValues({StorageKeys.preferredLang: 'fr'});
+  SharedPreferences.setMockInitialValues({});
   final prefs = PreferencesStorage(await SharedPreferences.getInstance());
   LocaleSettings.setLocaleSync(AppLocale.fr);
   final router = GoRouter(
@@ -104,20 +103,20 @@ void main() {
       (tester) async {
     await _pump(tester, size: const Size(390, 844));
 
-    expect(find.byType(NavigationRail), findsNothing);
+    expect(find.byKey(const Key('space-rail')), findsNothing);
     expect(find.text('home-tab'), findsOneWidget);
     GoRouter.of(tester.element(find.text('home-tab'))).go('/home/detail');
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Planning'));
+    await tester.tap(find.byTooltip('Planning'));
     await tester.pumpAndSettle();
     expect(find.text('planning-tab'), findsOneWidget);
 
-    await tester.tap(find.text('Accueil'));
+    await tester.tap(find.byTooltip('Accueil'));
     await tester.pumpAndSettle();
     expect(find.text('home-detail'), findsOneWidget);
 
-    await tester.tap(find.text('Accueil'));
+    await tester.tap(find.byTooltip('Accueil'));
     await tester.pumpAndSettle();
     expect(find.text('home-tab'), findsOneWidget);
   });
@@ -125,7 +124,7 @@ void main() {
   testWidgets('a tablet shows a rail instead of the tab bar', (tester) async {
     await _pump(tester, size: const Size(834, 1194));
 
-    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.byKey(const Key('space-rail')), findsOneWidget);
     await tester.tap(find.text('Planning'));
     await tester.pumpAndSettle();
     expect(find.text('planning-tab'), findsOneWidget);
@@ -135,7 +134,7 @@ void main() {
       'on a phone, « Plus » opens its menu as a sheet over the open tab (PAR-01 « Menu Plus »)',
       (tester) async {
     await _pump(tester, size: const Size(390, 844), user: _user());
-    await tester.tap(find.text('Plus').last);
+    await tester.tap(find.byTooltip('Plus'));
     await tester.pumpAndSettle();
 
     expect(find.text('home-tab'), findsOneWidget);
@@ -155,7 +154,7 @@ void main() {
       (tester) async {
     await _pump(tester,
         size: const Size(390, 844), user: _user(multiRole: true));
-    await tester.tap(find.text('Plus').last);
+    await tester.tap(find.byTooltip('Plus'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Passer en mode répétiteur'));
@@ -167,7 +166,7 @@ void main() {
       'on a tablet, « Plus » is the account hub with sign-out, without a switch for a single-role account',
       (tester) async {
     await _pump(tester, size: const Size(1024, 1366), user: _user());
-    await tester.tap(find.text('Plus').last);
+    await tester.tap(find.text('Plus'));
     await tester.pumpAndSettle();
 
     expect(find.text('Awa Ngono'), findsOneWidget);

@@ -60,8 +60,36 @@ abstract final class AppPalette {
   static const Color subjectPhilosophy = Color(0xFF526684);
   static const Color subjectComputing = Color(0xFF01324A);
 
+  // Colourful direction (2026-11): the brand grounds of the bands, the slides and the chips.
+  /// Header band of the tutor space and of the account, the navigation, the launch screen.
+  static const Color navy = teal800;
+
+  /// Header band of the parent space.
+  static const Color parentBand = teal500;
+
+  /// The band of a role's space: SOE teal for a parent, navy otherwise.
+  static Color band(String? role) => role == 'parent' ? parentBand : navy;
+
+  /// Urgency: countdowns, disputed (text [warningText] on [warningBg]).
+  static const Color orange = warning;
+
+  /// Grounds of the welcome slides (« Chaque séance suivie », « Un contrat clair »).
+  static const Color greenDeep = Color(0xFF014A2A);
+  static const Color orangeDeep = Color(0xFF5A2A00);
+
+  /// Text on a gold chip.
+  static const Color goldInk = Color(0xFF3A2900);
+
+  /// Inactive icons of the navigation, secondary text on navy.
+  static const Color navInactive = Color(0xFFC5D8E6);
+
+  /// The active tab (translucent grey pill) and the bell circle on a band.
+  static const Color onBandActive = Color(0x29FFFFFF);
+  static const Color onBandSoft = Color(0x1FFFFFFF);
+
   // Roles.
-  static const Color surfacePage = n0;
+  /// Page ground: light teal, so that the white cards stand out.
+  static const Color surfacePage = teal50;
   static const Color surfaceSoft = n50;
   static const Color surfaceSunken = n100;
   static const Color surfaceCard = white;

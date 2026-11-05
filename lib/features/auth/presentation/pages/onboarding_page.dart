@@ -8,7 +8,6 @@ import '../../../../core/routing/route_names.dart';
 import '../../../../core/storage/storage_keys.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/lang_segmented.dart';
 import '../../../../core/widgets/soe_brand_logo.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../i18n/translations.g.dart';
@@ -76,7 +75,6 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     alignment: WrapAlignment.end,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      const LangSegmented(),
                       if (!_isLast)
                         TextButton(
                           onPressed: () => _goTo(_slides.length - 1),
