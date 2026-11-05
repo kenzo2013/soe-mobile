@@ -135,7 +135,15 @@
       "submit": "Sign in",
       "missing": "Enter your username and your password.",
       "noAccount": "No account yet?",
-      "signUp": "Create an account"
+      "signUp": "Create an account",
+      "expired": {
+        "heading": "Your session has expired",
+        "lead": "For your security, sign in again.",
+        "account": "Account",
+        "submit": "Sign in again",
+        "notYou": "Not you?",
+        "changeAccount": "Change account"
+      }
     },
     "profile": {
       "heading": "Welcome to SOE",
@@ -263,7 +271,11 @@
       "contracts": "Contracts"
     },
     "more": {
-      "tab": "More"
+      "tab": "More",
+      "account": "Account",
+      "toTutor": "Switch to tutor mode",
+      "toParent": "Switch to parent mode",
+      "sameAccount": "Same account, other space"
     },
     "navigation": "Main navigation"
   },
@@ -289,7 +301,39 @@
       "emptyText": "Add your child, ask for a quote, meet your tutor.",
       "newRequest": "New request",
       "addChild": "Add a child",
-      "giveReview": "Give my review"
+      "giveReview": "Give my review",
+      "seeAll": "See all",
+      "and": "and",
+      "subjectTitle": "{{subjects}} · {{children}}",
+      "sessionOf": "Session of {{date}} with {{tutor}}",
+      "hours": "{{hours}} h",
+      "hoursOf": "left out of {{total}} h",
+      "signBefore": "advised signature before",
+      "before": "to do before",
+      "why": {
+        "report": "Without an answer from you, the report is approved automatically.",
+        "payment": "Pay the invoice with MTN MoMo or Orange Money; the receipt comes at once.",
+        "contract": "Once signed, you pay the first month, then the tutor proposes their times.",
+        "quote": "SOE has priced your request: accept the quote or ask to discuss it.",
+        "planning": "The tutor proposes their times: accept them or propose others.",
+        "tutor": "SOE presents a tutor: look at their profile, then confirm them.",
+        "review": "Your review helps SOE follow the quality of the lessons.",
+        "other": "Open the request to see what is expected from you."
+      },
+      "requestOverline": "Request {{reference}} · {{children}}",
+      "requestTitle": "{{subjects}} for {{children}}",
+      "stepText": {
+        "request": "SOE studies your request and sends you a quote.",
+        "quote": "The quote is ready: accept it so that SOE presents a tutor.",
+        "tutor": "SOE presents a tutor; confirm them to move on to the contract.",
+        "contract": "The contract is left to sign; the first month is paid next, then the tutor proposes their times.",
+        "payment": "Pay the first month so that the lessons start.",
+        "first_session": "The planning is being set up with the tutor."
+      },
+      "courses": "{{n}} course(s) · {{subjects}}",
+      "paidOn": "paid on {{date}}",
+      "seeReceipt": "See the receipt",
+      "whatsapp": "WhatsApp"
     },
     "steps": {
       "request": "Request",
@@ -306,7 +350,21 @@
       "next": "Next week",
       "empty": "No session this week",
       "emptyText": "Sessions show as soon as the planning is approved.",
-      "today": "today"
+      "today": "today",
+      "subtitle": "Sessions of {{names}}, at home.",
+      "allChildren": "All children",
+      "week": "Week",
+      "month": "Month",
+      "emptyMonth": "No session this month",
+      "legend": {
+        "pending": "Planned",
+        "inProgress": "In progress",
+        "reportToApprove": "Report to approve",
+        "approved": "Approved",
+        "disputed": "Disputed",
+        "cancelled": "Cancelled",
+        "suspended": "Suspended"
+      }
     },
     "session": {
       "title": "Session",
@@ -327,7 +385,14 @@
       "lateWarning": "Less than 24 h before, the session remains due.",
       "reason": "Reason",
       "confirmCancel": "Confirm the cancellation",
-      "cancelled": "Session cancelled."
+      "cancelled": "Session cancelled.",
+      "overline": "Session of {{date}}",
+      "checkInText": "{{tutor}} will check in on arrival and on leaving; the position is checked (within 150 m of the lessons address). You have nothing to do.",
+      "backupOverline": "Only without network or GPS",
+      "backupHintTutor": "Give it to {{tutor}} only if they cannot check in from their phone. A new code is created for each session.",
+      "child": "Child",
+      "place": "Place",
+      "atHome": "At home · {{place}}"
     },
     "report": {
       "title": "Session report",
@@ -366,7 +431,9 @@
       "pay": "Pay {{amount}}",
       "invoice": "Invoice {{number}}",
       "due": "Due on {{date}}",
-      "receipt": "Receipt {{number}}"
+      "receipt": "Receipt {{number}}",
+      "issued": "Invoice issued on {{date}}",
+      "dueShort": "due on {{date}}"
     },
     "pay": {
       "title": "Pay",
@@ -539,7 +606,12 @@
       "safetyAction": "Report serious behaviour",
       "safetyNoSession": "No past session to report: call your SOE advisor.",
       "requestTutor": "Ask for a tutor",
-      "noCourseText": "Ask for a tutor: your SOE advisor prepares a quote within 24 working hours."
+      "noCourseText": "Ask for a tutor: your SOE advisor prepares a quote within 24 working hours.",
+      "rhythm": "Rhythm",
+      "perWeek": {
+        "one": "{{n}} session a week",
+        "other": "{{n}} sessions a week"
+      }
     },
     "wizard": {
       "title": "New request",
@@ -686,7 +758,10 @@
       "describe": "Describe what happened",
       "seriousSent": "Report received: SOE will contact you.",
       "describeMissing": "Describe the problem.",
-      "overline": "Session of {{date}}"
+      "overline": "Session of {{date}}",
+      "title": "A problem?",
+      "toAdvisor": "Your report goes to {{name}}, your SOE advisor. There is no messaging with the tutor.",
+      "toSoe": "Your report goes to your SOE advisor. There is no messaging with the tutor."
     },
     "contracts": {
       "title": "Contracts",
@@ -715,7 +790,9 @@
       "how3": "Reminders 7 and 2 days before, 3 days after.",
       "how4": "10 days after without payment, sessions are suspended (not deleted).",
       "download": "Download",
-      "paidOn": "paid on {{date}}"
+      "paidOn": "paid on {{date}}",
+      "shareWhatsapp": "Share on WhatsApp",
+      "shareText": "SOE receipt {{number}}: {{amount}} paid."
     },
     "reviews": {
       "title": "Reviews",
@@ -839,7 +916,9 @@
         "planningDetail": "The contract is signed: propose the weekly times.",
         "contractDetail": "Read and sign your mission letter.",
         "disputedDetail": "The session is removed from your earnings until the decision.",
-        "offline": "Available when the network is back"
+        "offline": "Available when the network is back",
+        "sessionOf": "session of {{date}}",
+        "perSession": "{{amount}} per session"
       },
       "buttons": {
         "assignment": "See the proposal",

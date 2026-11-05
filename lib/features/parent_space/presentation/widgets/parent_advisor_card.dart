@@ -1,15 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/soe_toast.dart';
 import '../../../../i18n/translations.g.dart';
+import '../../../common/presentation/pages/account_hub_page.dart';
 import '../providers.dart';
 
-/// « Mon conseiller SOE »: the family's advisor (from the home), the number to call.
-/// Nothing is shown before an advisor is assigned.
+/// « Mon conseiller SOE »: the family's advisor (from the home), the number with the opening
+/// hours, « Appeler » (phone app) and « WhatsApp ». Nothing is shown before an advisor is
+/// assigned.
 class ParentAdvisorCard extends ConsumerWidget {
   const ParentAdvisorCard({super.key});
 
@@ -20,6 +23,7 @@ class ParentAdvisorCard extends ConsumerWidget {
     final name = home?.advisorName;
     if (name == null || name.isEmpty) return const SizedBox.shrink();
     final phone = home?.advisorPhone;
+    final digits = phone?.replaceAll(RegExp(r'[^\d+]'), '') ?? '';
     final initials = name
         .split(' ')
         .where((part) => part.isNotEmpty)
@@ -31,11 +35,12 @@ class ParentAdvisorCard extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-          color: AppPalette.surfaceNav, borderRadius: BorderRadius.circular(20)),
+          color: AppPalette.surfaceNav,
+          borderRadius: BorderRadius.circular(16)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(tr.home.advisor.toUpperCase(),
             style: AppTypography.overline.copyWith(color: AppPalette.onDark2)),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
         Row(children: [
           CircleAvatar(
             radius: 24,
@@ -45,38 +50,53 @@ class ParentAdvisorCard extends ConsumerWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name,
-                      style: AppTypography.label
-                          .copyWith(color: AppPalette.onDark)),
-                  Text(tr.advisor.role,
-                      style: AppTypography.caption
-                          .copyWith(color: AppPalette.onDark2)),
-                ]),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(name,
+                  style:
+                      AppTypography.label.copyWith(color: AppPalette.onDark)),
+              Text(tr.advisor.role,
+                  style: AppTypography.caption
+                      .copyWith(color: AppPalette.onDark2)),
+            ]),
           ),
         ]),
-        if (phone != null) ...[
-          const SizedBox(height: 10),
-          Text('$phone · ${tr.advisor.hours}',
+        if (phone != null && digits.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Text('${formatCameroonPhone(phone)} · ${tr.advisor.hours}',
               style: AppTypography.bodySm.copyWith(color: AppPalette.onDark)),
-          const SizedBox(height: 10),
-          OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
-                foregroundColor: AppPalette.onDark,
-                side: const BorderSide(color: AppPalette.onDark2),
-                shape: const StadiumBorder()),
-            // No dialer plug-in: the number is copied to call it.
-            onPressed: () async {
-              await Clipboard.setData(ClipboardData(text: phone));
-              if (context.mounted) {
-                SoeToast.show(context, message: phone);
-              }
-            },
-            icon: const Icon(Icons.call_outlined, size: 18),
-            label: Text(tr.home.call),
-          ),
+          const SizedBox(height: 14),
+          Row(children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                    foregroundColor: AppPalette.onDark,
+                    minimumSize: const Size.fromHeight(44),
+                    side: const BorderSide(color: AppPalette.onDark),
+                    shape: const StadiumBorder()),
+                onPressed: () => unawaited(launchUrl(
+                    Uri(scheme: 'tel', path: digits),
+                    mode: LaunchMode.externalApplication)),
+                icon: const Icon(Icons.call_outlined, size: 18),
+                label: Text(tr.home.call),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                    backgroundColor: AppPalette.white,
+                    foregroundColor: AppPalette.teal800,
+                    minimumSize: const Size.fromHeight(44),
+                    shape: const StadiumBorder()),
+                onPressed: () => unawaited(launchUrl(
+                    Uri.https('wa.me', '/${digits.replaceAll('+', '')}'),
+                    mode: LaunchMode.externalApplication)),
+                icon: const Icon(Icons.chat_bubble_outline, size: 18),
+                label: Text(tr.home.whatsapp),
+              ),
+            ),
+          ]),
         ],
       ]),
     );

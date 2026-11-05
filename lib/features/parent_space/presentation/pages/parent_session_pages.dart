@@ -18,6 +18,7 @@ import '../parent_space_routes.dart';
 import '../providers.dart';
 import '../widgets/parent_ui.dart';
 import '../widgets/parent_widgets.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// PAR-13 — a session: check-in, report, backup code (check-in window only), cancel,
 /// a problem for the advisor or serious behaviour (SOE steps in).
@@ -54,7 +55,9 @@ class _ParentSessionPageState extends ConsumerState<ParentSessionPage> {
     }
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.parent.planning,
+          title: tr.title),
       body: ParentAsyncBody<ParentSessionDetail>(
         value: value,
         onRetry: () => ref.invalidate(parentSessionProvider(sessionId)),
@@ -62,115 +65,168 @@ class _ParentSessionPageState extends ConsumerState<ParentSessionPage> {
           final session = detail.session;
           final held = session.startsAt.isBefore(DateTime.now()) &&
               session.status != 'cancelled';
-          return ListView(padding: const EdgeInsets.all(16), children: [
-            Text(ParentFormat.dayLong(context, session.startsAt),
-                style:
-                    AppTypography.overline.copyWith(color: AppPalette.text2)),
-            Text(session.title,
-                style: AppTypography.h2.copyWith(color: AppPalette.teal800)),
-            const SizedBox(height: 6),
-            Align(
-                alignment: Alignment.centerLeft,
-                child: ParentStatusBadge(
-                    status: session.status, label: session.statusLabel)),
-            const SizedBox(height: 16),
-            SoeCard(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(tr.checkIn, style: AppTypography.title),
-                    const SizedBox(height: 6),
-                    if (detail.arrivedAt == null)
-                      Text(tr.noCheckIn,
-                          style: AppTypography.bodySm
-                              .copyWith(color: AppPalette.text2))
-                    else ...[
+          final child =
+              ref.watch(parentChildProvider(session.childId)).valueOrNull;
+          final advisor =
+              ref.watch(parentHomeProvider).valueOrNull?.advisorName;
+          final place = child?.address?.neighborhood;
+          final end = session.endsAt;
+          return ListView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+              children: [
+                Text(
+                    tr
+                        .overline(
+                            date:
+                                ParentFormat.dayLong(context, session.startsAt))
+                        .toUpperCase(),
+                    style: AppTypography.overline
+                        .copyWith(color: AppPalette.teal700)),
+                const SizedBox(height: 6),
+                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Expanded(
+                    child: Text(session.title,
+                        style: AppTypography.h1
+                            .copyWith(color: AppPalette.teal800)),
+                  ),
+                  const SizedBox(width: 8),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: ParentStatusBadge(
+                        status: session.status, label: session.statusLabel),
+                  ),
+                ]),
+                const SizedBox(height: 16),
+                ParentPanel(soft: true, title: tr.checkIn, children: [
+                  if (detail.arrivedAt == null)
+                    Text(tr.checkInText(tutor: session.tutorName),
+                        style: AppTypography.body
+                            .copyWith(color: AppPalette.text2))
+                  else ...[
+                    ParentInfoRow(
+                        tr.arrival,
+                        [
+                          ParentFormat.time(detail.arrivedAt!),
+                          if (detail.distanceMeters != null)
+                            tr.distance(meters: detail.distanceMeters!),
+                        ].join(' · ')),
+                    if (detail.leftAt != null)
+                      ParentInfoRow(
+                          tr.departure, ParentFormat.time(detail.leftAt!)),
+                  ],
+                ]),
+                if (detail.backupCode != null)
+                  ParentPanel(children: [
+                    Text(tr.backupOverline.toUpperCase(),
+                        style: AppTypography.overline
+                            .copyWith(color: AppPalette.teal700)),
+                    const SizedBox(height: 4),
+                    Text(tr.backupCode,
+                        style: AppTypography.h3
+                            .copyWith(color: AppPalette.teal800)),
+                    const SizedBox(height: 10),
+                    Text(detail.backupCode!.split('').join(' '),
+                        style: AppTypography.h1.copyWith(
+                            color: AppPalette.teal800, letterSpacing: 4)),
+                    Text(tr.backupHintTutor(tutor: session.tutorName),
+                        style: AppTypography.caption
+                            .copyWith(color: AppPalette.text2)),
+                  ]),
+                if (detail.reportSubmittedAt != null)
+                  ParentPanel(title: tr.report, children: [
+                    if (detail.reportAutoValidatesAt != null)
                       Text(
-                          '${tr.arrival} : ${ParentFormat.time(detail.arrivedAt!)}'
-                          '${detail.distanceMeters == null ? '' : ' · ${tr.distance(meters: detail.distanceMeters!)}'}'),
-                      if (detail.leftAt != null)
-                        Text(
-                            '${tr.departure} : ${ParentFormat.time(detail.leftAt!)}'),
-                    ],
-                  ]),
-            ),
-            const SizedBox(height: 10),
-            SoeCard(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(tr.report, style: AppTypography.title),
-                    const SizedBox(height: 6),
-                    if (detail.reportSubmittedAt == null)
-                      Text(tr.reportPending,
+                          tr.autoIn(
+                              date: ParentFormat.dateTime(
+                                  context, detail.reportAutoValidatesAt!)),
                           style: AppTypography.bodySm
-                              .copyWith(color: AppPalette.text2))
-                    else ...[
-                      if (detail.reportAutoValidatesAt != null)
-                        Text(
-                            tr.autoIn(
-                                date: ParentFormat.dateTime(
-                                    context, detail.reportAutoValidatesAt!)),
-                            style: AppTypography.caption
-                                .copyWith(color: AppPalette.text2)),
-                      const SizedBox(height: 8),
-                      SoeButton(
-                        label: tr.seeReport,
-                        size: SoeButtonSize.md,
-                        variant: session.status == 'report_to_approve'
-                            ? SoeButtonVariant.primary
-                            : SoeButtonVariant.outline,
-                        onPressed: () =>
-                            context.push(ParentSpaceRoutes.report(session.id)),
-                      ),
-                    ],
+                              .copyWith(color: AppPalette.text2)),
+                    const SizedBox(height: 10),
+                    SoeButton(
+                      label: tr.seeReport,
+                      fullWidth: true,
+                      variant: session.status == 'report_to_approve'
+                          ? SoeButtonVariant.primary
+                          : SoeButtonVariant.outline,
+                      onPressed: () =>
+                          context.push(ParentSpaceRoutes.report(session.id)),
+                    ),
                   ]),
-            ),
-            const SizedBox(height: 10),
-            SoeCard(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('${tr.time} : ${ParentFormat.time(session.startsAt)}'
-                        '${session.endsAt == null ? '' : ' – ${ParentFormat.time(session.endsAt!)}'}'),
-                    Text('${tr.tutor} : ${session.tutorName}'),
-                    if (detail.backupCode != null) ...[
-                      const SizedBox(height: 8),
-                      Text(tr.backupCode, style: AppTypography.labelSm),
-                      Text(detail.backupCode!, style: AppTypography.h2),
-                      Text(tr.backupHint,
+                ParentPanel(title: tr.title, children: [
+                  ParentInfoRow(tr.time,
+                      '${ParentFormat.time(session.startsAt)}${end == null ? '' : ' – ${ParentFormat.time(end)}'}'),
+                  ParentInfoRow(tr.tutor, session.tutorName),
+                  ParentInfoRow(
+                      tr.child,
+                      [session.childName, child?.schoolClass]
+                          .whereType<String>()
+                          .where((part) => part.isNotEmpty)
+                          .join(' · ')),
+                  if (place != null && place.isNotEmpty)
+                    ParentInfoRow(tr.place, tr.atHome(place: place)),
+                  if (detail.reportSubmittedAt == null &&
+                      detail.arrivedAt == null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(tr.reportPending,
                           style: AppTypography.caption
                               .copyWith(color: AppPalette.text2)),
-                    ],
-                  ]),
-            ),
-            if (detail.canCancel) ...[
-              const SizedBox(height: 16),
-              SoeButton(
-                label: tr.cancel,
-                variant: SoeButtonVariant.dangerOutline,
-                fullWidth: true,
-                onPressed: () => _cancel(context, ref, detail),
-              ),
-            ],
-            const SizedBox(height: 16),
-            SoeButton(
-              label: Translations.of(context).parentSpace.problem.action,
-              variant: SoeButtonVariant.outline,
-              fullWidth: true,
-              onPressed: () =>
-                  unawaited(showParentProblemSheet(context, ref, detail)),
-            ),
-            if (held)
-              SoeButton(
-                label: Translations.of(context).parentSpace.problem.serious,
-                variant: SoeButtonVariant.tertiary,
-                fullWidth: true,
-                onPressed: () => unawaited(showParentProblemSheet(
-                    context, ref, detail,
-                    serious: true)),
-              ),
-          ]);
+                    ),
+                  if (detail.canCancel) ...[
+                    const SizedBox(height: 14),
+                    SoeButton(
+                      label: tr.cancel,
+                      variant: SoeButtonVariant.dangerOutline,
+                      fullWidth: true,
+                      onPressed: () => _cancel(context, ref, detail),
+                    ),
+                  ],
+                ]),
+                ParentPanel(
+                    soft: true,
+                    title: Translations.of(context).parentSpace.problem.title,
+                    children: [
+                      Text(
+                          advisor == null || advisor.isEmpty
+                              ? Translations.of(context)
+                                  .parentSpace
+                                  .problem
+                                  .toSoe
+                              : Translations.of(context)
+                                  .parentSpace
+                                  .problem
+                                  .toAdvisor(name: advisor),
+                          style: AppTypography.body
+                              .copyWith(color: AppPalette.text2)),
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: SoeButton(
+                          label: Translations.of(context)
+                              .parentSpace
+                              .problem
+                              .action,
+                          variant: SoeButtonVariant.tertiary,
+                          onPressed: () => unawaited(
+                              showParentProblemSheet(context, ref, detail)),
+                        ),
+                      ),
+                      if (held)
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: SoeButton(
+                            label: Translations.of(context)
+                                .parentSpace
+                                .problem
+                                .serious,
+                            variant: SoeButtonVariant.dangerOutline,
+                            onPressed: () => unawaited(showParentProblemSheet(
+                                context, ref, detail,
+                                serious: true)),
+                          ),
+                        ),
+                    ]),
+              ]);
         },
       ),
     );
@@ -270,7 +326,9 @@ class _ParentReportPageState extends ConsumerState<ParentReportPage> {
     final tr = Translations.of(context).parentSpace.report;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.parent.planning,
+          title: tr.title),
       body: ParentAsyncBody<ParentReport>(
         value: ref.watch(parentReportProvider(widget.sessionId)),
         onRetry: () => ref.invalidate(parentReportProvider(widget.sessionId)),
@@ -358,7 +416,6 @@ class _ParentReportPageState extends ConsumerState<ParentReportPage> {
   }
 }
 
-
 /// Problem types of a session (Reports::ParentProblem::TYPES).
 const _problemTypes = [
   'repeated_lateness',
@@ -424,14 +481,14 @@ class _ProblemFormState extends ConsumerState<_ProblemForm> {
       _error = null;
     });
     try {
-      await ref.read(parentApiProvider).reportProblem(
-          widget.detail.session.id,
+      await ref.read(parentApiProvider).reportProblem(widget.detail.session.id,
           serious: widget.serious,
           reportType: _type,
           description: _description.text.trim());
       if (mounted) Navigator.of(context).pop(true);
     } on Failure catch (failure) {
-      if (mounted) setState(() => _error = parentFailureMessage(context, failure));
+      if (mounted)
+        setState(() => _error = parentFailureMessage(context, failure));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -471,8 +528,9 @@ class _ProblemFormState extends ConsumerState<_ProblemForm> {
       const SizedBox(height: 16),
       SoeButton(
         label: widget.serious ? tr.serious : tr.send,
-        variant:
-            widget.serious ? SoeButtonVariant.danger : SoeButtonVariant.secondary,
+        variant: widget.serious
+            ? SoeButtonVariant.danger
+            : SoeButtonVariant.secondary,
         loading: _busy,
         onPressed: _busy ? null : () => unawaited(_send()),
       ),

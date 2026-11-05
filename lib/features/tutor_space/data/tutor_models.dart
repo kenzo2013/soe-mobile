@@ -721,3 +721,12 @@ class TutorQuality {
   final int punctualityGraceMinutes;
   final int reportSubmissionHours;
 }
+
+/// What an action of the home is about: its proposal, its session or its contract (REP-01).
+class TutorActionSubject {
+  const TutorActionSubject({this.proposal, this.session, this.contract});
+
+  final TutorProposal? proposal;
+  final TutorSession? session;
+  final TutorContract? contract;
+}

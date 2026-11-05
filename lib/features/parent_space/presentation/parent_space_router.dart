@@ -15,9 +15,29 @@ import 'pages/parent_tutor_pages.dart';
 int _id(GoRouterState state, [String name = 'id']) =>
     int.tryParse(state.pathParameters[name] ?? '') ?? 0;
 
+/// The detail screens shown inside a tab, under its tab bar (Studio 390: « Planning ›
+/// Séance », « Mes enfants › Léa »), by tab index: 1 Planning, 2 Enfants, 3 Paiements.
+/// The flows with their own bottom action (request wizard, payment, signature, forms) and the
+/// screens of « Plus » stay full screen.
+const Map<String, int> parentTabScreens = {
+  '/parent/space/sessions/:id': 1,
+  '/parent/space/children/:id': 2,
+  '/parent/space/payments': 3,
+};
+
+/// The routes of [parentTabScreens] for the tab [index].
+List<RouteBase> parentTabRoutes(int index) => _parentRoutes()
+    .where((route) => parentTabScreens[route.path] == index)
+    .toList();
+
 /// Full-screen routes of the parent space v2, opened from its tabs, the More menu and the
-/// home actions. Static paths come before the `:id` ones (go_router matches in order).
-List<RouteBase> parentSpaceRoutes() => [
+/// home actions. Static paths come before the `:id` ones (go_router matches in order), and
+/// these routes come before the tabs in the router (`/children/new` before `/children/:id`).
+List<RouteBase> parentSpaceRoutes() => _parentRoutes()
+    .where((route) => !parentTabScreens.containsKey(route.path))
+    .toList();
+
+List<GoRoute> _parentRoutes() => [
       GoRoute(
         path: '/parent/space/sessions/:id',
         builder: (context, state) => ParentSessionPage(

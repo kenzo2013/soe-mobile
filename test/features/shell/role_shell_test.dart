@@ -132,9 +132,41 @@ void main() {
   });
 
   testWidgets(
-      '« Plus » is the account hub with sign-out, without a switch for a single-role account',
+      'on a phone, « Plus » opens its menu as a sheet over the open tab (PAR-01 « Menu Plus »)',
       (tester) async {
     await _pump(tester, size: const Size(390, 844), user: _user());
+    await tester.tap(find.text('Plus').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('home-tab'), findsOneWidget);
+    expect(find.text('Demandes et devis'), findsOneWidget);
+    expect(find.text('Contrats'), findsOneWidget);
+    expect(find.text('Compte'), findsOneWidget);
+    expect(find.text('Passer en mode répétiteur'), findsOneWidget);
+    expect(find.text('Même compte, autre espace'), findsOneWidget);
+    expect(find.text('Se déconnecter'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Fermer'));
+    await tester.pumpAndSettle();
+    expect(find.text('Demandes et devis'), findsNothing);
+  });
+
+  testWidgets('« Passer en mode répétiteur » opens the roles screen',
+      (tester) async {
+    await _pump(tester,
+        size: const Size(390, 844), user: _user(multiRole: true));
+    await tester.tap(find.text('Plus').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Passer en mode répétiteur'));
+    await tester.pumpAndSettle();
+    expect(find.text('role-switch'), findsOneWidget);
+  });
+
+  testWidgets(
+      'on a tablet, « Plus » is the account hub with sign-out, without a switch for a single-role account',
+      (tester) async {
+    await _pump(tester, size: const Size(1024, 1366), user: _user());
     await tester.tap(find.text('Plus').last);
     await tester.pumpAndSettle();
 
@@ -145,17 +177,5 @@ void main() {
         scrollable: find.byType(Scrollable).last);
     expect(find.text('Se déconnecter'), findsOneWidget);
     expect(find.text('Changer d’espace'), findsNothing);
-  });
-
-  testWidgets('a multi-role account can switch space from « Plus »',
-      (tester) async {
-    await _pump(tester,
-        size: const Size(390, 844), user: _user(multiRole: true));
-    await tester.tap(find.text('Plus').last);
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Changer d’espace'));
-    await tester.pumpAndSettle();
-    expect(find.text('role-switch'), findsOneWidget);
   });
 }

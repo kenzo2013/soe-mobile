@@ -9,7 +9,8 @@ class SoeBottomNavItem {
   final String label;
 }
 
-/// Bottom nav SOE — fond blanc, item actif teal sur fond infoBg.
+/// Bottom nav SOE (Studio, mobile 390): a white bar with a line on top; the active tab has
+/// its icon on a light teal pill and its label in bold teal.
 class SoeBottomNav extends StatelessWidget {
   const SoeBottomNav({
     super.key,
@@ -24,33 +25,26 @@ class SoeBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        decoration: BoxDecoration(
-          color: AppPalette.white,
-          borderRadius: AppRadius.rXl,
-          border: Border.all(color: AppPalette.n300),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x14041527),
-              blurRadius: 24,
-              offset: Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            for (int i = 0; i < items.length; i++)
-              _NavTile(
-                item: items[i],
-                active: i == currentIndex,
-                onTap: () => onTap(i),
-              ),
-          ],
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: AppPalette.white,
+        border: Border(top: BorderSide(color: AppPalette.n300)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              for (int i = 0; i < items.length; i++)
+                _NavTile(
+                  item: items[i],
+                  active: i == currentIndex,
+                  onTap: () => onTap(i),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -71,43 +65,45 @@ class _NavTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
+      child: Semantics(
+        selected: active,
+        button: true,
+        child: InkResponse(
           onTap: onTap,
-          borderRadius: AppRadius.rLg,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-            decoration: BoxDecoration(
-              color: active ? AppPalette.infoBg : Colors.transparent,
-              borderRadius: AppRadius.rLg,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
+          radius: 32,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 4, horizontal: 14),
+                decoration: BoxDecoration(
+                  color: active ? AppPalette.teal100 : Colors.transparent,
+                  borderRadius: AppRadius.rLg,
+                ),
+                child: Icon(
                   item.icon,
                   size: 22,
-                  color: active ? AppPalette.teal : AppPalette.n500,
+                  color: active ? AppPalette.teal800 : AppPalette.n500,
                 ),
-                const SizedBox(height: 4),
-                // One line, shrunk if needed (« Aujourd’hui » in bold).
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    item.label,
-                    maxLines: 1,
-                    softWrap: false,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                      color: active ? AppPalette.teal : AppPalette.n700,
-                    ),
+              ),
+              const SizedBox(height: 4),
+              // One line, shrunk if needed (« Aujourd’hui » in bold).
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  item.label,
+                  maxLines: 1,
+                  softWrap: false,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                    color: active ? AppPalette.teal800 : AppPalette.n700,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

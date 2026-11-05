@@ -10,7 +10,9 @@ import 'package:soe/features/auth/presentation/providers.dart';
 import 'package:soe/core/widgets/soe_button.dart';
 import 'package:soe/features/auth/domain/entities/auth_flow.dart';
 import 'package:soe/features/auth/domain/entities/sign_up_answers.dart';
+import 'package:soe/features/auth/domain/entities/user.dart';
 import 'package:soe/features/auth/presentation/controllers/auth_controllers.dart';
+import 'package:soe/features/auth/presentation/providers/current_user_provider.dart';
 
 import 'auth_test_app.dart';
 
@@ -62,6 +64,35 @@ void main() {
 
       expect(find.text('Vérifiez votre adresse e-mail'), findsOneWidget);
       expect(find.textContaining('a•••••@example.com'), findsOneWidget);
+    });
+
+    testWidgets(
+        'AUT-11: after an expired session, only the password of the kept account is asked',
+        (tester) async {
+      final repository = FakeAuthRepository()
+        ..signInResult = Ok(SignedIn(FakeAuthRepository.session()));
+      await pumpAuthApp(tester, repository,
+          start: RouteNames.login,
+          overrides: [
+            sessionExpiredProvider.overrideWith((ref) => true),
+            currentUserProvider.overrideWith((ref) async => const User(
+                id: '1',
+                email: 'awa@example.com',
+                firstName: 'Awa',
+                lastName: 'Ngono',
+                role: UserRole.parent)),
+          ]);
+
+      expect(find.text('Votre session a expiré'), findsOneWidget);
+      expect(find.text('Awa Ngono · a•••••@example.com'), findsOneWidget);
+      expect(find.text('Changer de compte'), findsOneWidget);
+      expect(_enabled(tester, 'Se reconnecter'), isFalse);
+      await _enter(tester, 'Mot de passe', 'secret');
+      await tester.tap(_button('Se reconnecter'));
+      await tester.pumpAndSettle();
+
+      expect(repository.lastLogin, 'awa@example.com');
+      expect(find.text('parent-home'), findsOneWidget);
     });
 
     testWidgets('wrong credentials show the neutral message', (tester) async {

@@ -10,6 +10,7 @@ import '../../../../i18n/translations.g.dart';
 import '../../data/tutor_models.dart';
 import '../providers.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// REP-22 — Ma qualité: the tutor's private view of the average rating, the punctuality from
 /// the check-ins and the reports sent on time. A figure with nothing to measure shows « — ».
@@ -22,7 +23,8 @@ class TutorQualityPage extends ConsumerWidget {
     final value = ref.watch(tutorQualityProvider);
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab, title: tr.title),
       body: RefreshIndicator(
         onRefresh: () => ref.refresh(tutorQualityProvider.future),
         child: TutorAsyncBody<TutorQuality>(

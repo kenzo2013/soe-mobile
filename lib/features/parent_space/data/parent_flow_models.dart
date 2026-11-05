@@ -161,9 +161,8 @@ class ParentRequestDetail {
         needEditable: json['need_editable'] == true,
         tutorsPresented: json['tutors_presented'] == true,
         needs: _maps(json['needs']).map(ParentNeed.fromJson).toList(),
-        history: _maps(json['history'])
-            .map(ParentHistoryEvent.fromJson)
-            .toList(),
+        history:
+            _maps(json['history']).map(ParentHistoryEvent.fromJson).toList(),
       );
 
   final ParentRequest request;
@@ -174,9 +173,8 @@ class ParentRequestDetail {
   final List<ParentHistoryEvent> history;
 
   /// The replacement events of the history (PAR-20 follow-up).
-  List<ParentHistoryEvent> get replacementEvents => history
-      .where((event) => event.action.contains('replacement'))
-      .toList();
+  List<ParentHistoryEvent> get replacementEvents =>
+      history.where((event) => event.action.contains('replacement')).toList();
 }
 
 /// A child the wizard may include.
@@ -226,8 +224,7 @@ class ParentRequestDraft {
     return ParentRequestDraft(
       childIds: _ints(json['child_ids']),
       complete: json['complete'] == true,
-      children:
-          _maps(json['children']).map(ParentDraftChild.fromJson).toList(),
+      children: _maps(json['children']).map(ParentDraftChild.fromJson).toList(),
       needs: _maps(json['needs']).map(ParentNeed.fromJson).toList(),
       objectives: labelled(options['objectives']),
       moments: labelled(options['moments']),
@@ -604,11 +601,25 @@ class ParentReferences {
   final List<({String name, List<String> neighborhoods})> cities;
 
   /// The classes of a section (all of them when the section is unknown).
-  List<({int id, String name, String? education, String? section})>
-      classesOf(String? section) => schoolClasses
+  List<({int id, String name, String? education, String? section})> classesOf(
+          String? section) =>
+      schoolClasses
           .where((item) =>
               section == null ||
               item.section == null ||
               item.section!.toLowerCase() == section.toLowerCase())
           .toList();
+}
+
+/// What an action of the home is about: the subjects and children of its request, or the
+/// session of the report to examine (PAR-01, « À faire »).
+class ParentActionSubject {
+  const ParentActionSubject(
+      {required this.subjects, required this.children, this.session});
+
+  final List<String> subjects;
+  final List<String> children;
+
+  /// The session of a report action (its day, its tutor).
+  final ParentSession? session;
 }

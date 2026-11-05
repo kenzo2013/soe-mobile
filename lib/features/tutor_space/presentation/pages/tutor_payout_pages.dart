@@ -23,6 +23,7 @@ import '../providers.dart';
 import '../tutor_money_providers.dart';
 import '../widgets/tutor_panel.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// REP-20 — the payout methods (MTN MoMo, Orange Money, bank; one by default). Every change asks
 /// for the password again, then a 6-digit code sent by e-mail confirms it.
@@ -34,7 +35,8 @@ class TutorPayoutMethodsPage extends ConsumerWidget {
     final tr = Translations.of(context).tutorSpace.payout;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab, title: tr.title),
       body: RefreshIndicator(
         onRefresh: () => ref.refresh(tutorPayoutMethodsProvider.future),
         child: TutorAsyncBody<List<TutorPayoutMethod>>(

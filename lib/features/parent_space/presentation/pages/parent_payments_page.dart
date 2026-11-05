@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/theme/app_palette.dart';
@@ -20,6 +21,8 @@ import '../parent_space_routes.dart';
 import '../providers.dart';
 import '../widgets/parent_ui.dart';
 import '../widgets/parent_widgets.dart';
+import '../../../common/presentation/widgets/tab_top_bar.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// PAR-15 — invoices to pay (oldest first) and the receipts.
 class ParentPaymentsPage extends ConsumerWidget {
@@ -30,7 +33,8 @@ class ParentPaymentsPage extends ConsumerWidget {
     final tr = Translations.of(context).parentSpace;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      body: SafeArea(
+      body: TabBody(
+        title: Translations.of(context).shell.parent.payments,
         child: ParentAsyncBody<List<ParentInvoice>>(
           value: ref.watch(parentInvoicesProvider),
           onRetry: () => ref.invalidate(parentInvoicesProvider),
@@ -57,30 +61,65 @@ class ParentPaymentsPage extends ConsumerWidget {
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(children: [
-                                  Expanded(
-                                      child: Text(
-                                          tr.payments
-                                              .invoice(number: invoice.number),
-                                          style: AppTypography.overline
-                                              .copyWith(
-                                                  color: AppPalette.text2))),
-                                  ParentStatusBadge(
-                                      status: invoice.status,
-                                      label: invoice.statusLabel),
-                                ]),
-                                const SizedBox(height: 6),
+                                Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                  tr.payments
+                                                      .invoice(
+                                                          number:
+                                                              invoice.number)
+                                                      .toUpperCase(),
+                                                  style: AppTypography.overline
+                                                      .copyWith(
+                                                          color: AppPalette
+                                                              .teal700)),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                  toBeginningOfSentenceCase(
+                                                      DateFormat.yMMMM(
+                                                              Localizations
+                                                                      .localeOf(
+                                                                          context)
+                                                                  .languageCode)
+                                                          .format(
+                                                              invoice.period)),
+                                                  style: AppTypography.h3
+                                                      .copyWith(
+                                                          color: AppPalette
+                                                              .teal800)),
+                                            ]),
+                                      ),
+                                      ParentStatusBadge(
+                                          status: invoice.status,
+                                          label: invoice.statusLabel),
+                                    ]),
+                                const SizedBox(height: 10),
                                 Text(
                                     ParentFormat.amount(
                                         context, invoice.balanceDue),
-                                    style: AppTypography.h2),
-                                if (invoice.dueOn != null)
-                                  Text(
-                                      tr.payments.due(
-                                          date: ParentFormat.day(
-                                              context, invoice.dueOn!)),
-                                      style: AppTypography.caption
-                                          .copyWith(color: AppPalette.text2)),
+                                    style: AppTypography.h1
+                                        .copyWith(color: AppPalette.teal800)),
+                                Text(
+                                    [
+                                      if (invoice.issuedOn != null)
+                                        tr.payments.issued(
+                                            date: ParentFormat.day(
+                                                context, invoice.issuedOn!)),
+                                      if (invoice.dueOn != null)
+                                        tr.payments.dueShort(
+                                            date: ParentFormat.dayLong(
+                                                context, invoice.dueOn!)),
+                                    ].join(' · '),
+                                    style: AppTypography.caption
+                                        .copyWith(color: AppPalette.text2)),
+                                const SizedBox(height: 6),
                                 ...invoice.lines.map((line) => Padding(
                                       padding: const EdgeInsets.only(top: 6),
                                       child: Row(children: [
@@ -134,29 +173,32 @@ class ParentPaymentsPage extends ConsumerWidget {
                           context.push(ParentSpaceRoutes.paymentsHistory)),
                     ),
                   const SizedBox(height: 12),
-                  ParentPanel(soft: true, title: tr.history.howTitle, children: [
-                    for (final rule in [
-                      tr.history.how1,
-                      tr.history.how2,
-                      tr.history.how3,
-                      tr.history.how4
-                    ])
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.only(top: 2, right: 8),
-                                child: Icon(Icons.info_outline,
-                                    size: 16, color: AppPalette.teal600),
-                              ),
-                              Expanded(
-                                  child: Text(rule,
-                                      style: AppTypography.bodySm)),
-                            ]),
-                      ),
-                  ]),
+                  ParentPanel(
+                      soft: true,
+                      title: tr.history.howTitle,
+                      children: [
+                        for (final rule in [
+                          tr.history.how1,
+                          tr.history.how2,
+                          tr.history.how3,
+                          tr.history.how4
+                        ])
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 2, right: 8),
+                                    child: Icon(Icons.info_outline,
+                                        size: 16, color: AppPalette.teal600),
+                                  ),
+                                  Expanded(
+                                      child: Text(rule,
+                                          style: AppTypography.bodySm)),
+                                ]),
+                          ),
+                      ]),
                 ],
               ),
             );
@@ -193,7 +235,8 @@ class ParentPaymentTile extends ConsumerWidget {
                   payment.receiptNumber ?? '',
                   if (when != null)
                     payment.state == 'success'
-                        ? tr.history.paidOn(date: ParentFormat.day(context, when))
+                        ? tr.history
+                            .paidOn(date: ParentFormat.day(context, when))
                         : ParentFormat.day(context, when),
                 ].where((part) => part.isNotEmpty).join(' · '),
                 style: AppTypography.caption.copyWith(color: AppPalette.text2)),
@@ -245,6 +288,18 @@ class ParentPaymentTile extends ConsumerWidget {
                 ref,
                 () => ref.read(parentApiProvider).receiptPdf(payment.id),
                 'receipt_${payment.receiptNumber}.pdf')),
+          ),
+          Center(
+            child: TextButton(
+              onPressed: () => unawaited(launchUrl(
+                  Uri.https('wa.me', '/', {
+                    'text': tr.history.shareText(
+                        number: payment.receiptNumber ?? '',
+                        amount: ParentFormat.amount(context, payment.amount)),
+                  }),
+                  mode: LaunchMode.externalApplication)),
+              child: Text(tr.history.shareWhatsapp),
+            ),
           ),
         ],
       ]),
@@ -301,7 +356,9 @@ class _ParentPaymentsHistoryPageState
     final tr = Translations.of(context).parentSpace;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.history.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.parent.payments,
+          title: tr.history.title),
       body: NotificationListener<ScrollNotification>(
         onNotification: (notification) {
           if (notification.metrics.extentAfter < 200) unawaited(_more());
@@ -382,7 +439,9 @@ class _ParentPayPageState extends ConsumerState<ParentPayPage> {
         .firstOrNull;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.pay.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.parent.payments,
+          title: tr.pay.title),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -505,7 +564,9 @@ class _ParentPaymentPageState extends ConsumerState<ParentPaymentPage> {
     final tr = Translations.of(context).parentSpace.payment;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.parent.payments,
+          title: Translations.of(context).parentSpace.pay.title),
       body: ParentAsyncBody<ParentPayment>(
         value: ref.watch(parentPaymentProvider(widget.paymentId)),
         onRetry: () => ref.invalidate(parentPaymentProvider(widget.paymentId)),

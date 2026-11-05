@@ -47,10 +47,15 @@ class FakeAuthRepository implements AuthRepository {
             role: UserRoleX.fromApi(role)),
       );
 
+  /// The identifier of the last sign-in.
+  String? lastLogin;
+
   @override
   Future<Result<SignInOutcome, Failure>> signIn(
-          {required String login, required String password}) async =>
-      signInResult;
+      {required String login, required String password}) async {
+    lastLogin = login;
+    return signInResult;
+  }
 
   @override
   Future<Result<void, Failure>> validateSignUpStep(
@@ -112,7 +117,7 @@ class FakeAuthRepository implements AuthRepository {
 
 /// The auth routes of the app, the two homes as placeholders, in French on a phone.
 Future<void> pumpAuthApp(WidgetTester tester, FakeAuthRepository repository,
-    {required String start}) async {
+    {required String start, List<Override> overrides = const []}) async {
   tester.view.physicalSize = const Size(390, 1200);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -145,6 +150,7 @@ Future<void> pumpAuthApp(WidgetTester tester, FakeAuthRepository repository,
         authRepositoryProvider.overrideWithValue(repository),
         preferencesStorageProvider.overrideWithValue(prefs),
         secureStorageProvider.overrideWithValue(storage),
+        ...overrides,
       ],
       child: TranslationProvider(
         child: MaterialApp.router(

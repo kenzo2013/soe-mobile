@@ -16,6 +16,7 @@ import '../../../../i18n/translations.g.dart';
 import '../../data/tutor_models.dart';
 import '../providers.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// REP-15 — the weekly times of a signed slot: one start time per session of the week, among
 /// the offered ones (a day, then an hour); then « En attente de la famille » until the parent
@@ -66,7 +67,8 @@ class _TutorTimesPageState extends ConsumerState<TutorTimesPage> {
     final tr = Translations.of(context).tutorSpace.times;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.tutor.today, title: tr.title),
       body: TutorAsyncBody<TutorPlanning>(
         value: ref.watch(tutorPlanningProvider(widget.slotId)),
         onRetry: () => ref.invalidate(tutorPlanningProvider(widget.slotId)),

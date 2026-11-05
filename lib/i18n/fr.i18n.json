@@ -135,7 +135,15 @@
       "submit": "Se connecter",
       "missing": "Saisissez votre identifiant et votre mot de passe.",
       "noAccount": "Pas encore de compte ?",
-      "signUp": "Créer un compte"
+      "signUp": "Créer un compte",
+      "expired": {
+        "heading": "Votre session a expiré",
+        "lead": "Par sécurité, reconnectez-vous.",
+        "account": "Compte",
+        "submit": "Se reconnecter",
+        "notYou": "Ce n’est pas vous ?",
+        "changeAccount": "Changer de compte"
+      }
     },
     "profile": {
       "heading": "Bienvenue sur SOE",
@@ -263,7 +271,11 @@
       "contracts": "Contrats"
     },
     "more": {
-      "tab": "Plus"
+      "tab": "Plus",
+      "account": "Compte",
+      "toTutor": "Passer en mode répétiteur",
+      "toParent": "Passer en mode parent",
+      "sameAccount": "Même compte, autre espace"
     },
     "navigation": "Navigation principale"
   },
@@ -289,7 +301,39 @@
       "emptyText": "Ajoutez votre enfant, demandez un devis, recevez votre répétiteur.",
       "newRequest": "Nouvelle demande",
       "addChild": "Ajouter un enfant",
-      "giveReview": "Donner mon avis"
+      "giveReview": "Donner mon avis",
+      "seeAll": "Tout voir",
+      "and": "et",
+      "subjectTitle": "{{subjects}} · {{children}}",
+      "sessionOf": "Séance du {{date}} avec {{tutor}}",
+      "hours": "{{hours}} h",
+      "hoursOf": "restantes sur {{total}} h",
+      "signBefore": "signature conseillée avant",
+      "before": "à faire avant",
+      "why": {
+        "report": "Sans réponse de votre part, le procès-verbal est validé automatiquement.",
+        "payment": "Réglez la facture par MTN MoMo ou Orange Money ; le reçu arrive aussitôt.",
+        "contract": "Après signature, vous payez le premier mois, puis le répétiteur propose ses créneaux.",
+        "quote": "SOE a chiffré votre demande : acceptez le devis ou demandez à en discuter.",
+        "planning": "Le répétiteur propose ses créneaux : acceptez-les ou proposez-en d’autres.",
+        "tutor": "SOE vous présente un répétiteur : découvrez son profil, puis confirmez-le.",
+        "review": "Votre avis aide SOE à suivre la qualité des cours.",
+        "other": "Ouvrez la demande pour voir ce qui vous est demandé."
+      },
+      "requestOverline": "Demande {{reference}} · {{children}}",
+      "requestTitle": "{{subjects}} pour {{children}}",
+      "stepText": {
+        "request": "SOE étudie votre demande et vous envoie un devis.",
+        "quote": "Le devis est prêt : acceptez-le pour que SOE vous présente un répétiteur.",
+        "tutor": "SOE vous présente un répétiteur ; confirmez-le pour passer au contrat.",
+        "contract": "Il reste à signer le contrat ; le premier mois se paie ensuite, puis le répétiteur propose ses créneaux.",
+        "payment": "Payez le premier mois pour que les cours commencent.",
+        "first_session": "Le planning se met en place avec le répétiteur."
+      },
+      "courses": "{{n}} cours · {{subjects}}",
+      "paidOn": "payé le {{date}}",
+      "seeReceipt": "Voir le reçu",
+      "whatsapp": "WhatsApp"
     },
     "steps": {
       "request": "Demande",
@@ -306,7 +350,21 @@
       "next": "Semaine suivante",
       "empty": "Aucune séance cette semaine",
       "emptyText": "Les séances apparaissent dès que le planning est validé.",
-      "today": "aujourd’hui"
+      "today": "aujourd’hui",
+      "subtitle": "Séances de {{names}}, à domicile.",
+      "allChildren": "Tous les enfants",
+      "week": "Semaine",
+      "month": "Mois",
+      "emptyMonth": "Aucune séance ce mois-ci",
+      "legend": {
+        "pending": "Prévue",
+        "inProgress": "En cours",
+        "reportToApprove": "PV à valider",
+        "approved": "Validée",
+        "disputed": "Contestée",
+        "cancelled": "Annulée",
+        "suspended": "Suspendue"
+      }
     },
     "session": {
       "title": "Séance",
@@ -327,7 +385,14 @@
       "lateWarning": "À moins de 24 h, la séance reste due.",
       "reason": "Motif",
       "confirmCancel": "Confirmer l’annulation",
-      "cancelled": "Séance annulée."
+      "cancelled": "Séance annulée.",
+      "overline": "Séance du {{date}}",
+      "checkInText": "{{tutor}} pointera à son arrivée et à son départ ; sa position est vérifiée (à moins de 150 m de l’adresse des cours). Vous n’avez rien à faire.",
+      "backupOverline": "Seulement sans réseau ou sans GPS",
+      "backupHintTutor": "À donner à {{tutor}} uniquement s’il ne peut pas pointer depuis son téléphone. Un nouveau code est créé pour chaque séance.",
+      "child": "Enfant",
+      "place": "Lieu",
+      "atHome": "À domicile · {{place}}"
     },
     "report": {
       "title": "Procès-verbal",
@@ -366,7 +431,9 @@
       "pay": "Payer {{amount}}",
       "invoice": "Facture {{number}}",
       "due": "Échéance le {{date}}",
-      "receipt": "Reçu {{number}}"
+      "receipt": "Reçu {{number}}",
+      "issued": "Facture émise le {{date}}",
+      "dueShort": "échéance le {{date}}"
     },
     "pay": {
       "title": "Payer",
@@ -539,7 +606,12 @@
       "safetyAction": "Signaler un comportement grave",
       "safetyNoSession": "Aucune séance passée à signaler : appelez votre conseiller SOE.",
       "requestTutor": "Demander un répétiteur",
-      "noCourseText": "Demandez un répétiteur : votre conseiller SOE prépare un devis sous 24 h ouvrées."
+      "noCourseText": "Demandez un répétiteur : votre conseiller SOE prépare un devis sous 24 h ouvrées.",
+      "rhythm": "Rythme",
+      "perWeek": {
+        "one": "{{n}} séance par semaine",
+        "other": "{{n}} séances par semaine"
+      }
     },
     "wizard": {
       "title": "Nouvelle demande",
@@ -686,7 +758,10 @@
       "describe": "Décrivez ce qui s’est passé",
       "seriousSent": "Signalement reçu : SOE vous contacte.",
       "describeMissing": "Décrivez le problème.",
-      "overline": "Séance du {{date}}"
+      "overline": "Séance du {{date}}",
+      "title": "Un problème ?",
+      "toAdvisor": "Votre signalement va à {{name}}, votre conseiller SOE. Il n’y a pas de messagerie avec le répétiteur.",
+      "toSoe": "Votre signalement va à votre conseiller SOE. Il n’y a pas de messagerie avec le répétiteur."
     },
     "contracts": {
       "title": "Contrats",
@@ -715,7 +790,9 @@
       "how3": "Rappels à J-7, J-2 et J+3.",
       "how4": "À J+10 sans paiement, les séances sont suspendues (pas supprimées).",
       "download": "Télécharger",
-      "paidOn": "payé le {{date}}"
+      "paidOn": "payé le {{date}}",
+      "shareWhatsapp": "Partager sur WhatsApp",
+      "shareText": "Reçu SOE {{number}} : {{amount}} payés."
     },
     "reviews": {
       "title": "Avis",
@@ -839,7 +916,9 @@
         "planningDetail": "Le contrat est signé : proposez les créneaux de la semaine.",
         "contractDetail": "Lisez et signez votre lettre de mission.",
         "disputedDetail": "La séance est retirée des revenus jusqu’à la décision.",
-        "offline": "Disponible au retour du réseau"
+        "offline": "Disponible au retour du réseau",
+        "sessionOf": "séance du {{date}}",
+        "perSession": "{{amount}} par séance"
       },
       "buttons": {
         "assignment": "Voir la proposition",

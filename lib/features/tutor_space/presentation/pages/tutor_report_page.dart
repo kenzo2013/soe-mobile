@@ -21,6 +21,7 @@ import '../../../../i18n/translations.g.dart';
 import '../../data/tutor_models.dart';
 import '../providers.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// A report being written, kept while the app runs (leaving the screen or a network cut
 /// never loses it).
@@ -72,7 +73,9 @@ class TutorReportPage extends ConsumerWidget {
     final tr = Translations.of(context).tutorSpace.report;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.tutor.planning,
+          title: tr.title),
       body: TutorAsyncBody<TutorReport?>(
         value: ref.watch(tutorReportProvider(sessionId)),
         onRetry: () => ref.invalidate(tutorReportProvider(sessionId)),

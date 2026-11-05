@@ -25,6 +25,11 @@ final parentWeekSessionsProvider = FutureProvider.autoDispose
         .watch(parentApiProvider)
         .sessions(monday, monday.add(const Duration(days: 6))));
 
+/// The sessions between two days (the month list of PAR-12).
+final parentSessionsRangeProvider = FutureProvider.autoDispose
+    .family<List<ParentSession>, ({DateTime from, DateTime to})>((ref, range) =>
+        ref.watch(parentApiProvider).sessions(range.from, range.to));
+
 final parentSessionProvider = FutureProvider.autoDispose
     .family<ParentSessionDetail, int>(
         (ref, id) => ref.watch(parentApiProvider).session(id));
@@ -69,8 +74,8 @@ final parentReferencesProvider = FutureProvider<ParentReferences>(
     (ref) => ref.watch(parentApiProvider).references());
 
 /// The sessions of a child over the last two months and the next one (PAR-03).
-final parentChildSessionsProvider = FutureProvider.autoDispose
-    .family<List<ParentSession>, int>((ref, childId) {
+final parentChildSessionsProvider =
+    FutureProvider.autoDispose.family<List<ParentSession>, int>((ref, childId) {
   final today = DateTime.now();
   final from = DateTime(today.year, today.month, today.day)
       .subtract(const Duration(days: 31));
@@ -91,10 +96,9 @@ final parentTutorsProvider = FutureProvider.autoDispose
         (ref, requestId) => ref.watch(parentApiProvider).tutors(requestId));
 
 final parentTutorReviewsProvider = FutureProvider.autoDispose
-    .family<List<ParentTutorReview>, ({int requestId, int tutorId})>(
-        (ref, key) => ref
-            .watch(parentApiProvider)
-            .tutorReviews(key.requestId, key.tutorId));
+    .family<List<ParentTutorReview>, ({int requestId, int tutorId})>((ref,
+            key) =>
+        ref.watch(parentApiProvider).tutorReviews(key.requestId, key.tutorId));
 
 final parentContractsProvider =
     FutureProvider.autoDispose<List<ParentContract>>(
@@ -127,3 +131,42 @@ final parentInvitationsProvider =
 final parentChildPhotoProvider = FutureProvider.autoDispose
     .family<String?, int>(
         (ref, childId) => ref.watch(parentApiProvider).childPhotoUrl(childId));
+
+/// What an action of the home is about (PAR-01): « Mathématiques et Physique-Chimie · Yann »
+/// read from the request, the contract's request, the session or the invoice it opens.
+/// `null` when the target gives no subject: the card keeps the title of the action.
+final parentActionSubjectProvider = FutureProvider.autoDispose
+    .family<ParentActionSubject?, ({String kind, int targetId})>(
+        (ref, key) async {
+  final api = ref.watch(parentApiProvider);
+  Future<ParentActionSubject?> fromRequest(int id) async {
+    final detail = await api.requestDetail(id);
+    if (detail.needs.isEmpty) return null;
+    return ParentActionSubject(
+      subjects: [
+        for (final need in detail.needs)
+          for (final subject in need.subjects)
+            if (subject.isNotEmpty) subject
+      ].toSet().toList(),
+      children: detail.request.children,
+    );
+  }
+
+  switch (key.kind) {
+    case 'quote' || 'planning' || 'tutor':
+      return fromRequest(key.targetId);
+    case 'contract':
+      final contract = await api.contract(key.targetId);
+      final requestId = contract.reservationId;
+      return requestId == null ? null : fromRequest(requestId);
+    case 'report':
+      final session = (await api.session(key.targetId)).session;
+      return ParentActionSubject(
+        subjects: [if (session.subject != null) session.subject!],
+        children: [session.childName],
+        session: session,
+      );
+    default:
+      return null;
+  }
+});

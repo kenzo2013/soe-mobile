@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/theme/app_palette.dart';
@@ -18,6 +19,8 @@ import '../../data/tutor_models.dart';
 import '../providers.dart';
 import '../tutor_space_routes.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/pages/account_hub_page.dart'
+    show formatCameroonPhone;
 
 /// REP-01 — « what must I do now? »: actions by deadline (one gold button: the most urgent),
 /// today's session (where, the parent, « J'arrive »), the month, offers for me. A candidate
@@ -209,7 +212,7 @@ class _OfflineBanner extends StatelessWidget {
   }
 }
 
-class _ActionCard extends StatelessWidget {
+class _ActionCard extends ConsumerWidget {
   const _ActionCard(
       {required this.action, required this.urgent, required this.offline});
 
@@ -224,9 +227,48 @@ class _ActionCard extends StatelessWidget {
         _ => Icons.description_outlined,
       };
 
+  /// « Samuel, 1re C · Mathématiques », « Léa M., CM2 · séance du dim. 1 nov. »: read in the
+  /// proposal, the session or the contract; else the title the home gives.
+  static String? _title(
+      BuildContext context, TutorHomeAction action, TutorActionSubject? about) {
+    final tr = Translations.of(context).tutorSpace.home.action;
+    String who(String pupil, String? schoolClass) => [pupil, schoolClass]
+        .whereType<String>()
+        .where((part) => part.isNotEmpty)
+        .join(', ');
+    final proposal = about?.proposal;
+    final session = about?.session;
+    final contract = about?.contract;
+    if (proposal != null) {
+      return [who(proposal.pupil, proposal.schoolClass), proposal.subject]
+          .whereType<String>()
+          .where((part) => part.isNotEmpty)
+          .join(' · ');
+    }
+    if (session != null) {
+      final day =
+          DateFormat('EEE d MMM', Localizations.localeOf(context).languageCode)
+              .format(session.date);
+      return '${who(session.pupil, session.schoolClass)} · ${tr.sessionOf(date: day)}';
+    }
+    if (contract != null) {
+      return [contract.pupil, contract.subject]
+          .whereType<String>()
+          .where((part) => part.isNotEmpty)
+          .join(' · ');
+    }
+    return action.title;
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context).tutorSpace.home;
+    final about = ref
+        .watch(tutorActionSubjectProvider(
+            (kind: action.kind, targetId: action.targetId)))
+        .valueOrNull;
+    final title = _title(context, action, about);
+    final proposal = about?.proposal;
     final deadline = action.deadline;
     final disputed = action.kind == 'disputed';
     final labelColor =
@@ -234,8 +276,24 @@ class _ActionCard extends StatelessWidget {
     final hours = deadline == null
         ? null
         : deadline.difference(DateTime.now()).inHours.clamp(0, 9999);
+    final proposalLine = proposal == null
+        ? null
+        : [
+            if (proposal.neighborhood != null) proposal.neighborhood!,
+            if (proposal.sessionsPerWeek != null)
+              Translations.of(context)
+                  .tutorSpace
+                  .proposal
+                  .perWeek(n: proposal.sessionsPerWeek!),
+            if (proposal.sessionRate > 0)
+              tr.action.perSession(
+                  amount: TutorFormat.amount(context, proposal.sessionRate)),
+          ].join(' · ');
     final detail = switch (action.kind) {
-      'assignment' => tr.action.assignmentDetail,
+      'assignment' => [
+          if (proposalLine != null && proposalLine.isNotEmpty) proposalLine,
+          tr.action.assignmentDetail,
+        ].join('. '),
       'planning' => tr.action.planningDetail,
       'contract' => tr.action.contractDetail,
       'disputed' => tr.action.disputedDetail,
@@ -258,8 +316,8 @@ class _ActionCard extends StatelessWidget {
             SoeBadge(label: tr.soeReviews, tone: SoeBadgeTone.danger),
         ]),
         const SizedBox(height: 8),
-        if (action.title != null)
-          Text(action.title!, style: AppTypography.label),
+        if (title != null && title.isNotEmpty)
+          Text(title, style: AppTypography.label),
         if (detail != null) ...[
           const SizedBox(height: 4),
           Text(detail,
@@ -331,9 +389,10 @@ class _TodayCard extends ConsumerWidget {
           .where((s) => s.isNotEmpty)
           .join(', '),
     ].whereType<String>().where((s) => s.isNotEmpty).join(' · ');
-    final parent = [detail?.parentName, detail?.parentPhone]
-        .whereType<String>()
-        .join(' · ');
+    final parent = [
+      detail?.parentName,
+      if (detail?.parentPhone != null) formatCameroonPhone(detail?.parentPhone)
+    ].whereType<String>().join(' · ');
     final place =
         [detail?.address, detail?.neighborhood].whereType<String>().join(', ');
     final rows = <(String, String)>[

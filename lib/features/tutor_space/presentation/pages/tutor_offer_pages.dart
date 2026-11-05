@@ -21,6 +21,7 @@ import '../tutor_offer_providers.dart';
 import '../tutor_space_routes.dart';
 import '../widgets/tutor_offer_ui.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// REP-10 — the offers SOE publishes, filtered by the tutor's subjects, their city and a class,
 /// a page at a time (« load more »).
@@ -99,7 +100,8 @@ class _TutorOffersPageState extends ConsumerState<TutorOffersPage> {
         ref.watch(tutorOffersPageProvider(TutorOfferPageKey(_filters, 1)));
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab, title: tr.title),
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: ListView(
@@ -307,7 +309,8 @@ class _TutorOfferPageState extends ConsumerState<TutorOfferPage> {
     final canApply = !_sent && (offer?.canApply ?? false);
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab, title: tr.title),
       body: _sent
           ? _SentView(offerId: widget.offerId)
           : TutorAsyncBody<TutorOffer>(
@@ -528,7 +531,9 @@ class TutorApplicationsPage extends ConsumerWidget {
     final tr = Translations.of(context).tutorSpace.offers;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.applications.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab,
+          title: tr.applications.title),
       body: TutorAsyncBody<List<TutorApplication>>(
         value: ref.watch(tutorApplicationsProvider),
         onRetry: () => ref.invalidate(tutorApplicationsProvider),

@@ -8,12 +8,14 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_chip.dart';
+import '../../../../core/widgets/soe_pill_switch.dart';
 import '../../../../core/widgets/soe_skeleton.dart';
 import '../../../../i18n/translations.g.dart';
 import '../../data/tutor_models.dart';
 import '../providers.dart';
 import '../tutor_space_routes.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/widgets/tab_top_bar.dart';
 
 /// The colour of a session state (planning dots, the list's bar, the legend).
 Color tutorStateColor(String state) => switch (state) {
@@ -94,16 +96,13 @@ class _TutorPlanningPageState extends ConsumerState<TutorPlanningPage> {
     final sessions = value.valueOrNull ?? const <TutorSession>[];
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      body: SafeArea(
+      body: TabBody(
+        title: Translations.of(context).shell.tutor.planning,
         child: RefreshIndicator(
           onRefresh: () => ref.refresh(tutorSessionsProvider(query).future),
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
             children: [
-              Text(TutorFormat.dayLong(context, DateTime.now()),
-                  style:
-                      AppTypography.caption.copyWith(color: AppPalette.text2)),
-              const SizedBox(height: 12),
               Text(tr.title,
                   style: AppTypography.h1.copyWith(color: AppPalette.teal800)),
               Text(tr.subtitle,
@@ -198,14 +197,13 @@ class _TutorPlanningPageState extends ConsumerState<TutorPlanningPage> {
           const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.only(left: 8),
-            child: SegmentedButton<bool>(
-              showSelectedIcon: false,
-              segments: [
-                ButtonSegment(value: false, label: Text(tr.views.week)),
-                ButtonSegment(value: true, label: Text(tr.views.month)),
+            child: SoePillSwitch<bool>(
+              options: [
+                (value: false, label: tr.views.week),
+                (value: true, label: tr.views.month),
               ],
-              selected: {_month},
-              onSelectionChanged: (selection) => _switch(selection.first),
+              selected: _month,
+              onChanged: _switch,
             ),
           ),
         ]),

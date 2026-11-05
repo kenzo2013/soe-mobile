@@ -24,6 +24,7 @@ import '../tutor_space_routes.dart';
 import '../widgets/tutor_download.dart';
 import '../widgets/tutor_panel.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// REP-21 — the mission letters (to sign first, then the signed ones) and the v1 contracts
 /// (« Anciens contrats »); opened full screen from « Plus » and the home.
@@ -35,7 +36,8 @@ class TutorContractsPage extends ConsumerWidget {
     final tr = Translations.of(context).tutorSpace.contracts;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab, title: tr.title),
       body: RefreshIndicator(
         onRefresh: () => ref.refresh(tutorContractsProvider.future),
         child: TutorAsyncBody<List<TutorContract>>(
@@ -160,7 +162,9 @@ class _TutorContractPageState extends ConsumerState<TutorContractPage> {
     final legacy = value.valueOrNull?.legacy ?? false;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(legacy ? tr.legacyTitle : tr.contractTitle)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab,
+          title: legacy ? tr.legacyTitle : tr.contractTitle),
       body: TutorAsyncBody<TutorContract>(
         value: value,
         onRetry: () => ref.invalidate(tutorContractTextProvider(key)),
@@ -317,7 +321,8 @@ class _TutorAmendmentPageState extends ConsumerState<TutorAmendmentPage> {
         (contractId: widget.contractId, id: widget.amendmentId, lang: _lang!);
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab, title: tr.title),
       body: TutorAsyncBody<TutorAmendment>(
         value: ref.watch(tutorAmendmentProvider(key)),
         onRetry: () => ref.invalidate(tutorAmendmentProvider(key)),

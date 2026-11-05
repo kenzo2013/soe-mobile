@@ -54,7 +54,6 @@ class _ForgotPasswordSentPageState
           label: tr.auth.reset.codeSubmit,
           onPressed: ready ? _verify : null,
           loading: state.busy,
-          variant: SoeButtonVariant.secondary,
           fullWidth: true,
         ),
         hint: ready ? null : tr.auth.code.missing,

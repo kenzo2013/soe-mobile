@@ -21,6 +21,9 @@ import '../../data/tutor_models.dart';
 import '../providers.dart';
 import '../tutor_space_routes.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
+import '../../../common/presentation/pages/account_hub_page.dart'
+    show formatCameroonPhone;
 
 /// REP-17 — a session: « J'arrive » by GPS (out of zone: a clear message and « Réessayer »; no
 /// GPS or network: the parent's 4-digit backup code), « Je pars », the address and the parent
@@ -192,7 +195,9 @@ class _TutorSessionPageState extends ConsumerState<TutorSessionPage> {
     final tr = Translations.of(context).tutorSpace.session;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.tutor.planning,
+          title: tr.title),
       body: TutorAsyncBody<TutorSessionDetail>(
         value: ref.watch(tutorSessionProvider(widget.sessionId)),
         onRetry: () => ref.invalidate(tutorSessionProvider(widget.sessionId)),
@@ -462,8 +467,10 @@ class _TutorSessionPageState extends ConsumerState<TutorSessionPage> {
     final address = detail.hasContact
         ? [detail.address, detail.neighborhood].whereType<String>().join(', ')
         : (detail.neighborhood ?? '—');
-    final parent =
-        [detail.parentName, detail.parentPhone].whereType<String>().join(' · ');
+    final parent = [
+      detail.parentName,
+      if (detail.parentPhone != null) formatCameroonPhone(detail.parentPhone)
+    ].whereType<String>().join(' · ');
     final rows = <(String, String)>[
       (detail.hasContact ? tr.address : tr.neighborhood, address),
       if (detail.landmark != null) (tr.landmark, detail.landmark!),

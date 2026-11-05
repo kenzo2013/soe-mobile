@@ -21,6 +21,7 @@ import '../providers.dart';
 import '../widgets/parent_advisor_card.dart';
 import '../widgets/parent_ui.dart';
 import '../widgets/parent_widgets.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// Replacement reasons (ReplacementRequest::REASONS), in the prototype's order.
 const parentReplacementReasons = [
@@ -54,7 +55,8 @@ class ParentTutorPage extends ConsumerWidget {
     final tr = Translations.of(context).parentSpace.tutor;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab, title: tr.title),
       body: ParentAsyncBody<List<ParentTutorProfile>>(
         value: ref.watch(parentTutorsProvider(requestId)),
         onRetry: () => ref.invalidate(parentTutorsProvider(requestId)),
@@ -357,7 +359,10 @@ class _ParentReplacementPageState extends ConsumerState<ParentReplacementPage> {
     final current = slots.where((slot) => slot.id == _slotId).firstOrNull;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(leading: const CloseButton(), title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab,
+          title: tr.title,
+          close: true),
       body: Column(children: [
         Expanded(
           child: ListView(
@@ -491,7 +496,9 @@ class ParentReplacementFollowUpPage extends ConsumerWidget {
     final name = tutors == null || tutors.isEmpty ? '' : tutors.first.name;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.replacement.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab,
+          title: tr.replacement.title),
       body: ParentAsyncBody<ParentRequestDetail>(
         value: ref.watch(parentRequestDetailProvider(requestId)),
         onRetry: () => ref.invalidate(parentRequestDetailProvider(requestId)),

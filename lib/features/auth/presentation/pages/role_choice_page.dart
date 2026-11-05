@@ -36,7 +36,6 @@ class RoleChoicePage extends ConsumerWidget {
           label: Translations.of(context).auth.kContinue,
           onPressed: role == null ? null : next,
           loading: state.busy,
-          variant: SoeButtonVariant.secondary,
           fullWidth: true,
         ),
         hint: role == null ? tr.missing : null,

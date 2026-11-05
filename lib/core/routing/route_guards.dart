@@ -15,9 +15,9 @@ class AuthGuard {
   final String? Function() currentRole;
   final bool Function() onboardingDone;
 
-  /// Routes publiques (préfixe).
+  /// Public routes, by prefix. The splash (`/`) is matched exactly: as a prefix it would make
+  /// every screen public, and a session refused by the API would stay inside the tabs.
   static const Set<String> _publicPrefixes = {
-    RouteNames.splash,
     RouteNames.onboarding,
     RouteNames.roleChoice,
     RouteNames.login,
@@ -38,7 +38,8 @@ class AuthGuard {
       return _homeForRole(currentRole());
     }
 
-    final isPublic = _publicPrefixes.any(loc.startsWith);
+    final isPublic =
+        loc == RouteNames.splash || _publicPrefixes.any(loc.startsWith);
 
     if (!isAuthenticated()) {
       return isPublic ? null : RouteNames.login;

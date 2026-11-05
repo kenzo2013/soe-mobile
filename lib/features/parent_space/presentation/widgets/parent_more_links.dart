@@ -7,53 +7,76 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../i18n/translations.g.dart';
+import '../../../common/presentation/widgets/more_entry.dart';
 import '../parent_space_routes.dart';
 import '../providers.dart';
 
 /// The parent entries of the « Plus » menu (PAR-01 « Menu Plus »): requests and quotes,
-/// contracts, reviews, co-parents, the advisor. Rendered by the More page of the shell.
+/// contracts, reviews, co-parents, the advisor.
+List<MoreEntry> parentMoreEntries(BuildContext context, WidgetRef ref) {
+  final tr = Translations.of(context).parentSpace.more;
+  final quotes = ref
+          .watch(parentHomeProvider)
+          .valueOrNull
+          ?.actions
+          .where((action) => action.kind == 'quote')
+          .length ??
+      0;
+  return [
+    (
+      icon: Icons.description_outlined,
+      label: tr.requests,
+      hint: quotes > 0 ? tr.requestsHint(count: quotes) : null,
+      route: ParentSpaceRoutes.requests
+    ),
+    (
+      icon: Icons.draw_outlined,
+      label: tr.contracts,
+      hint: null,
+      route: ParentSpaceRoutes.contracts
+    ),
+    (
+      icon: Icons.star_border,
+      label: tr.reviews,
+      hint: null,
+      route: ParentSpaceRoutes.reviews
+    ),
+    (
+      icon: Icons.group_outlined,
+      label: tr.coParents,
+      hint: null,
+      route: ParentSpaceRoutes.coParents
+    ),
+    (
+      icon: Icons.chat_bubble_outline,
+      label: tr.advisor,
+      hint: null,
+      route: ParentSpaceRoutes.advisor
+    ),
+  ];
+}
+
+/// The parent entries as rows, in the « Plus » page of a tablet.
 class ParentMoreLinks extends ConsumerWidget {
   const ParentMoreLinks({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final tr = Translations.of(context).parentSpace.more;
-    final quotes = ref
-            .watch(parentHomeProvider)
-            .valueOrNull
-            ?.actions
-            .where((action) => action.kind == 'quote')
-            .length ??
-        0;
-    return Column(children: [
-      _Link(
-          icon: Icons.description_outlined,
-          label: tr.requests,
-          hint: quotes > 0 ? tr.requestsHint(count: quotes) : null,
-          route: ParentSpaceRoutes.requests),
-      _Link(
-          icon: Icons.draw_outlined,
-          label: tr.contracts,
-          route: ParentSpaceRoutes.contracts),
-      _Link(
-          icon: Icons.star_border,
-          label: tr.reviews,
-          route: ParentSpaceRoutes.reviews),
-      _Link(
-          icon: Icons.group_outlined,
-          label: tr.coParents,
-          route: ParentSpaceRoutes.coParents),
-      _Link(
-          icon: Icons.chat_bubble_outline,
-          label: tr.advisor,
-          route: ParentSpaceRoutes.advisor),
-    ]);
-  }
+  Widget build(BuildContext context, WidgetRef ref) => Column(children: [
+        for (final entry in parentMoreEntries(context, ref))
+          _Link(
+              icon: entry.icon,
+              label: entry.label,
+              hint: entry.hint,
+              route: entry.route),
+      ]);
 }
 
 class _Link extends StatelessWidget {
   const _Link(
-      {required this.icon, required this.label, required this.route, this.hint});
+      {required this.icon,
+      required this.label,
+      required this.route,
+      this.hint});
 
   final IconData icon;
   final String label;

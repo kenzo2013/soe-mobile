@@ -15,11 +15,14 @@ import '../../../../core/widgets/soe_empty_state.dart';
 import '../../../../core/widgets/soe_text_field.dart';
 import '../../../../core/widgets/soe_toast.dart';
 import '../../../../i18n/translations.g.dart';
+import '../../data/parent_flow_models.dart';
 import '../../data/parent_models.dart';
 import '../parent_space_routes.dart';
+import 'parent_home_page.dart' show parentSubjects;
 import '../providers.dart';
 import '../widgets/parent_ui.dart';
 import '../widgets/parent_widgets.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 import 'parent_contract_pages.dart';
 
 /// Refreshes what a request step changes: the requests, the home actions.
@@ -71,13 +74,17 @@ class _ParentRequestsPageState extends ConsumerState<ParentRequestsPage> {
     final tr = Translations.of(context).parentSpace.requests;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab, title: tr.title),
       body: ParentAsyncBody<List<ParentRequest>>(
         value: ref.watch(parentRequestsProvider),
         onRetry: () => ref.invalidate(parentRequestsProvider),
         builder: (requests) => ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
           children: [
+            Text(tr.title,
+                style: AppTypography.h1.copyWith(color: AppPalette.teal800)),
+            const SizedBox(height: 14),
             Align(
               alignment: Alignment.centerLeft,
               child: SoeButton(
@@ -117,9 +124,9 @@ class _ParentRequestsPageState extends ConsumerState<ParentRequestsPage> {
             ...requests
                 .where((request) => _matches(request, _filter))
                 .map((request) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: _RequestCard(request: request),
-                )),
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: _RequestCard(request: request),
+                    )),
           ],
         ),
       ),
@@ -127,14 +134,31 @@ class _ParentRequestsPageState extends ConsumerState<ParentRequestsPage> {
   }
 }
 
-class _RequestCard extends StatelessWidget {
+class _RequestCard extends ConsumerWidget {
   const _RequestCard({required this.request});
 
   final ParentRequest request;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context).parentSpace.requests;
+    final home = Translations.of(context).parentSpace.home;
+    final needs =
+        ref.watch(parentRequestDetailProvider(request.id)).valueOrNull?.needs ??
+            const <ParentNeed>[];
+    final subjects = {
+      for (final need in needs) ...need.subjects.where((s) => s.isNotEmpty)
+    }.toList();
+    final children = request.children.join(', ');
+    final stepText = switch (request.step) {
+      'quote' => home.stepText.quote,
+      'tutor' => home.stepText.tutor,
+      'contract' => home.stepText.contract,
+      'payment' => home.stepText.payment,
+      'first_session' => home.stepText.firstSession,
+      'closed' => null,
+      _ => home.stepText.request,
+    };
     final target = parentRequestTarget(request);
     final label = switch (request.action) {
       'quote' => tr.quote,
@@ -144,7 +168,8 @@ class _RequestCard extends StatelessWidget {
       _ => target != null ? tr.contract : null,
     };
     return SoeCard(
-      onTap: () => unawaited(context.push(ParentSpaceRoutes.request(request.id))),
+      onTap: () =>
+          unawaited(context.push(ParentSpaceRoutes.request(request.id))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -160,8 +185,8 @@ class _RequestCard extends StatelessWidget {
                       tr.createdOn(
                           date: ParentFormat.day(context, request.createdAt!)),
                   ].join(' · '),
-                  style: AppTypography.caption
-                      .copyWith(color: AppPalette.text2)),
+                  style:
+                      AppTypography.caption.copyWith(color: AppPalette.text2)),
             ),
             SoeBadge(
                 label: request.stepLabel,
@@ -171,15 +196,24 @@ class _RequestCard extends StatelessWidget {
                         ? SoeBadgeTone.warning
                         : SoeBadgeTone.success)),
           ]),
-          const SizedBox(height: 8),
-          Text(request.children.join(', '), style: AppTypography.h3),
-          if (request.quoteAmount != null) ...[
-            const SizedBox(height: 4),
-            Text(
-                tr.perMonth(
-                    amount: ParentFormat.amount(context, request.quoteAmount!)),
-                style: AppTypography.body.copyWith(color: AppPalette.text2)),
-          ],
+          const SizedBox(height: 10),
+          Text(
+              subjects.isEmpty
+                  ? children
+                  : home.requestTitle(
+                      subjects: parentSubjects(context, subjects),
+                      children: children),
+              style: AppTypography.label.copyWith(color: AppPalette.text)),
+          const SizedBox(height: 4),
+          Text(
+              [
+                if (stepText != null) stepText,
+                if (request.quoteAmount != null)
+                  tr.perMonth(
+                      amount:
+                          ParentFormat.amount(context, request.quoteAmount!)),
+              ].join(' · '),
+              style: AppTypography.bodySm.copyWith(color: AppPalette.text2)),
           const SizedBox(height: 12),
           if (label != null && target != null)
             SoeButton(
@@ -273,7 +307,9 @@ class _ParentQuotePageState extends ConsumerState<ParentQuotePage> {
     final tr = Translations.of(context).parentSpace.requests;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.quoteTitle)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab,
+          title: tr.quoteTitle),
       body: ParentAsyncBody<ParentQuote>(
         value: ref.watch(parentQuoteProvider(widget.requestId)),
         onRetry: () => ref.invalidate(parentQuoteProvider(widget.requestId)),
@@ -476,8 +512,9 @@ class ParentContractPage extends ConsumerWidget {
     final value = ref.watch(parentContractProvider(contractId));
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(
-        title: Text(tr.requests.contractTitle),
+      appBar: SpaceAppBar(
+        section: Translations.of(context).shell.more.tab,
+        title: tr.requests.contractTitle,
         actions: [
           IconButton(
             tooltip: tr.common.pdf,
@@ -513,8 +550,10 @@ class ParentContractPage extends ConsumerWidget {
             ParentAmendmentsSection(contractId: contractId),
           ],
           onSign: (png) async {
-            final signed = await runParentAction(context,
-                () => ref.read(parentApiProvider).signContract(contractId, png));
+            final signed = await runParentAction(
+                context,
+                () =>
+                    ref.read(parentApiProvider).signContract(contractId, png));
             if (signed == null || !context.mounted) return;
             ref
               ..invalidate(parentContractProvider(contractId))
@@ -582,7 +621,9 @@ class _ParentPlanningProposalPageState
     final tr = Translations.of(context).parentSpace.requests;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.planningTitle)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab,
+          title: tr.planningTitle),
       body: ParentAsyncBody<List<ParentPlanningSlot>>(
         value: ref.watch(parentPlanningProvider(widget.requestId)),
         onRetry: () => ref.invalidate(parentPlanningProvider(widget.requestId)),

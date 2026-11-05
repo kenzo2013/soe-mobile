@@ -50,7 +50,6 @@ class SignUpStepPage extends ConsumerWidget {
           label: submitLabel ?? tr.kContinue,
           onPressed: missing.isEmpty ? submit : null,
           loading: state.busy,
-          variant: SoeButtonVariant.secondary,
           fullWidth: true,
         ),
         hint: missing.isEmpty ? null : tr.missing(fields: missing.join(', ')),

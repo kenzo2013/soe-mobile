@@ -37,7 +37,10 @@ class SignInController extends Notifier<FlowState> {
         .read(authRepositoryProvider)
         .signIn(login: login, password: password);
     return _finish(ref, result, (outcome) {
-      if (outcome is SignedIn) syncSession(ref, outcome.session);
+      if (outcome is SignedIn) {
+        ref.read(sessionExpiredProvider.notifier).state = false;
+        syncSession(ref, outcome.session);
+      }
       if (outcome is ConfirmationRequired)
         ref
             .read(confirmationControllerProvider.notifier)

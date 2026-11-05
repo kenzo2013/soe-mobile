@@ -24,6 +24,7 @@ import '../providers.dart';
 import '../widgets/parent_child_avatar.dart';
 import '../widgets/parent_ui.dart';
 import '../widgets/parent_widgets.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// PAR-04 — add a child (childId null) or edit their profile; archive from the edit form.
 /// Optional photo; the address is given to the tutor only once the contract is signed.
@@ -43,9 +44,11 @@ class ParentChildFormPage extends ConsumerWidget {
         : tr.titleEdit(name: child?.valueOrNull?.firstName ?? '');
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(
-        leading: const CloseButton(),
-        title: Text(title),
+      appBar: SpaceAppBar(
+        section: Translations.of(context).parentSpace.children.title,
+        title: title,
+        close: true,
+        bell: false,
       ),
       body: ParentAsyncBody<ParentReferences>(
         value: references,
