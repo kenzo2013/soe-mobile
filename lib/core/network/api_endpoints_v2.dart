@@ -40,4 +40,21 @@ abstract final class ApiEndpointsV2 {
       '/parent/requests/$requestId/planning/answer';
   static String parentContract(int id) => '/parent/contracts/$id';
   static String parentContractSign(int id) => '/parent/contracts/$id/sign';
+
+  // Tutor space (lot 4, REP-01 to REP-21).
+  static const String tutorHome = '/tutor/home';
+  static const String tutorSessions = '/tutor/sessions';
+  static String tutorSession(int id) => '/tutor/sessions/$id';
+  static String tutorCheckIn(int id) => '/tutor/sessions/$id/check_in';
+  static String tutorCheckOut(int id) => '/tutor/sessions/$id/check_out';
+  static String tutorProblem(int id) => '/tutor/sessions/$id/problem';
+  static String tutorReport(int sessionId) =>
+      '/tutor/sessions/$sessionId/report';
+  static String tutorProposal(int id) => '/tutor/proposals/$id';
+  static String tutorProposalAnswer(int id) => '/tutor/proposals/$id/answer';
+  static String tutorPlanning(int slotId) => '/tutor/slots/$slotId/planning';
+  static const String tutorEarnings = '/tutor/earnings';
+  static const String tutorContracts = '/tutor/contracts';
+  static String tutorContract(int id) => '/tutor/contracts/$id';
+  static String tutorContractSign(int id) => '/tutor/contracts/$id/sign';
 }
