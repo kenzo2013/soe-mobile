@@ -46,9 +46,10 @@ GoRouter buildRouter(
         builder: (context, state) => const SplashPage(),
       ),
       ...authRoutes(),
-      ...shellRoutes(),
+      // Before the tabs: `/parent/space/children/new` must not match a tab's `children/:id`.
       ...parentSpaceRoutes(),
       ...tutorSpaceRoutes(),
+      ...shellRoutes(),
       ...commonRoutes(),
     ],
     errorBuilder: (context, state) => const SplashPage(),

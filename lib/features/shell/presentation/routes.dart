@@ -11,12 +11,15 @@ import '../../tutor_space/presentation/pages/tutor_earnings_page.dart';
 import '../../tutor_space/presentation/pages/tutor_home_page.dart';
 import '../../tutor_space/presentation/pages/tutor_planning_page.dart';
 import '../../tutor_space/presentation/pages/tutor_student_pages.dart';
+import '../../parent_space/presentation/parent_space_router.dart';
+import '../../tutor_space/presentation/tutor_space_router.dart';
 import 'pages/more_page.dart';
 import 'widgets/role_shell.dart';
 
 /// The two signed-in spaces and their tabs (Q5). The parent tabs hold the v2 screens (lot 3),
 /// the tutor tabs those of lot 4 (REP-01: Aujourd’hui, Planning, Élèves, Revenus,
-/// Plus; the contracts open from « Plus » and the home). Screens opened from a tab are full screen.
+/// Plus; the contracts open from « Plus » and the home). The detail screens of Planning, Enfants
+/// (Élèves) and Paiements (Revenus) stay under the tab bar; the others are full screen.
 List<RouteBase> shellRoutes() => [
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) {
@@ -47,9 +50,12 @@ List<RouteBase> shellRoutes() => [
         branches: [
           // Parent space v2 (lot 3, API v2).
           _branch(RouteNames.parentHome, const ParentHomePage()),
-          _branch(RouteNames.parentPlanning, const ParentPlanningPage()),
-          _branch(RouteNames.parentChildren, const ParentChildrenPage()),
-          _branch(RouteNames.parentPayments, const ParentPaymentsPage()),
+          _branch(RouteNames.parentPlanning, const ParentPlanningPage(),
+              screens: parentTabRoutes(1)),
+          _branch(RouteNames.parentChildren, const ParentChildrenPage(),
+              screens: parentTabRoutes(2)),
+          _branch(RouteNames.parentPayments, const ParentPaymentsPage(),
+              screens: parentTabRoutes(3)),
           _branch(RouteNames.parentMore, const MorePage()),
         ],
       ),
@@ -82,14 +88,23 @@ List<RouteBase> shellRoutes() => [
         branches: [
           // Tutor space v2 (lot 4, API v2).
           _branch(RouteNames.tutorHome, const TutorHomePage()),
-          _branch(RouteNames.tutorPlanning, const TutorPlanningPage()),
-          _branch(RouteNames.tutorStudents, const TutorStudentsPage()),
-          _branch(RouteNames.tutorEarnings, const TutorEarningsPage()),
+          _branch(RouteNames.tutorPlanning, const TutorPlanningPage(),
+              screens: tutorTabRoutes(1)),
+          _branch(RouteNames.tutorStudents, const TutorStudentsPage(),
+              screens: tutorTabRoutes(2)),
+          _branch(RouteNames.tutorEarnings, const TutorEarningsPage(),
+              screens: tutorTabRoutes(3)),
           _branch(RouteNames.tutorMore, const MorePage()),
         ],
       ),
     ];
 
-StatefulShellBranch _branch(String path, Widget page) => StatefulShellBranch(
-      routes: [GoRoute(path: path, builder: (context, state) => page)],
+/// A tab: its first screen, then the detail screens it shows under its tab bar.
+StatefulShellBranch _branch(String path, Widget page,
+        {List<RouteBase> screens = const []}) =>
+    StatefulShellBranch(
+      routes: [
+        GoRoute(path: path, builder: (context, state) => page),
+        ...screens,
+      ],
     );

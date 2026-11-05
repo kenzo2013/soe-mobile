@@ -18,8 +18,27 @@ import 'pages/tutor_times_page.dart';
 int _id(GoRouterState state, [String name = 'id']) =>
     int.tryParse(state.pathParameters[name] ?? '') ?? 0;
 
-/// Full-screen routes of the tutor space v2, opened from its tabs, the home and « Plus ».
-List<RouteBase> tutorSpaceRoutes() => [
+/// The detail screens shown inside a tab, under its tab bar (Studio 390: « Planning ›
+/// Séance »), by tab index: 1 Planning, 2 Élèves, 3 Revenus. The flows with their own bottom
+/// action (report, times, signature, file forms) and the screens of « Plus » stay full screen.
+const Map<String, int> tutorTabScreens = {
+  '/tutor/space/sessions/:id': 1,
+  '/tutor/space/students/:id': 2,
+  '/tutor/space/earnings/history': 3,
+};
+
+/// The routes of [tutorTabScreens] for the tab [index].
+List<RouteBase> tutorTabRoutes(int index) => _tutorRoutes()
+    .where((route) => tutorTabScreens[route.path] == index)
+    .toList();
+
+/// Full-screen routes of the tutor space v2, opened from its tabs, the home and « Plus ». They
+/// come before the tabs in the router.
+List<RouteBase> tutorSpaceRoutes() => _tutorRoutes()
+    .where((route) => !tutorTabScreens.containsKey(route.path))
+    .toList();
+
+List<GoRoute> _tutorRoutes() => [
       GoRoute(
         path: '/tutor/space/sessions/:id',
         builder: (context, state) => TutorSessionPage(sessionId: _id(state)),
