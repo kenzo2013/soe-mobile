@@ -1542,7 +1542,11 @@
         "methodCode": "code du parent",
         "checkedIn": "Arrivée pointée. Bonne séance !",
         "checkedOut": "Départ pointé. Rédigez le PV.",
-        "noPosition": "Position introuvable : saisissez le code du parent."
+        "noPosition": "Position introuvable : saisissez le code du parent.",
+        "locationOff": "La localisation est désactivée : activez-la dans les réglages, ou saisissez le code du parent.",
+        "locationDenied": "SOE n’a pas accès à votre position : autorisez-la dans les réglages, ou saisissez le code du parent.",
+        "locationApproximate": "Position approximative seulement : autorisez la position précise dans les réglages, ou saisissez le code du parent.",
+        "openSettings": "Ouvrir les réglages"
       },
       "report": {
         "title": "Procès-verbal",

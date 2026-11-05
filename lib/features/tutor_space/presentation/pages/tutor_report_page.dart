@@ -47,6 +47,7 @@ class TutorReportPage extends ConsumerWidget {
                         message: tr.checkInFirst,
                         icon: Icons.location_off_outlined);
                   }
+                  ref.watch(tutorClockProvider);
                   if (DateTime.now().isBefore(detail.reportAvailableAt)) {
                     return SoeEmptyState(
                         title: tr.title,
@@ -259,13 +260,13 @@ class _ReportFormState extends ConsumerState<_ReportForm> {
       refreshTutorSession(ref, sessionId);
       SoeToast.show(context, message: tr.sent);
     } on Failure catch (failure) {
+      // Only a failure frees the button: after a success the screen refreshes, never a 2nd send.
+      if (mounted) setState(() => _busy = false);
       if (mounted) {
         SoeToast.show(context,
             message: tutorFailureMessage(context, failure),
             tone: SoeToastTone.danger);
       }
-    } finally {
-      if (mounted) setState(() => _busy = false);
     }
   }
 

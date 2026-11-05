@@ -1542,7 +1542,11 @@
         "methodCode": "parent’s code",
         "checkedIn": "Arrival checked in. Have a good session!",
         "checkedOut": "Departure checked out. Write the report.",
-        "noPosition": "Position not found: enter the parent’s code."
+        "noPosition": "Position not found: enter the parent’s code.",
+        "locationOff": "Location is off: turn it on in the settings, or enter the parent’s code.",
+        "locationDenied": "SOE cannot access your location: allow it in the settings, or enter the parent’s code.",
+        "locationApproximate": "Approximate location only: allow precise location in the settings, or enter the parent’s code.",
+        "openSettings": "Open the settings"
       },
       "report": {
         "title": "Session report",

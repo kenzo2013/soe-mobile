@@ -24,7 +24,7 @@ class _TutorPlanningPageState extends ConsumerState<TutorPlanningPage> {
 
   static DateTime _mondayOf(DateTime day) {
     final date = DateTime(day.year, day.month, day.day);
-    return date.subtract(Duration(days: date.weekday - 1));
+    return DateTime(date.year, date.month, date.day - (date.weekday - 1));
   }
 
   @override
@@ -45,14 +45,14 @@ class _TutorPlanningPageState extends ConsumerState<TutorPlanningPage> {
               IconButton(
                 tooltip: tr.previous,
                 icon: const Icon(Icons.chevron_left),
-                onPressed: () => setState(
-                    () => _monday = _monday.subtract(const Duration(days: 7))),
+                onPressed: () => setState(() => _monday =
+                    DateTime(_monday.year, _monday.month, _monday.day - 7)),
               ),
               IconButton(
                 tooltip: tr.next,
                 icon: const Icon(Icons.chevron_right),
-                onPressed: () => setState(
-                    () => _monday = _monday.add(const Duration(days: 7))),
+                onPressed: () => setState(() => _monday =
+                    DateTime(_monday.year, _monday.month, _monday.day + 7)),
               ),
             ]),
           ),
@@ -74,7 +74,9 @@ class _TutorPlanningPageState extends ConsumerState<TutorPlanningPage> {
               for (var i = 0; i < 7; i++)
                 Expanded(
                     child: _DayCell(
-                        day: _monday.add(Duration(days: i)), today: today)),
+                        day: DateTime(
+                            _monday.year, _monday.month, _monday.day + i),
+                        today: today)),
             ]),
           ),
           Expanded(

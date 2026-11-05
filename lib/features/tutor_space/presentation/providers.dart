@@ -15,7 +15,12 @@ final tutorHomeProvider = FutureProvider.autoDispose<TutorHome>(
 final tutorWeekSessionsProvider = FutureProvider.autoDispose
     .family<List<TutorSession>, DateTime>((ref, monday) => ref
         .watch(tutorApiProvider)
-        .sessions(monday, monday.add(const Duration(days: 6))));
+        .sessions(monday, DateTime(monday.year, monday.month, monday.day + 6)));
+
+/// A tick every 30 seconds: screens that watch it re-read « now » (the check-in window and the
+/// report opening on time, without a pull to refresh).
+final tutorClockProvider = StreamProvider.autoDispose<DateTime>((ref) =>
+    Stream.periodic(const Duration(seconds: 30), (_) => DateTime.now()));
 
 final tutorSessionProvider = FutureProvider.autoDispose
     .family<TutorSessionDetail, int>(

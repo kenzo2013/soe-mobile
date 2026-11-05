@@ -158,13 +158,13 @@ class _TutorContractPageState extends ConsumerState<TutorContractPage> {
       SoeToast.show(context,
           message: tr.signedToast, tone: SoeToastTone.success);
     } on Failure catch (failure) {
+      // Only a failure frees the button: after a success the screen refreshes, never a 2nd send.
+      if (mounted) setState(() => _busy = false);
       if (mounted) {
         SoeToast.show(context,
             message: tutorFailureMessage(context, failure),
             tone: SoeToastTone.danger);
       }
-    } finally {
-      if (mounted) setState(() => _busy = false);
     }
   }
 

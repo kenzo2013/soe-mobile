@@ -4,19 +4,32 @@ import 'package:geolocator/geolocator.dart';
 
 import 'tutor_api.dart';
 
-/// The current position for the check-in, or null when the location is off, refused, or not
-/// found in time: the screen then offers the parent's 4-digit code.
-Future<TutorPosition?> tutorCurrentPosition() async {
+/// Why no usable position was read for the check-in.
+enum TutorLocationIssue { off, denied, deniedForever, approximate, notFound }
+
+/// The current position for the check-in, or the reason it is missing: location off, refused,
+/// approximate only (Android 12+, too imprecise for the check-in radius) or not found in time. The
+/// screen then explains it, offers the settings when they can fix it, and the parent's code.
+Future<({TutorPosition? position, TutorLocationIssue? issue})>
+    tutorLocate() async {
   try {
-    if (!await Geolocator.isLocationServiceEnabled()) return null;
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      return (position: null, issue: TutorLocationIssue.off);
+    }
     var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
+    if (permission == LocationPermission.deniedForever) {
+      return (position: null, issue: TutorLocationIssue.deniedForever);
+    }
     if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever ||
         permission == LocationPermission.unableToDetermine) {
-      return null;
+      return (position: null, issue: TutorLocationIssue.denied);
+    }
+    if (await Geolocator.getLocationAccuracy() ==
+        LocationAccuracyStatus.reduced) {
+      return (position: null, issue: TutorLocationIssue.approximate);
     }
     final position = await Geolocator.getCurrentPosition(
       locationSettings: const LocationSettings(
@@ -24,10 +37,23 @@ Future<TutorPosition?> tutorCurrentPosition() async {
         timeLimit: Duration(seconds: 15),
       ),
     );
-    return (latitude: position.latitude, longitude: position.longitude);
+    return (
+      position: (latitude: position.latitude, longitude: position.longitude),
+      issue: null,
+    );
   } on TimeoutException {
-    return null;
+    return (position: null, issue: TutorLocationIssue.notFound);
   } on Exception {
-    return null;
+    return (position: null, issue: TutorLocationIssue.notFound);
   }
 }
+
+/// The position only (check-out: sent when available).
+Future<TutorPosition?> tutorCurrentPosition() async =>
+    (await tutorLocate()).position;
+
+/// The settings that can fix an issue: the location service, else the app's permissions.
+Future<bool> tutorOpenLocationSettings(TutorLocationIssue issue) =>
+    issue == TutorLocationIssue.off
+        ? Geolocator.openLocationSettings()
+        : Geolocator.openAppSettings();

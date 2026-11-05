@@ -69,7 +69,11 @@ class TutorHomePage extends ConsumerWidget {
                                   .copyWith(color: AppPalette.text2)))
                     else
                       SizedBox(
-                        height: 170,
+                        // Grows with the system text size (no cut button).
+                        height: 170 *
+                            MediaQuery.textScalerOf(context)
+                                .scale(1)
+                                .clamp(1.0, 2.0),
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: home.actions.length,

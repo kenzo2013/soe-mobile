@@ -41,11 +41,21 @@ class _TutorSessionPageState extends ConsumerState<TutorSessionPage> {
   Future<void> _arrive() async {
     final tr = Translations.of(context).tutorSpace.session.check;
     setState(() => _locating = true);
-    final position = await tutorCurrentPosition();
+    final located = await tutorLocate();
+    final position = located.position;
     if (!mounted) return;
     if (position == null) {
       setState(() => _locating = false);
-      await _askCode(notice: tr.noPosition);
+      final issue = located.issue ?? TutorLocationIssue.notFound;
+      await _askCode(
+          notice: switch (issue) {
+            TutorLocationIssue.off => tr.locationOff,
+            TutorLocationIssue.denied => tr.locationDenied,
+            TutorLocationIssue.deniedForever => tr.locationDenied,
+            TutorLocationIssue.approximate => tr.locationApproximate,
+            TutorLocationIssue.notFound => tr.noPosition,
+          },
+          settings: issue == TutorLocationIssue.notFound ? null : issue);
       return;
     }
     String? retryWithCode;
@@ -74,11 +84,12 @@ class _TutorSessionPageState extends ConsumerState<TutorSessionPage> {
     }
   }
 
-  Future<void> _askCode({String? notice}) async {
+  Future<void> _askCode({String? notice, TutorLocationIssue? settings}) async {
     final checkedIn = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => _CodeSheet(sessionId: widget.sessionId, notice: notice),
+      builder: (_) => _CodeSheet(
+          sessionId: widget.sessionId, notice: notice, settings: settings),
     );
     if (checkedIn != true || !mounted) return;
     refreshTutorSession(ref, widget.sessionId);
@@ -191,6 +202,7 @@ class _TutorSessionPageState extends ConsumerState<TutorSessionPage> {
   Widget _checkCard(TutorSessionDetail detail) {
     final tr = Translations.of(context).tutorSpace.session.check;
     final session = detail.session;
+    ref.watch(tutorClockProvider);
     final now = DateTime.now();
     final open = !now.isBefore(detail.checkInOpensAt);
     final method =
@@ -321,10 +333,13 @@ class _TutorSessionPageState extends ConsumerState<TutorSessionPage> {
 
 /// The parent's 4-digit code, when the GPS cannot check in. Pops `true` once checked in.
 class _CodeSheet extends ConsumerStatefulWidget {
-  const _CodeSheet({required this.sessionId, this.notice});
+  const _CodeSheet({required this.sessionId, this.notice, this.settings});
 
   final int sessionId;
   final String? notice;
+
+  /// The location issue the settings can fix (null: no settings button).
+  final TutorLocationIssue? settings;
 
   @override
   ConsumerState<_CodeSheet> createState() => _CodeSheetState();
@@ -373,6 +388,14 @@ class _CodeSheetState extends ConsumerState<_CodeSheet> {
         const SizedBox(height: 8),
         SoeAlert(
             tone: SoeAlertTone.warning, title: tr.title, body: widget.notice!),
+        if (widget.settings != null)
+          SoeButton(
+            label: tr.openSettings,
+            variant: SoeButtonVariant.tertiary,
+            size: SoeButtonSize.sm,
+            onPressed: () =>
+                unawaited(tutorOpenLocationSettings(widget.settings!)),
+          ),
       ],
       const SizedBox(height: 8),
       Text(tr.codeHint,
