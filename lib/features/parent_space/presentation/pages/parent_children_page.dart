@@ -241,6 +241,45 @@ class _ParentChildPageState extends ConsumerState<ParentChildPage> {
 
   List<Widget> _courses(BuildContext context, ParentChild child) {
     final tr = Translations.of(context).parentSpace;
+    // The requests on their way: the file says so instead of « Pas encore de cours ».
+    final requests = [
+      for (final request in child.requests)
+        ParentPanel(key: ValueKey('child-request-${request.id}'), children: [
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(tr.childFile.requestCourse.toUpperCase(),
+                        style: AppTypography.overline
+                            .copyWith(color: AppPalette.teal700)),
+                    Text(
+                        request.subjects.isEmpty
+                            ? request.reference
+                            : request.subjects.join(', '),
+                        style: AppTypography.h3
+                            .copyWith(color: AppPalette.teal800)),
+                  ]),
+            ),
+            if (request.stepLabel.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              Flexible(
+                child:
+                    SoeBadge(label: request.stepLabel, tone: SoeBadgeTone.info),
+              ),
+            ],
+          ]),
+          const SizedBox(height: 12),
+          SoeButton(
+            label: tr.childFile.seeRequest,
+            size: SoeButtonSize.md,
+            variant: SoeButtonVariant.outline,
+            onPressed: () =>
+                unawaited(context.push(ParentSpaceRoutes.request(request.id))),
+          ),
+        ]),
+    ];
+    if (child.courses.isEmpty && requests.isNotEmpty) return requests;
     if (child.courses.isEmpty) {
       return [
         ParentPanel(title: tr.children.noCourse, children: [
@@ -259,6 +298,7 @@ class _ParentChildPageState extends ConsumerState<ParentChildPage> {
       ];
     }
     return [
+      ...requests,
       for (final course in child.courses)
         ParentPanel(children: [
           Row(children: [

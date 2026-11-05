@@ -84,7 +84,8 @@ class ParentContractCard extends StatelessWidget {
                 style:
                     AppTypography.overline.copyWith(color: AppPalette.text2)),
             const SizedBox(height: 4),
-            Text(contract.statusLabel, style: AppTypography.label),
+            // Titled by what it covers; the status is the badge on the right.
+            Text(contract.title ?? tr.untitled, style: AppTypography.label),
             if (contract.createdAt != null)
               Text(
                   tr.createdOn(
@@ -293,7 +294,7 @@ class _ParentSignableTextState extends State<ParentSignableText> {
       Expanded(
         child: ListView(
           controller: _scroll,
-          padding: const EdgeInsets.all(16),
+          padding: spacePagePadding(context, insets: !widget.canSign),
           children: [
             ...widget.header,
             const SizedBox(height: 12),

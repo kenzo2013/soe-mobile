@@ -167,38 +167,60 @@ class AccountHubView extends ConsumerWidget {
         LayoutBuilder(builder: (context, constraints) {
           final columns = constraints.maxWidth >= 640 ? 4 : 2;
           final width = (constraints.maxWidth - 10 * (columns - 1)) / columns;
-          return Wrap(spacing: 10, runSpacing: 10, children: [
-            for (final (i, (icon, title, text, tile, ink, route))
-                in tiles.indexed)
-              SizedBox(
-                width: width,
-                child: SoeCard(
-                  raised: i < columns,
-                  padding: const EdgeInsets.all(14),
-                  onTap: () => open(route),
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+          // Rows of equal-height tiles (a longer text no longer makes its tile taller than
+          // its neighbours, on a tablet's row of 4 as on a phone's row of 2).
+          Widget tileAt(int i) {
+            final (icon, title, text, tile, ink, route) = tiles[i];
+            return SoeCard(
+              raised: i < columns,
+              padding: const EdgeInsets.all(14),
+              onTap: () => open(route),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                          color: tile, borderRadius: BorderRadius.circular(14)),
+                      child: Icon(icon, size: 20, color: ink),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.label
+                            .copyWith(fontSize: 15, color: AppPalette.text)),
+                    const SizedBox(height: 2),
+                    Text(text,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.caption
+                            .copyWith(color: AppPalette.text2)),
+                  ]),
+            );
+          }
+
+          return Column(children: [
+            for (var start = 0; start < tiles.length; start += columns)
+              Padding(
+                padding: EdgeInsets.only(top: start == 0 ? 0 : 10),
+                child: IntrinsicHeight(
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                              color: tile,
-                              borderRadius: BorderRadius.circular(14)),
-                          child: Icon(icon, size: 20, color: ink),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTypography.label.copyWith(
-                                fontSize: 15, color: AppPalette.text)),
-                        const SizedBox(height: 2),
-                        Text(text,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTypography.caption
-                                .copyWith(color: AppPalette.text2)),
+                        for (var i = start; i < start + columns; i++) ...[
+                          if (i > start) const SizedBox(width: 10),
+                          SizedBox(
+                            key: i < tiles.length
+                                ? ValueKey('account-tile-$i')
+                                : null,
+                            width: width,
+                            child: i < tiles.length
+                                ? tileAt(i)
+                                : const SizedBox.shrink(),
+                          ),
+                        ],
                       ]),
                 ),
               ),

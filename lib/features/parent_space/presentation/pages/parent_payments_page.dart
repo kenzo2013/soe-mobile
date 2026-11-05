@@ -543,13 +543,18 @@ class _ParentPaymentPageState extends ConsumerState<ParentPaymentPage> {
   @override
   Widget build(BuildContext context) {
     final tr = Translations.of(context).parentSpace.payment;
+    final value = ref.watch(parentPaymentProvider(widget.paymentId));
+    // Named by its state: « Payer » is the screen that asks for the payment.
+    final state = value.valueOrNull?.state;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
       appBar: SpaceAppBar(
           section: Translations.of(context).shell.parent.payments,
-          title: Translations.of(context).parentSpace.pay.title),
+          title: state == 'waiting' || state == 'checking'
+              ? tr.titlePending
+              : tr.title),
       body: ParentAsyncBody<ParentPayment>(
-        value: ref.watch(parentPaymentProvider(widget.paymentId)),
+        value: value,
         onRetry: () => ref.invalidate(parentPaymentProvider(widget.paymentId)),
         builder: (payment) {
           final amount = ParentFormat.amount(context, payment.amount);
@@ -580,7 +585,7 @@ class _ParentPaymentPageState extends ConsumerState<ParentPaymentPage> {
               ),
           };
           return ListView(
-            padding: const EdgeInsets.all(24),
+            padding: spacePagePadding(context, top: 24, bottom: 24),
             children: [
               Icon(icon, size: 56, color: color),
               const SizedBox(height: 16),

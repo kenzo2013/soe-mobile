@@ -11,6 +11,7 @@ import 'package:soe/features/parent_space/presentation/pages/parent_contract_pag
 import 'package:soe/features/parent_space/presentation/pages/parent_home_page.dart';
 import 'package:soe/features/parent_space/presentation/pages/parent_request_detail_page.dart';
 import 'package:soe/features/parent_space/presentation/pages/parent_request_wizard_page.dart';
+import 'package:soe/features/parent_space/presentation/pages/parent_session_pages.dart';
 import 'package:soe/features/parent_space/presentation/pages/parent_tutor_pages.dart';
 import 'package:soe/features/parent_space/presentation/providers.dart';
 import 'package:soe/features/parent_space/presentation/widgets/parent_more_links.dart';
@@ -446,6 +447,66 @@ void main() {
     expect(find.text('CTR-9'), findsOneWidget);
     expect(find.text('Ancienne plateforme'), findsOneWidget);
     expect(find.text('1 à signer'), findsOneWidget);
+  });
+
+  testWidgets('a contract card is titled by child and subject, status as badge',
+      (tester) async {
+    when(() => api.contracts()).thenAnswer((_) async => [
+          ParentContract.fromJson({
+            'id': 9,
+            'reference': 'CTR-9',
+            'status': 'signed',
+            'status_label': 'Signé',
+            'children': ['Léa'],
+            'subjects': ['Anglais'],
+          })
+        ]);
+    await pump(tester, const ParentContractsPage());
+
+    expect(find.text('Léa · Anglais'), findsOneWidget);
+    // « Signé » is the badge only, no longer the card's title.
+    expect(find.text('Signé'), findsOneWidget);
+  });
+
+  testWidgets('PAR-14 a disputed report shows the parent its own reason',
+      (tester) async {
+    when(() => api.report(12)).thenAnswer((_) async => ParentReport.fromJson({
+          'session_id': 12,
+          'child_first_name': 'Léa',
+          'topics': ['Les fractions'],
+          'validated': false,
+          'dispute_reason': 'Le répétiteur est parti 30 min plus tôt.',
+          'can_answer': false,
+        }));
+    await pump(tester, const ParentReportPage(sessionId: 12));
+
+    expect(find.text('Contesté · SOE examine'), findsOneWidget);
+    expect(find.byKey(const Key('report-dispute-reason')), findsOneWidget);
+    expect(
+        find.text('Le répétiteur est parti 30 min plus tôt.'), findsOneWidget);
+  });
+
+  testWidgets(
+      'PAR-09 a proposed tutor without profile sections has no empty card',
+      (tester) async {
+    when(() => api.tutors(7)).thenAnswer((_) async => [
+          ParentTutorProfile.fromJson({
+            'id': 5,
+            'name': 'Daniel E.',
+            'slots': [
+              {'id': 21, 'subject': 'Maths', 'child': 'Yann'}
+            ],
+            'presentation': '  ',
+          })
+        ]);
+    when(() => api.requestDetail(7)).thenThrow(const NetworkFailure());
+    when(() => api.tutorReviews(7, 5)).thenAnswer((_) async => []);
+    await pump(tester, const ParentTutorPage(requestId: 7));
+
+    expect(find.text('Daniel E.'), findsOneWidget);
+    expect(find.byKey(const Key('tutor-profile-sections')), findsNothing);
+    // Not the parent's turn to sign: no « En confirmant, vous signez ».
+    expect(find.textContaining('En confirmant'), findsNothing);
   });
 
   testWidgets('the More entries of the parent', (tester) async {

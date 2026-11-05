@@ -239,7 +239,7 @@ class _ChildFormState extends ConsumerState<_ChildForm> {
     return Column(children: [
       Expanded(
         child: ListView(
-          padding: spacePagePadding(context),
+          padding: spacePagePadding(context, insets: readOnly),
           children: [
             ParentHeading(
                 title: _editing

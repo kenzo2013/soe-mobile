@@ -290,8 +290,8 @@
       "subtitle": "Here is what awaits you.",
       "todo": "To do",
       "sorted": "Sorted by deadline",
-      "week": "Today and this week",
-      "noSession": "No session this week.",
+      "week": "The next 7 days",
+      "noSession": "No session in the next 7 days.",
       "requests": "Where my request stands",
       "children": "My children",
       "advisor": "My SOE advisor",
@@ -417,6 +417,7 @@
       "stateApproved": "Approved",
       "stateDisputed": "Disputed · SOE reviews",
       "stateToApprove": "To approve",
+      "yourReason": "Your reason for the dispute",
       "autoOn": "Without an answer, approved automatically on {{date}}."
     },
     "children": {
@@ -454,6 +455,8 @@
       "submit": "Pay {{amount}}"
     },
     "payment": {
+      "title": "Payment",
+      "titlePending": "Payment in progress",
       "waitingTitle": "Confirm on your phone",
       "waitingText": "A request of {{amount}} was sent. Type your secret code to approve it.",
       "checkingTitle": "We are checking your payment",
@@ -783,7 +786,8 @@
       "createdOn": "Issued on {{date}}",
       "read": "Read",
       "signedBadge": "Signed",
-      "toSignBadge": "To sign"
+      "toSignBadge": "To sign",
+      "untitled": "Tutoring contract"
     },
     "history": {
       "title": "Payment history",

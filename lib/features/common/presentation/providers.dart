@@ -32,9 +32,12 @@ final notificationPreferencesProvider =
 
 /// The badge of the bell: unread notifications of the active role. Refreshed after each action
 /// of the notification centre, and when the role or the session changes.
+/// Signed out (no token), it asks nothing: the bell still on screen while the sign-out runs
+/// must not call the API with the revoked session (a 401 after sign-out).
 final unreadNotificationsProvider = FutureProvider.autoDispose<int>((ref) {
-  ref.watch(authTokenProvider);
+  final token = ref.watch(authTokenProvider);
   ref.watch(currentRoleProvider);
+  if (token == null) return Future.value(0);
   return ref.watch(accountApiProvider).unreadCount();
 });
 

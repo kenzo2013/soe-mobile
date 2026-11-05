@@ -12,6 +12,16 @@ int? _intOrNull(Object? value) => (value as num?)?.toInt();
 List<String> _strings(Object? value) =>
     (value as List<dynamic>? ?? const []).whereType<String>().toList();
 
+/// Names sent as strings or as objects ({name} or {first_name}).
+List<String> _names(Object? value) => [
+      for (final item in value is List<dynamic> ? value : const <dynamic>[])
+        if (item is String && item.isNotEmpty)
+          item
+        else if (item is Map<String, dynamic> &&
+            (item['name'] ?? item['first_name']) is String)
+          (item['name'] ?? item['first_name']) as String,
+    ];
+
 class ParentSession {
   const ParentSession({
     required this.id,
@@ -68,6 +78,8 @@ class ParentSessionDetail {
     required this.backupCode,
     required this.canCancel,
     required this.lateCancellation,
+    this.reportDisputed = false,
+    this.reportValidated,
   });
 
   factory ParentSessionDetail.fromJson(Map<String, dynamic> json) {
@@ -84,6 +96,8 @@ class ParentSessionDetail {
       backupCode: json['backup_code'] as String?,
       canCancel: json['can_cancel'] == true,
       lateCancellation: json['late_cancellation'] == true,
+      reportDisputed: report?['disputed'] == true,
+      reportValidated: report?['validated'] as bool?,
     );
   }
 
@@ -97,6 +111,18 @@ class ParentSessionDetail {
   final String? backupCode;
   final bool canCancel;
   final bool lateCancellation;
+
+  /// The report was disputed (the API's `report.disputed`): no automatic validation is coming.
+  final bool reportDisputed;
+
+  /// The parent's answer: true approved, false refused, null not yet.
+  final bool? reportValidated;
+
+  /// The automatic validation still ahead, if any (none once disputed or answered).
+  DateTime? get pendingAutoValidation =>
+      reportDisputed || reportValidated != null || session.status == 'disputed'
+          ? null
+          : reportAutoValidatesAt;
 }
 
 class ParentReport {
@@ -149,6 +175,30 @@ class ParentReport {
   final bool canAnswer;
 }
 
+/// A request on its way for a child (the child's file): its reference, its step as the
+/// server words it, its subjects.
+class ParentChildRequest {
+  const ParentChildRequest({
+    required this.id,
+    required this.reference,
+    required this.stepLabel,
+    required this.subjects,
+  });
+
+  factory ParentChildRequest.fromJson(Map<String, dynamic> json) =>
+      ParentChildRequest(
+        id: _int(json['id']),
+        reference: json['reference'] as String? ?? '',
+        stepLabel: json['step_label'] as String? ?? '',
+        subjects: _names(json['subjects']),
+      );
+
+  final int id;
+  final String reference;
+  final String stepLabel;
+  final List<String> subjects;
+}
+
 class ParentChild {
   const ParentChild({
     required this.id,
@@ -169,6 +219,7 @@ class ParentChild {
     this.pendingStep,
     this.statusLabel,
     this.statusTone,
+    this.requests = const [],
   });
 
   factory ParentChild.fromJson(Map<String, dynamic> json) {
@@ -197,8 +248,16 @@ class ParentChild {
       pendingStep: json['pending_step'] as String?,
       statusLabel: json['status_label'] as String?,
       statusTone: json['status_tone'] as String?,
+      requests: (json['requests'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(ParentChildRequest.fromJson)
+          .toList(growable: false),
     );
   }
+
+  /// The file only: the requests on their way for the child (no course yet), when the API
+  /// sends them.
+  final List<ParentChildRequest> requests;
 
   /// Home only: the step of the request on its way (no course yet).
   final String? pendingStep;
@@ -666,6 +725,7 @@ class ParentRequest {
     this.stage = '',
     this.quoteStatus,
     this.createdAt,
+    this.explanation,
   });
 
   factory ParentRequest.fromJson(Map<String, dynamic> json) => ParentRequest(
@@ -682,6 +742,7 @@ class ParentRequest {
         stage: json['stage'] as String? ?? '',
         quoteStatus: json['quote_status'] as String?,
         createdAt: _date(json['created_at']),
+        explanation: json['explanation'] as String?,
       );
 
   final int id;
@@ -689,6 +750,10 @@ class ParentRequest {
   final List<String> children;
   final String step;
   final String stepLabel;
+
+  /// The server's sentence for where the request stands (« En attente de la signature du
+  /// répétiteur »), shown as sent instead of the app's own text for the step.
+  final String? explanation;
 
   /// The holder's action: quote, tutor, payment, planning, or null.
   final String? action;
@@ -758,6 +823,8 @@ class ParentContract {
     this.createdAt,
     this.amendmentsCount = 0,
     this.amendmentsToSign = 0,
+    this.children = const [],
+    this.subjects = const [],
   });
 
   factory ParentContract.fromJson(Map<String, dynamic> json) => ParentContract(
@@ -773,11 +840,25 @@ class ParentContract {
         createdAt: _date(json['created_at']),
         amendmentsCount: _int(json['amendments_count']),
         amendmentsToSign: _int(json['amendments_to_sign']),
+        children: _names(json['children']),
+        subjects: _names(json['subjects']),
       );
 
   final int id;
   final String reference;
   final String statusLabel;
+
+  /// The children and subjects the contract covers (first names, subject names), when the
+  /// API sends them: they title the card, the status being a badge.
+  final List<String> children;
+  final List<String> subjects;
+
+  /// « Léa · Anglais, Maths »; null when the API sent neither.
+  String? get title {
+    final parts = [children.join(', '), subjects.join(', ')]
+        .where((part) => part.isNotEmpty);
+    return parts.isEmpty ? null : parts.join(' · ');
+  }
 
   /// Empty in the list (only the detail carries the text).
   final String text;

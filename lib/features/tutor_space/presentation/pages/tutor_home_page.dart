@@ -82,8 +82,8 @@ String tutorActionTarget(TutorHomeAction action) => switch (action.kind) {
       'assignment' => TutorSpaceRoutes.proposal(action.targetId),
       'planning' => TutorSpaceRoutes.times(action.targetId),
       'contract' => TutorSpaceRoutes.contract(action.targetId),
-      'disputed' => TutorSpaceRoutes.report(action.targetId),
-      _ => TutorSpaceRoutes.report(action.targetId),
+      'disputed' => TutorSpaceRoutes.report(action.targetId, fromToday: true),
+      _ => TutorSpaceRoutes.report(action.targetId, fromToday: true),
     };
 
 /// « 4 500 » (the amount without its currency, for the band's figure).

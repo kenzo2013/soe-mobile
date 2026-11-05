@@ -333,6 +333,26 @@ class _SlideView extends StatelessWidget {
           flex: large ? 4 : 11,
           child: Stack(fit: StackFit.expand, children: [
             photo,
+            // A dark veil under the status bar and the logo: the light icons stay readable
+            // on a bright photo (the last slide's white wall).
+            Positioned(
+              key: const Key('onboarding-status-scrim'),
+              top: 0,
+              left: 0,
+              right: 0,
+              height: media.padding.top + 72,
+              child: const IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0x73000000), Color(0x00000000)],
+                    ),
+                  ),
+                ),
+              ),
+            ),
             Positioned(
               top: media.padding.top + 8,
               left: 20,

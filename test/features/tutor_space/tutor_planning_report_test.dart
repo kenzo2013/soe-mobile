@@ -95,6 +95,23 @@ void main() {
       expect(find.text('à rendre au plus tard'), findsOneWidget);
     });
 
+    testWidgets('the breadcrumb starts where the report was opened from',
+        (tester) async {
+      final start = DateTime.now().subtract(const Duration(hours: 2));
+      final api = FakeTutorApi(
+          detailValue: detail(
+              startsAt: start,
+              checkedInAt: start,
+              checkedOutAt: start.add(const Duration(hours: 2))));
+      useTallView(tester);
+      await pumpAppWith(tester,
+          child: const TutorReportPage(sessionId: 12, fromToday: true),
+          overrides: tutorOverrides(api));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Aujourd’hui ›'), findsOneWidget);
+      expect(find.textContaining('Planning ›'), findsNothing);
+    });
+
     testWidgets('entry: the check-in times, then one question per screen',
         (tester) async {
       final start = DateTime.now().subtract(const Duration(hours: 2));
