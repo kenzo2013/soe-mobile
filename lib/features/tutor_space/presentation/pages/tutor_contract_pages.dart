@@ -253,3 +253,15 @@ class _TutorContractPageState extends ConsumerState<TutorContractPage> {
     );
   }
 }
+
+/// COM-08 — an amendment, its text and its signature (placeholder, being built).
+class TutorAmendmentPage extends StatelessWidget {
+  const TutorAmendmentPage(
+      {super.key, required this.contractId, required this.amendmentId});
+
+  final int contractId;
+  final int amendmentId;
+
+  @override
+  Widget build(BuildContext context) => const Scaffold();
+}

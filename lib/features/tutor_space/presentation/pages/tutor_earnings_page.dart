@@ -181,3 +181,11 @@ class _PayoutTile extends StatelessWidget {
     );
   }
 }
+
+/// REP-19 — every pay statement and its receipt (placeholder, being built).
+class TutorEarningsHistoryPage extends StatelessWidget {
+  const TutorEarningsHistoryPage({super.key});
+
+  @override
+  Widget build(BuildContext context) => const Scaffold();
+}

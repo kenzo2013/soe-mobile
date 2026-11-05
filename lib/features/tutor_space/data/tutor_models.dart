@@ -595,6 +595,10 @@ class TutorContract {
     required this.signedAt,
     required this.canSign,
     required this.text,
+    this.legacy = false,
+    this.amendmentsCount = 0,
+    this.amendmentsToSign = 0,
+    this.textFormat = 'text',
   });
 
   factory TutorContract.fromJson(Map<String, dynamic> json) => TutorContract(
@@ -608,6 +612,10 @@ class TutorContract {
         signedAt: _date(json['signed_at']),
         canSign: json['can_sign'] == true,
         text: json['text'] as String? ?? '',
+        legacy: json['legacy'] == true,
+        amendmentsCount: _int(json['amendments_count']),
+        amendmentsToSign: _int(json['amendments_to_sign']),
+        textFormat: json['text_format'] as String? ?? 'text',
       );
 
   final int id;
@@ -622,6 +630,14 @@ class TutorContract {
   final DateTime? signedAt;
   final bool canSign;
   final String text;
+
+  /// A v1 contract (« Anciens contrats »).
+  final bool legacy;
+  final int amendmentsCount;
+  final int amendmentsToSign;
+
+  /// text for a mission letter, sanitized HTML for a v1 contract.
+  final String textFormat;
 
   String get title => [subject, pupil]
       .whereType<String>()

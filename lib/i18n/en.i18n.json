@@ -1720,6 +1720,18 @@
       "paidOn": "Paid on {{date}}",
       "sessions": "{{count}} session(s)",
       "pupil": "Pupil"
+    },
+    "nav": {
+      "offers": "Offers",
+      "applications": "Applications",
+      "file": "My file",
+      "contracts": "Contracts",
+      "contractsToSign": {
+        "one": "{{n}} document to sign",
+        "other": "{{n}} documents to sign"
+      },
+      "payoutMethods": "Payout methods",
+      "earningsHistory": "Payout history"
     }
   }
 }

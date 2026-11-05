@@ -1720,6 +1720,18 @@
       "paidOn": "Versé le {{date}}",
       "sessions": "{{count}} séance(s)",
       "pupil": "Élève"
+    },
+    "nav": {
+      "offers": "Offres",
+      "applications": "Candidatures",
+      "file": "Mon dossier",
+      "contracts": "Contrats",
+      "contractsToSign": {
+        "one": "{{n}} document à signer",
+        "other": "{{n}} documents à signer"
+      },
+      "payoutMethods": "Moyens de paiement",
+      "earningsHistory": "Historique des versements"
     }
   }
 }
