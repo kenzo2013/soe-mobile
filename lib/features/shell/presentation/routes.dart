@@ -7,15 +7,15 @@ import '../../parent_space/presentation/pages/parent_children_page.dart';
 import '../../parent_space/presentation/pages/parent_home_page.dart';
 import '../../parent_space/presentation/pages/parent_payments_page.dart';
 import '../../parent_space/presentation/pages/parent_planning_page.dart';
-import '../../tutor/presentation/pages/tutor_courses_pages.dart';
-import '../../tutor/presentation/pages/tutor_dashboard_page.dart';
-import '../../tutor/presentation/pages/tutor_remunerations_page.dart';
-import '../../tutor/presentation/pages/tutor_sessions_pages.dart';
+import '../../tutor_space/presentation/pages/tutor_contract_pages.dart';
+import '../../tutor_space/presentation/pages/tutor_earnings_page.dart';
+import '../../tutor_space/presentation/pages/tutor_home_page.dart';
+import '../../tutor_space/presentation/pages/tutor_planning_page.dart';
 import 'pages/more_page.dart';
 import 'widgets/role_shell.dart';
 
-/// The two signed-in spaces and their tabs (Q5). The parent tabs hold the v2 screens (lot 3);
-/// the tutor tabs hold the current screens until lot 4. Screens opened from a tab are full screen.
+/// The two signed-in spaces and their tabs (Q5). The parent tabs hold the v2 screens (lot 3),
+/// the tutor tabs those of lot 4. Screens opened from a tab are full screen.
 List<RouteBase> shellRoutes() => [
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) {
@@ -65,9 +65,9 @@ List<RouteBase> shellRoutes() => [
                 activeIcon: Icons.calendar_today,
                 label: tr.tutor.planning),
             ShellTab(
-                icon: Icons.school_outlined,
-                activeIcon: Icons.school,
-                label: tr.tutor.students),
+                icon: Icons.description_outlined,
+                activeIcon: Icons.description,
+                label: tr.tutor.contracts),
             ShellTab(
                 icon: Icons.payments_outlined,
                 activeIcon: Icons.payments,
@@ -79,11 +79,11 @@ List<RouteBase> shellRoutes() => [
           ]);
         },
         branches: [
-          _branch(RouteNames.tutorDashboard, const TutorDashboardPage()),
-          _branch(RouteNames.tutorSessions, const TutorSessionsListPage()),
-          _branch(RouteNames.tutorCourses, const TutorActiveCoursesPage()),
-          _branch(
-              RouteNames.tutorRemunerations, const TutorRemunerationsPage()),
+          // Tutor space v2 (lot 4, API v2).
+          _branch(RouteNames.tutorDashboard, const TutorHomePage()),
+          _branch(RouteNames.tutorSessions, const TutorPlanningPage()),
+          _branch(RouteNames.tutorCourses, const TutorContractsPage()),
+          _branch(RouteNames.tutorRemunerations, const TutorEarningsPage()),
           _branch(RouteNames.tutorMore, const MorePage()),
         ],
       ),

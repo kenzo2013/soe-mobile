@@ -92,12 +92,18 @@ class _NavTile extends StatelessWidget {
                   color: active ? AppPalette.teal : AppPalette.n500,
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  item.label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                    color: active ? AppPalette.teal : AppPalette.n700,
+                // One line, shrunk if needed (« Aujourd’hui » in bold).
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    item.label,
+                    maxLines: 1,
+                    softWrap: false,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                      color: active ? AppPalette.teal : AppPalette.n700,
+                    ),
                   ),
                 ),
               ],

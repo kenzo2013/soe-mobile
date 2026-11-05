@@ -10,6 +10,7 @@ import '../../features/parent/presentation/routes.dart';
 import '../../features/parent_space/presentation/parent_space_router.dart';
 import '../../features/shell/presentation/routes.dart';
 import '../../features/tutor/presentation/routes.dart';
+import '../../features/tutor_space/presentation/tutor_space_router.dart';
 import 'route_guards.dart';
 import 'route_names.dart';
 
@@ -38,6 +39,7 @@ GoRouter buildRouter({required AuthGuard guard}) {
       ...parentRoutes(),
       ...parentSpaceRoutes(),
       ...tutorRoutes(),
+      ...tutorSpaceRoutes(),
       ...commonRoutes(),
     ],
     errorBuilder: (context, state) => const SplashPage(),

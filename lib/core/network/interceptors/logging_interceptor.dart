@@ -85,13 +85,22 @@ class LoggingInterceptor extends Interceptor {
 
   static const _masked = '[FILTERED]';
 
-  /// Passwords, codes and tokens never reach the logs, even in a test build.
+  /// Passwords, codes and tokens never reach the logs, even in a test build; nor a family's
+  /// address and phone, nor a tutor's position.
   static bool _isSecret(String key) {
     final name = key.toLowerCase();
     return name.contains('password') ||
         name.contains('token') ||
         name == 'code' ||
-        name == 'authorization';
+        name == 'authorization' ||
+        const {
+          'address',
+          'landmark',
+          'parent_phone',
+          'phone',
+          'latitude',
+          'longitude'
+        }.contains(name);
   }
 
   /// [body] with every secret value (at any depth) replaced by [_masked].
