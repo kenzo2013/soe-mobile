@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/theme/app_palette.dart';
@@ -18,6 +19,7 @@ import '../../data/parent_models.dart';
 import '../parent_space_routes.dart';
 import '../providers.dart';
 import '../widgets/parent_ui.dart';
+import '../widgets/parent_widgets.dart';
 
 /// PAR-15 — invoices to pay (oldest first) and the receipts.
 class ParentPaymentsPage extends ConsumerWidget {
@@ -118,36 +120,210 @@ class ParentPaymentsPage extends ConsumerWidget {
                         title: tr.payments.empty,
                         message: tr.payments.emptyText,
                         icon: Icons.receipt_long_outlined),
-                  ...receipts.map((payment) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: SoeCard(
-                          child: Row(children: [
-                            Expanded(
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                        tr.payments.receipt(
-                                            number:
-                                                payment.receiptNumber ?? ''),
-                                        style: AppTypography.labelSm),
-                                    if (payment.paidAt != null)
-                                      Text(
-                                          ParentFormat.day(
-                                              context, payment.paidAt!),
-                                          style: AppTypography.caption.copyWith(
-                                              color: AppPalette.text2)),
-                                  ]),
-                            ),
-                            Text(ParentFormat.amount(context, payment.amount),
-                                style: AppTypography.label),
-                          ]),
-                        ),
-                      )),
+                  for (final payment in receipts.take(5))
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: ParentPaymentTile(payment: payment),
+                    ),
+                  if (receipts.isNotEmpty)
+                    SoeButton(
+                      label: tr.history.seeAll,
+                      variant: SoeButtonVariant.tertiary,
+                      fullWidth: true,
+                      onPressed: () => unawaited(
+                          context.push(ParentSpaceRoutes.paymentsHistory)),
+                    ),
+                  const SizedBox(height: 12),
+                  ParentPanel(soft: true, title: tr.history.howTitle, children: [
+                    for (final rule in [
+                      tr.history.how1,
+                      tr.history.how2,
+                      tr.history.how3,
+                      tr.history.how4
+                    ])
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(top: 2, right: 8),
+                                child: Icon(Icons.info_outline,
+                                    size: 16, color: AppPalette.teal600),
+                              ),
+                              Expanded(
+                                  child: Text(rule,
+                                      style: AppTypography.bodySm)),
+                            ]),
+                      ),
+                  ]),
                 ],
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+/// A payment of the history: what, when, state, amount; its receipt once paid.
+class ParentPaymentTile extends ConsumerWidget {
+  const ParentPaymentTile({super.key, required this.payment});
+
+  final ParentPayment payment;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context).parentSpace;
+    final when = payment.paidAt ?? payment.createdAt;
+    final period = payment.period;
+    final phone = payment.phone;
+    return SoeCard(
+      onTap: () =>
+          unawaited(context.push(ParentSpaceRoutes.payment(payment.id))),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          const Icon(Icons.receipt_long_outlined,
+              size: 16, color: AppPalette.text2),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+                [
+                  payment.receiptNumber ?? '',
+                  if (when != null)
+                    payment.state == 'success'
+                        ? tr.history.paidOn(date: ParentFormat.day(context, when))
+                        : ParentFormat.day(context, when),
+                ].where((part) => part.isNotEmpty).join(' · '),
+                style: AppTypography.caption.copyWith(color: AppPalette.text2)),
+          ),
+          ParentStatusBadge(
+              status: switch (payment.state) {
+                'success' => 'paid',
+                'failure' => 'overdue',
+                _ => 'issued',
+              },
+              label: payment.statusLabel ?? ''),
+        ]),
+        const SizedBox(height: 8),
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(
+                  period == null
+                      ? (payment.methodLabel ?? payment.method)
+                      : toBeginningOfSentenceCase(DateFormat.yMMMM(
+                                  Localizations.localeOf(context).languageCode)
+                              .format(period)) ??
+                          '',
+                  style: AppTypography.label),
+              Text(
+                  [
+                    payment.methodLabel ?? payment.method,
+                    if (phone != null && phone.length > 4)
+                      '•• ${phone.substring(phone.length - 4)}',
+                  ].join(' · '),
+                  style:
+                      AppTypography.caption.copyWith(color: AppPalette.text2)),
+            ]),
+          ),
+          Text(ParentFormat.amount(context, payment.amount),
+              style: AppTypography.h3.copyWith(color: AppPalette.teal800)),
+        ]),
+        if (payment.hasReceipt) ...[
+          const SizedBox(height: 12),
+          SoeButton(
+            label: tr.history.download,
+            icon: Icons.download_outlined,
+            variant: SoeButtonVariant.outline,
+            fullWidth: true,
+            size: SoeButtonSize.md,
+            onPressed: () => unawaited(openParentPdf(
+                context,
+                ref,
+                () => ref.read(parentApiProvider).receiptPdf(payment.id),
+                'receipt_${payment.receiptNumber}.pdf')),
+          ),
+        ],
+      ]),
+    );
+  }
+}
+
+/// PAR-15 « Historique » — every payment of the family, newest first, page by page.
+class ParentPaymentsHistoryPage extends ConsumerStatefulWidget {
+  const ParentPaymentsHistoryPage({super.key});
+
+  @override
+  ConsumerState<ParentPaymentsHistoryPage> createState() =>
+      _ParentPaymentsHistoryPageState();
+}
+
+class _ParentPaymentsHistoryPageState
+    extends ConsumerState<ParentPaymentsHistoryPage> {
+  final _payments = <ParentPayment>[];
+  int _page = 0;
+  bool _loading = false;
+  bool _done = false;
+  Object? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_more());
+  }
+
+  Future<void> _more() async {
+    if (_loading || _done) return;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final page = await ref.read(parentApiProvider).paymentsPage(_page + 1);
+      if (!mounted) return;
+      setState(() {
+        _page++;
+        _payments.addAll(page);
+        _done = page.length < 50;
+      });
+    } on Failure catch (failure) {
+      if (mounted) setState(() => _error = failure);
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = Translations.of(context).parentSpace;
+    return Scaffold(
+      backgroundColor: AppPalette.surfacePage,
+      appBar: AppBar(title: Text(tr.history.title)),
+      body: NotificationListener<ScrollNotification>(
+        onNotification: (notification) {
+          if (notification.metrics.extentAfter < 200) unawaited(_more());
+          return false;
+        },
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            if (_payments.isEmpty && _done)
+              SoeEmptyState(
+                  title: tr.payments.empty,
+                  message: tr.payments.emptyText,
+                  icon: Icons.receipt_long_outlined),
+            for (final payment in _payments)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: ParentPaymentTile(payment: payment),
+              ),
+            if (_loading) const Center(child: CircularProgressIndicator()),
+            if (_error != null)
+              TextButton(onPressed: _more, child: Text(tr.retry)),
+          ],
         ),
       ),
     );
@@ -381,6 +557,20 @@ class _ParentPaymentPageState extends ConsumerState<ParentPaymentPage> {
               ] else if (payment.state == 'waiting') ...[
                 const SizedBox(height: 24),
                 const Center(child: CircularProgressIndicator()),
+              ],
+              if (payment.hasReceipt) ...[
+                const SizedBox(height: 24),
+                SoeButton(
+                  label: Translations.of(context).parentSpace.history.receipt,
+                  icon: Icons.download_outlined,
+                  variant: SoeButtonVariant.secondary,
+                  fullWidth: true,
+                  onPressed: () => unawaited(openParentPdf(
+                      context,
+                      ref,
+                      () => ref.read(parentApiProvider).receiptPdf(payment.id),
+                      'receipt_${payment.receiptNumber}.pdf')),
+                ),
               ],
               const SizedBox(height: 24),
               SoeButton(
