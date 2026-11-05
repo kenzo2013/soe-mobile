@@ -58,7 +58,6 @@ class _EmailSentPageState extends ConsumerState<EmailSentPage> {
           label: tr.auth.code.submit,
           onPressed: ready ? _verify : null,
           loading: state.busy,
-          variant: SoeButtonVariant.secondary,
           fullWidth: true,
         ),
         hint: ready ? null : tr.auth.code.missing,
