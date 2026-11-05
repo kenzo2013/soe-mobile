@@ -110,9 +110,11 @@ class AuthRepositoryImpl implements AuthRepository {
       firstName: json['first_name'] as String? ?? '',
       lastName: json['last_name'] as String? ?? '',
       role: UserRoleX.fromApi(json['current_role'] as String? ?? 'parent'),
+      civility: json['civility'] as String?,
       phone: json['phone'] as String?,
       lang: json['lang'] as String?,
       multiRole: roles.length > 1,
+      hasPhoto: json['has_photo'] == true,
     );
   }
 
@@ -148,20 +150,26 @@ class AuthRepositoryImpl implements AuthRepository {
     return session;
   }
 
-  Future<void> _storeUser(User user) async {
-    await _storage.write(StorageKeys.currentRole, user.role.apiValue);
-    await _storage.write(
-      StorageKeys.currentUser,
-      jsonEncode({
-        'id': user.id,
-        'email': user.email,
-        'first_name': user.firstName,
-        'last_name': user.lastName,
-        'role': user.role.apiValue,
-        if (user.phone != null) 'phone': user.phone,
-        if (user.lang != null) 'lang': user.lang,
-        'multi_role': user.multiRole,
-      }),
-    );
-  }
+  Future<void> _storeUser(User user) => cacheCurrentUser(_storage, user);
+}
+
+/// Keeps the signed-in account on the device (read back by `currentUserProvider`), with its
+/// active role. Also used after a profile change (COM-02).
+Future<void> cacheCurrentUser(SecureStorage storage, User user) async {
+  await storage.write(StorageKeys.currentRole, user.role.apiValue);
+  await storage.write(
+    StorageKeys.currentUser,
+    jsonEncode({
+      'id': user.id,
+      'email': user.email,
+      'first_name': user.firstName,
+      'last_name': user.lastName,
+      'role': user.role.apiValue,
+      if (user.civility != null) 'civility': user.civility,
+      if (user.phone != null) 'phone': user.phone,
+      if (user.lang != null) 'lang': user.lang,
+      'multi_role': user.multiRole,
+      'has_photo': user.hasPhoto,
+    }),
+  );
 }
