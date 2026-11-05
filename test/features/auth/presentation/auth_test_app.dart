@@ -20,6 +20,8 @@ import 'package:soe/features/auth/domain/entities/user.dart';
 import 'package:soe/features/auth/domain/repositories/auth_repository.dart';
 import 'package:soe/features/auth/presentation/providers.dart';
 import 'package:soe/features/auth/presentation/routes.dart';
+import 'package:soe/features/parent_space/presentation/parent_space_routes.dart';
+import 'package:soe/features/tutor_space/presentation/tutor_space_routes.dart';
 import 'package:soe/i18n/translations.g.dart';
 
 class _Storage extends Mock implements SecureStorage {}
@@ -130,8 +132,11 @@ Future<void> pumpAuthApp(WidgetTester tester, FakeAuthRepository repository,
           path: RouteNames.tutorDashboard,
           builder: (_, __) => const Text('tutor-home')),
       GoRoute(
-          path: RouteNames.parentStudentNew,
+          path: ParentSpaceRoutes.newChild,
           builder: (_, __) => const Text('new-child')),
+      GoRoute(
+          path: TutorSpaceRoutes.file,
+          builder: (_, __) => const Text('tutor-file')),
     ],
   );
   await tester.pumpWidget(
