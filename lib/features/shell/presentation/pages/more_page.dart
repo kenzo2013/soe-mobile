@@ -11,6 +11,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/lang_segmented.dart';
 import '../../../../core/widgets/soe_avatar.dart';
 import '../../../../i18n/translations.g.dart';
+import '../../../parent_space/presentation/parent_space_routes.dart';
 import '../../../auth/presentation/providers/current_user_provider.dart';
 import '../../../common/presentation/widgets/common_logout_sheet.dart';
 
@@ -51,6 +52,11 @@ class MorePage extends ConsumerWidget {
                   icon: Icons.person_outline,
                   label: tr.account,
                   route: RouteNames.account),
+              if (role == 'parent')
+                _Link(
+                    icon: Icons.assignment_outlined,
+                    label: Translations.of(context).parentSpace.requests.title,
+                    route: ParentSpaceRoutes.requests),
               _Link(
                   icon: Icons.notifications_none,
                   label: tr.notifications,
