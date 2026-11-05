@@ -12,7 +12,6 @@ import '../../../../core/widgets/soe_card.dart';
 import '../../../../i18n/translations.g.dart';
 import '../../../auth/presentation/providers/current_user_provider.dart';
 import '../../../common/presentation/widgets/tab_top_bar.dart';
-import '../../data/parent_flow_models.dart';
 import '../../data/parent_models.dart';
 import '../parent_space_routes.dart';
 import '../providers.dart';
@@ -73,13 +72,13 @@ class ParentHomePage extends ConsumerWidget {
                             ]),
                       ),
                     ],
-                    if (home.actions.isNotEmpty) ...[
+                    if (home.todoActions.isNotEmpty) ...[
                       ParentSectionTitle(tr.home.todo,
                           trailing: Text(tr.home.sorted,
                               style: AppTypography.caption
                                   .copyWith(color: AppPalette.text2))),
                       // Sorted by deadline by the server: one gold button, the most urgent.
-                      for (final (i, action) in home.actions.indexed)
+                      for (final (i, action) in home.todoActions.indexed)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: _ActionCard(action: action, urgent: i == 0),
@@ -155,43 +154,54 @@ String parentSubjects(BuildContext context, List<String> subjects) {
   return '${subjects.sublist(0, subjects.length - 1).join(', ')} $and ${subjects.last}';
 }
 
-class _ActionCard extends ConsumerWidget {
+class _ActionCard extends StatelessWidget {
   const _ActionCard({required this.action, required this.urgent});
 
   final ParentHomeAction action;
   final bool urgent;
 
-  /// The review window of a report (PV): 72 h, then validated automatically.
+  /// The review window of a report (PV) before an API that sends it: 72 h.
   static const _reportHours = 72;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final tr = Translations.of(context).parentSpace;
-    final subject = ref
-        .watch(parentActionSubjectProvider(
-            (kind: action.kind, targetId: action.targetId)))
-        .valueOrNull;
-    final title = subject == null || subject.subjects.isEmpty
-        ? action.title
-        : tr.home.subjectTitle(
-            subjects: parentSubjects(context, subject.subjects),
-            children: subject.children.join(', '));
-    final session = subject?.session;
-    final explanation = [
-      if (session != null)
-        tr.home.sessionOf(
-            date: ParentFormat.dayLong(context, session.startsAt),
-            tutor: session.tutorName),
-      _explanation(tr),
-    ].join(' · ');
+    // The texts come with the home (as the web card): no call per card.
+    final title = action.heading ??
+        (action.subjects.isEmpty
+            ? action.title
+            : tr.home.subjectTitle(
+                subjects: parentSubjects(context, action.subjects),
+                children: action.children.join(', ')));
+    final explanation = action.explanation ?? _explanation(tr);
     final deadline = action.deadline;
     final hours =
         deadline == null ? null : deadline.difference(DateTime.now()).inHours;
+    final countdown = action.countdownLabel ??
+        (deadline == null
+            ? null
+            : (action.overdue
+                ? tr.home.overdue
+                : (action.kind == 'report' && hours != null
+                    ? tr.home.hours(hours: hours < 0 ? 0 : hours)
+                    : ParentFormat.dayShort(context, deadline))));
+    final caption = action.deadlineLabel ??
+        (action.kind == 'report'
+            ? tr.home.hoursOf(total: action.totalHours ?? _reportHours)
+            : (action.kind == 'contract'
+                ? tr.home.signBefore
+                : tr.home.before));
     final tone = action.overdue
         ? AppPalette.dangerText
         : (action.kind == 'contract' || action.kind == 'payment'
             ? AppPalette.warningText
             : AppPalette.teal700);
+    final countdownTone = action.overdue
+        ? AppPalette.dangerText
+        : (action.kind == 'payment' ||
+                (action.kind == 'report' && (action.hoursLeft ?? 99) <= 12)
+            ? AppPalette.warningText
+            : AppPalette.teal800);
     return SizedBox(
       width: double.infinity,
       child: SoeCard(
@@ -201,9 +211,13 @@ class _ActionCard extends ConsumerWidget {
             Icon(_icon, size: 16, color: tone),
             const SizedBox(width: 6),
             Expanded(
-              child: Text(action.label,
+              child: Text(action.kindLabel ?? action.label,
                   style: AppTypography.labelSm.copyWith(color: tone)),
             ),
+            if (action.badgeLabel != null)
+              ParentStatusBadge(
+                  status: action.overdue ? 'overdue' : 'issued',
+                  label: action.badgeLabel!),
           ]),
           const SizedBox(height: 10),
           if (title != null && title.isNotEmpty)
@@ -212,26 +226,13 @@ class _ActionCard extends ConsumerWidget {
           const SizedBox(height: 6),
           Text(explanation,
               style: AppTypography.bodySm.copyWith(color: AppPalette.text2)),
-          if (deadline != null) ...[
+          if (countdown != null) ...[
             const SizedBox(height: 14),
             Center(
               child: Column(children: [
-                Text(
-                    action.overdue
-                        ? tr.home.overdue
-                        : (action.kind == 'report' && hours != null
-                            ? tr.home.hours(hours: hours < 0 ? 0 : hours)
-                            : ParentFormat.dayShort(context, deadline)),
-                    style: AppTypography.h2.copyWith(
-                        color: action.overdue
-                            ? AppPalette.dangerText
-                            : AppPalette.teal800)),
-                Text(
-                    action.kind == 'report'
-                        ? tr.home.hoursOf(total: _reportHours)
-                        : (action.kind == 'contract'
-                            ? tr.home.signBefore
-                            : tr.home.before),
+                Text(countdown,
+                    style: AppTypography.h2.copyWith(color: countdownTone)),
+                Text(caption,
                     style: AppTypography.caption
                         .copyWith(color: AppPalette.text2)),
               ]),
@@ -239,9 +240,12 @@ class _ActionCard extends ConsumerWidget {
           ],
           const SizedBox(height: 14),
           SoeButton(
-            label: _label(tr),
-            variant:
-                urgent ? SoeButtonVariant.primary : SoeButtonVariant.outline,
+            label: action.buttonLabel ?? _label(tr),
+            variant: action.kind == 'review'
+                ? SoeButtonVariant.tertiary
+                : (urgent
+                    ? SoeButtonVariant.primary
+                    : SoeButtonVariant.outline),
             fullWidth: true,
             onPressed: () => _open(context),
           ),
@@ -382,23 +386,26 @@ class _WeekSessionRow extends StatelessWidget {
   }
 }
 
-class _RequestCard extends ConsumerWidget {
+class _RequestCard extends StatelessWidget {
   const _RequestCard({required this.request});
 
   final ParentHomeRequest request;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final tr = Translations.of(context).parentSpace;
     final current = ParentHomeRequest.steps.indexOf(request.step);
     final children = request.children.join(', ');
-    final detail = request.id == 0
-        ? null
-        : ref.watch(parentRequestDetailProvider(request.id)).valueOrNull;
-    final subjects = {
-      for (final need in detail?.needs ?? const <ParentNeed>[])
-        ...need.subjects.where((subject) => subject.isNotEmpty)
-    }.toList();
+    final overline = request.childLabels.isEmpty
+        ? children
+        : request.childLabels.join(' · ');
+    final title = request.title ??
+        (request.subjects.isEmpty
+            ? request.stepLabel
+            : tr.home.requestTitle(
+                subjects: parentSubjects(context, request.subjects),
+                children: children));
+    final validUntil = request.quoteValidUntil;
     return Container(
       decoration: BoxDecoration(
         color: AppPalette.surfaceSoft,
@@ -420,18 +427,22 @@ class _RequestCard extends ConsumerWidget {
               Text(
                   tr.home
                       .requestOverline(
-                          reference: request.reference, children: children)
+                          reference: request.reference, children: overline)
                       .toUpperCase(),
                   style: AppTypography.overline
                       .copyWith(color: AppPalette.teal700)),
               const SizedBox(height: 6),
-              Text(
-                  subjects.isEmpty
-                      ? request.stepLabel
-                      : tr.home.requestTitle(
-                          subjects: parentSubjects(context, subjects),
-                          children: children),
+              Text(title,
                   style: AppTypography.h3.copyWith(color: AppPalette.teal800)),
+              if (validUntil != null) ...[
+                const SizedBox(height: 8),
+                Text(ParentFormat.dayShort(context, validUntil),
+                    style:
+                        AppTypography.h3.copyWith(color: AppPalette.teal800)),
+                Text(tr.home.quoteValidUntil,
+                    style: AppTypography.caption
+                        .copyWith(color: AppPalette.text2)),
+              ],
               const SizedBox(height: 14),
               Row(children: [
                 for (var i = 0; i < ParentHomeRequest.steps.length; i++) ...[
@@ -470,7 +481,7 @@ class _RequestCard extends ConsumerWidget {
                 ],
               ]),
               const SizedBox(height: 12),
-              Text(_stepText(tr, request.step),
+              Text(request.explanation ?? _stepText(tr, request.step),
                   style:
                       AppTypography.bodySm.copyWith(color: AppPalette.text2)),
             ]),
@@ -499,28 +510,33 @@ class _RequestCard extends ConsumerWidget {
       };
 }
 
-/// A child of the home: avatar, class and section, the courses (from the child's file) or
-/// the step of the request in progress.
-class _ChildCard extends ConsumerWidget {
+/// A child of the home: avatar, class and section, then the web card's line: the courses in
+/// place, or the step of the request on its way (orange when the parent must act).
+class _ChildCard extends StatelessWidget {
   const _ChildCard({required this.child, required this.request});
 
   final ParentChild child;
   final ParentHomeRequest? request;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final tr = Translations.of(context).parentSpace.home;
-    final courses =
-        ref.watch(parentChildProvider(child.id)).valueOrNull?.courses ??
-            const <ParentCourse>[];
-    final active = courses.where((course) => course.active).toList();
-    final line = request != null
-        ? request!.stepLabel
-        : active.isEmpty
-            ? null
-            : tr.courses(
-                n: active.length,
-                subjects: active.map((course) => course.subject).join(', '));
+    final courses = child.courses;
+    final line = child.statusLabel ??
+        (request != null
+            ? request!.stepLabel
+            : courses.isEmpty
+                ? null
+                : tr.courses(
+                    n: courses.length,
+                    subjects:
+                        courses.map((course) => course.subject).join(', ')));
+    final color = switch (child.statusTone) {
+      'warning' => AppPalette.warningText,
+      'info' => AppPalette.teal500,
+      'neutral' => AppPalette.text2,
+      _ => request != null ? AppPalette.warningText : AppPalette.text2,
+    };
     return SoeCard(
       onTap: () => unawaited(context.push(ParentSpaceRoutes.child(child.id))),
       child: Row(children: [
@@ -533,11 +549,7 @@ class _ChildCard extends ConsumerWidget {
             Text(parentSchooling(context, child),
                 style: AppTypography.caption.copyWith(color: AppPalette.text2)),
             if (line != null)
-              Text(line,
-                  style: AppTypography.caption.copyWith(
-                      color: request != null
-                          ? AppPalette.warningText
-                          : AppPalette.text2)),
+              Text(line, style: AppTypography.caption.copyWith(color: color)),
           ]),
         ),
         const Icon(Icons.chevron_right, color: AppPalette.text2),
@@ -556,12 +568,24 @@ class _InvoiceCard extends StatelessWidget {
     final tr = Translations.of(context).parentSpace;
     final lines = invoice.lines.map((line) => line.label).join(', ');
     final paidAt = invoice.paidAt;
+    final summary = invoice.summary ??
+        [
+          if (lines.isNotEmpty) lines,
+          if (invoice.payable && invoice.dueOn != null)
+            tr.home.due(date: ParentFormat.day(context, invoice.dueOn!))
+          else if (paidAt != null)
+            tr.home.paidOn(date: ParentFormat.day(context, paidAt)),
+        ].join(' · ');
+    final canPay = invoice.canPay ?? invoice.payable;
+    final receipt = invoice.receiptPaymentId;
     return SoeCard(
       padding: const EdgeInsets.all(18),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Expanded(
-              child: Text(ParentFormat.month(context, invoice.period),
+              child: Text(
+                  invoice.monthLabel ??
+                      ParentFormat.month(context, invoice.period),
                   style: AppTypography.labelSm)),
           ParentStatusBadge(status: invoice.status, label: invoice.statusLabel),
         ]),
@@ -571,17 +595,10 @@ class _InvoiceCard extends StatelessWidget {
                 context, invoice.payable ? invoice.balanceDue : invoice.amount),
             style: AppTypography.h1.copyWith(color: AppPalette.teal800)),
         const SizedBox(height: 6),
-        Text(
-            [
-              if (lines.isNotEmpty) lines,
-              if (invoice.payable && invoice.dueOn != null)
-                tr.home.due(date: ParentFormat.day(context, invoice.dueOn!))
-              else if (paidAt != null)
-                tr.home.paidOn(date: ParentFormat.day(context, paidAt)),
-            ].join(' · '),
+        Text(summary,
             style: AppTypography.bodySm.copyWith(color: AppPalette.text2)),
         const SizedBox(height: 12),
-        if (invoice.payable)
+        if (canPay)
           SoeButton(
             label: tr.home
                 .pay(amount: ParentFormat.amount(context, invoice.balanceDue)),
@@ -589,10 +606,12 @@ class _InvoiceCard extends StatelessWidget {
             fullWidth: true,
             onPressed: () => context.push(ParentSpaceRoutes.pay(invoice.id)),
           )
-        else
+        else if (!invoice.payable)
           Center(
             child: TextButton(
-              onPressed: () => context.go(RouteNames.parentPayments),
+              onPressed: () => receipt == null
+                  ? context.go(RouteNames.parentPayments)
+                  : unawaited(context.push(ParentSpaceRoutes.payment(receipt))),
               child: Text(tr.home.seeReceipt),
             ),
           ),

@@ -610,16 +610,3 @@ class ParentReferences {
               item.section!.toLowerCase() == section.toLowerCase())
           .toList();
 }
-
-/// What an action of the home is about: the subjects and children of its request, or the
-/// session of the report to examine (PAR-01, « À faire »).
-class ParentActionSubject {
-  const ParentActionSubject(
-      {required this.subjects, required this.children, this.session});
-
-  final List<String> subjects;
-  final List<String> children;
-
-  /// The session of a report action (its day, its tutor).
-  final ParentSession? session;
-}

@@ -16,13 +16,22 @@ int _id(GoRouterState state, [String name = 'id']) =>
     int.tryParse(state.pathParameters[name] ?? '') ?? 0;
 
 /// The detail screens shown inside a tab, under its tab bar (Studio 390: « Planning ›
-/// Séance », « Mes enfants › Léa »), by tab index: 1 Planning, 2 Enfants, 3 Paiements.
-/// The flows with their own bottom action (request wizard, payment, signature, forms) and the
-/// screens of « Plus » stay full screen.
+/// Séance », « Mes enfants › Léa », « Plus › Demandes et devis »), by tab index: 1 Planning,
+/// 2 Enfants, 3 Paiements, 4 Plus (PAR-06 to PAR-09, PAR-18, PAR-19). The flows with their
+/// own bottom action (request wizard, payment, a contract to read and sign, the planning to
+/// validate, forms) stay full screen.
 const Map<String, int> parentTabScreens = {
   '/parent/space/sessions/:id': 1,
   '/parent/space/children/:id': 2,
   '/parent/space/payments': 3,
+  '/parent/space/requests': 4,
+  '/parent/space/requests/:id': 4,
+  '/parent/space/requests/:id/quote': 4,
+  '/parent/space/requests/:id/tutors': 4,
+  '/parent/space/contracts': 4,
+  '/parent/space/reviews': 4,
+  '/parent/space/co-parents': 4,
+  '/parent/space/advisor': 4,
 };
 
 /// The routes of [parentTabScreens] for the tab [index].

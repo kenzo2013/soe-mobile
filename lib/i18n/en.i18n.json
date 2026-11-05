@@ -268,6 +268,9 @@
       "planning": "Schedule",
       "students": "Students",
       "earnings": "Earnings",
+      "file": "File",
+      "offers": "Offers",
+      "applications": "Applications",
       "contracts": "Contracts"
     },
     "more": {
@@ -308,6 +311,7 @@
       "sessionOf": "Session of {{date}} with {{tutor}}",
       "hours": "{{hours}} h",
       "hoursOf": "left out of {{total}} h",
+      "quoteValidUntil": "quote valid until",
       "signBefore": "advised signature before",
       "before": "to do before",
       "why": {
@@ -965,6 +969,7 @@
         "subtitle": "Your application is moving on. Here is the next step.",
         "refused": "Your application was not accepted. Your SOE contact can tell you more.",
         "next": "Next step · {{step}}",
+        "sectionsComplete": "sections complete",
         "missingTitle": "What is missing",
         "journey": "Your journey",
         "stepOf": "Step {{step}} of {{total}}",
@@ -1435,6 +1440,9 @@
       },
       "payoutMethods": "Payout methods",
       "earningsHistory": "Payout history",
+      "interview": "Interview and test",
+      "charter": "Charter",
+      "help": "Help",
       "quality": "My quality"
     },
     "offers": {

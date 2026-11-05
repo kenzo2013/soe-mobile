@@ -58,4 +58,21 @@ void main() {
 
     expect(find.textContaining('à signer'), findsNothing);
   });
+
+  testWidgets('a candidate\'s « Plus »: interview and test, charter, help',
+      (tester) async {
+    await pumpAppWith(
+      tester,
+      overrides: [tutorCandidateProvider.overrideWithValue(true)],
+      child: const Scaffold(body: TutorMoreLinks()),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Entretien et test'), findsOneWidget);
+    expect(find.text('Charte'), findsOneWidget);
+    expect(find.text('Aide'), findsOneWidget);
+    // The file, offers and applications are the candidate's tabs.
+    expect(find.text('Offres'), findsNothing);
+    expect(find.text('Contrats'), findsNothing);
+  });
 }

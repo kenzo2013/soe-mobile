@@ -15,6 +15,7 @@ import '../tutor_file_providers.dart';
 import '../tutor_space_routes.dart';
 import 'tutor_file_ui.dart';
 import 'tutor_ui.dart';
+import '../tutor_navigation.dart';
 
 /// The top of a section (REP-03 to REP-09): progress, title and state, intro, then why it cannot
 /// change (a checked document) or what SOE asks to redo.
@@ -82,7 +83,7 @@ void continueTutorFile(BuildContext context, String section) {
   } else if (context.canPop()) {
     context.pop();
   } else {
-    context.go(TutorSpaceRoutes.file);
+    goTutorScreen(context, TutorSpaceRoutes.file);
   }
 }
 

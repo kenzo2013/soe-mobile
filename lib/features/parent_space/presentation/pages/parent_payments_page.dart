@@ -254,19 +254,27 @@ class ParentPaymentTile extends ConsumerWidget {
           Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              // « Novembre · Yann (premier mois) », as on the web, else the month.
               Text(
-                  period == null
-                      ? (payment.methodLabel ?? payment.method)
-                      : toBeginningOfSentenceCase(DateFormat.yMMMM(
-                                  Localizations.localeOf(context).languageCode)
-                              .format(period)) ??
-                          '',
+                  payment.title ??
+                      (period == null
+                          ? (payment.methodLabel ?? payment.method)
+                          : toBeginningOfSentenceCase(DateFormat.yMMMM(
+                                      Localizations.localeOf(context)
+                                          .languageCode)
+                                  .format(period)) ??
+                              ''),
                   style: AppTypography.label),
               Text(
                   [
-                    payment.methodLabel ?? payment.method,
-                    if (phone != null && phone.length > 4)
-                      '•• ${phone.substring(phone.length - 4)}',
+                    if (payment.subjects.isNotEmpty)
+                      payment.subjects.join(', '),
+                    payment.meansLabel ??
+                        [
+                          payment.methodLabel ?? payment.method,
+                          if (phone != null && phone.length > 4)
+                            '•• ${phone.substring(phone.length - 4)}',
+                        ].join(' · '),
                   ].join(' · '),
                   style:
                       AppTypography.caption.copyWith(color: AppPalette.text2)),

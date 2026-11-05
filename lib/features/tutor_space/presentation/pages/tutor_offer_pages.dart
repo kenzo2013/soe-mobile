@@ -22,6 +22,7 @@ import '../tutor_space_routes.dart';
 import '../widgets/tutor_offer_ui.dart';
 import '../widgets/tutor_ui.dart';
 import '../../../common/presentation/widgets/space_app_bar.dart';
+import '../tutor_navigation.dart';
 
 /// REP-10 — the offers SOE publishes, filtered by the tutor's subjects, their city and a class,
 /// a page at a time (« load more »).
@@ -100,8 +101,7 @@ class _TutorOffersPageState extends ConsumerState<TutorOffersPage> {
         ref.watch(tutorOffersPageProvider(TutorOfferPageKey(_filters, 1)));
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: SpaceAppBar(
-          section: Translations.of(context).shell.more.tab, title: tr.title),
+      appBar: SpaceAppBar(section: tutorMoreSection(context), title: tr.title),
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: ListView(
@@ -217,7 +217,7 @@ class _OffersPage extends ConsumerWidget {
             child: TutorOfferCard(
               offer: offer,
               onTap: () =>
-                  unawaited(context.push(TutorSpaceRoutes.offer(offer.id))),
+                  openTutorScreen(context, TutorSpaceRoutes.offer(offer.id)),
             ),
           ),
         if (last && page.hasMore)
@@ -309,8 +309,7 @@ class _TutorOfferPageState extends ConsumerState<TutorOfferPage> {
     final canApply = !_sent && (offer?.canApply ?? false);
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: SpaceAppBar(
-          section: Translations.of(context).shell.more.tab, title: tr.title),
+      appBar: SpaceAppBar(section: tutorMoreSection(context), title: tr.title),
       body: _sent
           ? _SentView(offerId: widget.offerId)
           : TutorAsyncBody<TutorOffer>(
@@ -471,7 +470,7 @@ class _AlreadyApplied extends StatelessWidget {
               : TutorFormat.dayLong(context, offer.appliedAt!)),
       body: tr.alreadyText,
       actionLabel: tr.see,
-      onAction: () => unawaited(context.push(TutorSpaceRoutes.applications)),
+      onAction: () => openTutorScreen(context, TutorSpaceRoutes.applications),
     );
   }
 }
@@ -507,12 +506,12 @@ class _SentView extends StatelessWidget {
           const SizedBox(height: 16),
           SoeButton(
             label: tr.completeFile,
-            onPressed: () => unawaited(context.push(TutorSpaceRoutes.file)),
+            onPressed: () => openTutorScreen(context, TutorSpaceRoutes.file),
           ),
           const SizedBox(height: 8),
           TextButton(
             onPressed: () =>
-                unawaited(context.push(TutorSpaceRoutes.applications)),
+                openTutorScreen(context, TutorSpaceRoutes.applications),
             child: Text(tr.follow, textAlign: TextAlign.center),
           ),
         ]),
@@ -532,8 +531,7 @@ class TutorApplicationsPage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
       appBar: SpaceAppBar(
-          section: Translations.of(context).shell.more.tab,
-          title: tr.applications.title),
+          section: tutorMoreSection(context), title: tr.applications.title),
       body: TutorAsyncBody<List<TutorApplication>>(
         value: ref.watch(tutorApplicationsProvider),
         onRetry: () => ref.invalidate(tutorApplicationsProvider),
@@ -547,7 +545,7 @@ class TutorApplicationsPage extends ConsumerWidget {
                 icon: Icons.insert_drive_file_outlined,
                 actionLabel: tr.applications.seeOffers,
                 onAction: () =>
-                    unawaited(context.push(TutorSpaceRoutes.offers)),
+                    openTutorScreen(context, TutorSpaceRoutes.offers),
               )
             else
               TutorListCard(
@@ -569,8 +567,8 @@ class TutorApplicationsPage extends ConsumerWidget {
                       badge: TutorToneBadge(
                           state: application.status,
                           label: application.statusLabel),
-                      onTap: () => unawaited(context
-                          .push(TutorSpaceRoutes.offer(application.offerId))),
+                      onTap: () => openTutorScreen(
+                          context, TutorSpaceRoutes.offer(application.offerId)),
                     ),
                 ],
               ),
