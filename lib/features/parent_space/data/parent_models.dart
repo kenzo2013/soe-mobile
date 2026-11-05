@@ -148,27 +148,103 @@ class ParentChild {
   const ParentChild({
     required this.id,
     required this.firstName,
+    this.lastName,
     required this.schoolClass,
     required this.schoolName,
     required this.courses,
+    this.birthdate,
+    this.gender,
+    this.section,
+    this.schoolType,
+    this.schoolClassId,
+    this.hasPhoto = false,
+    this.editable = false,
+    this.specialNeeds,
+    this.address,
   });
 
-  factory ParentChild.fromJson(Map<String, dynamic> json) => ParentChild(
-        id: _int(json['id']),
-        firstName: json['first_name'] as String? ?? '',
-        schoolClass: json['school_class'] as String?,
-        schoolName: json['school_name'] as String?,
-        courses: (json['courses'] as List<dynamic>? ?? const [])
-            .cast<Map<String, dynamic>>()
-            .map(ParentCourse.fromJson)
-            .toList(growable: false),
-      );
+  factory ParentChild.fromJson(Map<String, dynamic> json) {
+    final address = json['address'] as Map<String, dynamic>?;
+    return ParentChild(
+      id: _int(json['id']),
+      firstName: json['first_name'] as String? ?? '',
+      lastName: json['last_name'] as String?,
+      schoolClass: json['school_class'] as String?,
+      schoolName: json['school_name'] as String?,
+      courses: (json['courses'] as List<dynamic>? ?? const [])
+          .cast<Map<String, dynamic>>()
+          .map(ParentCourse.fromJson)
+          .toList(growable: false),
+      birthdate: json['birthdate'] is String
+          ? DateTime.tryParse(json['birthdate'] as String)
+          : null,
+      gender: json['gender'] as String?,
+      section: json['section'] as String?,
+      schoolType: json['school_type'] as String?,
+      schoolClassId: (json['school_class_id'] as num?)?.toInt(),
+      hasPhoto: json['has_photo'] == true,
+      editable: json['editable'] == true,
+      specialNeeds: json['special_needs'] as String?,
+      address: address == null ? null : ParentAddress.fromJson(address),
+    );
+  }
 
   final int id;
   final String firstName;
+  final String? lastName;
   final String? schoolClass;
   final String? schoolName;
   final List<ParentCourse> courses;
+  final DateTime? birthdate;
+
+  /// male or female.
+  final String? gender;
+
+  /// francophone or anglophone.
+  final String? section;
+
+  /// public, private_secular or religious.
+  final String? schoolType;
+  final int? schoolClassId;
+  final bool hasPhoto;
+
+  /// Only the holder of the child edits or archives them (a co-parent reads).
+  final bool editable;
+  final String? specialNeeds;
+  final ParentAddress? address;
+
+  String get fullName =>
+      [firstName, lastName].whereType<String>().where((s) => s.isNotEmpty).join(' ');
+}
+
+/// Where the courses take place (sent to the tutor only once the contract is signed).
+class ParentAddress {
+  const ParentAddress(
+      {this.address, this.neighborhood, this.city, this.landmark});
+
+  factory ParentAddress.fromJson(Map<String, dynamic> json) => ParentAddress(
+        address: json['address'] as String?,
+        neighborhood: json['neighborhood'] as String?,
+        city: json['city'] as String?,
+        landmark: json['landmark'] as String?,
+      );
+
+  final String? address;
+  final String? neighborhood;
+  final String? city;
+  final String? landmark;
+
+  String get label => [neighborhood, address, landmark]
+      .whereType<String>()
+      .where((s) => s.isNotEmpty)
+      .join(', ');
+
+  Map<String, dynamic> toJson() => {
+        'address': address,
+        'neighborhood': neighborhood,
+        'city': city,
+        'landmark': landmark,
+      };
 }
 
 class ParentCourse {
@@ -177,6 +253,10 @@ class ParentCourse {
     required this.tutorName,
     required this.validatedSessions,
     required this.nextSessionAt,
+    this.reservationId,
+    this.stage,
+    this.since,
+    this.times = const [],
   });
 
   factory ParentCourse.fromJson(Map<String, dynamic> json) => ParentCourse(
@@ -184,12 +264,39 @@ class ParentCourse {
         tutorName: json['tutor_name'] as String? ?? '',
         validatedSessions: _int(json['validated_sessions']),
         nextSessionAt: _date(json['next_session_at']),
+        reservationId: (json['reservation_id'] as num?)?.toInt(),
+        stage: json['stage'] as String?,
+        since: json['since'] is String
+            ? DateTime.tryParse(json['since'] as String)
+            : null,
+        times: (json['times'] as List<dynamic>? ?? const [])
+            .cast<Map<String, dynamic>>()
+            .map((time) => (
+                  day: time['day'] as String? ?? '',
+                  from: time['from'] as String? ?? '',
+                  to: time['to'] as String? ?? ''
+                ))
+            .toList(growable: false),
       );
 
   final String subject;
   final String tutorName;
   final int validatedSessions;
   final DateTime? nextSessionAt;
+
+  /// The request the course comes from (its tutor page asks for a replacement).
+  final int? reservationId;
+  final String? stage;
+  final DateTime? since;
+  final List<({String day, String from, String to})> times;
+
+  /// A course in place: its tutor may be replaced.
+  bool get active => const [
+        'first_month_paid',
+        'scheduled',
+        'active',
+        'paused'
+      ].contains(stage);
 }
 
 class ParentInvoice {
@@ -248,6 +355,11 @@ class ParentPayment {
     required this.state,
     required this.receiptNumber,
     required this.paidAt,
+    this.status,
+    this.statusLabel,
+    this.methodLabel,
+    this.period,
+    this.createdAt,
   });
 
   factory ParentPayment.fromJson(Map<String, dynamic> json) => ParentPayment(
@@ -259,6 +371,13 @@ class ParentPayment {
         state: json['state'] as String? ?? 'waiting',
         receiptNumber: json['receipt_number'] as String?,
         paidAt: _date(json['paid_at']),
+        status: json['status'] as String?,
+        statusLabel: json['status_label'] as String?,
+        methodLabel: json['method_label'] as String?,
+        period: json['period'] is String
+            ? DateTime.tryParse(json['period'] as String)
+            : null,
+        createdAt: _date(json['created_at']),
       );
 
   final int id;
@@ -269,6 +388,16 @@ class ParentPayment {
   final String state;
   final String? receiptNumber;
   final DateTime? paidAt;
+
+  /// completed, pending, failed... and its label.
+  final String? status;
+  final String? statusLabel;
+  final String? methodLabel;
+  final DateTime? period;
+  final DateTime? createdAt;
+
+  /// A receipt exists (PDF) once the payment went through.
+  bool get hasReceipt => state == 'success' && receiptNumber != null;
 }
 
 class ParentHomeAction {
@@ -302,13 +431,15 @@ class ParentHomeAction {
 
 class ParentHomeRequest {
   const ParentHomeRequest(
-      {required this.reference,
+      {this.id = 0,
+      required this.reference,
       required this.step,
       required this.stepLabel,
       required this.children});
 
   factory ParentHomeRequest.fromJson(Map<String, dynamic> json) =>
       ParentHomeRequest(
+        id: _int(json['id']),
         reference: json['reference'] as String? ?? '',
         step: json['step'] as String? ?? 'request',
         stepLabel: json['step_label'] as String? ?? '',
@@ -325,6 +456,7 @@ class ParentHomeRequest {
     'first_session'
   ];
 
+  final int id;
   final String reference;
   final String step;
   final String stepLabel;
@@ -383,6 +515,9 @@ class ParentRequest {
     required this.quoteAmount,
     required this.contractId,
     this.contractStatus,
+    this.stage = '',
+    this.quoteStatus,
+    this.createdAt,
   });
 
   factory ParentRequest.fromJson(Map<String, dynamic> json) => ParentRequest(
@@ -396,6 +531,9 @@ class ParentRequest {
         quoteAmount: (json['quote_amount'] as num?)?.toInt(),
         contractId: (json['contract_id'] as num?)?.toInt(),
         contractStatus: json['contract_status'] as String?,
+        stage: json['stage'] as String? ?? '',
+        quoteStatus: json['quote_status'] as String?,
+        createdAt: _date(json['created_at']),
       );
 
   final int id;
@@ -411,6 +549,11 @@ class ParentRequest {
 
   /// sent (to sign) or signed.
   final String? contractStatus;
+
+  /// The reservation stage (11-state cycle), e.g. quote_sent, tutor_presented.
+  final String stage;
+  final String? quoteStatus;
+  final DateTime? createdAt;
 }
 
 class ParentQuote {
@@ -461,6 +604,12 @@ class ParentContract {
     required this.text,
     required this.canSign,
     required this.signedAt,
+    this.status = '',
+    this.legacy = false,
+    this.reservationId,
+    this.createdAt,
+    this.amendmentsCount = 0,
+    this.amendmentsToSign = 0,
   });
 
   factory ParentContract.fromJson(Map<String, dynamic> json) => ParentContract(
@@ -470,14 +619,30 @@ class ParentContract {
         text: json['text'] as String? ?? '',
         canSign: json['can_sign'] == true,
         signedAt: _date(json['signed_at']),
+        status: json['status'] as String? ?? '',
+        legacy: json['legacy'] == true,
+        reservationId: (json['reservation_id'] as num?)?.toInt(),
+        createdAt: _date(json['created_at']),
+        amendmentsCount: _int(json['amendments_count']),
+        amendmentsToSign: _int(json['amendments_to_sign']),
       );
 
   final int id;
   final String reference;
   final String statusLabel;
+
+  /// Empty in the list (only the detail carries the text).
   final String text;
   final bool canSign;
   final DateTime? signedAt;
+  final String status;
+
+  /// A contract of the former platform (v1), kept readable and signable.
+  final bool legacy;
+  final int? reservationId;
+  final DateTime? createdAt;
+  final int amendmentsCount;
+  final int amendmentsToSign;
 }
 
 class ParentPlanningSlot {

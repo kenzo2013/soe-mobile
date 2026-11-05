@@ -11,6 +11,7 @@ class User {
     this.lang,
     this.photoUrl,
     this.multiRole = false,
+    this.hasPhoto = false,
   });
 
   final String id;
@@ -26,6 +27,9 @@ class User {
   /// `true` si le compte possède plusieurs rôles (bascule possible via
   /// `/role_switch`). Sinon, l'ajout passe par `/role_addition`.
   final bool multiRole;
+
+  /// A profile photo exists (API v2: a short-lived link from `GET /me/photo`).
+  final bool hasPhoto;
 
   String get fullName => '$firstName $lastName';
 

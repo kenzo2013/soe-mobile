@@ -13,6 +13,7 @@ import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../i18n/translations.g.dart';
 import '../../../auth/presentation/providers/current_user_provider.dart';
+import '../../../common/presentation/widgets/notification_bell.dart';
 import '../../data/tutor_models.dart';
 import '../providers.dart';
 import '../tutor_space_routes.dart';
@@ -83,9 +84,19 @@ class _HomeContent extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
       children: [
-        Text(TutorFormat.dayLong(context, now),
-            style: AppTypography.caption.copyWith(color: AppPalette.text2)),
-        Text(home.active ? tr.title : tr.fileTitle, style: AppTypography.label),
+        Row(children: [
+          Expanded(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(TutorFormat.dayLong(context, now),
+                  style:
+                      AppTypography.caption.copyWith(color: AppPalette.text2)),
+              Text(home.active ? tr.title : tr.fileTitle,
+                  style: AppTypography.label),
+            ]),
+          ),
+          const NotificationBell(),
+        ]),
         const SizedBox(height: 16),
         Text(tr.hello(name: firstName),
             style: AppTypography.h1.copyWith(color: AppPalette.teal800)),

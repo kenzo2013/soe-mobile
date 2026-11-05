@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,24 +17,51 @@ import '../../data/parent_models.dart';
 import '../parent_space_routes.dart';
 import '../providers.dart';
 import '../widgets/parent_ui.dart';
+import '../widgets/parent_widgets.dart';
 
-/// PAR-13 — a session: check-in, report, backup code (check-in window only), cancel.
-class ParentSessionPage extends ConsumerWidget {
-  const ParentSessionPage({super.key, required this.sessionId});
+/// PAR-13 — a session: check-in, report, backup code (check-in window only), cancel,
+/// a problem for the advisor or serious behaviour (SOE steps in).
+class ParentSessionPage extends ConsumerStatefulWidget {
+  const ParentSessionPage(
+      {super.key, required this.sessionId, this.openSerious = false});
 
   final int sessionId;
 
+  /// Opens the serious behaviour sheet once loaded (from the child's « Sécurité »).
+  final bool openSerious;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ParentSessionPage> createState() => _ParentSessionPageState();
+}
+
+class _ParentSessionPageState extends ConsumerState<ParentSessionPage> {
+  late bool _pendingSerious = widget.openSerious;
+
+  int get sessionId => widget.sessionId;
+
+  @override
+  Widget build(BuildContext context) {
     final tr = Translations.of(context).parentSpace.session;
+    final value = ref.watch(parentSessionProvider(sessionId));
+    if (_pendingSerious && value.hasValue) {
+      _pendingSerious = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          unawaited(showParentProblemSheet(context, ref, value.requireValue,
+              serious: true));
+        }
+      });
+    }
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
       appBar: AppBar(title: Text(tr.title)),
       body: ParentAsyncBody<ParentSessionDetail>(
-        value: ref.watch(parentSessionProvider(sessionId)),
+        value: value,
         onRetry: () => ref.invalidate(parentSessionProvider(sessionId)),
         builder: (detail) {
           final session = detail.session;
+          final held = session.startsAt.isBefore(DateTime.now()) &&
+              session.status != 'cancelled';
           return ListView(padding: const EdgeInsets.all(16), children: [
             Text(ParentFormat.dayLong(context, session.startsAt),
                 style:
@@ -124,6 +153,23 @@ class ParentSessionPage extends ConsumerWidget {
                 onPressed: () => _cancel(context, ref, detail),
               ),
             ],
+            const SizedBox(height: 16),
+            SoeButton(
+              label: Translations.of(context).parentSpace.problem.action,
+              variant: SoeButtonVariant.outline,
+              fullWidth: true,
+              onPressed: () =>
+                  unawaited(showParentProblemSheet(context, ref, detail)),
+            ),
+            if (held)
+              SoeButton(
+                label: Translations.of(context).parentSpace.problem.serious,
+                variant: SoeButtonVariant.tertiary,
+                fullWidth: true,
+                onPressed: () => unawaited(showParentProblemSheet(
+                    context, ref, detail,
+                    serious: true)),
+              ),
           ]);
         },
       ),
@@ -309,5 +355,132 @@ class _ParentReportPageState extends ConsumerState<ParentReportPage> {
         },
       ),
     );
+  }
+}
+
+
+/// Problem types of a session (Reports::ParentProblem::TYPES).
+const _problemTypes = [
+  'repeated_lateness',
+  'no_show',
+  'incorrect_check_in',
+  'unprofessional_conduct',
+  'other'
+];
+
+/// « Signaler un problème » (goes to the advisor; no messaging with the tutor) or, with
+/// [serious], serious behaviour: SOE calls and suspends the tutor's sessions.
+Future<void> showParentProblemSheet(
+    BuildContext context, WidgetRef ref, ParentSessionDetail detail,
+    {bool serious = false}) async {
+  final tr = Translations.of(context).parentSpace.problem;
+  final session = detail.session;
+  final sent = await showParentSheet<bool>(
+    context,
+    title: serious ? tr.serious : tr.action,
+    text: serious
+        ? tr.seriousText
+        : '${tr.overline(date: ParentFormat.day(context, session.startsAt))} · ${session.title}',
+    builder: (sheet) => _ProblemForm(detail: detail, serious: serious),
+  );
+  if (sent == true && context.mounted) {
+    SoeToast.show(context,
+        message: serious ? tr.seriousSent : tr.sent,
+        tone: SoeToastTone.success);
+  }
+}
+
+class _ProblemForm extends ConsumerStatefulWidget {
+  const _ProblemForm({required this.detail, required this.serious});
+
+  final ParentSessionDetail detail;
+  final bool serious;
+
+  @override
+  ConsumerState<_ProblemForm> createState() => _ProblemFormState();
+}
+
+class _ProblemFormState extends ConsumerState<_ProblemForm> {
+  final _description = TextEditingController();
+  String? _type;
+  String? _error;
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _description.dispose();
+    super.dispose();
+  }
+
+  Future<void> _send() async {
+    final tr = Translations.of(context).parentSpace.problem;
+    if ((!widget.serious && _type == null) ||
+        _description.text.trim().isEmpty) {
+      setState(() => _error = tr.describeMissing);
+      return;
+    }
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await ref.read(parentApiProvider).reportProblem(
+          widget.detail.session.id,
+          serious: widget.serious,
+          reportType: _type,
+          description: _description.text.trim());
+      if (mounted) Navigator.of(context).pop(true);
+    } on Failure catch (failure) {
+      if (mounted) setState(() => _error = parentFailureMessage(context, failure));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = Translations.of(context).parentSpace.problem;
+    final labels = {
+      'repeated_lateness': tr.lateness,
+      'no_show': tr.noShow,
+      'incorrect_check_in': tr.checkIn,
+      'unprofessional_conduct': tr.conduct,
+      'other': tr.other,
+    };
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      if (!widget.serious) ...[
+        ParentFieldLabel(tr.subject),
+        ParentChoiceChips<String>(
+          options: [for (final type in _problemTypes) (type, labels[type]!)],
+          selected: {if (_type != null) _type!},
+          onToggle: (type) => setState(() => _type = type),
+        ),
+      ],
+      ParentFieldLabel(widget.serious ? tr.describe : tr.message),
+      ParentCountedField(controller: _description, errorText: _error),
+      if (!widget.serious)
+        Container(
+          margin: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+              color: AppPalette.surfaceSoft,
+              borderRadius: BorderRadius.circular(14)),
+          child: Text(tr.hint,
+              style: AppTypography.bodySm.copyWith(color: AppPalette.text2)),
+        ),
+      const SizedBox(height: 16),
+      SoeButton(
+        label: widget.serious ? tr.serious : tr.send,
+        variant:
+            widget.serious ? SoeButtonVariant.danger : SoeButtonVariant.secondary,
+        loading: _busy,
+        onPressed: _busy ? null : () => unawaited(_send()),
+      ),
+      SoeButton(
+        label: Translations.of(context).parentSpace.common.cancel,
+        variant: SoeButtonVariant.tertiary,
+        onPressed: () => Navigator.of(context).pop(false),
+      ),
+    ]);
   }
 }

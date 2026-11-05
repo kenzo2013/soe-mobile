@@ -8,10 +8,10 @@ import '../../../../core/error/failure.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/soe_badge.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/soe_empty_state.dart';
-import '../../../../core/widgets/soe_signature.dart';
 import '../../../../core/widgets/soe_text_field.dart';
 import '../../../../core/widgets/soe_toast.dart';
 import '../../../../i18n/translations.g.dart';
@@ -19,6 +19,8 @@ import '../../data/parent_models.dart';
 import '../parent_space_routes.dart';
 import '../providers.dart';
 import '../widgets/parent_ui.dart';
+import '../widgets/parent_widgets.dart';
+import 'parent_contract_pages.dart';
 
 /// Refreshes what a request step changes: the requests, the home actions.
 void _refreshRequests(WidgetRef ref) => ref
@@ -29,6 +31,7 @@ void _refreshRequests(WidgetRef ref) => ref
 /// A presented tutor is accepted by signing the contract; a signed one leads to the payment.
 String? parentRequestTarget(ParentRequest request) => switch (request.action) {
       'quote' => ParentSpaceRoutes.quote(request.id),
+      'tutor' => ParentSpaceRoutes.tutors(request.id),
       'planning' => ParentSpaceRoutes.planning(request.id),
       'payment' => RouteNames.parentPayments,
       _ => request.contractId != null &&
@@ -38,12 +41,33 @@ String? parentRequestTarget(ParentRequest request) => switch (request.action) {
           : null,
     };
 
-/// PAR-06 — the family's requests with their step and the one action to take.
-class ParentRequestsPage extends ConsumerWidget {
+enum _RequestFilter { all, toHandle, inPlace, closed }
+
+/// PAR-06 — the family's requests with their step and the one action to take, filtered
+/// (all, to handle, courses in place, closed); a card opens the request (PAR-07);
+/// « Nouvelle demande » starts the wizard (PAR-05).
+class ParentRequestsPage extends ConsumerStatefulWidget {
   const ParentRequestsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ParentRequestsPage> createState() => _ParentRequestsPageState();
+}
+
+class _ParentRequestsPageState extends ConsumerState<ParentRequestsPage> {
+  _RequestFilter _filter = _RequestFilter.all;
+
+  static const _inPlace = ['first_month_paid', 'scheduled', 'active', 'paused'];
+
+  bool _matches(ParentRequest request, _RequestFilter filter) =>
+      switch (filter) {
+        _RequestFilter.all => true,
+        _RequestFilter.toHandle => parentRequestTarget(request) != null,
+        _RequestFilter.inPlace => _inPlace.contains(request.stage),
+        _RequestFilter.closed => request.step == 'closed',
+      };
+
+  @override
+  Widget build(BuildContext context) {
     final tr = Translations.of(context).parentSpace.requests;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
@@ -54,12 +78,45 @@ class ParentRequestsPage extends ConsumerWidget {
         builder: (requests) => ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: SoeButton(
+                label: Translations.of(context).parentSpace.requestDetail.kNew,
+                size: SoeButtonSize.md,
+                onPressed: () =>
+                    unawaited(context.push(ParentSpaceRoutes.newRequest)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (requests.isNotEmpty) ...[
+              ParentChoiceChips<_RequestFilter>(
+                options: [
+                  for (final (filter, label) in [
+                    (_RequestFilter.all, tr.filterAll),
+                    (_RequestFilter.toHandle, tr.filterToHandle),
+                    (_RequestFilter.inPlace, tr.filterInPlace),
+                    (_RequestFilter.closed, tr.filterClosed),
+                  ])
+                    if (filter == _RequestFilter.all ||
+                        requests.any((request) => _matches(request, filter)))
+                      (
+                        filter,
+                        '$label ${requests.where((request) => _matches(request, filter)).length}'
+                      ),
+                ],
+                selected: {_filter},
+                onToggle: (filter) => setState(() => _filter = filter),
+              ),
+              const SizedBox(height: 16),
+            ],
             if (requests.isEmpty)
               SoeEmptyState(
                   title: tr.empty,
                   message: tr.emptyText,
                   icon: Icons.assignment_outlined),
-            ...requests.map((request) => Padding(
+            ...requests
+                .where((request) => _matches(request, _filter))
+                .map((request) => Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: _RequestCard(request: request),
                 )),
@@ -81,21 +138,41 @@ class _RequestCard extends StatelessWidget {
     final target = parentRequestTarget(request);
     final label = switch (request.action) {
       'quote' => tr.quote,
+      'tutor' => tr.tutor,
       'planning' => tr.planning,
       'payment' => tr.payFirst,
       _ => target != null ? tr.contract : null,
     };
     return SoeCard(
+      onTap: () => unawaited(context.push(ParentSpaceRoutes.request(request.id))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-              [request.reference, ...request.children]
-                  .join(' · ')
-                  .toUpperCase(),
-              style: AppTypography.overline.copyWith(color: AppPalette.text2)),
-          const SizedBox(height: 6),
-          Text(request.stepLabel, style: AppTypography.h3),
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Icon(Icons.description_outlined,
+                size: 16, color: AppPalette.text2),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                  [
+                    request.reference,
+                    if (request.createdAt != null)
+                      tr.createdOn(
+                          date: ParentFormat.day(context, request.createdAt!)),
+                  ].join(' · '),
+                  style: AppTypography.caption
+                      .copyWith(color: AppPalette.text2)),
+            ),
+            SoeBadge(
+                label: request.stepLabel,
+                tone: request.step == 'closed'
+                    ? SoeBadgeTone.neutral
+                    : (target != null
+                        ? SoeBadgeTone.warning
+                        : SoeBadgeTone.success)),
+          ]),
+          const SizedBox(height: 8),
+          Text(request.children.join(', '), style: AppTypography.h3),
           if (request.quoteAmount != null) ...[
             const SizedBox(height: 4),
             Text(
@@ -103,22 +180,26 @@ class _RequestCard extends StatelessWidget {
                     amount: ParentFormat.amount(context, request.quoteAmount!)),
                 style: AppTypography.body.copyWith(color: AppPalette.text2)),
           ],
-          if (label != null) ...[
-            const SizedBox(height: 12),
+          const SizedBox(height: 12),
+          if (label != null && target != null)
             SoeButton(
               label: label,
               fullWidth: true,
               size: SoeButtonSize.md,
-              variant: target != null
-                  ? SoeButtonVariant.primary
-                  : SoeButtonVariant.outline,
-              onPressed: target == null
-                  ? null
-                  : () => request.action == 'payment'
-                      ? context.go(target)
-                      : context.push(target),
+              variant: SoeButtonVariant.outline,
+              onPressed: () => request.action == 'payment'
+                  ? context.go(target)
+                  : unawaited(context.push(target)),
+            )
+          else
+            SoeButton(
+              label: tr.open,
+              fullWidth: true,
+              size: SoeButtonSize.md,
+              variant: SoeButtonVariant.tertiary,
+              onPressed: () => unawaited(
+                  context.push(ParentSpaceRoutes.request(request.id))),
             ),
-          ],
         ],
       ),
     );
@@ -382,143 +463,67 @@ class _Sheet extends StatelessWidget {
       );
 }
 
-/// PAR-10 — the contract: read to the end, then signed with the finger.
-class ParentContractPage extends ConsumerStatefulWidget {
+/// PAR-10 — the contract: read to the end, then signed with the finger; its PDF and its
+/// amendments (COM-08). Legacy contracts (former platform) are signed the same way.
+class ParentContractPage extends ConsumerWidget {
   const ParentContractPage({super.key, required this.contractId});
 
   final int contractId;
 
   @override
-  ConsumerState<ParentContractPage> createState() => _ParentContractPageState();
-}
-
-class _ParentContractPageState extends ConsumerState<ParentContractPage> {
-  static const double _padHeight = 130;
-
-  final _signature = SoeSignatureController();
-  final _scroll = ScrollController();
-  bool _readToEnd = false;
-  bool _busy = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _scroll.addListener(_check);
-  }
-
-  @override
-  void dispose() {
-    _scroll.dispose();
-    _signature.dispose();
-    super.dispose();
-  }
-
-  // Read once the end of the text was reached, or at once when it fits on the screen.
-  void _check() {
-    if (_readToEnd || !_scroll.hasClients) return;
-    if (_scroll.position.extentAfter < 40) setState(() => _readToEnd = true);
-  }
-
-  Future<void> _sign() async {
-    final tr = Translations.of(context).parentSpace.requests;
-    setState(() => _busy = true);
-    try {
-      final png = await _signature
-          .toPng(Size(MediaQuery.sizeOf(context).width - 32, _padHeight));
-      if (png == null) return;
-      await ref.read(parentApiProvider).signContract(widget.contractId, png);
-      if (!mounted) return;
-      ref.invalidate(parentContractProvider(widget.contractId));
-      _refreshRequests(ref);
-      SoeToast.show(context, message: tr.signed, tone: SoeToastTone.success);
-    } on Failure catch (failure) {
-      if (mounted) {
-        SoeToast.show(context,
-            message: parentFailureMessage(context, failure),
-            tone: SoeToastTone.danger);
-      }
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final tr = Translations.of(context).parentSpace.requests;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context).parentSpace;
+    final value = ref.watch(parentContractProvider(contractId));
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.contractTitle)),
-      body: ParentAsyncBody<ParentContract>(
-        value: ref.watch(parentContractProvider(widget.contractId)),
-        onRetry: () =>
-            ref.invalidate(parentContractProvider(widget.contractId)),
-        builder: (contract) => Column(children: [
-          Expanded(
-            child: Builder(builder: (context) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) _check();
-              });
-              return ListView(
-                controller: _scroll,
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Row(children: [
-                    Expanded(
-                        child: Text(contract.reference,
-                            style: AppTypography.overline
-                                .copyWith(color: AppPalette.text2))),
-                    Text(contract.statusLabel, style: AppTypography.label),
-                  ]),
-                  const SizedBox(height: 12),
-                  SoeCard(
-                      child: Text(contract.text,
-                          style: AppTypography.body.copyWith(height: 1.5))),
-                  if (contract.signedAt != null) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                        tr.signedOn(
-                            date: ParentFormat.dayLong(
-                                context, contract.signedAt!)),
-                        style: AppTypography.label
-                            .copyWith(color: AppPalette.successText)),
-                  ],
-                ],
-              );
-            }),
+      appBar: AppBar(
+        title: Text(tr.requests.contractTitle),
+        actions: [
+          IconButton(
+            tooltip: tr.common.pdf,
+            icon: const Icon(Icons.picture_as_pdf_outlined),
+            onPressed: () => unawaited(openParentPdf(
+                context,
+                ref,
+                () => ref.read(parentApiProvider).contractPdf(contractId,
+                    lang: Localizations.localeOf(context).languageCode),
+                '${value.valueOrNull?.reference ?? 'contract_$contractId'}.pdf')),
           ),
-          if (contract.canSign)
-            SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: _readToEnd
-                    ? Column(mainAxisSize: MainAxisSize.min, children: [
-                        Text(tr.signHere, style: AppTypography.label),
-                        const SizedBox(height: 8),
-                        SoeSignaturePad(
-                            controller: _signature,
-                            clearLabel: tr.clear,
-                            height: _padHeight),
-                        const SizedBox(height: 10),
-                        ListenableBuilder(
-                          listenable: _signature,
-                          builder: (context, _) => SoeButton(
-                            label: tr.sign,
-                            fullWidth: true,
-                            loading: _busy,
-                            onPressed: _busy || _signature.isEmpty
-                                ? null
-                                : () => unawaited(_sign()),
-                          ),
-                        ),
-                      ])
-                    : Text(tr.readFirst,
-                        textAlign: TextAlign.center,
-                        style: AppTypography.body
-                            .copyWith(color: AppPalette.text2)),
-              ),
-            ),
-        ]),
+        ],
+      ),
+      body: ParentAsyncBody<ParentContract>(
+        value: value,
+        onRetry: () => ref.invalidate(parentContractProvider(contractId)),
+        builder: (contract) => ParentSignableText(
+          header: [
+            Row(children: [
+              Expanded(
+                  child: Text(contract.reference,
+                      style: AppTypography.overline
+                          .copyWith(color: AppPalette.text2))),
+              Text(contract.statusLabel, style: AppTypography.label),
+            ]),
+          ],
+          text: contract.text,
+          signedAt: contract.signedAt,
+          canSign: contract.canSign,
+          signLabel: tr.requests.sign,
+          footer: [
+            const SizedBox(height: 12),
+            ParentAmendmentsSection(contractId: contractId),
+          ],
+          onSign: (png) async {
+            final signed = await runParentAction(context,
+                () => ref.read(parentApiProvider).signContract(contractId, png));
+            if (signed == null || !context.mounted) return;
+            ref
+              ..invalidate(parentContractProvider(contractId))
+              ..invalidate(parentContractsProvider);
+            _refreshRequests(ref);
+            SoeToast.show(context,
+                message: tr.requests.signed, tone: SoeToastTone.success);
+          },
+        ),
       ),
     );
   }
