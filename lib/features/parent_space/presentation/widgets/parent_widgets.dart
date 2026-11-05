@@ -26,13 +26,16 @@ Future<T?> runParentAction<T>(
   }
 }
 
-/// Downloads a PDF with the token and opens it in the system viewer.
+/// Downloads a PDF with the token and opens it in a viewer with a close button on top.
 Future<void> openParentPdf(BuildContext context, WidgetRef ref,
     Future<List<int>> Function() download, String name) async {
   final tr = Translations.of(context).parentSpace.common;
+  final close = Translations.of(context).common.close;
   final bytes = await runParentAction(context, download);
   if (bytes == null || !context.mounted) return;
-  final opened = await ref.read(parentFilesProvider).openPdf(bytes, name);
+  final opened = await ref
+      .read(parentFilesProvider)
+      .openPdf(bytes, name, closeLabel: close);
   if (!opened && context.mounted) {
     SoeToast.show(context, message: tr.pdfError, tone: SoeToastTone.danger);
   }
