@@ -19,6 +19,16 @@ final parentChildrenProvider = FutureProvider.autoDispose<List<ParentChild>>(
 final parentChildProvider = FutureProvider.autoDispose.family<ParentChild, int>(
     (ref, id) => ref.watch(parentApiProvider).child(id));
 
+/// The class of a child (from the children list): loading or failed while the list is, so the
+/// need step never offers subjects before it knows the class; null when the child has none.
+final parentChildClassIdProvider = Provider.autoDispose
+    .family<AsyncValue<int?>, int>((ref, childId) => ref
+        .watch(parentChildrenProvider)
+        .whenData((children) => children
+            .where((child) => child.id == childId)
+            .firstOrNull
+            ?.schoolClassId));
+
 /// The sessions of the week starting on the given Monday.
 final parentWeekSessionsProvider = FutureProvider.autoDispose
     .family<List<ParentSession>, DateTime>((ref, monday) => ref

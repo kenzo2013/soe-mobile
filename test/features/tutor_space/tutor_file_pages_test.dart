@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:soe/core/data/school_catalog.dart';
 import 'package:soe/features/common/presentation/providers.dart';
 import 'package:soe/core/theme/app_theme.dart';
 import 'package:soe/core/widgets/soe_button.dart';
@@ -78,7 +79,8 @@ class _FakeApi extends TutorFileApi {
 }
 
 /// Pumps [child] at `/start` with the recruitment routes it opens (each shows its path).
-Future<void> _pump(WidgetTester tester, Widget child, _FakeApi api) async {
+Future<void> _pump(WidgetTester tester, Widget child, _FakeApi api,
+    {TutorReferences? references}) async {
   // Wide: the test font draws every glyph as a square, far wider than the real one.
   tester.view.physicalSize = const Size(900 * 3, 1600 * 3);
   tester.view.devicePixelRatio = 3;
@@ -99,8 +101,13 @@ Future<void> _pump(WidgetTester tester, Widget child, _FakeApi api) async {
       tutorFileApiProvider.overrideWithValue(api),
       // The bell of the headers: no notification server in the tests.
       unreadNotificationsProvider.overrideWith((ref) async => 0),
-      tutorReferencesProvider.overrideWith((ref) async => const TutorReferences(
-            subjects: [TutorReference(id: 1, name: 'Mathématiques')],
+      tutorReferencesProvider.overrideWith((ref) async =>
+          references ??
+          const TutorReferences(
+            catalog: SchoolCatalog(
+              subjects: [SchoolSubjectRef(id: 1, name: 'Mathématiques')],
+              classes: [SchoolClassRef(id: 7, name: '4e')],
+            ),
             schoolClasses: [TutorReference(id: 7, name: '4e')],
             cities: [
               TutorCity(name: 'Douala', neighborhoods: ['Makepe', 'Akwa'])
@@ -281,6 +288,58 @@ void main() {
       await tester.tap(find.text('Retirer').last);
       await tester.pumpAndSettle();
       expect(api.calls, ['delete subjects 5']);
+    });
+
+    testWidgets(
+        'subjects: a class offers its subjects; changing class drops those not taught',
+        (tester) async {
+      final api = _FakeApi(sections: {
+        'subjects': sectionJson('subjects',
+            state: 'empty', content: {'items': <Object>[]}),
+      });
+      Map<String, dynamic> cls(int id, String name, List<int> subjects) => {
+            'id': id,
+            'name': name,
+            'subsystem': 'francophone',
+            'track': 'general',
+            'cycle': 'lower_secondary',
+            'active': true,
+            'subjects': [
+              for (final s in subjects)
+                {'id': s, 'status': 'core', 'verified': true}
+            ],
+          };
+      await _pump(tester, const TutorFileSectionPage(section: 'subjects'), api,
+          references: TutorReferences.fromJson({
+            'subjects': [
+              {'id': 1, 'name': 'Mathématiques', 'active': true},
+              {'id': 2, 'name': 'Philosophie', 'active': true},
+            ],
+            'school_classes': <Object>[],
+            'classes': [
+              cls(7, 'Quatrième (4e)', [1]),
+              cls(8, 'Terminale A', [1, 2]),
+            ],
+            'cities': <Object>[],
+          }));
+
+      await _tapButton(tester, '+ Ajouter une matière');
+      await tester.tap(find.text('Choisir la classe'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Terminale A'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Philosophie'));
+      await tester.pump();
+
+      await tester.tap(find.text('Terminale A'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Quatrième (4e)'));
+      await tester.pumpAndSettle();
+      expect(find.text('Philosophie'), findsNothing);
+      expect(
+          find.text(
+              'Matières retirées, non enseignées dans cette classe : Philosophie'),
+          findsOneWidget);
     });
 
     testWidgets('experiences: empty, continue without', (tester) async {

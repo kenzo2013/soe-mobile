@@ -76,7 +76,6 @@ class _FakeApi extends TutorOfferApi {
 }
 
 const _references = TutorReferences(
-  subjects: [],
   schoolClasses: [TutorReference(id: 4, name: 'Tle D')],
   cities: [],
 );

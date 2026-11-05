@@ -4,6 +4,7 @@
 library;
 
 import 'parent_models.dart';
+import '../../../core/data/school_catalog.dart';
 
 DateTime? _date(Object? value) =>
     value is String ? DateTime.tryParse(value)?.toLocal() : null;
@@ -563,29 +564,13 @@ class ParentInvitation {
 /// The lists of the forms (`GET /references`).
 class ParentReferences {
   const ParentReferences({
-    required this.subjects,
-    required this.schoolClasses,
-    required this.sections,
     required this.cities,
+    this.catalog = SchoolCatalog.empty,
   });
 
   factory ParentReferences.fromJson(Map<String, dynamic> json) =>
       ParentReferences(
-        subjects: _subjects(json['subjects']),
-        schoolClasses: _maps(json['school_classes'])
-            .map((item) => (
-                  id: _int(item['id']),
-                  name: item['name'] as String? ?? '',
-                  education: item['education'] as String?,
-                  section: item['section'] as String?,
-                ))
-            .toList(),
-        sections: _maps(json['sections'])
-            .map((item) => (
-                  value: '${item['key']}',
-                  label: item['label'] as String? ?? '${item['key']}'
-                ))
-            .toList(),
+        catalog: SchoolCatalog.fromJson(json),
         cities: _maps(json['cities'])
             .map((item) => (
                   name: item['name'] as String? ?? '',
@@ -594,19 +579,30 @@ class ParentReferences {
             .toList(),
       );
 
-  final List<ParentSubject> subjects;
-  final List<({int id, String name, String? education, String? section})>
-      schoolClasses;
-  final List<ParentOption> sections;
   final List<({String name, List<String> neighborhoods})> cities;
 
-  /// The classes of a section (all of them when the section is unknown).
-  List<({int id, String name, String? education, String? section})> classesOf(
-          String? section) =>
-      schoolClasses
-          .where((item) =>
-              section == null ||
-              item.section == null ||
-              item.section!.toLowerCase() == section.toLowerCase())
-          .toList();
+  /// The classes × subjects referential: the single source of the classes and subjects offered
+  /// (older servers' `school_classes` read as classes with any subject).
+  final SchoolCatalog catalog;
+
+  /// The subjects a need of a child in [classId] offers, named in [languageCode]: the active
+  /// subjects of the class (any active when none listed), plus [keep] (already chosen).
+  List<ParentSubject> subjectsFor(int? classId, String languageCode,
+          {Iterable<int> keep = const []}) =>
+      [
+        for (final subject in catalog.subjectsFor(classId, keep: keep))
+          (id: subject.id, name: subject.label(languageCode))
+      ];
+
+  /// The names of [need]'s subjects in [languageCode] (the catalog's), else the server's names
+  /// (French) when one of them is not in the catalog.
+  List<String> subjectNames(ParentNeed need, String languageCode) {
+    final known =
+        need.subjectIds.every((id) => catalog.subjectById(id) != null);
+    if (!known || need.subjectIds.isEmpty) return need.subjects;
+    return [
+      for (final id in need.subjectIds)
+        catalog.subjectLabel(id, languageCode, fallback: '$id')
+    ];
+  }
 }

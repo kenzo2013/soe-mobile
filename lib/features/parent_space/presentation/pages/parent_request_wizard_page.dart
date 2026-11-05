@@ -313,6 +313,7 @@ class _ParentRequestWizardState extends ConsumerState<ParentRequestWizard> {
 
   Widget _needStep(BuildContext context) {
     final need = _need!;
+    final classId = ref.watch(parentChildClassIdProvider(need.childId));
     final child =
         _draft.children.where((item) => item.id == need.childId).firstOrNull;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -326,7 +327,14 @@ class _ParentRequestWizardState extends ConsumerState<ParentRequestWizard> {
         ParentNeedFields(
           need: need,
           draft: _draft,
-          subjects: widget.references.subjects,
+          subjects: widget.references.subjectsFor(
+              classId.valueOrNull, Localizations.localeOf(context).languageCode,
+              // A subject chosen earlier stays visible, to be unticked if the server refuses it.
+              keep: need.subjectIds),
+          subjectsLoading: classId.isLoading && !classId.hasValue,
+          onRetrySubjects: classId.hasError && !classId.isLoading
+              ? () => ref.invalidate(parentChildrenProvider)
+              : null,
           missing: {..._missing, ...need.missing},
           onChanged: (next) => setState(() => _need = next),
         ),
@@ -340,6 +348,7 @@ class _ParentRequestWizardState extends ConsumerState<ParentRequestWizard> {
       for (var i = 0; i < _draft.childIds.length; i++)
         _NeedSummary(
           draft: _draft,
+          references: widget.references,
           need: _draft.needOf(_draft.childIds[i]),
           childName: _childName(_draft.childIds[i]),
           onEdit: () => setState(() => _openNeed(i)),
@@ -412,12 +421,14 @@ class _Progress extends StatelessWidget {
 class _NeedSummary extends StatelessWidget {
   const _NeedSummary({
     required this.draft,
+    required this.references,
     required this.need,
     required this.childName,
     required this.onEdit,
   });
 
   final ParentRequestDraft draft;
+  final ParentReferences references;
   final ParentNeed need;
   final String childName;
   final VoidCallback onEdit;
@@ -434,7 +445,12 @@ class _NeedSummary extends StatelessWidget {
       title: [childName, schoolClass].whereType<String>().join(' · '),
       trailing: TextButton(onPressed: onEdit, child: Text(tr.common.edit)),
       children: [
-        ParentInfoRow(tr.wizard.subjects, need.subjects.join(', ')),
+        ParentInfoRow(
+            tr.wizard.subjects,
+            references
+                .subjectNames(
+                    need, Localizations.localeOf(context).languageCode)
+                .join(', ')),
         ParentInfoRow(tr.wizard.objective,
             draft.labelOf(draft.objectives, need.objective)),
         if (need.startOn != null)
