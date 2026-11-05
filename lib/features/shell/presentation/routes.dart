@@ -3,10 +3,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/routing/route_names.dart';
 import '../../../i18n/translations.g.dart';
-import '../../parent/presentation/pages/parent_children_list_page.dart';
-import '../../parent/presentation/pages/parent_dashboard_page.dart';
-import '../../parent/presentation/pages/parent_payments_list_page.dart';
-import '../../parent/presentation/pages/parent_sessions_list_page.dart';
+import '../../parent_space/presentation/pages/parent_children_page.dart';
+import '../../parent_space/presentation/pages/parent_home_page.dart';
+import '../../parent_space/presentation/pages/parent_payments_page.dart';
+import '../../parent_space/presentation/pages/parent_planning_page.dart';
 import '../../tutor/presentation/pages/tutor_courses_pages.dart';
 import '../../tutor/presentation/pages/tutor_dashboard_page.dart';
 import '../../tutor/presentation/pages/tutor_remunerations_page.dart';
@@ -14,8 +14,8 @@ import '../../tutor/presentation/pages/tutor_sessions_pages.dart';
 import 'pages/more_page.dart';
 import 'widgets/role_shell.dart';
 
-/// The two signed-in spaces and their tabs (Q5). Until lots 3 and 4 rebuild them, the
-/// tabs hold the current screens; the screens that open from a tab stay full screen.
+/// The two signed-in spaces and their tabs (Q5). The parent tabs hold the v2 screens (lot 3);
+/// the tutor tabs hold the current screens until lot 4. Screens opened from a tab are full screen.
 List<RouteBase> shellRoutes() => [
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) {
@@ -44,10 +44,11 @@ List<RouteBase> shellRoutes() => [
           ]);
         },
         branches: [
-          _branch(RouteNames.parentDashboard, const ParentDashboardPage()),
-          _branch(RouteNames.parentSessions, const ParentSessionsListPage()),
-          _branch(RouteNames.parentStudents, const ParentChildrenListPage()),
-          _branch(RouteNames.parentPayments, const ParentPaymentsListPage()),
+          // Parent space v2 (lot 3, API v2).
+          _branch(RouteNames.parentDashboard, const ParentHomePage()),
+          _branch(RouteNames.parentSessions, const ParentPlanningPage()),
+          _branch(RouteNames.parentStudents, const ParentChildrenPage()),
+          _branch(RouteNames.parentPayments, const ParentPaymentsPage()),
           _branch(RouteNames.parentMore, const MorePage()),
         ],
       ),
