@@ -168,7 +168,7 @@ class TutorSectionTitle extends StatelessWidget {
         child: Row(children: [
           Expanded(
               child: Text(title,
-                  style: AppTypography.title.copyWith(color: AppPalette.text))),
+                  style: AppTypography.h3.copyWith(color: AppPalette.teal800))),
           if (trailing != null) trailing!,
         ]),
       );
@@ -247,7 +247,9 @@ class TutorInfoRow extends StatelessWidget {
                 ? null
                 : const Border(bottom: BorderSide(color: AppPalette.n300))),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Flexible(
+          // Both expanded: a loose label would leave its unused share empty and pull the
+          // value away from the right edge.
+          Expanded(
             flex: 2,
             child: Text(label,
                 style: AppTypography.bodySm.copyWith(color: AppPalette.text2)),

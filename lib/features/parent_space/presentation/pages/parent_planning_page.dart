@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/soe_chip.dart';
+import '../../../../core/widgets/soe_pill_switch.dart';
 import '../../../../i18n/translations.g.dart';
 import '../../../common/presentation/widgets/tab_top_bar.dart';
 import '../../data/parent_models.dart';
@@ -136,9 +137,15 @@ class _ParentPlanningPageState extends ConsumerState<ParentPlanningPage> {
                             padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
                             child: Align(
                               alignment: Alignment.centerLeft,
-                              child: _ViewSwitch(
-                                view: _view,
-                                labels: (tr.planning.week, tr.planning.month),
+                              child: SoePillSwitch<_View>(
+                                options: [
+                                  (value: _View.week, label: tr.planning.week),
+                                  (
+                                    value: _View.month,
+                                    label: tr.planning.month
+                                  ),
+                                ],
+                                selected: _view,
                                 onChanged: (view) =>
                                     setState(() => _view = view),
                               ),
@@ -214,59 +221,6 @@ class _ParentPlanningPageState extends ConsumerState<ParentPlanningPage> {
           ),
         ]),
       ),
-    );
-  }
-}
-
-/// « Semaine | Mois »: a soft pill with the chosen view on white.
-class _ViewSwitch extends StatelessWidget {
-  const _ViewSwitch(
-      {required this.view, required this.labels, required this.onChanged});
-
-  final _View view;
-  final (String, String) labels;
-  final ValueChanged<_View> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    Widget option(_View value, String label) {
-      final selected = value == view;
-      return Semantics(
-        selected: selected,
-        button: true,
-        child: GestureDetector(
-          onTap: () => onChanged(value),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: selected ? AppPalette.white : Colors.transparent,
-              borderRadius: BorderRadius.circular(99),
-              boxShadow: selected
-                  ? const [
-                      BoxShadow(
-                          color: Color(0x14041527),
-                          blurRadius: 4,
-                          offset: Offset(0, 1))
-                    ]
-                  : null,
-            ),
-            child: Text(label,
-                style: AppTypography.labelSm.copyWith(
-                    color: selected ? AppPalette.text : AppPalette.text2)),
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-          color: AppPalette.surfaceSoft,
-          borderRadius: BorderRadius.circular(99)),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        option(_View.week, labels.$1),
-        option(_View.month, labels.$2),
-      ]),
     );
   }
 }

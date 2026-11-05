@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/theme/app_palette.dart';
@@ -18,6 +19,8 @@ import '../../data/tutor_models.dart';
 import '../providers.dart';
 import '../tutor_space_routes.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/pages/account_hub_page.dart'
+    show formatCameroonPhone;
 
 /// REP-01 — « what must I do now? »: actions by deadline (one gold button: the most urgent),
 /// today's session (where, the parent, « J'arrive »), the month, offers for me. A candidate
@@ -243,7 +246,10 @@ class _ActionCard extends ConsumerWidget {
           .join(' · ');
     }
     if (session != null) {
-      return '${who(session.pupil, session.schoolClass)} · ${tr.sessionOf(date: TutorFormat.day(context, session.date))}';
+      final day =
+          DateFormat('EEE d MMM', Localizations.localeOf(context).languageCode)
+              .format(session.date);
+      return '${who(session.pupil, session.schoolClass)} · ${tr.sessionOf(date: day)}';
     }
     if (contract != null) {
       return [contract.pupil, contract.subject]
@@ -383,9 +389,10 @@ class _TodayCard extends ConsumerWidget {
           .where((s) => s.isNotEmpty)
           .join(', '),
     ].whereType<String>().where((s) => s.isNotEmpty).join(' · ');
-    final parent = [detail?.parentName, detail?.parentPhone]
-        .whereType<String>()
-        .join(' · ');
+    final parent = [
+      detail?.parentName,
+      if (detail?.parentPhone != null) formatCameroonPhone(detail?.parentPhone)
+    ].whereType<String>().join(' · ');
     final place =
         [detail?.address, detail?.neighborhood].whereType<String>().join(', ');
     final rows = <(String, String)>[
