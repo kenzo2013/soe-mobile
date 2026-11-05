@@ -231,8 +231,7 @@ void main() {
     test('tutor', () {
       expect(notificationRoute(target('proposal'), 'tutor'),
           '/tutor/space/proposals/7');
-      expect(notificationRoute(target('earnings'), 'tutor'),
-          '/tutor/remunerations');
+      expect(notificationRoute(target('earnings'), 'tutor'), '/tutor/earnings');
       expect(notificationRoute(target('child'), 'tutor'), '/tutor');
     });
   });

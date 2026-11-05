@@ -78,3 +78,7 @@ void refreshTutorSession(WidgetRef ref, int sessionId) => ref
   ..invalidate(tutorHomeProvider)
   ..invalidate(tutorWeekSessionsProvider)
   ..invalidate(tutorSessionsProvider);
+
+/// The private quality view (REP-22).
+final tutorQualityProvider = FutureProvider.autoDispose<TutorQuality>(
+    (ref) => ref.watch(tutorApiProvider).quality());

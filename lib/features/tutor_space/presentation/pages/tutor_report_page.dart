@@ -178,7 +178,7 @@ class _ApprovedReport extends StatelessWidget {
             label: tr.seeEarnings,
             variant: SoeButtonVariant.secondary,
             size: SoeButtonSize.md,
-            onPressed: () => context.go(RouteNames.tutorRemunerations),
+            onPressed: () => context.go(RouteNames.tutorEarnings),
           ),
         ],
       ),

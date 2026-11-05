@@ -1,14 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/error/result.dart';
 import '../../../core/providers/core_providers.dart';
 import '../data/account_api.dart';
 import '../data/account_models.dart';
-import '../data/datasources/common_remote_datasource.dart';
 import '../data/push_devices.dart';
-import '../data/repositories/common_repository_impl.dart';
-import '../domain/entities/service_contract.dart';
-import '../domain/repositories/common_repository.dart';
 
 // ── Account and common screens (API v2) ────────────────────
 
@@ -62,23 +57,3 @@ final reportProvider = FutureProvider.autoDispose.family<ProblemReport, int>(
 
 final helpProvider = FutureProvider.autoDispose<HelpContent>(
     (ref) => ref.watch(accountApiProvider).help());
-
-// ── Legacy contracts (API v1, read by the v1 parent and tutor screens) ──
-
-final commonRemoteDatasourceProvider = Provider<CommonRemoteDatasource>(
-  (ref) => CommonRemoteDatasource(ref.watch(dioProvider)),
-);
-
-final commonRepositoryProvider = Provider<CommonRepository>(
-  (ref) =>
-      CommonRepositoryImpl(remote: ref.watch(commonRemoteDatasourceProvider)),
-);
-
-final contractsProvider =
-    FutureProvider.autoDispose<List<ServiceContract>>((ref) async {
-  final r = await ref.watch(commonRepositoryProvider).getContracts();
-  return switch (r) {
-    Ok(:final value) => value,
-    Err(:final failure) => throw failure,
-  };
-});

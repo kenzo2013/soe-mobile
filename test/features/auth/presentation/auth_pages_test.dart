@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:soe/core/error/failure.dart';
 import 'package:soe/core/error/result.dart';
 import 'package:soe/core/providers/core_providers.dart';
@@ -140,6 +141,30 @@ void main() {
     await tester.tap(_button('Ajouter mon premier enfant'));
     await tester.pumpAndSettle();
     expect(find.text('new-child'), findsOneWidget);
+
+    // The form opens over the parent home: back leads there.
+    GoRouter.of(tester.element(find.text('new-child'))).pop();
+    await tester.pumpAndSettle();
+    expect(find.text('parent-home'), findsOneWidget);
+  });
+
+  testWidgets(
+      'AUT-08: a new tutor lands on the recruitment file, over the home',
+      (tester) async {
+    await pumpAuthApp(tester, FakeAuthRepository(),
+        start: RouteNames.emailConfirmed);
+    ProviderScope.containerOf(tester.element(find.byType(Scaffold).first))
+        .read(currentRoleProvider.notifier)
+        .state = 'tutor';
+    await tester.pumpAndSettle();
+
+    await tester.tap(_button('Compléter mon dossier'));
+    await tester.pumpAndSettle();
+    expect(find.text('tutor-file'), findsOneWidget);
+
+    GoRouter.of(tester.element(find.text('tutor-file'))).pop();
+    await tester.pumpAndSettle();
+    expect(find.text('tutor-home'), findsOneWidget);
   });
 
   testWidgets(

@@ -8,7 +8,7 @@ import '../data/account_models.dart';
 /// `go`, any other screen with `push` (see [RouteNames.tabRoots]).
 String notificationRoute(NotificationTarget? target, String? role) {
   final tutor = role == 'tutor';
-  final home = tutor ? RouteNames.tutorDashboard : RouteNames.parentDashboard;
+  final home = tutor ? RouteNames.tutorHome : RouteNames.parentHome;
   if (target == null) return home;
   final id = target.id;
   if (tutor) {
@@ -17,7 +17,7 @@ String notificationRoute(NotificationTarget? target, String? role) {
       'session_report' => TutorSpaceRoutes.report(id),
       'contract' => TutorSpaceRoutes.contract(id),
       'proposal' => TutorSpaceRoutes.proposal(id),
-      'earnings' || 'payment' => RouteNames.tutorRemunerations,
+      'earnings' || 'payment' => RouteNames.tutorEarnings,
       _ => home,
     };
   }

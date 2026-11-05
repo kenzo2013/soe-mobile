@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,11 +10,22 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../i18n/translations.g.dart';
+import '../../../parent_space/presentation/parent_space_routes.dart';
+import '../../../tutor_space/presentation/tutor_space_routes.dart';
 import '../widgets/auth_scaffold.dart';
 
 /// AUT-08 — account activated: the parent adds a first child, the tutor completes the file.
 class EmailConfirmedPage extends ConsumerWidget {
   const EmailConfirmedPage({super.key});
+
+  /// Opens the first step over the space's home, so that back leads home: the new child
+  /// form (PAR-05) for a parent, the recruitment file (REP-02) for a tutor.
+  static void _start(BuildContext context, {required bool tutor}) {
+    final router = GoRouter.of(context)
+      ..go(tutor ? RouteNames.tutorHome : RouteNames.parentHome);
+    unawaited(router
+        .push(tutor ? TutorSpaceRoutes.file : ParentSpaceRoutes.newChild));
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,8 +42,7 @@ class EmailConfirmedPage extends ConsumerWidget {
     return AuthScaffold(
       bottom: SoeButton(
         label: tutor ? tr.tutorCta : tr.parentCta,
-        onPressed: () => context
-            .go(tutor ? RouteNames.tutorProfile : RouteNames.parentStudentNew),
+        onPressed: () => _start(context, tutor: tutor),
         fullWidth: true,
       ),
       children: [

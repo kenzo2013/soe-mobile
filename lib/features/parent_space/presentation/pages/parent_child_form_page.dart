@@ -36,7 +36,8 @@ class ParentChildFormPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context).parentSpace.childForm;
     final references = ref.watch(parentReferencesProvider);
-    final child = childId == null ? null : ref.watch(parentChildProvider(childId!));
+    final child =
+        childId == null ? null : ref.watch(parentChildProvider(childId!));
     final title = childId == null
         ? tr.titleNew
         : tr.titleEdit(name: child?.valueOrNull?.firstName ?? '');
@@ -217,7 +218,7 @@ class _ChildFormState extends ConsumerState<_ChildForm> {
       ..invalidate(parentChildrenProvider)
       ..invalidate(parentHomeProvider);
     SoeToast.show(context, message: tr.archived, tone: SoeToastTone.success);
-    context.go(RouteNames.parentStudents);
+    context.go(RouteNames.parentChildren);
   }
 
   @override
@@ -226,11 +227,9 @@ class _ChildFormState extends ConsumerState<_ChildForm> {
     final refs = widget.references;
     final classes = refs.classesOf(_section);
     final cities = refs.cities;
-    final neighborhoods = cities
-            .where((city) => city.name == _city)
-            .firstOrNull
-            ?.neighborhoods ??
-        const <String>[];
+    final neighborhoods =
+        cities.where((city) => city.name == _city).firstOrNull?.neighborhoods ??
+            const <String>[];
     final readOnly = _editing && !widget.child!.editable;
     return Column(children: [
       Expanded(
@@ -375,8 +374,7 @@ class _ChildFormState extends ConsumerState<_ChildForm> {
                 decoration: _decoration(null),
                 items: [
                   for (final city in cities)
-                    DropdownMenuItem(
-                        value: city.name, child: Text(city.name)),
+                    DropdownMenuItem(value: city.name, child: Text(city.name)),
                 ],
                 onChanged: (value) => setState(() {
                   _city = value;

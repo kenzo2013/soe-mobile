@@ -46,8 +46,8 @@ class _AccountRolesPageState extends ConsumerState<AccountRolesPage> {
       if (roles.currentRole != previous) {
         await _enterRole(roles.currentRole);
         router.go(roles.currentRole == 'tutor'
-            ? RouteNames.tutorDashboard
-            : RouteNames.parentDashboard);
+            ? RouteNames.tutorHome
+            : RouteNames.parentHome);
       }
       if (mounted && message != null) SoeToast.show(context, message: message);
     } on Failure catch (failure) {

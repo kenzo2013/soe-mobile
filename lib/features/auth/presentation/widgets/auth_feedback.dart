@@ -11,7 +11,7 @@ import '../../../../i18n/translations.g.dart';
 
 /// Home of a role once signed in.
 String homeForRole(String role) =>
-    role == 'tutor' ? RouteNames.tutorDashboard : RouteNames.parentDashboard;
+    role == 'tutor' ? RouteNames.tutorHome : RouteNames.parentHome;
 
 /// A refused action, in plain words (announced to screen readers).
 class AuthErrorText extends StatelessWidget {

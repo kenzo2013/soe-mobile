@@ -55,6 +55,7 @@ abstract final class ApiEndpointsV2 {
   static String tutorProposalAnswer(int id) => '/tutor/proposals/$id/answer';
   static String tutorPlanning(int slotId) => '/tutor/slots/$slotId/planning';
   static const String tutorEarnings = '/tutor/earnings';
+  static const String tutorQuality = '/tutor/quality';
   static const String tutorContracts = '/tutor/contracts';
   static String tutorContract(int id) => '/tutor/contracts/$id';
   static String tutorContractSign(int id) => '/tutor/contracts/$id/sign';
