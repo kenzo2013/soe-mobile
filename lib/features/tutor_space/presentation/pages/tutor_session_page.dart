@@ -554,7 +554,7 @@ class _TutorSessionPageState extends ConsumerState<TutorSessionPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-          color: AppPalette.surfaceSoft,
+          color: AppPalette.gold50,
           borderRadius: BorderRadius.circular(16)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(tr.title,

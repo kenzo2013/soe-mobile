@@ -928,7 +928,9 @@
         "disputedDetail": "The session is removed from your earnings until the decision.",
         "offline": "Available when the network is back",
         "sessionOf": "session of {{date}}",
-        "perSession": "{{amount}} per session"
+        "perSession": "{{amount}} per session",
+        "left": "{{time}} left",
+        "overdue": "Late"
       },
       "buttons": {
         "assignment": "See the proposal",
@@ -964,7 +966,9 @@
         "nearTitle": "Offers near you",
         "empty": "No offer in your subjects for now.",
         "seeAll": "See all offers",
-        "note": "You can apply before your file is approved."
+        "note": "You can apply before your file is approved.",
+        "rate": "{{amount}} / session",
+        "seeAllShort": "See all"
       },
       "offline": {
         "title": "Offline · data from {{time}}",
@@ -1003,6 +1007,20 @@
           "interview": "See the interview",
           "test": "See the interview",
           "charter": "Read and sign the charter"
+        }
+      },
+      "chips": {
+        "todo": "to do",
+        "today": {
+          "one": "session today",
+          "other": "sessions today"
+        },
+        "month": "FCFA this month",
+        "step": "step",
+        "sections": "sections",
+        "offers": {
+          "one": "offer near you",
+          "other": "offers near you"
         }
       }
     },

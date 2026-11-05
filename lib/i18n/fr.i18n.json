@@ -928,7 +928,9 @@
         "disputedDetail": "La séance est retirée des revenus jusqu’à la décision.",
         "offline": "Disponible au retour du réseau",
         "sessionOf": "séance du {{date}}",
-        "perSession": "{{amount}} par séance"
+        "perSession": "{{amount}} par séance",
+        "left": "Reste {{time}}",
+        "overdue": "En retard"
       },
       "buttons": {
         "assignment": "Voir la proposition",
@@ -964,7 +966,9 @@
         "nearTitle": "Offres près de chez vous",
         "empty": "Aucune offre pour l’instant dans vos matières.",
         "seeAll": "Voir toutes les offres",
-        "note": "Vous pouvez postuler avant la validation de votre dossier."
+        "note": "Vous pouvez postuler avant la validation de votre dossier.",
+        "rate": "{{amount}} / séance",
+        "seeAllShort": "Tout voir"
       },
       "offline": {
         "title": "Hors connexion · données de {{time}}",
@@ -1003,6 +1007,22 @@
           "interview": "Voir l’entretien",
           "test": "Voir l’entretien",
           "charter": "Lire et signer la charte"
+        }
+      },
+      "chips": {
+        "todo": "à faire",
+        "today": {
+          "zero": "séance auj.",
+          "one": "séance auj.",
+          "other": "séances auj."
+        },
+        "month": "FCFA ce mois",
+        "step": "étape",
+        "sections": "sections",
+        "offers": {
+          "zero": "offre près de vous",
+          "one": "offre près de vous",
+          "other": "offres près de vous"
         }
       }
     },

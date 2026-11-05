@@ -171,9 +171,9 @@ class AccountCard extends StatelessWidget {
         padding: padding,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: color ?? (soft ? AppPalette.surfaceSoft : AppPalette.white),
+          color: color ?? (soft ? AppPalette.gold50 : AppPalette.white),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: soft || color != null ? null : AppShadows.sm,
+          boxShadow: soft || color != null ? null : AppShadows.card,
         ),
         child: child,
       );
@@ -207,8 +207,8 @@ class AccountRow extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.onTap,
-    this.iconColor = AppPalette.teal800,
-    this.iconBackground = AppPalette.n100,
+    this.iconColor = AppPalette.teal500,
+    this.iconBackground = AppPalette.teal50,
     this.divider = true,
   });
 
@@ -235,8 +235,9 @@ class AccountRow extends StatelessWidget {
             Container(
               width: 40,
               height: 40,
-              decoration:
-                  BoxDecoration(color: iconBackground, shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                  color: iconBackground,
+                  borderRadius: BorderRadius.circular(14)),
               child: Icon(icon, size: 20, color: iconColor),
             ),
             const SizedBox(width: 12),

@@ -37,47 +37,44 @@ class TutorEarningsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context).tutorSpace.earnings;
-    return Scaffold(
-      backgroundColor: AppPalette.surfacePage,
-      body: TabBody(
-        title: Translations.of(context).shell.tutor.earnings,
-        child: RefreshIndicator(
-          onRefresh: () => ref.refresh(tutorEarningsProvider.future),
-          child: TutorAsyncBody<TutorEarnings>(
-            value: ref.watch(tutorEarningsProvider),
-            onRetry: () => ref.invalidate(tutorEarningsProvider),
-            builder: (earnings) {
-              final empty = earnings.amount == 0 &&
-                  earnings.pupils.isEmpty &&
-                  earnings.history.isEmpty;
-              return ListView(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-                children: [
-                  Text(tr.title, style: AppTypography.h1),
-                  if (empty) ...[
-                    const SizedBox(height: 16),
-                    SoeEmptyState(
-                      title: tr.emptyTitle,
-                      message: tr.emptyText,
-                      icon: Icons.payments_outlined,
-                    ),
-                  ] else ...[
-                    const SizedBox(height: 4),
-                    Text(tr.onlyApproved,
-                        style: AppTypography.body
-                            .copyWith(color: AppPalette.text2)),
-                    const SizedBox(height: 16),
-                    _MonthCard(earnings: earnings),
-                    _PupilsPanel(earnings: earnings),
-                    _PayoutPanel(earnings: earnings),
-                    _HistoryPanel(earnings: earnings),
-                  ],
-                ],
-              );
-            },
-          ),
-        ),
-      ),
+    return SpaceTabAsync<TutorEarnings>(
+      band: SpaceBand(title: tr.title, subtitle: tr.onlyApproved),
+      value: ref.watch(tutorEarningsProvider),
+      onRetry: () => ref.invalidate(tutorEarningsProvider),
+      onRefresh: () => ref.refresh(tutorEarningsProvider.future),
+      builder: (earnings) {
+        final empty = earnings.amount == 0 &&
+            earnings.pupils.isEmpty &&
+            earnings.history.isEmpty;
+        if (empty) {
+          return [
+            SoeCard(
+              raised: true,
+              child: SoeEmptyState(
+                title: tr.emptyTitle,
+                message: tr.emptyText,
+                icon: Icons.payments_outlined,
+              ),
+            ),
+          ];
+        }
+        final panels = [
+          _PupilsPanel(earnings: earnings),
+          _PayoutPanel(earnings: earnings),
+          _HistoryPanel(earnings: earnings),
+        ];
+        if (spaceIsWide(context)) {
+          return [
+            _MonthCard(earnings: earnings),
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Expanded(child: Column(children: [panels[0], panels[1]])),
+              const SizedBox(width: 16),
+              Expanded(child: panels[2]),
+            ]),
+          ];
+        }
+        return [_MonthCard(earnings: earnings), ...panels];
+      },
     );
   }
 }
@@ -95,21 +92,21 @@ class _MonthCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: SoeCard(
+        color: AppPalette.success,
         padding: const EdgeInsets.all(20),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(tr.current.toUpperCase(),
+          Text('${tr.current.toUpperCase()} · ${month.toUpperCase()}',
               style:
-                  AppTypography.overline.copyWith(color: AppPalette.teal500)),
-          const SizedBox(height: 4),
-          Text(month, style: AppTypography.h3),
-          const SizedBox(height: 12),
+                  AppTypography.overline.copyWith(color: AppPalette.successBg)),
+          const SizedBox(height: 8),
           Text(TutorFormat.amount(context, earnings.amount),
-              style: AppTypography.h1.copyWith(fontSize: 32, height: 1.2)),
+              style: AppTypography.numberL.copyWith(color: AppPalette.white)),
           Text(
               earnings.approved == 0
                   ? tr.noneApproved
                   : tr.estimated(n: earnings.approved),
-              style: AppTypography.caption.copyWith(color: AppPalette.text2)),
+              style:
+                  AppTypography.caption.copyWith(color: AppPalette.successBg)),
         ]),
       ),
     );

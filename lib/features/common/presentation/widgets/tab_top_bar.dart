@@ -3,12 +3,18 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/error/failure.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_brand_logo.dart';
+import '../../../../core/widgets/soe_card.dart';
+import '../../../../core/widgets/soe_overlap.dart';
+import '../../../../core/widgets/soe_skeleton.dart';
 import 'notification_bell.dart';
+import 'space_app_bar.dart';
 
 /// The widest a screen's content gets on a tablet (cards, lists), centred.
 const double spaceContentMaxWidth = 880;
@@ -285,10 +291,10 @@ class SpaceTabView extends StatelessWidget {
     final list = ListView(
       padding: EdgeInsets.only(bottom: insets.bottom + 24),
       children: [
-        band,
-        Transform.translate(
-          offset: Offset(0, -band.overlap),
-          child: Padding(
+        SoeOverlap(
+          overlap: band.overlap,
+          top: band,
+          bottom: Padding(
             padding: padding,
             child: _Centred(
               child: Column(
@@ -370,4 +376,143 @@ class TabTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
       SpaceBand(title: title, now: now, chips: chips, overlap: 0);
+}
+
+/// One choice among a few, on a band (the filters of a list): the chosen pill is gold, the
+/// others translucent.
+class BandFilters<T> extends StatelessWidget {
+  const BandFilters({
+    super.key,
+    required this.options,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final List<(T, String)> options;
+  final T selected;
+  final ValueChanged<T> onSelected;
+
+  @override
+  Widget build(BuildContext context) => Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          for (final (value, label) in options)
+            Semantics(
+              button: true,
+              selected: value == selected,
+              child: Material(
+                color: value == selected
+                    ? AppPalette.gold400
+                    : AppPalette.onBandSoft,
+                shape: const StadiumBorder(),
+                child: InkWell(
+                  onTap: () => onSelected(value),
+                  customBorder: const StadiumBorder(),
+                  child: Container(
+                    height: 40,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: Center(
+                      widthFactor: 1,
+                      child: Text(label,
+                          style: AppTypography.labelSm.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: value == selected
+                                  ? AppPalette.ink900
+                                  : AppPalette.white)),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      );
+}
+
+/// A [SpaceTabView] fed by an async value: skeleton cards while loading, the error with
+/// « Réessayer » in a raised card, then the [builder]'s cards.
+class SpaceTabAsync<T> extends StatelessWidget {
+  const SpaceTabAsync({
+    super.key,
+    required this.band,
+    required this.value,
+    required this.onRetry,
+    required this.builder,
+    this.onRefresh,
+  });
+
+  final SpaceBand band;
+  final AsyncValue<T> value;
+  final VoidCallback onRetry;
+  final List<Widget> Function(T data) builder;
+  final Future<void> Function()? onRefresh;
+
+  @override
+  Widget build(BuildContext context) => SpaceTabView(
+        band: band,
+        onRefresh: onRefresh,
+        children: value.when(
+          data: builder,
+          loading: () => const [
+            SoeSkeleton(height: 140, borderRadius: AppRadius.rCardLg),
+            SizedBox(height: 14),
+            SoeSkeleton(height: 96, borderRadius: AppRadius.rCard),
+          ],
+          error: (error, _) => [
+            SoeCard(
+              raised: true,
+              child: ErrorView(failure: asFailure(error), onRetry: onRetry),
+            ),
+          ],
+        ),
+      );
+}
+
+/// A screen that is a tab's first screen for some (a candidate's « Offres ») and a pushed
+/// screen for others: the [SpaceBand] with its overlapping cards at the root, the compact
+/// [SpaceAppBar] above a list otherwise.
+class SpaceScreen extends StatelessWidget {
+  const SpaceScreen({
+    super.key,
+    required this.title,
+    required this.children,
+    this.section,
+    this.subtitle,
+    this.onRefresh,
+  });
+
+  final String title;
+  final String? section;
+
+  /// Under the title of the band (at the root only).
+  final String? subtitle;
+  final List<Widget> children;
+  final Future<void> Function()? onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!Navigator.of(context).canPop()) {
+      return SpaceTabView(
+        band: SpaceBand(title: title, subtitle: subtitle),
+        onRefresh: onRefresh,
+        children: children,
+      );
+    }
+    final list = ListView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      children: [
+        for (final child in children) SpaceCentred(child: child),
+      ],
+    );
+    return Scaffold(
+      backgroundColor: AppPalette.surfacePage,
+      appBar: SpaceAppBar(section: section, title: title),
+      body: SafeArea(
+        top: false,
+        child: onRefresh == null
+            ? list
+            : RefreshIndicator(onRefresh: onRefresh!, child: list),
+      ),
+    );
+  }
 }

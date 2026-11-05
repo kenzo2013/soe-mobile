@@ -30,10 +30,12 @@ abstract final class AppPalette {
   static const Color ink700 = Color(0xFF526684);
   static const Color ink600 = Color(0xFF60748F);
   static const Color ink400 = Color(0xFFA3BCE2);
+  // Colourful direction: the light neutrals take the teal tint of the page ground (lines,
+  // soft fills, disabled), instead of the grey-blue of the web tokens.
   static const Color n0 = Color(0xFFFCFDFF);
-  static const Color n50 = Color(0xFFF5F9FF);
-  static const Color n100 = Color(0xFFEAF0F9);
-  static const Color n300 = Color(0xFFDCEAFF);
+  static const Color n50 = Color(0xFFF3F8FA);
+  static const Color n100 = teal50;
+  static const Color n300 = teal100;
   static const Color white = Color(0xFFFFFFFF);
 
   // States: charter colour (icons, bars) + AA text variant + tinted background.
@@ -90,7 +92,7 @@ abstract final class AppPalette {
   // Roles.
   /// Page ground: light teal, so that the white cards stand out.
   static const Color surfacePage = teal50;
-  static const Color surfaceSoft = n50;
+  static const Color surfaceSoft = teal50;
   static const Color surfaceSunken = n100;
   static const Color surfaceCard = white;
   static const Color surfaceNav = teal800;
@@ -136,4 +138,25 @@ abstract final class AppPalette {
     stops: [0, 0.55, 1],
     colors: [ink900, teal800, teal500],
   );
+}
+
+/// The colour of a school subject (web tokens), from its name in French or English.
+abstract final class SubjectColors {
+  static Color of(String? subject) {
+    final name = (subject ?? '').toLowerCase();
+    bool has(List<String> words) => words.any(name.contains);
+    if (has(['math'])) return AppPalette.subjectMaths;
+    if (has(['fran', 'french'])) return AppPalette.subjectFrench;
+    if (has(['angl', 'english'])) return AppPalette.subjectEnglish;
+    if (has(['phys', 'chim', 'chem'])) return AppPalette.subjectPhysics;
+    if (has(['svt', 'bio', 'vie et'])) return AppPalette.subjectBiology;
+    if (has(['hist', 'géo', 'geo'])) return AppPalette.subjectHistory;
+    if (has(['philo'])) return AppPalette.subjectPhilosophy;
+    if (has(['info', 'comput'])) return AppPalette.subjectComputing;
+    return AppPalette.teal500;
+  }
+
+  /// The text on a subject's colour: ink on the golden French, white otherwise.
+  static Color onColor(Color color) =>
+      color == AppPalette.subjectFrench ? AppPalette.ink900 : AppPalette.white;
 }

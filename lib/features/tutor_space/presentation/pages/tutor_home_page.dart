@@ -6,15 +6,18 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/error/failure.dart';
+import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_alert.dart';
-import '../../../../core/widgets/soe_badge.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
+import '../../../../core/widgets/soe_skeleton.dart';
 import '../../../../i18n/translations.g.dart';
 import '../../../auth/presentation/providers/current_user_provider.dart';
-import '../../../common/presentation/widgets/notification_bell.dart';
+import '../../../common/presentation/widgets/tab_top_bar.dart';
 import '../../data/tutor_models.dart';
 import '../providers.dart';
 import '../tutor_navigation.dart';
@@ -35,22 +38,39 @@ class TutorHomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tr = Translations.of(context).tutorSpace.home;
     final value = ref.watch(tutorHomeProvider);
     final cache = ref.watch(tutorHomeCacheProvider);
+    final firstName =
+        ref.watch(currentUserProvider).valueOrNull?.firstName ?? '';
     void retry() => ref.invalidate(tutorHomeProvider);
-    Widget content(TutorHome home, {DateTime? offlineSince}) =>
-        RefreshIndicator(
-          onRefresh: () => ref.refresh(tutorHomeProvider.future),
-          child: _HomeContent(
-              home: home, offlineSince: offlineSince, onRetry: retry),
-        );
-    return Scaffold(
-      backgroundColor: AppPalette.surfacePage,
-      body: SafeArea(
-        child: value.hasError && _offline(value.error) && cache != null
-            ? content(cache.home, offlineSince: cache.at)
-            : TutorAsyncBody<TutorHome>(
-                value: value, onRetry: retry, builder: content),
+    Future<void> refresh() => ref.refresh(tutorHomeProvider.future);
+
+    if (value.hasError && _offline(value.error) && cache != null) {
+      return _HomeView(
+          home: cache.home,
+          offlineSince: cache.at,
+          onRetry: retry,
+          onRefresh: refresh);
+    }
+    return value.when(
+      data: (home) => _HomeView(home: home, onRetry: retry, onRefresh: refresh),
+      loading: () => SpaceTabView(
+        band: SpaceBand(title: tr.hello(name: firstName)),
+        children: const [
+          SoeSkeleton(height: 180, borderRadius: AppRadius.rCardLg),
+          SizedBox(height: 14),
+          SoeSkeleton(height: 120, borderRadius: AppRadius.rCard),
+        ],
+      ),
+      error: (error, _) => SpaceTabView(
+        band: SpaceBand(title: tr.hello(name: firstName)),
+        children: [
+          SoeCard(
+            raised: true,
+            child: ErrorView(failure: asFailure(error), onRetry: retry),
+          ),
+        ],
       ),
     );
   }
@@ -66,122 +86,243 @@ String tutorActionTarget(TutorHomeAction action) => switch (action.kind) {
       _ => TutorSpaceRoutes.report(action.targetId),
     };
 
-class _HomeContent extends ConsumerWidget {
-  const _HomeContent(
-      {required this.home, required this.offlineSince, required this.onRetry});
+/// « 4 500 » (the amount without its currency, for the band's figure).
+String _figure(int value) =>
+    NumberFormat.decimalPattern('fr').format(value).replaceAll(',', ' ');
+
+class _HomeView extends ConsumerWidget {
+  const _HomeView(
+      {required this.home,
+      this.offlineSince,
+      required this.onRetry,
+      required this.onRefresh});
 
   final TutorHome home;
 
   /// When the data shown was read (offline only).
   final DateTime? offlineSince;
   final VoidCallback onRetry;
+  final Future<void> Function() onRefresh;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context).tutorSpace.home;
     final firstName =
         ref.watch(currentUserProvider).valueOrNull?.firstName ?? '';
-    final now = DateTime.now();
     final sessions = home.mayTeach ? home.todaySessions : <TutorSession>[];
     final offline = offlineSince != null;
     final recruitment = home.active ? null : home.recruitment;
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-      children: [
-        Row(children: [
-          Expanded(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(TutorFormat.dayLong(context, now),
-                  style:
-                      AppTypography.caption.copyWith(color: AppPalette.text2)),
-              Text(home.active ? tr.title : tr.fileTitle,
-                  style: AppTypography.label),
-            ]),
-          ),
-          const NotificationBell(),
-        ]),
-        const SizedBox(height: 16),
-        Text(tr.hello(name: firstName),
-            style: AppTypography.h1.copyWith(color: AppPalette.teal800)),
-        const SizedBox(height: 4),
-        Text(
-            recruitment == null
-                ? '${TutorFormat.dayLong(context, now)} · ${tr.todayCount(n: sessions.length)}'
-                : (recruitment.subtitle ??
-                    (recruitment.refused
-                        ? tr.recruitment.refused
-                        : tr.recruitment.subtitle)),
-            style: AppTypography.body.copyWith(color: AppPalette.text2)),
-        if (offline) ...[
-          const SizedBox(height: 16),
-          _OfflineBanner(since: offlineSince!, onRetry: onRetry),
-        ],
-        if (home.active && !home.mayTeach) ...[
-          const SizedBox(height: 16),
-          SoeAlert(
-              tone: SoeAlertTone.warning,
-              title: tr.onHold,
-              body: tr.onHoldDetail),
-        ],
-        if (recruitment != null)
-          ..._recruitment(context, recruitment)
-        else if (home.active) ...[
-          if (home.mayTeach) ...[
-            TutorSectionTitle(tr.todo,
-                trailing: home.actions.isEmpty
-                    ? null
-                    : Text(tr.sorted,
-                        style: AppTypography.caption
-                            .copyWith(color: AppPalette.text2))),
-            if (home.actions.isEmpty)
-              SoeCard(
-                  child: Text(tr.nothingToDo,
-                      style: AppTypography.bodySm
-                          .copyWith(color: AppPalette.text2)))
-            else
-              for (var i = 0; i < home.actions.length; i++)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: _ActionCard(
-                      action: home.actions[i],
-                      urgent: i == home.urgentIndex,
-                      offline: offline),
-                ),
-            for (final session in sessions)
-              Padding(
-                padding: const EdgeInsets.only(top: 6, bottom: 10),
-                child: _TodayCard(session: session),
-              ),
-          ],
-          const SizedBox(height: 6),
-          _MonthCard(month: home.month),
-          const SizedBox(height: 16),
-          _OffersCard(home: home),
-        ],
-      ],
-    );
-  }
+    final wide = spaceIsWide(context);
 
-  List<Widget> _recruitment(
-      BuildContext context, TutorRecruitment recruitment) {
-    if (recruitment.refused) {
-      return [
-        const SizedBox(height: 16),
-        _JourneyCard(recruitment: recruitment),
+    final Widget chips;
+    if (recruitment != null) {
+      final total = recruitment.totalSteps > 0
+          ? recruitment.totalSteps
+          : tutorJourney.length;
+      final complete = recruitment.sectionsComplete;
+      final sections = recruitment.sectionsTotal;
+      final offers = home.offers?.length ?? 0;
+      chips = Row(children: [
+        Expanded(
+            child: BandStat.gold(
+                value: '${recruitment.step}/$total', label: tr.chips.step)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: complete != null && sections != null
+              ? BandStat(value: '$complete/$sections', label: tr.chips.sections)
+              : BandStat(
+                  value: '${recruitment.missingDocuments.length}',
+                  label: tr.chips.todo),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+            child: BandStat.green(
+                value: '$offers',
+                label: tr.chips.offers(n: offers),
+                onTap: () =>
+                    openTutorScreen(context, TutorSpaceRoutes.offers))),
+      ]);
+    } else {
+      chips = Row(children: [
+        Expanded(
+            child: BandStat.gold(
+                value: '${home.mayTeach ? home.actions.length : 0}',
+                label: tr.chips.todo)),
+        const SizedBox(width: 8),
+        Expanded(
+            child: BandStat(
+                value: '${sessions.length}',
+                label: tr.chips.today(n: sessions.length),
+                onTap: () => context.go(RouteNames.tutorPlanning))),
+        const SizedBox(width: 8),
+        Expanded(
+            child: BandStat.green(
+                value: _figure(home.month.amount),
+                label: tr.chips.month,
+                onTap: () => context.go(RouteNames.tutorEarnings))),
+      ]);
+    }
+
+    final band = SpaceBand(
+      title: tr.hello(name: firstName),
+      subtitle: recruitment == null
+          ? null
+          : (recruitment.subtitle ??
+              (recruitment.refused
+                  ? tr.recruitment.refused
+                  : tr.recruitment.subtitle)),
+      chips: chips,
+    );
+
+    final notices = <Widget>[
+      if (offline) ...[
+        _OfflineBanner(since: offlineSince!, onRetry: onRetry),
+        const SizedBox(height: 14),
+      ],
+      if (home.active && !home.mayTeach) ...[
+        SoeAlert(
+            tone: SoeAlertTone.warning,
+            title: tr.onHold,
+            body: tr.onHoldDetail),
+        const SizedBox(height: 14),
+      ],
+    ];
+
+    List<Widget> main;
+    List<Widget> side;
+    if (recruitment != null) {
+      main = [
+        if (!recruitment.refused) ...[
+          _NextStepCard(recruitment: recruitment),
+          const SizedBox(height: 14),
+        ],
+        _JourneyCard(recruitment: recruitment, raised: recruitment.refused),
+      ];
+      side = recruitment.refused
+          ? const []
+          : [
+              _DelayCard(recruitment: recruitment),
+              const SizedBox(height: 14),
+              _OffersCard(home: home, recruiting: true),
+            ];
+    } else if (home.active) {
+      final todo = <Widget>[
+        if (home.mayTeach) ...[
+          if (home.actions.isEmpty)
+            SoeCard(
+              raised: true,
+              child: Row(children: [
+                const _IconTile(
+                    icon: Icons.check_rounded,
+                    background: AppPalette.successBg,
+                    color: AppPalette.successText),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(tr.nothingToDo,
+                      style:
+                          AppTypography.label.copyWith(color: AppPalette.text)),
+                ),
+              ]),
+            )
+          else
+            for (var i = 0; i < home.actions.length; i++)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: _ActionCard(
+                    action: home.actions[i],
+                    urgent: i == home.urgentIndex,
+                    raised: i == 0,
+                    offline: offline),
+              ),
+          for (final session in sessions)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: _TodayCard(session: session),
+            ),
+        ],
+      ];
+      main = todo;
+      side = [
+        _MonthCard(month: home.month),
+        const SizedBox(height: 14),
+        _OffersCard(home: home),
+      ];
+      if (todo.isEmpty) {
+        main = side;
+        side = const [];
+      }
+    } else {
+      main = const [];
+      side = const [];
+    }
+
+    final List<Widget> children;
+    if (wide && side.isNotEmpty) {
+      children = [
+        ...notices,
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(
+              flex: 3,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: main)),
+          const SizedBox(width: 16),
+          Expanded(
+              flex: 2,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: side)),
+        ]),
+      ];
+    } else {
+      children = [
+        ...notices,
+        ...main,
+        if (main.isNotEmpty && side.isNotEmpty) const SizedBox(height: 4),
+        ...side,
       ];
     }
-    return [
-      const SizedBox(height: 16),
-      _NextStepCard(recruitment: recruitment),
-      const SizedBox(height: 16),
-      _JourneyCard(recruitment: recruitment),
-      const SizedBox(height: 16),
-      _DelayCard(recruitment: recruitment),
-      const SizedBox(height: 16),
-      _OffersCard(home: home, recruiting: true),
-    ];
+    return SpaceTabView(band: band, onRefresh: onRefresh, children: children);
   }
+}
+
+/// A rounded square tile holding an icon (tinted ground, coloured icon).
+class _IconTile extends StatelessWidget {
+  const _IconTile(
+      {required this.icon, required this.background, required this.color});
+
+  final IconData icon;
+  final Color background;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+            color: background, borderRadius: BorderRadius.circular(12)),
+        child: Icon(icon, size: 18, color: color),
+      );
+}
+
+/// A small pill (countdown, « SOE examine »).
+class _Pill extends StatelessWidget {
+  const _Pill(
+      {required this.label, required this.background, required this.color});
+
+  final String label;
+  final Color background;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+            color: background, borderRadius: BorderRadius.circular(999)),
+        child: Text(label,
+            style: AppTypography.labelSm.copyWith(
+                fontSize: 12, fontWeight: FontWeight.w700, color: color)),
+      );
 }
 
 class _OfflineBanner extends StatelessWidget {
@@ -218,11 +359,17 @@ class _OfflineBanner extends StatelessWidget {
 
 class _ActionCard extends ConsumerWidget {
   const _ActionCard(
-      {required this.action, required this.urgent, required this.offline});
+      {required this.action,
+      required this.urgent,
+      required this.offline,
+      this.raised = false});
 
   final TutorHomeAction action;
   final bool urgent;
   final bool offline;
+
+  /// The first card, overlapping the band.
+  final bool raised;
 
   static IconData _icon(String kind) => switch (kind) {
         'assignment' => Icons.people_outline,
@@ -275,8 +422,9 @@ class _ActionCard extends ConsumerWidget {
     final proposal = about?.proposal;
     final deadline = action.deadline;
     final disputed = action.kind == 'disputed';
-    final labelColor =
-        disputed || action.overdue ? AppPalette.dangerText : AppPalette.gold700;
+    final tone = disputed || action.overdue
+        ? (background: AppPalette.warningBg, color: AppPalette.warningText)
+        : (background: AppPalette.gold50, color: AppPalette.gold700);
     final hours = deadline == null
         ? null
         : deadline.difference(DateTime.now()).inHours.clamp(0, 9999);
@@ -307,21 +455,54 @@ class _ActionCard extends ConsumerWidget {
               ? null
               : tr.action.due(date: TutorFormat.dateTime(context, deadline))),
     };
+    final minutesLeft = deadline?.difference(DateTime.now()).inMinutes;
+    final Widget? pill = disputed
+        ? _Pill(
+            label: tr.soeReviews,
+            background: AppPalette.infoBg,
+            color: AppPalette.infoText)
+        : action.overdue
+            ? _Pill(
+                label: tr.action.overdue,
+                background: AppPalette.dangerBg,
+                color: AppPalette.dangerText)
+            : (minutesLeft != null && minutesLeft > 0 && minutesLeft < 72 * 60
+                ? _Pill(
+                    label: tr.action.left(
+                        time: TutorFormat.duration(
+                            context,
+                            minutesLeft < 60
+                                ? minutesLeft
+                                : minutesLeft ~/ 60 * 60)),
+                    background: AppPalette.warningBg,
+                    color: AppPalette.warningText)
+                : null);
     return SoeCard(
+      raised: raised,
+      borderRadius: AppRadius.rCardLg,
+      padding: const EdgeInsets.all(18),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(children: [
-          Icon(_icon(action.kind), size: 16, color: labelColor),
-          const SizedBox(width: 6),
+          _IconTile(
+              icon: _icon(action.kind),
+              background: tone.background,
+              color: tone.color),
+          const SizedBox(width: 10),
           Expanded(
-            child: Text(action.label,
-                style: AppTypography.labelSm.copyWith(color: labelColor)),
+            child: Text(action.label.toUpperCase(),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.labelSm.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.78,
+                    color: tone.color)),
           ),
-          if (disputed)
-            SoeBadge(label: tr.soeReviews, tone: SoeBadgeTone.danger),
+          if (pill != null) ...[const SizedBox(width: 8), pill],
         ]),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         if (title != null && title.isNotEmpty)
-          Text(title, style: AppTypography.label),
+          Text(title,
+              style: AppTypography.subtitle.copyWith(color: AppPalette.text)),
         if (detail != null) ...[
           const SizedBox(height: 4),
           Text(detail,
@@ -333,21 +514,18 @@ class _ActionCard extends ConsumerWidget {
         if (action.kind == 'assignment' && hours != null) ...[
           const SizedBox(height: 10),
           Text(tr.action.hours(hours: hours),
-              style: AppTypography.h2.copyWith(color: AppPalette.gold700)),
+              style: AppTypography.h2.copyWith(color: AppPalette.warningText)),
           Text(
               tr.action
                   .toAnswer(date: TutorFormat.dateTime(context, deadline!)),
               style: AppTypography.caption.copyWith(color: AppPalette.text2)),
         ],
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         SoeButton(
           label: offline ? tr.action.offline : _label(tr),
-          size: SoeButtonSize.md,
-          variant: urgent
-              ? SoeButtonVariant.primary
-              : (disputed
-                  ? SoeButtonVariant.tertiary
-                  : SoeButtonVariant.outline),
+          size: urgent ? SoeButtonSize.lg : SoeButtonSize.md,
+          variant:
+              urgent ? SoeButtonVariant.primary : SoeButtonVariant.secondary,
           fullWidth: true,
           onPressed:
               offline ? null : () => context.push(tutorActionTarget(action)),
@@ -409,7 +587,8 @@ class _TodayCard extends ConsumerWidget {
       onTap: () => context.push(TutorSpaceRoutes.session(session.id)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(when.toUpperCase(),
-            style: AppTypography.overline.copyWith(color: AppPalette.teal800)),
+            style:
+                AppTypography.overline.copyWith(color: AppPalette.successText)),
         const SizedBox(height: 4),
         Text(title,
             style: AppTypography.h3.copyWith(color: AppPalette.teal800)),
@@ -465,36 +644,66 @@ class _MonthCard extends StatelessWidget {
             .split(' ')
             .first
             .toLowerCase();
+    Widget row(String label, String value, {Color? valueColor}) => Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(
+              flex: 2,
+              child: Text(label,
+                  style: AppTypography.bodySm
+                      .copyWith(color: AppPalette.successBg)),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 3,
+              child: Text(value,
+                  textAlign: TextAlign.right,
+                  style: AppTypography.label
+                      .copyWith(color: valueColor ?? AppPalette.white)),
+            ),
+          ]),
+        );
     return SoeCard(
+      color: AppPalette.success,
+      padding: const EdgeInsets.all(18),
+      onTap: () => context.go(RouteNames.tutorEarnings),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(monthName.toUpperCase(),
-            style: AppTypography.overline.copyWith(color: AppPalette.teal800)),
-        Text(tr.title,
-            style: AppTypography.h3.copyWith(color: AppPalette.teal800)),
-        const SizedBox(height: 8),
+        Text('${monthName.toUpperCase()} · ${tr.title.toUpperCase()}',
+            style:
+                AppTypography.overline.copyWith(color: AppPalette.successBg)),
+        const SizedBox(height: 4),
         Text(TutorFormat.amount(context, month.amount),
-            style: AppTypography.h1.copyWith(color: AppPalette.teal800)),
+            style: AppTypography.numberL.copyWith(color: AppPalette.white)),
         Text(tr.caption,
-            style: AppTypography.caption.copyWith(color: AppPalette.text2)),
-        const SizedBox(height: 8),
-        TutorInfoRow(label: tr.approved, value: '${month.approved}'),
-        TutorInfoRow(
-            label: tr.pending,
-            value: tr.line(
-                count: month.pendingCount,
-                amount: TutorFormat.amount(context, month.pendingAmount))),
-        TutorInfoRow(
-            label: tr.disputed,
-            value: tr.line(
-                count: month.disputedCount,
-                amount: TutorFormat.amount(context, month.disputedAmount)),
-            valueColor: month.disputedCount > 0 ? AppPalette.dangerText : null),
-        TutorInfoRow(
-            label: tr.payout,
-            last: true,
-            value: month.payoutOn == null
-                ? tr.payoutTbc(month: nextMonth)
-                : TutorFormat.dayLong(context, month.payoutOn!)),
+            style: AppTypography.caption.copyWith(color: AppPalette.successBg)),
+        const SizedBox(height: 4),
+        Container(
+          margin: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.fromLTRB(14, 2, 14, 12),
+          decoration: BoxDecoration(
+              color: const Color(0x1FFFFFFF),
+              borderRadius: BorderRadius.circular(16)),
+          child: Column(children: [
+            row(tr.approved, '${month.approved}'),
+            row(
+                tr.pending,
+                tr.line(
+                    count: month.pendingCount,
+                    amount: TutorFormat.amount(context, month.pendingAmount))),
+            row(
+                tr.disputed,
+                tr.line(
+                    count: month.disputedCount,
+                    amount: TutorFormat.amount(context, month.disputedAmount)),
+                valueColor:
+                    month.disputedCount > 0 ? AppPalette.gold100 : null),
+            row(
+                tr.payout,
+                month.payoutOn == null
+                    ? tr.payoutTbc(month: nextMonth)
+                    : TutorFormat.dayLong(context, month.payoutOn!)),
+          ]),
+        ),
       ]),
     );
   }
@@ -512,67 +721,134 @@ class _OffersCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = Translations.of(context).tutorSpace.home.offers;
     final offers = home.offers ?? const <TutorOfferPreview>[];
-    return SoeCard(
-      padding: EdgeInsets.zero,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-          child: Text(
-              home.offersTitle ?? (recruiting ? tr.nearTitle : tr.title),
-              style: AppTypography.h3.copyWith(color: AppPalette.teal800)),
-        ),
-        if (offers.isEmpty)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-            child: Text(tr.empty,
-                style: AppTypography.bodySm.copyWith(color: AppPalette.text2)),
+    final title = home.offersTitle ?? (recruiting ? tr.nearTitle : tr.title);
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(4, 4, 0, 10),
+        child: Row(children: [
+          Expanded(
+            child: Text(title,
+                style: AppTypography.h3
+                    .copyWith(fontSize: 22, color: AppPalette.teal800)),
           ),
-        for (final offer in offers)
-          InkWell(
-            onTap: () =>
-                openTutorScreen(context, TutorSpaceRoutes.offer(offer.id)),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Row(children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: const BoxDecoration(
-                      color: AppPalette.teal50, shape: BoxShape.circle),
-                  child: const Icon(Icons.work_outline,
-                      size: 18, color: AppPalette.teal800),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(offer.title, style: AppTypography.label),
-                        if (offer.neighborhood != null)
-                          Text(offer.neighborhood!,
-                              style: AppTypography.caption
-                                  .copyWith(color: AppPalette.text2)),
-                      ]),
-                ),
-                if (offer.sessionRate != null)
-                  Text(TutorFormat.amount(context, offer.sessionRate!),
-                      style: AppTypography.labelSm),
-                const Icon(Icons.chevron_right, color: AppPalette.text2),
-              ]),
+          TextButton(
+            onPressed: () => openTutorScreen(context, TutorSpaceRoutes.offers),
+            child: Text(tr.seeAllShort,
+                semanticsLabel: tr.seeAll,
+                style: AppTypography.label.copyWith(color: AppPalette.teal500)),
+          ),
+        ]),
+      ),
+      if (offers.isEmpty)
+        SoeCard(
+          child: Text(tr.empty,
+              style: AppTypography.bodySm.copyWith(color: AppPalette.text2)),
+        )
+      else
+        LayoutBuilder(builder: (context, constraints) {
+          final columns = constraints.maxWidth >= 520 ? 3 : 2;
+          final width = (constraints.maxWidth - 10 * (columns - 1)) / columns;
+          return Wrap(spacing: 10, runSpacing: 10, children: [
+            for (final offer in offers)
+              SizedBox(width: width, child: _OfferTile(offer: offer)),
+          ]);
+        }),
+      if (recruiting) ...[
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+              color: AppPalette.gold50,
+              borderRadius: BorderRadius.circular(16)),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Icon(Icons.info_outline, size: 18, color: AppPalette.gold700),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(home.offersNote ?? tr.note,
+                  style: AppTypography.bodySm.copyWith(color: AppPalette.text)),
             ),
-          ),
-        TextButton(
-          onPressed: () => openTutorScreen(context, TutorSpaceRoutes.offers),
-          child: Text(tr.seeAll),
+          ]),
         ),
-        if (recruiting)
-          Container(
-            color: AppPalette.surfaceSoft,
-            padding: const EdgeInsets.all(16),
-            child: Text(home.offersNote ?? tr.note,
-                style: AppTypography.caption.copyWith(color: AppPalette.text2)),
+      ],
+    ]);
+  }
+}
+
+/// An offer on the colour of its first subject: the subject, the class, the neighbourhood,
+/// the pay per session in gold.
+class _OfferTile extends StatelessWidget {
+  const _OfferTile({required this.offer});
+
+  final TutorOfferPreview offer;
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = Translations.of(context).tutorSpace.home.offers;
+    final subject = offer.subjects.isEmpty ? null : offer.subjects.first;
+    final color = SubjectColors.of(subject);
+    final ink = SubjectColors.onColor(color);
+    final soft = ink == AppPalette.white
+        ? const Color(0xD9FFFFFF)
+        : AppPalette.ink900.withValues(alpha: 0.75);
+    final rateColor =
+        color == AppPalette.subjectEnglish || ink != AppPalette.white
+            ? (ink == AppPalette.white ? AppPalette.gold100 : AppPalette.ink900)
+            : AppPalette.gold400;
+    return Semantics(
+      button: true,
+      child: Material(
+        color: color,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          onTap: () =>
+              openTutorScreen(context, TutorSpaceRoutes.offer(offer.id)),
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              if (subject != null)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                  decoration: BoxDecoration(
+                      color: ink.withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(999)),
+                  child: Text(offer.subjects.take(2).join(', '),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.labelSm.copyWith(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: ink)),
+                ),
+              const SizedBox(height: 6),
+              if (offer.schoolClasses.isNotEmpty)
+                Text(offer.schoolClasses.first,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        AppTypography.label.copyWith(fontSize: 15, color: ink)),
+              if (offer.neighborhood != null)
+                Text(offer.neighborhood!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.caption.copyWith(color: soft)),
+              if (offer.sessionRate != null) ...[
+                const SizedBox(height: 6),
+                Text(
+                    tr.rate(
+                        amount:
+                            TutorFormat.amount(context, offer.sessionRate!)),
+                    style: AppTypography.label.copyWith(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: rateColor)),
+              ],
+            ]),
           ),
-      ]),
+        ),
+      ),
     );
   }
 }
@@ -637,17 +913,43 @@ class _NextStepCard extends StatelessWidget {
     final total = recruitment.sectionsTotal;
     final fileStage = stage == 'file' && complete != null && total != null;
     return SoeCard(
+      raised: true,
+      padding: const EdgeInsets.all(18),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text((recruitment.nextLabel ?? tr.next(step: label)).toUpperCase(),
-            style: AppTypography.overline.copyWith(color: AppPalette.teal800)),
-        const SizedBox(height: 4),
+        Row(children: [
+          const _IconTile(
+              icon: Icons.assignment_outlined,
+              background: AppPalette.gold50,
+              color: AppPalette.gold700),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+                (recruitment.nextLabel ?? tr.next(step: label)).toUpperCase(),
+                style: AppTypography.labelSm.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.78,
+                    color: AppPalette.gold700)),
+          ),
+        ]),
+        const SizedBox(height: 12),
         Text(tr.missingTitle,
             style: AppTypography.h3.copyWith(color: AppPalette.teal800)),
         const SizedBox(height: 8),
         if (fileStage) ...[
           // « 5 / 7 sections complètes », then each section to complete or redo.
           Text('$complete / $total',
-              style: AppTypography.h1.copyWith(color: AppPalette.teal800)),
+              style: AppTypography.h1.copyWith(color: AppPalette.successText)),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: LinearProgressIndicator(
+              value: total == 0 ? 0 : complete / total,
+              minHeight: 6,
+              color: AppPalette.success,
+              backgroundColor: AppPalette.teal100,
+            ),
+          ),
+          const SizedBox(height: 6),
           Text(tr.sectionsComplete,
               style: AppTypography.caption.copyWith(color: AppPalette.text2)),
           const SizedBox(height: 8),
@@ -695,7 +997,7 @@ class _NextStepCard extends StatelessWidget {
           const SizedBox(height: 12),
           SoeButton(
             label: action,
-            size: SoeButtonSize.md,
+            fullWidth: true,
             onPressed: () => openTutorScreen(context, target),
           ),
         ],
@@ -705,9 +1007,10 @@ class _NextStepCard extends StatelessWidget {
 }
 
 class _JourneyCard extends StatelessWidget {
-  const _JourneyCard({required this.recruitment});
+  const _JourneyCard({required this.recruitment, this.raised = false});
 
   final TutorRecruitment recruitment;
+  final bool raised;
 
   @override
   Widget build(BuildContext context) {
@@ -716,11 +1019,9 @@ class _JourneyCard extends StatelessWidget {
         ? recruitment.totalSteps
         : tutorJourney.length;
     final step = recruitment.step;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-          color: AppPalette.surfaceSoft,
-          borderRadius: BorderRadius.circular(16)),
+    return SoeCard(
+      raised: raised,
+      padding: const EdgeInsets.all(18),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Expanded(
@@ -760,10 +1061,9 @@ class _DelayCard extends StatelessWidget {
     final tr = Translations.of(context).tutorSpace.home.recruitment;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-          color: AppPalette.surfaceSoft,
-          borderRadius: BorderRadius.circular(16)),
+          color: AppPalette.gold50, borderRadius: BorderRadius.circular(20)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(tr.delayTitle,
             style: AppTypography.h3.copyWith(color: AppPalette.teal800)),
@@ -795,11 +1095,11 @@ class _JourneyStep extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: done
-                    ? AppPalette.teal500
+                    ? AppPalette.success
                     : (current ? AppPalette.gold400 : AppPalette.white),
                 border: done || current
                     ? null
-                    : Border.all(color: AppPalette.n300, width: 1.5),
+                    : Border.all(color: AppPalette.teal100, width: 2),
               ),
               child: done
                   ? const Icon(Icons.check, size: 14, color: AppPalette.white)

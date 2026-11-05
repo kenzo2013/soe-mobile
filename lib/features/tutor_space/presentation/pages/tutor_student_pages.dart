@@ -28,50 +28,36 @@ class TutorStudentsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context).tutorSpace.students;
-    return Scaffold(
-      backgroundColor: AppPalette.surfacePage,
-      body: TabBody(
-        title: Translations.of(context).shell.tutor.students,
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: Text(tr.title,
-                style: AppTypography.h1.copyWith(color: AppPalette.teal800)),
-          ),
-          Expanded(
-            child: TutorAsyncBody<List<TutorPupil>>(
-              value: ref.watch(tutorStudentsProvider),
-              onRetry: () => ref.invalidate(tutorStudentsProvider),
-              builder: (pupils) => RefreshIndicator(
-                onRefresh: () => ref.refresh(tutorStudentsProvider.future),
-                child: ListView(padding: const EdgeInsets.all(16), children: [
-                  if (pupils.isEmpty)
-                    SoeEmptyState(
-                        title: tr.empty,
-                        message: tr.emptyText,
-                        icon: Icons.people_outline)
-                  else
-                    TutorListCard(children: [
-                      for (final pupil in pupils)
-                        TutorListTile(
-                          leading: TutorTileLeading(
-                              text: TutorOfferFormat.initials(pupil.pupil)),
-                          title: TutorOfferFormat.pupilName(
-                              pupil.pupil, pupil.schoolClass),
-                          subtitle: _summary(context, pupil),
-                          badge: TutorToneBadge(
-                              state: pupil.state, label: pupil.stateLabel),
-                          onTap: () => unawaited(
-                              context.push(TutorSpaceRoutes.student(pupil.id))),
-                        ),
-                    ]),
-                ]),
+    return SpaceTabAsync<List<TutorPupil>>(
+      band: SpaceBand(title: tr.title),
+      value: ref.watch(tutorStudentsProvider),
+      onRetry: () => ref.invalidate(tutorStudentsProvider),
+      onRefresh: () => ref.refresh(tutorStudentsProvider.future),
+      builder: (pupils) => [
+        if (pupils.isEmpty)
+          SoeCard(
+            raised: true,
+            child: SoeEmptyState(
+                title: tr.empty,
+                message: tr.emptyText,
+                icon: Icons.people_outline),
+          )
+        else
+          TutorListCard(raised: true, children: [
+            for (final pupil in pupils)
+              TutorListTile(
+                leading: TutorTileLeading(
+                    text: TutorOfferFormat.initials(pupil.pupil)),
+                title:
+                    TutorOfferFormat.pupilName(pupil.pupil, pupil.schoolClass),
+                subtitle: _summary(context, pupil),
+                badge:
+                    TutorToneBadge(state: pupil.state, label: pupil.stateLabel),
+                onTap: () =>
+                    unawaited(context.push(TutorSpaceRoutes.student(pupil.id))),
               ),
-            ),
-          ),
-        ]),
-      ),
+          ]),
+      ],
     );
   }
 
@@ -168,7 +154,7 @@ class _MutedCard extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-            color: AppPalette.surfaceSoft,
+            color: AppPalette.gold50,
             borderRadius: BorderRadius.circular(16)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(title,

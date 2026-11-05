@@ -24,14 +24,13 @@ class TutorPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppPalette.white,
-          borderRadius: AppRadius.rMd,
-          border: Border.all(color: AppPalette.n300),
-          boxShadow: AppShadows.sm,
+          borderRadius: AppRadius.rCard,
+          boxShadow: AppShadows.card,
         ),
         child: ClipRRect(
-          borderRadius: AppRadius.rMd,
+          borderRadius: AppRadius.rCard,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -54,7 +53,7 @@ class TutorPanel extends StatelessWidget {
               ],
               if (footer != null)
                 Container(
-                  color: AppPalette.n50,
+                  color: AppPalette.teal50,
                   padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
                   child: DefaultTextStyle.merge(
                       style: AppTypography.caption
@@ -98,14 +97,20 @@ class TutorPanelRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: Row(children: [
             if (leading) ...[
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: AppPalette.teal50,
+              Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                    color:
+                        icon != null ? AppPalette.teal50 : AppPalette.gold100,
+                    borderRadius:
+                        BorderRadius.circular(icon != null ? 14 : 20)),
                 child: icon != null
-                    ? Icon(icon, size: 20, color: AppPalette.teal800)
+                    ? Icon(icon, size: 20, color: AppPalette.teal500)
                     : Text(initials!,
                         style: AppTypography.labelSm
-                            .copyWith(color: AppPalette.teal800)),
+                            .copyWith(color: AppPalette.gold700)),
               ),
               const SizedBox(width: 12),
             ],

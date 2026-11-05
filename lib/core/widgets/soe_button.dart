@@ -14,7 +14,7 @@ enum SoeButtonVariant {
   /// Teal 500 filled, white text.
   secondary,
 
-  /// Teal outline 1.5 px.
+  /// Soft: light teal fill, SOE teal text (a secondary action next to a filled one).
   outline,
 
   /// Text only, teal.
@@ -148,10 +148,10 @@ class SoeButton extends StatelessWidget {
         SoeButtonVariant.secondary =>
           const _ButtonSpec(AppPalette.teal500, AppPalette.white),
         SoeButtonVariant.outline => const _ButtonSpec(
-            Colors.transparent,
+            AppPalette.teal50,
             AppPalette.teal500,
-            border: BorderSide(color: AppPalette.teal500, width: 1.5),
-            overlay: AppPalette.teal50,
+            border: BorderSide(color: AppPalette.teal100),
+            overlay: AppPalette.overlayHover,
           ),
         SoeButtonVariant.tertiary => const _ButtonSpec(
             Colors.transparent, AppPalette.teal500,
@@ -175,9 +175,9 @@ class SoeButton extends StatelessWidget {
         SoeButtonVariant.outline ||
         SoeButtonVariant.dangerOutline =>
           const _ButtonSpec(
-            Colors.transparent,
+            AppPalette.n50,
             AppPalette.ink600,
-            border: BorderSide(color: AppPalette.n300, width: 1.5),
+            border: BorderSide(color: AppPalette.teal100),
           ),
         SoeButtonVariant.tertiary =>
           const _ButtonSpec(Colors.transparent, AppPalette.ink600),

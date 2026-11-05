@@ -324,7 +324,7 @@ class _SoftCard extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-            color: AppPalette.surfaceSoft,
+            color: AppPalette.gold50,
             borderRadius: BorderRadius.circular(16)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(title,
@@ -365,7 +365,7 @@ class _Follow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-          color: AppPalette.surfaceSoft,
+          color: AppPalette.gold50,
           borderRadius: BorderRadius.circular(16)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(tr.follow,
