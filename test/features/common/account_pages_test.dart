@@ -5,6 +5,7 @@ import 'package:soe/features/auth/domain/entities/user.dart';
 
 import '../../helpers/fake_api.dart';
 import 'account_test_app.dart';
+import 'package:soe/core/widgets/soe_city_field.dart';
 
 Map<String, dynamic> _notification(int id,
         {String day = 'today',
@@ -526,6 +527,35 @@ void main() {
         'latitude': 4.03,
         'longitude': 9.69,
       });
+    });
+
+    testWidgets('a city refused by the server rings the city field in red',
+        (tester) async {
+      final api = _apiWithAddress()
+        ..on('GET /auth/cities', (
+          200,
+          envelope([
+            {
+              'name': 'Douala',
+              'major': true,
+              'region': 'Littoral',
+              'neighborhoods': <Object>[]
+            }
+          ])
+        ))
+        ..on('PATCH /account/address',
+            invalid('city', 'Choisissez votre ville dans la liste.'));
+      await pumpAccountApp(tester, api: api, location: '/account/address');
+
+      await tester.tap(find.text('Enregistrer l’adresse'));
+      await tester.pumpAndSettle();
+
+      expect(
+          find.descendant(
+              of: find.byType(SoeCityField),
+              matching: find.text('Choisissez votre ville dans la liste.')),
+          findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('^Ville, Douala')), findsOneWidget);
     });
 
     testWidgets('a box of the grid is saved at once; SMS is not available',

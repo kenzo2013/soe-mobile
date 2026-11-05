@@ -19,7 +19,7 @@ import '../../../tutor_space/data/tutor_location.dart';
 import '../../data/account_models.dart';
 import '../providers.dart';
 import '../widgets/account_ui.dart';
-import '../widgets/city_field.dart';
+import '../../../../core/widgets/soe_city_field.dart';
 
 /// Reads the phone's position for « Utiliser ma position » (replaced in tests).
 final addressLocatorProvider =
@@ -179,17 +179,12 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
               errorText: fieldError(_error, 'neighborhood'),
             ),
             AccountFieldLabel(tr.city),
-            CityField(
+            SoeCityField(
               value: _city,
+              semanticLabel: tr.city,
+              errorText: fieldError(_error, 'city'),
               onChanged: (city) => setState(() => _city = city),
             ),
-            if (fieldError(_error, 'city') != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Text(fieldError(_error, 'city')!,
-                    style: AppTypography.caption
-                        .copyWith(color: AppPalette.dangerText)),
-              ),
             AccountFieldLabel(tr.landmark),
             SoeTextField(
               controller: _landmark,
