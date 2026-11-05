@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,8 +15,11 @@ import '../../../common/presentation/widgets/notification_bell.dart';
 import '../../data/parent_models.dart';
 import '../parent_space_routes.dart';
 import '../providers.dart';
+import '../widgets/parent_advisor_card.dart';
+import '../widgets/parent_more_links.dart';
 import '../widgets/parent_session_tile.dart';
 import '../widgets/parent_ui.dart';
+import '../widgets/parent_widgets.dart';
 
 /// PAR-01 — « what must I do now? »: actions by deadline (one gold button: the most urgent),
 /// this week's sessions, where the requests stand, children, payment of the month, advisor.
@@ -57,6 +62,13 @@ class ParentHomePage extends ConsumerWidget {
                           Text(tr.home.emptyTitle, style: AppTypography.title),
                           const SizedBox(height: 8),
                           Text(tr.home.emptyText, style: AppTypography.bodySm),
+                          const SizedBox(height: 12),
+                          SoeButton(
+                            label: tr.home.addChild,
+                            fullWidth: true,
+                            onPressed: () => unawaited(
+                                context.push(ParentSpaceRoutes.newChild)),
+                          ),
                         ]),
                   ),
                 ],
@@ -65,16 +77,12 @@ class ParentHomePage extends ConsumerWidget {
                       trailing: Text(tr.home.sorted,
                           style: AppTypography.caption
                               .copyWith(color: AppPalette.text2))),
-                  SizedBox(
-                    height: 150,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: home.actions.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 12),
-                      itemBuilder: (context, i) =>
-                          _ActionCard(action: home.actions[i], urgent: i == 0),
+                  // Sorted by deadline by the server: one gold button, the most urgent.
+                  for (final (i, action) in home.actions.indexed)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _ActionCard(action: action, urgent: i == 0),
                     ),
-                  ),
                 ],
                 ParentSectionTitle(tr.home.week,
                     trailing: TextButton(
@@ -139,11 +147,20 @@ class ParentHomePage extends ConsumerWidget {
                   const SizedBox(height: 12),
                   _InvoiceCard(invoice: home.invoice!),
                 ],
-                if (home.advisorName != null) ...[
-                  const SizedBox(height: 12),
-                  _AdvisorCard(
-                      name: home.advisorName!, phone: home.advisorPhone),
-                ],
+                const SizedBox(height: 12),
+                const ParentAdvisorCard(),
+                // Until the « Plus » menu renders them, the parent screens open from here.
+                ParentPanel(children: [
+                  SoeButton(
+                    label: tr.home.newRequest,
+                    variant: SoeButtonVariant.outline,
+                    fullWidth: true,
+                    onPressed: () =>
+                        unawaited(context.push(ParentSpaceRoutes.newRequest)),
+                  ),
+                  const SizedBox(height: 8),
+                  const ParentMoreLinks(),
+                ]),
               ],
             ),
           ),
@@ -166,7 +183,7 @@ class _ActionCard extends StatelessWidget {
     final hours =
         deadline == null ? null : deadline.difference(DateTime.now()).inHours;
     return SizedBox(
-      width: 260,
+      width: double.infinity,
       child: SoeCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(action.label.toUpperCase(),
@@ -190,7 +207,7 @@ class _ActionCard extends StatelessWidget {
                     ? tr.home.overdue
                     : ParentFormat.day(context, deadline),
                 style: AppTypography.label),
-          const Spacer(),
+          const SizedBox(height: 12),
           SoeButton(
             label: _label(tr),
             size: SoeButtonSize.sm,
@@ -210,6 +227,8 @@ class _ActionCard extends StatelessWidget {
         'contract' => tr.requests.contract,
         'quote' => tr.requests.quote,
         'planning' => tr.requests.planning,
+        'tutor' => tr.requests.tutor,
+        'review' => tr.home.giveReview,
         _ => tr.requests.title,
       };
 
@@ -225,6 +244,10 @@ class _ActionCard extends StatelessWidget {
         context.push(ParentSpaceRoutes.quote(action.targetId));
       case 'planning':
         context.push(ParentSpaceRoutes.planning(action.targetId));
+      case 'tutor':
+        context.push(ParentSpaceRoutes.tutors(action.targetId));
+      case 'review':
+        context.push(ParentSpaceRoutes.reviewForm(action.targetId));
       default:
         context.push(ParentSpaceRoutes.requests);
     }
@@ -241,6 +264,9 @@ class _RequestCard extends StatelessWidget {
     final tr = Translations.of(context).parentSpace;
     final current = ParentHomeRequest.steps.indexOf(request.step);
     return SoeCard(
+      onTap: request.id == 0
+          ? null
+          : () => unawaited(context.push(ParentSpaceRoutes.request(request.id))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(
             '${request.reference} · ${request.children.join(', ')}'
@@ -320,34 +346,6 @@ class _InvoiceCard extends StatelessWidget {
             onPressed: () => context.push(ParentSpaceRoutes.pay(invoice.id)),
           ),
         ],
-      ]),
-    );
-  }
-}
-
-class _AdvisorCard extends StatelessWidget {
-  const _AdvisorCard({required this.name, required this.phone});
-
-  final String name;
-  final String? phone;
-
-  @override
-  Widget build(BuildContext context) {
-    final tr = Translations.of(context).parentSpace;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-          color: AppPalette.surfaceNav,
-          borderRadius: BorderRadius.circular(16)),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(tr.home.advisor.toUpperCase(),
-            style: AppTypography.overline.copyWith(color: AppPalette.onDark2)),
-        const SizedBox(height: 8),
-        Text(name,
-            style: AppTypography.label.copyWith(color: AppPalette.onDark)),
-        if (phone != null)
-          SelectableText('${tr.home.call} : $phone',
-              style: AppTypography.bodySm.copyWith(color: AppPalette.onDark)),
       ]),
     );
   }
