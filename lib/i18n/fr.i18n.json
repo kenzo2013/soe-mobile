@@ -2228,7 +2228,8 @@
         "other": "{{n}} documents à signer"
       },
       "payoutMethods": "Moyens de paiement",
-      "earningsHistory": "Historique des versements"
+      "earningsHistory": "Historique des versements",
+      "quality": "Ma qualité"
     },
     "offers": {
       "title": "Offres",
@@ -2632,6 +2633,27 @@
       "successText": "C’était la dernière étape. SOE active votre compte.",
       "seeOffers": "Voir les offres",
       "backToFile": "Retour au dossier"
+    },
+    "quality": {
+      "title": "Ma qualité",
+      "private": "Vue privée",
+      "intro": "Visible par vous seul. Ces indicateurs aident SOE à vous proposer des familles.",
+      "rating": "Note moyenne",
+      "ratingValue": "{{rating}} / 5",
+      "reviews": {
+        "zero": "Aucun avis de famille pour l’instant",
+        "one": "{{n}} avis de famille",
+        "other": "{{n}} avis de familles"
+      },
+      "punctuality": "Ponctualité",
+      "punctualityText": {
+        "one": "arrivées à l’heure (moins de {{minutes}} min de retard) · issues du pointage, dernier mois",
+        "other": "arrivées à l’heure (moins de {{minutes}} min de retard) · issues du pointage, {{n}} derniers mois"
+      },
+      "reports": "PV rendus à temps",
+      "reportsText": "dans les {{hours}} h",
+      "percent": "{{value}} %",
+      "none": "—"
     }
   },
   "accountSpace": {

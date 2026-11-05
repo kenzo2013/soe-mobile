@@ -2228,7 +2228,8 @@
         "other": "{{n}} documents to sign"
       },
       "payoutMethods": "Payout methods",
-      "earningsHistory": "Payout history"
+      "earningsHistory": "Payout history",
+      "quality": "My quality"
     },
     "offers": {
       "title": "Offers",
@@ -2632,6 +2633,27 @@
       "successText": "That was the last step. SOE is activating your account.",
       "seeOffers": "See the offers",
       "backToFile": "Back to my file"
+    },
+    "quality": {
+      "title": "My quality",
+      "private": "Private view",
+      "intro": "Visible to you only. These figures help SOE offer you families.",
+      "rating": "Average rating",
+      "ratingValue": "{{rating}} / 5",
+      "reviews": {
+        "zero": "No family review yet",
+        "one": "{{n}} family review",
+        "other": "{{n}} family reviews"
+      },
+      "punctuality": "Punctuality",
+      "punctualityText": {
+        "one": "arrivals on time (less than {{minutes}} min late) · from check-ins, last month",
+        "other": "arrivals on time (less than {{minutes}} min late) · from check-ins, last {{n}} months"
+      },
+      "reports": "Reports on time",
+      "reportsText": "within {{hours}} h",
+      "percent": "{{value}}%",
+      "none": "—"
     }
   },
   "accountSpace": {

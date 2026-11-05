@@ -42,6 +42,7 @@ void main() {
     expect(find.text('Contrats'), findsOneWidget);
     expect(find.text('2 documents à signer'), findsOneWidget);
     expect(find.text('Moyens de paiement'), findsOneWidget);
+    expect(find.text('Ma qualité'), findsOneWidget);
   });
 
   testWidgets('shows no count when nothing is to sign', (tester) async {

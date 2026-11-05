@@ -16,10 +16,8 @@ import '../../data/parent_models.dart';
 import '../parent_space_routes.dart';
 import '../providers.dart';
 import '../widgets/parent_advisor_card.dart';
-import '../widgets/parent_more_links.dart';
 import '../widgets/parent_session_tile.dart';
 import '../widgets/parent_ui.dart';
-import '../widgets/parent_widgets.dart';
 
 /// PAR-01 — « what must I do now? »: actions by deadline (one gold button: the most urgent),
 /// this week's sessions, where the requests stand, children, payment of the month, advisor.
@@ -149,18 +147,6 @@ class ParentHomePage extends ConsumerWidget {
                 ],
                 const SizedBox(height: 12),
                 const ParentAdvisorCard(),
-                // Until the « Plus » menu renders them, the parent screens open from here.
-                ParentPanel(children: [
-                  SoeButton(
-                    label: tr.home.newRequest,
-                    variant: SoeButtonVariant.outline,
-                    fullWidth: true,
-                    onPressed: () =>
-                        unawaited(context.push(ParentSpaceRoutes.newRequest)),
-                  ),
-                  const SizedBox(height: 8),
-                  const ParentMoreLinks(),
-                ]),
               ],
             ),
           ),
@@ -266,7 +252,8 @@ class _RequestCard extends StatelessWidget {
     return SoeCard(
       onTap: request.id == 0
           ? null
-          : () => unawaited(context.push(ParentSpaceRoutes.request(request.id))),
+          : () =>
+              unawaited(context.push(ParentSpaceRoutes.request(request.id))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(
             '${request.reference} · ${request.children.join(', ')}'

@@ -8,6 +8,7 @@ import 'pages/tutor_interview_page.dart';
 import 'pages/tutor_offer_pages.dart';
 import 'pages/tutor_payout_pages.dart';
 import 'pages/tutor_proposal_page.dart';
+import 'pages/tutor_quality_page.dart';
 import 'pages/tutor_report_page.dart';
 import 'pages/tutor_session_page.dart';
 import 'pages/tutor_student_pages.dart';
@@ -88,5 +89,9 @@ List<RouteBase> tutorSpaceRoutes() => [
       GoRoute(
         path: '/tutor/space/payout-methods',
         builder: (context, state) => const TutorPayoutMethodsPage(),
+      ),
+      GoRoute(
+        path: '/tutor/space/quality',
+        builder: (context, state) => const TutorQualityPage(),
       ),
     ];

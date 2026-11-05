@@ -34,4 +34,7 @@ abstract final class TutorSpaceRoutes {
   // Money (REP-19, REP-20).
   static const String earningsHistory = '/tutor/space/earnings/history';
   static const String payoutMethods = '/tutor/space/payout-methods';
+
+  // Quality (REP-22), private to the tutor.
+  static const String quality = '/tutor/space/quality';
 }

@@ -174,6 +174,11 @@ class TutorApi {
       _guard(() async => TutorEarnings.fromJson(_data(
           await _dio.get<Map<String, dynamic>>(ApiEndpointsV2.tutorEarnings))));
 
+  /// The private quality view (REP-22).
+  Future<TutorQuality> quality() =>
+      _guard(() async => TutorQuality.fromJson(_data(
+          await _dio.get<Map<String, dynamic>>(ApiEndpointsV2.tutorQuality))));
+
   Future<List<TutorContract>> contracts() => _guard(() async {
         final r = await _dio.get<Map<String, dynamic>>(
             ApiEndpointsV2.tutorContracts,

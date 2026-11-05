@@ -686,3 +686,38 @@ class TutorContract {
       .where((s) => s.isNotEmpty)
       .join(' · ');
 }
+
+/// The tutor's private quality view (REP-22): average rating, punctuality from the check-ins,
+/// reports sent on time. A null figure has nothing to measure over the period.
+class TutorQuality {
+  const TutorQuality({
+    required this.rating,
+    required this.reviewsCount,
+    required this.punctualityPercent,
+    required this.onTimeReportsPercent,
+    required this.periodMonths,
+    required this.punctualityGraceMinutes,
+    required this.reportSubmissionHours,
+  });
+
+  factory TutorQuality.fromJson(Map<String, dynamic> json) => TutorQuality(
+        rating: (json['rating'] as num?)?.toDouble(),
+        reviewsCount: (json['reviews_count'] as num?)?.toInt() ?? 0,
+        punctualityPercent: (json['punctuality_percent'] as num?)?.toInt(),
+        onTimeReportsPercent:
+            (json['on_time_reports_percent'] as num?)?.toInt(),
+        periodMonths: (json['period_months'] as num?)?.toInt() ?? 0,
+        punctualityGraceMinutes:
+            (json['punctuality_grace_minutes'] as num?)?.toInt() ?? 0,
+        reportSubmissionHours:
+            (json['report_submission_hours'] as num?)?.toInt() ?? 0,
+      );
+
+  final double? rating;
+  final int reviewsCount;
+  final int? punctualityPercent;
+  final int? onTimeReportsPercent;
+  final int periodMonths;
+  final int punctualityGraceMinutes;
+  final int reportSubmissionHours;
+}

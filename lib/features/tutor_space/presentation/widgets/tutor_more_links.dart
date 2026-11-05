@@ -11,7 +11,7 @@ import '../providers.dart';
 import '../tutor_space_routes.dart';
 
 /// The tutor entries of « Plus » (REP-01, variant « Menu Plus »): offers, applications, the
-/// file, the contracts (with what is left to sign) and the payout methods. The account, the
+/// file, the contracts (with what is left to sign), the payout methods and the quality view. The account, the
 /// switch of space and the sign-out stay with the shared « Plus » page.
 class TutorMoreLinks extends ConsumerWidget {
   const TutorMoreLinks({super.key});
@@ -46,6 +46,10 @@ class TutorMoreLinks extends ConsumerWidget {
           icon: Icons.account_balance_wallet_outlined,
           label: tr.payoutMethods,
           route: TutorSpaceRoutes.payoutMethods),
+      _Link(
+          icon: Icons.insights_outlined,
+          label: tr.quality,
+          route: TutorSpaceRoutes.quality),
     ]);
   }
 }
