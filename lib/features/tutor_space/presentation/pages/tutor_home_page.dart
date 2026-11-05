@@ -10,6 +10,7 @@ import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../i18n/translations.g.dart';
 import '../../../auth/presentation/providers/current_user_provider.dart';
+import '../../../common/presentation/widgets/notification_bell.dart';
 import '../../data/tutor_models.dart';
 import '../providers.dart';
 import '../tutor_space_routes.dart';
@@ -38,9 +39,14 @@ class TutorHomePage extends ConsumerWidget {
               return ListView(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
                 children: [
-                  Text(tr.hello(name: firstName),
-                      style:
-                          AppTypography.h1.copyWith(color: AppPalette.teal800)),
+                  Row(children: [
+                    Expanded(
+                      child: Text(tr.hello(name: firstName),
+                          style: AppTypography.h1
+                              .copyWith(color: AppPalette.teal800)),
+                    ),
+                    const NotificationBell(),
+                  ]),
                   Text(tr.subtitle,
                       style: AppTypography.bodySm
                           .copyWith(color: AppPalette.text2)),

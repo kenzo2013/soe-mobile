@@ -2,22 +2,25 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/error/failure.dart';
-import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
-import '../../../../core/widgets/error_view.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/soe_badge.dart';
+import '../../../../core/widgets/soe_button.dart';
+import '../../../../core/widgets/soe_chip.dart';
 import '../../../../core/widgets/soe_empty_state.dart';
+import '../../../../core/widgets/soe_toast.dart';
 import '../../../../i18n/translations.g.dart';
-import '../../data/mappers/notification_mapper.dart';
-import '../../domain/entities/app_notification.dart';
-import '../common_action.dart';
+import '../../data/account_models.dart';
 import '../providers.dart';
-import '../widgets/common_top_bar.dart';
+import '../widgets/account_ui.dart';
+import '../widgets/notification_bell.dart';
 import '../widgets/notification_visuals.dart';
 
-/// 7 · Centre de notifications (design `CommonNotifsList`).
+/// COM-07 — the notification centre of the active role: filters (all, unread, to do), grouped
+/// by day, an icon and a colour per type, « Tout marquer comme lu »; each one opens its screen.
+/// A long press marks it unread or deletes it.
 class NotificationsCenterPage extends ConsumerStatefulWidget {
   const NotificationsCenterPage({super.key});
 
@@ -28,343 +31,213 @@ class NotificationsCenterPage extends ConsumerStatefulWidget {
 
 class _NotificationsCenterPageState
     extends ConsumerState<NotificationsCenterPage> {
-  bool _unreadOnly = false;
+  String _filter = 'all';
 
-  Future<void> _markAllRead() async {
-    final tr = Translations.of(context);
-    await runCommonAction(
+  void _reload() => ref
+    ..invalidate(notificationsProvider)
+    ..invalidate(unreadNotificationsProvider);
+
+  Future<void> _act(Future<void> Function() call, {String? message}) async {
+    try {
+      await call();
+      _reload();
+      if (mounted && message != null) SoeToast.show(context, message: message);
+    } on Failure catch (failure) {
+      if (mounted) {
+        SoeToast.show(context,
+            message: accountFailureMessage(context, failure),
+            tone: SoeToastTone.danger);
+      }
+    }
+  }
+
+  Future<void> _actions(AppNotification notification) async {
+    final tr = Translations.of(context).accountSpace.notifications;
+    final api = ref.read(accountApiProvider);
+    await showAccountSheet<void>(
       context,
-      ref,
-      actionKey: 'notif_all_read',
-      successMessage: tr.notifications.center.markedAllRead,
-      popOnSuccess: false,
-      op: () => ref.read(commonRepositoryProvider).markAllNotificationsRead(),
-      onSuccess: () => ref.invalidate(notificationsProvider),
-    );
-  }
-
-  Future<void> _open(AppNotification n) async {
-    if (!n.read) {
-      // Marque lu en arrière-plan puis rafraîchit.
-      await ref.read(commonRepositoryProvider).markNotificationRead(n.id);
-      ref.invalidate(notificationsProvider);
-    }
-    if (mounted) {
-      unawaited(context.push(RouteNames.notificationDetail(n.id), extra: n));
-    }
-  }
-
-  Future<void> _delete(AppNotification n) async {
-    final tr = Translations.of(context);
-    await runCommonAction(
-      context,
-      ref,
-      actionKey: 'notif_del:${n.id}',
-      successMessage: tr.notifications.center.deleted,
-      popOnSuccess: false,
-      op: () => ref.read(commonRepositoryProvider).deleteNotification(n.id),
-      onSuccess: () => ref.invalidate(notificationsProvider),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final tr = Translations.of(context);
-    final async = ref.watch(notificationsProvider);
-    final unreadCount =
-        async.asData?.value.where((n) => !n.read).length ?? 0;
-
-    return Scaffold(
-      backgroundColor: AppPalette.n100,
-      appBar: CommonTopBar(
-        title: tr.notifications.center.title,
-        subtitle: unreadCount <= 1
-            ? tr.notifications.center.unreadOne(count: unreadCount)
-            : tr.notifications.center.unreadOther(count: unreadCount),
-        action: Material(
-          color: AppPalette.white,
-          borderRadius: BorderRadius.circular(10),
-          child: InkWell(
-            onTap: unreadCount == 0 ? null : _markAllRead,
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppPalette.n300),
-              ),
-              child: const Icon(Icons.done_all, size: 18, color: AppPalette.teal),
+      title: notification.title,
+      builder: (sheetContext) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (notification.read)
+            SoeButton(
+              label: tr.markUnread,
+              variant: SoeButtonVariant.outline,
+              onPressed: () {
+                Navigator.of(sheetContext).pop();
+                unawaited(_act(() => api.unread(notification.id)));
+              },
             ),
+          const SizedBox(height: 8),
+          SoeButton(
+            label: tr.delete,
+            variant: SoeButtonVariant.dangerOutline,
+            onPressed: () {
+              Navigator.of(sheetContext).pop();
+              unawaited(_act(() => api.deleteNotification(notification.id),
+                  message: tr.deleted));
+            },
           ),
-        ),
-      ),
-      body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => ErrorView(
-          failure: asFailure(e),
-          onRetry: () => ref.invalidate(notificationsProvider),
-        ),
-        data: (all) {
-          final items = _unreadOnly ? all.where((n) => !n.read).toList() : all;
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                child: Row(
-                  children: [
-                    _FilterChip(
-                      label: tr.notifications.center.filterAll,
-                      count: all.length,
-                      selected: !_unreadOnly,
-                      onTap: () => setState(() => _unreadOnly = false),
-                    ),
-                    const SizedBox(width: 8),
-                    _FilterChip(
-                      label: tr.notifications.center.filterUnread,
-                      count: unreadCount,
-                      selected: _unreadOnly,
-                      onTap: () => setState(() => _unreadOnly = true),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: items.isEmpty
-                    ? SoeEmptyState(
-                        icon: Icons.notifications_none,
-                        title: tr.notifications.center.emptyTitle,
-                        message: tr.notifications.center.emptyMessage,
-                      )
-                    : RefreshIndicator(
-                        onRefresh: () async =>
-                            ref.invalidate(notificationsProvider),
-                        child: _GroupedList(
-                          items: items,
-                          onOpen: _open,
-                          onDelete: _delete,
-                        ),
-                      ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _GroupedList extends StatelessWidget {
-  const _GroupedList({
-    required this.items,
-    required this.onOpen,
-    required this.onDelete,
-  });
-  final List<AppNotification> items;
-  final ValueChanged<AppNotification> onOpen;
-  final ValueChanged<AppNotification> onDelete;
-
-  @override
-  Widget build(BuildContext context) {
-    // Groupe par jour en conservant l'ordre d'arrivée.
-    final groups = <String, List<AppNotification>>{};
-    for (final n in items) {
-      groups.putIfAbsent(NotificationMapper.dayGroup(n.createdAt), () => [])
-          .add(n);
-    }
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 6, 16, 24),
-      children: [
-        for (final entry in groups.entries) ...[
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 8, top: 6),
-            child: Text(
-              entry.key.toUpperCase(),
-              style: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: AppPalette.teal,
-                letterSpacing: 1,
-              ),
-            ),
-          ),
-          for (final n in entry.value)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: _NotificationTile(
-                notification: n,
-                onTap: () => onOpen(n),
-                onDelete: () => onDelete(n),
-              ),
-            ),
         ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = Translations.of(context).accountSpace.notifications;
+    final page = ref.watch(notificationsProvider(_filter));
+    final unread = ref.watch(unreadNotificationsProvider).valueOrNull ??
+        page.valueOrNull?.unreadCount ??
+        0;
+    return AccountScaffold(
+      title: tr.title,
+      crumb: tr.title,
+      onRefresh: () async => _reload(),
+      children: [
+        AccountPageTitle(tr.title),
+        if (unread > 0)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: SoeButton(
+              label: tr.readAll,
+              variant: SoeButtonVariant.tertiary,
+              size: SoeButtonSize.sm,
+              onPressed: () => unawaited(_act(
+                  () => ref.read(accountApiProvider).readAll(),
+                  message: tr.readAllDone)),
+            ),
+          ),
+        const SizedBox(height: 8),
+        Wrap(spacing: 8, runSpacing: 8, children: [
+          for (final (key, label) in [
+            ('all', tr.filterAll),
+            ('unread', tr.filterUnread),
+            ('todo', tr.filterTodo),
+          ])
+            SoeChip(
+              label: label,
+              selected: _filter == key,
+              onTap: () => setState(() => _filter = key),
+            ),
+        ]),
+        const SizedBox(height: 16),
+        AccountAsync<NotificationPage>(
+          value: page,
+          onRetry: _reload,
+          builder: (page) {
+            if (page.items.isEmpty) {
+              final (title, message) = switch (_filter) {
+                'unread' => (tr.emptyUnreadTitle, tr.emptyUnread),
+                'todo' => (tr.emptyTodoTitle, tr.emptyTodo),
+                _ => (tr.emptyTitle, tr.empty),
+              };
+              return SoeEmptyState(
+                  icon: Icons.notifications_none,
+                  title: title,
+                  message: message);
+            }
+            final days = <String, List<AppNotification>>{};
+            for (final notification in page.items) {
+              days.putIfAbsent(notification.day, () => []).add(notification);
+            }
+            return Column(children: [
+              for (final day in ['today', 'yesterday', 'earlier'])
+                if (days[day] != null)
+                  AccountCard(
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                            child: AccountCardTitle(switch (day) {
+                              'today' => tr.today,
+                              'yesterday' => tr.yesterday,
+                              _ => tr.earlier,
+                            }),
+                          ),
+                          for (final notification in days[day]!)
+                            _NotificationRow(
+                              notification: notification,
+                              last: notification == days[day]!.last,
+                              onTap: () => unawaited(
+                                  openNotification(context, ref, notification)),
+                              onLongPress: () =>
+                                  unawaited(_actions(notification)),
+                            ),
+                        ]),
+                  ),
+            ]);
+          },
+        ),
       ],
     );
   }
 }
 
-class _NotificationTile extends StatelessWidget {
-  const _NotificationTile({
+class _NotificationRow extends StatelessWidget {
+  const _NotificationRow({
     required this.notification,
+    required this.last,
     required this.onTap,
-    required this.onDelete,
+    required this.onLongPress,
   });
+
   final AppNotification notification;
+  final bool last;
   final VoidCallback onTap;
-  final VoidCallback onDelete;
+  final VoidCallback onLongPress;
 
   @override
   Widget build(BuildContext context) {
-    final n = notification;
-    final v = NotificationVisual.of(n.kind);
-    return Dismissible(
-      key: ValueKey(n.id),
-      direction: DismissDirection.endToStart,
-      onDismissed: (_) => onDelete(),
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        decoration: BoxDecoration(
-          color: AppPalette.dangerBg,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const Icon(Icons.delete_outline, color: AppPalette.danger),
-      ),
-      child: Material(
-        color: n.read ? AppPalette.white : AppPalette.n300,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: n.read ? AppPalette.n300 : AppPalette.teal,
-              ),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: v.color.withValues(alpha: 0.13),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(v.icon, size: 16, color: v.color),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              n.title,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight:
-                                    n.read ? FontWeight.w600 : FontWeight.w700,
-                                color: AppPalette.ink,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            n.timeLabel,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: AppPalette.n700,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        n.body,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: AppPalette.n700,
-                          height: 1.4,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.count,
-    required this.selected,
-    required this.onTap,
-  });
-  final String label;
-  final int count;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
+    final tr = Translations.of(context).accountSpace.notifications;
+    final visual = NotificationVisual.of(notification.type);
+    final detail = [
+      notificationTime(context, notification),
+      if ((notification.body ?? '').isNotEmpty) notification.body!,
+    ].where((part) => part.isNotEmpty).join(' · ');
+    return InkWell(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         decoration: BoxDecoration(
-          color: selected ? AppPalette.teal : AppPalette.white,
-          borderRadius: BorderRadius.circular(99),
-          border: Border.all(
-            color: selected ? AppPalette.teal : AppPalette.n300,
+          border: last
+              ? null
+              : const Border(bottom: BorderSide(color: AppPalette.n100)),
+        ),
+        child: Row(children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration:
+                BoxDecoration(color: visual.background, shape: BoxShape.circle),
+            child: Icon(visual.icon, size: 20, color: visual.foreground),
           ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: selected ? Colors.white : AppPalette.ink,
-              ),
-            ),
-            const SizedBox(width: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-              decoration: BoxDecoration(
-                color: selected
-                    ? Colors.white.withValues(alpha: 0.25)
-                    : AppPalette.n100,
-                borderRadius: BorderRadius.circular(99),
-              ),
-              child: Text(
-                '$count',
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  color: selected ? Colors.white : AppPalette.ink,
-                ),
-              ),
-            ),
+          const SizedBox(width: 12),
+          Expanded(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(notification.title,
+                  style: AppTypography.label.copyWith(
+                      color: AppPalette.text,
+                      fontWeight: notification.read
+                          ? FontWeight.w500
+                          : FontWeight.w700)),
+              if (detail.isNotEmpty)
+                Text(detail,
+                    style: AppTypography.caption
+                        .copyWith(color: AppPalette.text2)),
+            ]),
+          ),
+          if (!notification.read) ...[
+            const SizedBox(width: 8),
+            SoeBadge(label: tr.newBadge, tone: SoeBadgeTone.info),
           ],
-        ),
+          const Icon(Icons.chevron_right, color: AppPalette.text2),
+        ]),
       ),
     );
   }

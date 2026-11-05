@@ -9,12 +9,12 @@ import '../../../../core/widgets/soe_toast.dart';
 import '../../../../i18n/translations.g.dart';
 import '../../../auth/presentation/providers.dart' show logoutUsecaseProvider;
 import '../../../auth/presentation/providers/current_user_provider.dart';
+import '../providers.dart';
 
-/// Bottom-sheet de confirmation de déconnexion (design `CommonLogout`).
+/// The sign-out confirmation sheet (COM-01).
 ///
-/// On capture le router AVANT tout `await`/`pop` (le `context` de la feuille
-/// devient invalide une fois fermée). On vide les providers d'auth en RAM puis
-/// on force la navigation vers `/login`, même si l'appel serveur échoue.
+/// The router is captured BEFORE any `await`/`pop` (the sheet's `context` is gone once it
+/// closes). The auth providers are cleared, then `/login` opens, even when the server call fails.
 Future<void> showLogoutSheet(BuildContext context, WidgetRef ref) {
   return showModalBottomSheet<void>(
     context: context,
@@ -66,7 +66,7 @@ class _LogoutSheet extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             Text(
-              tr.account.logout.title,
+              tr.accountSpace.logout.title,
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -78,7 +78,7 @@ class _LogoutSheet extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Text(
-                tr.account.logout.message,
+                tr.accountSpace.logout.message,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 13,
@@ -92,7 +92,7 @@ class _LogoutSheet extends StatelessWidget {
               children: [
                 Expanded(
                   child: _SheetButton(
-                    label: tr.account.logout.cancel,
+                    label: tr.accountSpace.logout.cancel,
                     background: AppPalette.n100,
                     foreground: AppPalette.ink,
                     onTap: () => Navigator.of(context).pop(),
@@ -101,11 +101,11 @@ class _LogoutSheet extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: _SheetButton(
-                    label: tr.account.logout.confirm,
+                    label: tr.accountSpace.logout.confirm,
                     background: AppPalette.danger,
                     foreground: Colors.white,
                     onTap: () =>
-                        _logout(context, tr.account.logout.serverFailure),
+                        _logout(context, tr.accountSpace.logout.serverFailure),
                   ),
                 ),
               ],
@@ -120,13 +120,15 @@ class _LogoutSheet extends StatelessWidget {
     final router = GoRouter.of(sheetContext);
     final rootNavigator = Navigator.of(sheetContext, rootNavigator: true);
 
+    // Before the session ends: this phone stops receiving the account's push notifications.
+    await parentRef.read(pushDevicesProvider).unregister();
     final result = await parentRef.read(logoutUsecaseProvider).call();
 
     parentRef.read(authTokenProvider.notifier).state = null;
     parentRef.read(currentRoleProvider.notifier).state = null;
     parentRef.invalidate(currentUserProvider);
 
-    if (rootNavigator.canPop()) rootNavigator.pop(); // ferme la feuille
+    if (rootNavigator.canPop()) rootNavigator.pop(); // closes the sheet
     router.go(RouteNames.login);
 
     if (result.isErr && rootNavigator.context.mounted) {
