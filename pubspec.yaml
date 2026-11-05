@@ -42,6 +42,9 @@ dependencies:
 
   image_picker: ^1.1.2
   image_cropper: ^8.0.2
+  geolocator: ^14.0.2
+  url_launcher: ^6.3.2
+  open_file: ^3.5.10
 
 dev_dependencies:
   flutter_test:
@@ -77,20 +80,32 @@ flutter:
   generate: true
   assets:
     - assets/logo/
+    # AUT-01 welcome slides (PH-01, PH-05, PH-04, PH-09), portrait 1080 px WebP.
+    - assets/images/onboarding/
 
+  # Design system v2 (Studio): Figtree = interface, Literata = titles and numbers (OFL,
+  # licences in assets/fonts/OFL-*.txt).
   fonts:
-    - family: Poppins
+    - family: Figtree
       fonts:
-        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Figtree-Regular.ttf
           weight: 400
-        - asset: assets/fonts/Poppins-Medium.ttf
+        - asset: assets/fonts/Figtree-Medium.ttf
           weight: 500
-        - asset: assets/fonts/Poppins-SemiBold.ttf
+        - asset: assets/fonts/Figtree-SemiBold.ttf
           weight: 600
-        - asset: assets/fonts/Poppins-Bold.ttf
+        - asset: assets/fonts/Figtree-Bold.ttf
           weight: 700
-        - asset: assets/fonts/Poppins-ExtraBold.ttf
+        - asset: assets/fonts/Figtree-ExtraBold.ttf
           weight: 800
+    - family: Literata
+      fonts:
+        - asset: assets/fonts/Literata-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Literata-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Literata-SemiBold.ttf
+          weight: 600
 
 patrol:
   app_name: SOE

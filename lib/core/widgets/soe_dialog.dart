@@ -102,7 +102,7 @@ class SoeConfirmDialog extends StatelessWidget {
                 Expanded(
                   child: SoeButton(
                     label: cancel,
-                    variant: SoeButtonVariant.secondary,
+                    variant: SoeButtonVariant.outline,
                     onPressed: () => Navigator.of(context).pop(false),
                     fullWidth: true,
                   ),

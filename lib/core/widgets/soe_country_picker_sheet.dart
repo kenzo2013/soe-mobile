@@ -33,7 +33,7 @@ Future<Country?> showSoeCountryPicker(
     isScrollControlled: true,
     backgroundColor: AppPalette.white,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
     ),
     builder: (ctx) => _CountryPicker(
       selected: selected,

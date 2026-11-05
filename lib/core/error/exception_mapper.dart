@@ -2,12 +2,12 @@ import 'package:dio/dio.dart';
 
 import 'failure.dart';
 
-/// Convertit une `DioException` en `Failure` typée.
+/// Turns a `DioException` into a typed `Failure`.
 ///
-/// Formats observés sur l'API SOE (api.jeteste.site) :
-/// - `{"error": "..."}`              — Devise (login 401, register 401)
-/// - `{"status": {"code": N, "message": "..."}}` — pattern Rails standard (422, 409, 200)
-/// - body absent ou non-JSON → ServerFailure(code) générique
+/// Formats of the SOE API:
+/// - v2: `{"errors": [{"code": "invalid", "message": "...", "field": "email"}]}` (translated)
+/// - v1: `{"error": "..."}` (Devise) or `{"status": {"code": N, "message": "..."}}`
+/// - no body or not JSON -> generic ServerFailure(code)
 abstract final class ExceptionMapper {
   static Failure fromDio(DioException e) {
     switch (e.type) {
@@ -30,6 +30,8 @@ abstract final class ExceptionMapper {
 
   static Failure _fromStatus(int? code, Object? data) {
     final message = _extractMessage(data);
+    final byCode = _fromV2Code(data, message);
+    if (byCode != null) return byCode;
     switch (code) {
       case 400:
         return ServerFailure(400, message);
@@ -47,6 +49,8 @@ abstract final class ExceptionMapper {
         return const EmailNotConfirmedFailure();
       case 422:
         return ValidationFailure(_extractErrors(data), message);
+      case 429:
+        return RateLimitedFailure(message);
       case null:
         return const UnknownFailure();
       default:
@@ -69,12 +73,15 @@ abstract final class ExceptionMapper {
     return const UnauthorizedFailure();
   }
 
-  /// Cherche un message dans :
-  /// - `data["error"]` (Devise)
-  /// - `data["status"]["message"]` (Rails standard SOE)
-  /// - `data["message"]`
+  /// First message found in: v2 `errors[].message`, v1 `error` (Devise),
+  /// v1 `status.message`, `message`.
   static String? _extractMessage(Object? data) {
     if (data is! Map) return null;
+    final v2Message = _v2Errors(data)
+        .map((error) => error['message'])
+        .whereType<String>()
+        .firstOrNull;
+    if (v2Message != null && v2Message.isNotEmpty) return v2Message;
     final err = data['error'];
     if (err is String && err.isNotEmpty) return err;
     final status = data['status'];
@@ -87,10 +94,21 @@ abstract final class ExceptionMapper {
     return null;
   }
 
-  /// L'API SOE concatène les erreurs en un seul message — pas de map détaillée.
-  /// On retourne une map vide ; le ViewModel affichera `message` directement.
+  /// Per-field validation messages: v2 `errors[]` grouped by `field`, or a v1 `errors` map.
   static Map<String, List<String>> _extractErrors(Object? data) {
     if (data is! Map) return const {};
+    final v2 = _v2Errors(data);
+    if (v2.isNotEmpty) {
+      final byField = <String, List<String>>{};
+      for (final error in v2) {
+        final field = error['field'];
+        final message = error['message'];
+        if (field is String && message is String) {
+          byField.putIfAbsent(field, () => []).add(message);
+        }
+      }
+      return byField;
+    }
     final errors = data['errors'];
     if (errors is! Map) return const {};
     return errors.map(
@@ -99,5 +117,32 @@ abstract final class ExceptionMapper {
         v is List ? v.map((e) => e.toString()).toList() : [v.toString()],
       ),
     );
+  }
+
+  /// v2 stable codes win over status and message wording (messages are translated).
+  static Failure? _fromV2Code(Object? data, String? message) {
+    if (data is! Map) return null;
+    final code = _v2Errors(data)
+        .map((error) => error['code'])
+        .whereType<String>()
+        .firstOrNull;
+    return switch (code) {
+      'invalid_credentials' => const InvalidCredentialsFailure(),
+      'unconfirmed' => const EmailNotConfirmedFailure(),
+      'unauthenticated' => const UnauthorizedFailure(),
+      'rate_limited' => RateLimitedFailure(message),
+      'code_invalid' => CodeFailure(CodeProblem.invalid, message),
+      'code_expired' => CodeFailure(CodeProblem.expired, message),
+      'code_locked' => CodeFailure(CodeProblem.locked, message),
+      'link_expired' => LinkExpiredFailure(message),
+      _ => null,
+    };
+  }
+
+  /// v2 envelope: `errors` is a list of `{code, message, field}`.
+  static List<Map<dynamic, dynamic>> _v2Errors(Map<dynamic, dynamic> data) {
+    final errors = data['errors'];
+    if (errors is! List) return const [];
+    return errors.whereType<Map<dynamic, dynamic>>().toList();
   }
 }

@@ -29,7 +29,7 @@ lib/features/<feature_name>/
     ├── pages/
     ├── widgets/
     ├── viewmodels/
-    │   ├── *_viewmodel.dart             # @riverpod class
+    │   ├── *_viewmodel.dart             # Notifier / AsyncNotifier (soe-viewmodel)
     │   └── *_state.dart                 # freezed sealed
     └── providers.dart                   # providers feature-locaux
 ```
@@ -51,10 +51,11 @@ test/features/<feature_name>/
 
 ## Avant de coder
 - Lire `REBUILD_SPEC.md` §5 (structure) et §11 (exemple complet `evaluations`).
-- Lire `docs/CAHIER_DES_CHARGES_MOBILE.docx (1).md` pour les endpoints API et règles métier de la feature.
+- Ouvrir les écrans de la feature dans le Studio (identifiants AUT-, PAR-, REP-, COM-) et lire leurs règles dans le cahier v2 (liens dans `docs/CLAUDE.md`). Le `CAHIER_DES_CHARGES_MOBILE` est l'ancien cahier : le cahier v2 prime.
 - Lister les UseCases AVANT de générer (ex. `Login`, `Register`, `RequestPasswordReset`).
 - Demander validation de la liste des UseCases à l'utilisateur si > 5.
 
 ## Après scaffold
-- Invoquer `soe-usecase`, `soe-repository`, `soe-viewmodel`, `soe-page` pour remplir.
+- Invoquer `soe-usecase`, `soe-repository` (avec `soe-api-v2`), `soe-viewmodel`, `soe-page`, `soe-route` pour remplir.
+- Noms de feature, de fichiers et de classes en anglais (règle 0, `docs/CLAUDE.md`).
 - Finir par `soe-checklist-done`.

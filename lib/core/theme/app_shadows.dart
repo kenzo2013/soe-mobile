@@ -1,6 +1,33 @@
 import 'package:flutter/material.dart';
 
+/// Elevations — design system v2: cards stay flat; `e1` / `e2` only for floating layers
+/// (menus, popovers, sheets, dialogs, toasts). `sm`, `md`, `lg`, `brand`, `cta` are v1.
 abstract final class AppShadows {
+  /// A white card on the page ground (0 2 8 rgba(1,50,74,.06)).
+  static const List<BoxShadow> card = [
+    BoxShadow(color: Color(0x0F01324A), blurRadius: 8, offset: Offset(0, 2)),
+  ];
+
+  /// The first card, overlapping a header band (0 8 24 rgba(1,50,74,.12)).
+  static const List<BoxShadow> raised = [
+    BoxShadow(color: Color(0x1F01324A), blurRadius: 24, offset: Offset(0, 8)),
+  ];
+
+  /// The floating navigation (0 10 28 rgba(1,32,47,.35)).
+  static const List<BoxShadow> nav = [
+    BoxShadow(color: Color(0x5901202F), blurRadius: 28, offset: Offset(0, 10)),
+  ];
+
+  static const List<BoxShadow> e1 = [
+    BoxShadow(color: Color(0x0D010814), blurRadius: 6, offset: Offset(0, 2)),
+    BoxShadow(color: Color(0x0F010814), blurRadius: 32, offset: Offset(0, 12)),
+  ];
+
+  static const List<BoxShadow> e2 = [
+    BoxShadow(color: Color(0x1A010814), blurRadius: 24, offset: Offset(0, 8)),
+    BoxShadow(color: Color(0x1F010814), blurRadius: 64, offset: Offset(0, 24)),
+  ];
+
   static const List<BoxShadow> sm = [
     BoxShadow(
       color: Color(0x0F041527), // rgba(4,21,39,.06)

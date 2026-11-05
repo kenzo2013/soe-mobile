@@ -2,65 +2,34 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/core_providers.dart';
 import '../../../core/storage/storage_keys.dart';
-import '../data/datasources/auth_remote_datasource.dart';
+import '../data/datasources/auth_v2_datasource.dart';
 import '../data/repositories/auth_repository_impl.dart';
+import '../domain/entities/auth_session.dart';
+import '../domain/entities/user.dart';
 import '../domain/repositories/auth_repository.dart';
-import '../domain/usecases/login.dart';
 import '../domain/usecases/logout.dart';
-import '../domain/usecases/register.dart';
-import '../domain/usecases/request_password_reset.dart';
-import '../domain/usecases/resend_confirmation.dart';
-import '../domain/usecases/reset_password.dart';
-import '../domain/usecases/verify_confirmation_code.dart';
-import '../domain/usecases/verify_reset_code.dart';
 
-final authRemoteDatasourceProvider = Provider<AuthRemoteDatasource>(
-  (ref) => AuthRemoteDatasource(ref.watch(dioProvider)),
+final authV2DatasourceProvider = Provider<AuthV2Datasource>(
+  (ref) => AuthV2Datasource(ref.watch(dioV2Provider)),
 );
 
 final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => AuthRepositoryImpl(
-    remote: ref.watch(authRemoteDatasourceProvider),
+    remote: ref.watch(authV2DatasourceProvider),
     storage: ref.watch(secureStorageProvider),
   ),
-);
-
-final loginUsecaseProvider = Provider<Login>(
-  (ref) => Login(ref.watch(authRepositoryProvider)),
-);
-
-final registerUsecaseProvider = Provider<Register>(
-  (ref) => Register(ref.watch(authRepositoryProvider)),
-);
-
-final resendConfirmationUsecaseProvider = Provider<ResendConfirmation>(
-  (ref) => ResendConfirmation(ref.watch(authRepositoryProvider)),
-);
-
-final verifyConfirmationCodeUsecaseProvider = Provider<VerifyConfirmationCode>(
-  (ref) => VerifyConfirmationCode(ref.watch(authRepositoryProvider)),
-);
-
-final requestPasswordResetUsecaseProvider = Provider<RequestPasswordReset>(
-  (ref) => RequestPasswordReset(ref.watch(authRepositoryProvider)),
-);
-
-final verifyResetCodeUsecaseProvider = Provider<VerifyResetCode>(
-  (ref) => VerifyResetCode(ref.watch(authRepositoryProvider)),
 );
 
 final logoutUsecaseProvider = Provider<Logout>(
   (ref) => Logout(ref.watch(authRepositoryProvider)),
 );
 
-final resetPasswordUsecaseProvider = Provider<ResetPassword>(
-  (ref) => ResetPassword(ref.watch(authRepositoryProvider)),
-);
-
-/// Side-effect : après login/register réussis, sync les providers globaux.
-void syncAuthState(Ref ref, String token, String role) {
-  ref.read(authTokenProvider.notifier).state = token;
-  ref.read(currentRoleProvider.notifier).state = role;
-  ref.read(secureStorageProvider).write(StorageKeys.authToken, token);
-  ref.read(secureStorageProvider).write(StorageKeys.currentRole, role);
+/// Once signed in (sign-in, e-mail code, password reset): the global providers follow, so
+/// the router guard and the API clients see the new session.
+void syncSession(Ref ref, AuthSession session) {
+  ref.read(authTokenProvider.notifier).state = session.accessToken;
+  ref.read(currentRoleProvider.notifier).state = session.user.role.apiValue;
+  ref.read(secureStorageProvider)
+    ..write(StorageKeys.authToken, session.accessToken)
+    ..write(StorageKeys.currentRole, session.user.role.apiValue);
 }

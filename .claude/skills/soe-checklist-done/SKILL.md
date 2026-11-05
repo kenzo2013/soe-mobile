@@ -11,7 +11,7 @@ Une feature SOE n'est **pas livrable** tant que tous les points ci-dessous ne so
 
 ### 1. Code generation à jour
 ```bash
-flutter pub run build_runner build --delete-conflicting-outputs
+dart run build_runner build --delete-conflicting-outputs && dart run slang
 ```
 Aucune erreur. Tous les `*.freezed.dart`, `*.g.dart` à jour et committés.
 
@@ -38,7 +38,19 @@ flutter test --coverage
 - ✅ Repositories Impl : ≥ 80 %, codes HTTP mappés (400/401/403/404/409/422/5xx) testés.
 - ✅ Au moins 1 widget test par page principale (skeleton/loaded/error+retry).
 
-### 5. Conventions
+### 5. Design system, textes, règle 0
+```bash
+python3 tools/ds_guard.py --check
+python3 tools/ds_guard.py --diff refonte/v2
+```
+- ✅ Aucun seuil dépassé ; aucun fichier modifié n'empire ; **aucune occurrence dans les fichiers créés**.
+- ✅ Textes FR et EN ajoutés ensemble, `dart run slang` relancé.
+- ✅ Code, commentaires, fichiers en anglais.
+- ✅ Écran comparé au Studio sur simulateur à 390 et 834 (captures dans le rendu).
+- ✅ `soe-a11y-audit` passé sur les écrans créés.
+- ✅ Testé contre le serveur Rails **local**, jamais staging ni production.
+
+### 5bis. Conventions
 - ✅ Aucun fichier > 300 lignes (sauf justifié et documenté).
 - ✅ Aucune méthode > 50 lignes.
 - ✅ Aucun `print` (utiliser `logger`).
@@ -46,6 +58,7 @@ flutter test --coverage
 - ✅ Aucun `try/catch` dans Presentation.
 - ✅ Aucune clé API en dur.
 - ✅ Aucun `setState` dans une page MVVM.
+- ✅ Aucun `StateNotifier` ajouté ; ceux des écrans touchés migrés.
 - ✅ Tous les fichiers de pages : `*_page.dart` (jamais `*_screen.dart`).
 
 ### 6. Architecture

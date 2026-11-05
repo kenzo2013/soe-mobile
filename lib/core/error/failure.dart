@@ -1,9 +1,16 @@
 /// Erreurs métier typées exposées à la Presentation.
 ///
 /// Le ViewModel pattern-matche sur ces variantes ; la View en déduit le message.
-sealed class Failure {
+// Implements Exception so that an AsyncNotifier may `throw failure` in `build` (the only
+// allowed throw: AsyncValue captures it) without breaking the `only_throw_errors` lint.
+sealed class Failure implements Exception {
   const Failure();
 }
+
+/// Any error captured by an AsyncValue as a Failure: a parsing error or a StateError must
+/// never crash the error screen.
+Failure asFailure(Object error) =>
+    error is Failure ? error : const UnknownFailure();
 
 class NetworkFailure extends Failure {
   const NetworkFailure();
@@ -50,6 +57,27 @@ class ServerFailure extends Failure {
   final int code;
   final String? message;
   const ServerFailure(this.code, [this.message]);
+}
+
+/// 429: too many attempts (login, codes). [message] is the server's (translated) wait advice.
+class RateLimitedFailure extends Failure {
+  final String? message;
+  const RateLimitedFailure([this.message]);
+}
+
+/// A refused 6-digit code (AUT-07, AUT-10): wrong, expired, or locked after too many tries.
+enum CodeProblem { invalid, expired, locked }
+
+class CodeFailure extends Failure {
+  final CodeProblem problem;
+  final String? message;
+  const CodeFailure(this.problem, [this.message]);
+}
+
+/// The flow token (pending e-mail check, reset) expired: the user starts the flow again.
+class LinkExpiredFailure extends Failure {
+  final String? message;
+  const LinkExpiredFailure([this.message]);
 }
 
 class CancelledFailure extends Failure {

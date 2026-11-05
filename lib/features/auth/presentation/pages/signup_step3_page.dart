@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/route_names.dart';
-import '../../../../core/theme/app_palette.dart';
-import '../../../../core/theme/app_radius.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/soe_button.dart';
-import '../../../../core/widgets/soe_field_label.dart';
 import '../../../../core/widgets/soe_text_field.dart';
 import '../../../../i18n/translations.g.dart';
-import '../viewmodels/register_flow_state.dart';
-import '../viewmodels/register_flow_viewmodel.dart';
-import '../widgets/signup_header.dart';
+import '../../domain/entities/sign_up_answers.dart';
+import '../controllers/auth_controllers.dart';
+import '../widgets/auth_scaffold.dart';
+import '../widgets/sign_up_step_page.dart';
 
+/// AUT-05 — password: the 4 rules ticked as the user types, and the confirmation.
 class SignupStep3Page extends ConsumerStatefulWidget {
   const SignupStep3Page({super.key});
 
@@ -22,224 +18,62 @@ class SignupStep3Page extends ConsumerStatefulWidget {
 }
 
 class _SignupStep3PageState extends ConsumerState<SignupStep3Page> {
-  late final TextEditingController _password;
-  late final TextEditingController _confirm;
-  final _formKey = GlobalKey<FormState>();
+  late final _answers = ref.read(signUpControllerProvider).answers;
+  late final _password = TextEditingController(text: _answers.password);
+  late final _confirmation =
+      TextEditingController(text: _answers.passwordConfirmation);
 
   @override
   void initState() {
     super.initState();
-    final s = ref.read(registerFlowViewModelProvider);
-    _password = TextEditingController(text: s.password)
-      ..addListener(_syncFlow);
-    _confirm = TextEditingController(text: s.passwordConfirmation)
-      ..addListener(_syncFlow);
+    _password.addListener(_sync);
+    _confirmation.addListener(_sync);
   }
 
-  void _syncFlow() {
-    ref.read(registerFlowViewModelProvider.notifier).setPassword(
-          password: _password.text,
-          passwordConfirmation: _confirm.text,
-        );
-  }
+  void _sync() => ref.read(signUpControllerProvider.notifier).update(
+        (a) => a.copyWith(
+            password: _password.text, passwordConfirmation: _confirmation.text),
+      );
 
   @override
   void dispose() {
-    _password
-      ..removeListener(_syncFlow)
-      ..dispose();
-    _confirm
-      ..removeListener(_syncFlow)
-      ..dispose();
+    _password.dispose();
+    _confirmation.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final tr = Translations.of(context);
-    final flow = ref.watch(registerFlowViewModelProvider);
+    final tr = Translations.of(context).auth.password;
+    final state = ref.watch(signUpControllerProvider);
+    final answers = state.answers;
+    final missing = [
+      if (!PasswordRules.allMet(answers.password)) tr.password.toLowerCase(),
+      if (answers.passwordConfirmation.isEmpty) tr.confirmation.toLowerCase(),
+    ];
 
-    return Scaffold(
-      backgroundColor: AppPalette.white,
-      appBar: const SignupHeader(step: 3),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 22, 20, 24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(tr.signup.step3.heading, style: AppTypography.h2),
-                const SizedBox(height: 6),
-                Text(
-                  tr.signup.step3.subtitle,
-                  style: AppTypography.bodySm.copyWith(color: AppPalette.n700),
-                ),
-                const SizedBox(height: 22),
-                SoeFieldLabel(tr.signup.step3.password),
-                SoePasswordField(
-                  controller: _password,
-                  label: '',
-                  hint: tr.signup.step3.passwordHint,
-                  textInputAction: TextInputAction.next,
-                  validator: (v) =>
-                      (v == null || v.length < 6) ? tr.errors.passwordTooShort : null,
-                ),
-                const SizedBox(height: 12),
-                SoeFieldLabel(tr.signup.step3.confirm),
-                SoePasswordField(
-                  controller: _confirm,
-                  label: '',
-                  hint: tr.signup.step3.confirmHint,
-                  validator: (v) => v != _password.text
-                      ? tr.errors.passwordMismatch
-                      : null,
-                ),
-                const SizedBox(height: 16),
-                _StrengthMeter(
-                  state: flow,
-                  label: tr.signup.step3.strengthLabel,
-                  rules: [
-                    _Rule(label: tr.signup.step3.rule6Chars, ok: flow.password.length >= 6),
-                    _Rule(
-                      label: tr.signup.step3.ruleMixCase,
-                      ok: RegExp('[A-Z]').hasMatch(flow.password) &&
-                          RegExp('[a-z]').hasMatch(flow.password),
-                    ),
-                    _Rule(
-                      label: tr.signup.step3.ruleDigitOrSymbol,
-                      ok: RegExp(r'[\d!@#$%^&*(),.?":{}|<>]')
-                          .hasMatch(flow.password),
-                    ),
-                    _Rule(
-                      label: tr.signup.step3.rule12Strong,
-                      ok: flow.password.length >= 12,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 18),
-                SoeButton(
-                  label: tr.common.kContinue,
-                  icon: Icons.chevron_right,
-                  iconRight: true,
-                  size: SoeButtonSize.lg,
-                  fullWidth: true,
-                  onPressed: () {
-                    if (!(_formKey.currentState?.validate() ?? false)) return;
-                    _syncFlow();
-                    context.push(RouteNames.registerStep4);
-                  },
-                ),
-              ],
-            ),
-          ),
+    return SignUpStepPage(
+      step: SignUpStep.password,
+      number: 3,
+      next: RouteNames.registerStep4,
+      missing: missing,
+      children: [
+        AuthHeading(title: tr.heading, lead: tr.lead),
+        SoePasswordField(
+          controller: _password,
+          label: tr.password,
+          errorText: state.fieldError('password'),
+          textInputAction: TextInputAction.next,
         ),
-      ),
-    );
-  }
-}
-
-class _Rule {
-  const _Rule({required this.label, required this.ok});
-  final String label;
-  final bool ok;
-}
-
-class _StrengthMeter extends StatelessWidget {
-  const _StrengthMeter({
-    required this.state,
-    required this.label,
-    required this.rules,
-  });
-
-  final RegisterFlowState state;
-  final String label;
-  final List<_Rule> rules;
-
-  @override
-  Widget build(BuildContext context) {
-    final strength = state.passwordStrength;
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: const BoxDecoration(
-        color: AppPalette.n100,
-        borderRadius: AppRadius.rMd,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label.toUpperCase(),
-            style: AppTypography.caption.copyWith(
-              color: AppPalette.ink,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              for (int i = 0; i < 4; i++) ...[
-                Expanded(
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: i < strength
-                          ? AppPalette.success
-                          : AppPalette.n300,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                if (i < 3) const SizedBox(width: 4),
-              ],
-            ],
-          ),
-          const SizedBox(height: 10),
-          for (final r in rules) _RuleRow(rule: r),
-        ],
-      ),
-    );
-  }
-}
-
-class _RuleRow extends StatelessWidget {
-  const _RuleRow({required this.rule});
-  final _Rule rule;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 4),
-      child: Row(
-        children: [
-          Container(
-            width: 16,
-            height: 16,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: rule.ok ? AppPalette.success : Colors.transparent,
-              border: Border.all(
-                color: rule.ok ? AppPalette.success : AppPalette.n500,
-                width: 1.5,
-              ),
-            ),
-            alignment: Alignment.center,
-            child: rule.ok
-                ? const Icon(Icons.check, size: 10, color: AppPalette.white)
-                : null,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            rule.label,
-            style: AppTypography.caption.copyWith(
-              color: rule.ok ? AppPalette.success : AppPalette.n700,
-            ),
-          ),
-        ],
-      ),
+        const SizedBox(height: 8),
+        PasswordRules(password: answers.password),
+        SoePasswordField(
+          controller: _confirmation,
+          label: tr.confirmation,
+          errorText: state.fieldError('password_confirmation'),
+          textInputAction: TextInputAction.done,
+        ),
+      ],
     );
   }
 }

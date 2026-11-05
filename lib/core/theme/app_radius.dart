@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// Radii — design system v2 (Studio): one scale xs 6 · md 14 · lg 20 · xl 28 · pill.
+/// `sm` (10) and `xxl` (24) are v1 values: do not use in new code.
 abstract final class AppRadius {
   static const double xs = 6;
   static const double sm = 10;
@@ -8,6 +10,16 @@ abstract final class AppRadius {
   static const double xxl = 24;
   static const double xl = 28;
   static const double pill = 999;
+
+  /// Fields (filled, no border at rest).
+  static const double field = 16;
+
+  /// Bottom corners of a header band, top corners of a sheet.
+  static const double band = 32;
+
+  static const BorderRadius rField = BorderRadius.all(Radius.circular(field));
+  static const BorderRadius rCard = BorderRadius.all(Radius.circular(lg));
+  static const BorderRadius rCardLg = BorderRadius.all(Radius.circular(xxl));
 
   static const BorderRadius rXs = BorderRadius.all(Radius.circular(xs));
   static const BorderRadius rSm = BorderRadius.all(Radius.circular(sm));

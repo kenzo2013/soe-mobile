@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,274 +7,263 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/providers/core_providers.dart';
 import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
-import '../../../../core/widgets/soe_avatar.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/soe_button.dart';
+import '../../../../core/widgets/soe_card.dart';
 import '../../../../i18n/translations.g.dart';
-import '../../../auth/domain/entities/user.dart';
 import '../../../auth/presentation/providers/current_user_provider.dart';
 import '../providers.dart';
+import '../widgets/account_ui.dart';
 import '../widgets/common_logout_sheet.dart';
-import '../widgets/common_top_bar.dart';
+import '../widgets/tab_top_bar.dart';
 
-/// 1 · Mon compte — hub (design `CommonAccountHub`). Entête dégradé + 5 tuiles
-/// de navigation + CTA déconnexion.
-class AccountHubPage extends ConsumerWidget {
+/// « +237 6 77 45 21 09 » from the 9 stored digits (any spelling with 237); else as stored.
+String formatCameroonPhone(String? phone) {
+  final raw = phone ?? '';
+  var digits = raw.replaceAll(RegExp(r'\D'), '');
+  if (digits.startsWith('237')) digits = digits.substring(3);
+  if (!RegExp(r'^[26]\d{8}$').hasMatch(digits)) return raw;
+  final pairs = [
+    for (var i = 1; i < digits.length; i += 2) digits.substring(i, i + 2)
+  ];
+  return '+237 ${digits[0]} ${pairs.join(' ')}';
+}
+
+/// COM-01 opened on its own (`/account`), over the tabs.
+class AccountHubPage extends StatelessWidget {
   const AccountHubPage({super.key});
 
   @override
+  Widget build(BuildContext context) => const AccountHubView();
+}
+
+/// COM-01 — Mon compte: the account card (mode, e-mail, name, phone, place), the account pages,
+/// the links of the active space, help and report, sign-out and the language. Also the « Plus »
+/// tab of both spaces.
+class AccountHubView extends ConsumerWidget {
+  const AccountHubView({super.key, this.spaceLinks = const []});
+
+  /// The rows of the active space (requests, contracts…), shown in their own card.
+  final List<Widget> spaceLinks;
+
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tr = Translations.of(context);
-    final user = ref.watch(currentUserProvider).asData?.value;
-    final role = ref.watch(currentRoleProvider) ?? user?.role.apiValue;
-    final addressSub = ref.watch(accountAddressProvider).maybeWhen(
-          data: (a) => a.shortLabel,
-          orElse: () => tr.account.hub.addressFallback,
-        );
-    final prefsSub = ref.watch(notificationPreferencesProvider).maybeWhen(
-          data: (p) => tr.account.hub.prefsChannels(count: p.activeChannels),
-          orElse: () => tr.account.hub.prefsFallback,
-        );
+    final tr = Translations.of(context).accountSpace;
+    final user = ref.watch(currentUserProvider).valueOrNull;
+    final tutor = ref.watch(currentRoleProvider) == 'tutor';
+    final address = ref.watch(accountAddressProvider).valueOrNull;
+    final place = address?.place ?? '';
+    final neighborhood = address?.neighborhood ?? '';
 
-    return Scaffold(
-      backgroundColor: AppPalette.n100,
-      appBar: CommonTopBar(
-        title: tr.account.hub.title,
-        subtitle: tr.account.hub.subtitle,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _HeaderCard(user: user),
-          const SizedBox(height: 14),
-          _HubTile(
-            icon: Icons.person_outline,
-            label: tr.account.hub.personalInfoLabel,
-            sub: tr.account.hub.personalInfoSub,
-            onTap: () => context.push(RouteNames.accountProfile),
-          ),
-          _HubTile(
-            icon: Icons.lock_outline,
-            label: tr.account.hub.passwordLabel,
-            sub: '••••••••',
-            onTap: () => context.push(RouteNames.accountPassword),
-          ),
-          _HubTile(
-            icon: Icons.public,
-            label: tr.account.hub.addressLabel,
-            sub: addressSub,
-            onTap: () => context.push(RouteNames.accountAddress),
-          ),
-          _HubTile(
-            icon: Icons.group_outlined,
-            label: tr.account.hub.roleLabel,
-            sub: _roleLabel(tr, role),
-            badge: _roleLabel(tr, role),
-            onTap: () => context.push(RouteNames.accountRole),
-          ),
-          _HubTile(
-            icon: Icons.notifications_outlined,
-            label: tr.account.hub.prefsLabel,
-            sub: prefsSub,
-            onTap: () => context.push(RouteNames.accountNotificationPrefs),
-          ),
-          const SizedBox(height: 16),
-          _LogoutTile(
-            label: tr.account.hub.logout,
-            onTap: () => showLogoutSheet(context, ref),
-          ),
-        ],
-      ),
-    );
-  }
+    void open(String route) => unawaited(context.push(route));
 
-  static String _roleLabel(Translations tr, String? role) => switch (role) {
-        'tutor' => tr.account.role.tutorBadge,
-        'parent' => tr.account.role.parentBadge,
-        _ => tr.account.role.parentBadge,
-      };
-}
-
-class _HeaderCard extends StatelessWidget {
-  const _HeaderCard({required this.user});
-  final User? user;
-
-  @override
-  Widget build(BuildContext context) {
-    final tr = Translations.of(context);
-    final name = user == null ? '' : user!.fullName.trim();
-    final civility = user?.civility;
-    final title = [civility, name]
-        .where((s) => s != null && s.isNotEmpty)
-        .join(' ')
-        .trim();
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: AppPalette.brandGradient,
-        border: Border.all(color: AppPalette.n300),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      child: Row(
-        children: [
-          SoeAvatar(
-            name: name.isEmpty ? '?' : name,
-            imageUrl: user?.photoUrl,
-            size: SoeAvatarSize.list,
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title.isEmpty ? tr.account.hub.myProfile : title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  user?.email ?? '',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white.withValues(alpha: 0.75),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (user?.phone != null && user!.phone!.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    user!.phone!,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.white.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HubTile extends StatelessWidget {
-  const _HubTile({
-    required this.icon,
-    required this.label,
-    required this.sub,
-    required this.onTap,
-    this.badge,
-  });
-
-  final IconData icon;
-  final String label;
-  final String sub;
-  final VoidCallback onTap;
-  final String? badge;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: AppPalette.white,
-        borderRadius: BorderRadius.circular(16),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppPalette.n300),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppPalette.n100,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(icon, size: 18, color: AppPalette.teal),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        label,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppPalette.ink,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        sub,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: AppPalette.n700,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(Icons.chevron_right,
-                    size: 18, color: AppPalette.n500),
-              ],
-            ),
-          ),
+    final initials = user == null
+        ? ''
+        : [user.firstName, user.lastName]
+            .where((part) => part.isNotEmpty)
+            .map((part) => part.characters.first.toUpperCase())
+            .join();
+    final heading = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          header: true,
+          child: Text(tr.hub.title,
+              style: AppTypography.labelSm
+                  .copyWith(color: AppPalette.navInactive)),
         ),
-      ),
+        const SizedBox(height: 10),
+        if (user != null)
+          Row(children: [
+            Container(
+              width: 64,
+              height: 64,
+              alignment: Alignment.center,
+              decoration: const BoxDecoration(
+                  color: AppPalette.gold400, shape: BoxShape.circle),
+              child: Text(initials,
+                  style: AppTypography.h2.copyWith(
+                      fontWeight: FontWeight.w600, color: AppPalette.ink900)),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${tutor ? tr.hub.modeTutor : tr.hub.modeParent} · ${user.email}'
+                          .toUpperCase(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.overline
+                          .copyWith(fontSize: 11, color: AppPalette.gold100),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(user.fullName,
+                        style: AppTypography.h2
+                            .copyWith(fontSize: 26, color: AppPalette.white)),
+                    Text(
+                      [formatCameroonPhone(user.phone), place]
+                          .where((part) => part.isNotEmpty)
+                          .join(' · '),
+                      style: AppTypography.bodySm
+                          .copyWith(color: AppPalette.navInactive),
+                    ),
+                  ]),
+            ),
+          ]),
+      ],
     );
-  }
-}
 
-class _LogoutTile extends StatelessWidget {
-  const _LogoutTile({required this.label, required this.onTap});
-  final String label;
-  final VoidCallback onTap;
+    final tiles = [
+      (
+        Icons.person_outline,
+        tr.hub.personal,
+        tr.hub.personalText,
+        AppPalette.teal500,
+        AppPalette.white,
+        RouteNames.accountProfile
+      ),
+      (
+        Icons.lock_outline,
+        tr.hub.security,
+        tr.hub.securityText,
+        AppPalette.success,
+        AppPalette.white,
+        RouteNames.accountSecurity
+      ),
+      (
+        Icons.location_on_outlined,
+        tr.hub.address,
+        neighborhood.isEmpty
+            ? tr.hub.noAddress
+            : tutor
+                ? tr.hub.addressTutor(neighborhood: neighborhood)
+                : tr.hub.addressParent(neighborhood: neighborhood),
+        AppPalette.gold400,
+        AppPalette.ink900,
+        RouteNames.accountAddress
+      ),
+      (
+        Icons.notifications_none,
+        tr.hub.notifications,
+        tr.hub.notificationsText,
+        AppPalette.orange,
+        AppPalette.white,
+        RouteNames.accountNotificationPrefs
+      ),
+    ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppPalette.dangerBg,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
-          child: Row(
-            children: [
-              const Icon(Icons.logout, size: 18, color: AppPalette.danger),
-              const SizedBox(width: 12),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppPalette.danger,
+    return SpaceTabView(
+      band: SpaceBand(
+          title: tr.hub.title, heading: heading, color: AppPalette.navy),
+      onRefresh: () async {
+        ref
+          ..invalidate(currentUserProvider)
+          ..invalidate(accountAddressProvider)
+          ..invalidate(unreadNotificationsProvider);
+      },
+      children: [
+        LayoutBuilder(builder: (context, constraints) {
+          final columns = constraints.maxWidth >= 640 ? 4 : 2;
+          final width = (constraints.maxWidth - 10 * (columns - 1)) / columns;
+          // Rows of equal-height tiles (a longer text no longer makes its tile taller than
+          // its neighbours, on a tablet's row of 4 as on a phone's row of 2).
+          Widget tileAt(int i) {
+            final (icon, title, text, tile, ink, route) = tiles[i];
+            return SoeCard(
+              raised: i < columns,
+              padding: const EdgeInsets.all(14),
+              onTap: () => open(route),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                          color: tile, borderRadius: BorderRadius.circular(14)),
+                      child: Icon(icon, size: 20, color: ink),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.label
+                            .copyWith(fontSize: 15, color: AppPalette.text)),
+                    const SizedBox(height: 2),
+                    Text(text,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.caption
+                            .copyWith(color: AppPalette.text2)),
+                  ]),
+            );
+          }
+
+          return Column(children: [
+            for (var start = 0; start < tiles.length; start += columns)
+              Padding(
+                padding: EdgeInsets.only(top: start == 0 ? 0 : 10),
+                child: IntrinsicHeight(
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (var i = start; i < start + columns; i++) ...[
+                          if (i > start) const SizedBox(width: 10),
+                          SizedBox(
+                            key: i < tiles.length
+                                ? ValueKey('account-tile-$i')
+                                : null,
+                            width: width,
+                            child: i < tiles.length
+                                ? tileAt(i)
+                                : const SizedBox.shrink(),
+                          ),
+                        ],
+                      ]),
                 ),
               ),
-            ],
+          ]);
+        }),
+        const SizedBox(height: 14),
+        if (spaceLinks.isNotEmpty) AccountRowsCard(rows: spaceLinks),
+        AccountRowsCard(rows: [
+          if (user?.multiRole ?? false)
+            AccountRow(
+              icon: Icons.swap_horiz,
+              title: tr.hub.switchSpace,
+              onTap: () => open(RouteNames.accountRoles),
+            ),
+          AccountRow(
+            icon: Icons.badge_outlined,
+            title: tr.hub.roles,
+            subtitle: tutor ? tr.hub.rolesTutor : tr.hub.rolesParent,
+            onTap: () => open(RouteNames.accountRoles),
           ),
+          AccountRow(
+            icon: Icons.chat_bubble_outline,
+            title: tr.hub.help,
+            subtitle: tr.hub.helpText,
+            onTap: () => open(RouteNames.help),
+          ),
+          AccountRow(
+            icon: Icons.outlined_flag,
+            title: tr.hub.report,
+            subtitle: tr.hub.reportText,
+            iconBackground: AppPalette.warningBg,
+            iconColor: AppPalette.warningText,
+            divider: false,
+            onTap: () => open(RouteNames.reportNew),
+          ),
+        ]),
+        SoeButton(
+          label: tr.hub.signOut,
+          variant: SoeButtonVariant.danger,
+          fullWidth: true,
+          onPressed: () => unawaited(showLogoutSheet(context, ref)),
         ),
-      ),
+      ],
     );
   }
 }

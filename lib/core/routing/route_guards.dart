@@ -15,9 +15,9 @@ class AuthGuard {
   final String? Function() currentRole;
   final bool Function() onboardingDone;
 
-  /// Routes publiques (préfixe).
+  /// Public routes, by prefix. The splash (`/`) is matched exactly: as a prefix it would make
+  /// every screen public, and a session refused by the API would stay inside the tabs.
   static const Set<String> _publicPrefixes = {
-    RouteNames.splash,
     RouteNames.onboarding,
     RouteNames.roleChoice,
     RouteNames.login,
@@ -38,13 +38,18 @@ class AuthGuard {
       return _homeForRole(currentRole());
     }
 
-    final isPublic = _publicPrefixes.any(loc.startsWith);
+    final isPublic =
+        loc == RouteNames.splash || _publicPrefixes.any(loc.startsWith);
 
     if (!isAuthenticated()) {
       return isPublic ? null : RouteNames.login;
     }
 
-    if (loc == RouteNames.login || loc.startsWith(RouteNames.register)) {
+    // Signed in: the sign-in and sign-up screens send home, except AUT-08 (account activated),
+    // which follows the e-mail code.
+    if (loc == RouteNames.login ||
+        (loc.startsWith(RouteNames.register) &&
+            loc != RouteNames.emailConfirmed)) {
       return _homeForRole(currentRole());
     }
 
@@ -59,7 +64,7 @@ class AuthGuard {
   }
 
   String _homeForRole(String? role) => switch (role) {
-        'tutor' => RouteNames.tutorDashboard,
-        _ => RouteNames.parentDashboard,
+        'tutor' => RouteNames.tutorHome,
+        _ => RouteNames.parentHome,
       };
 }

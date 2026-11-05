@@ -1,278 +1,225 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/error/failure.dart';
-import '../../../../core/error/result.dart';
 import '../../../../core/theme/app_palette.dart';
-import '../../../../core/widgets/error_view.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/soe_toast.dart';
 import '../../../../i18n/translations.g.dart';
-import '../../domain/entities/notification_preferences.dart';
+import '../../data/account_models.dart';
 import '../providers.dart';
-import '../widgets/common_top_bar.dart';
+import '../widgets/account_ui.dart';
 
-/// 6 · Préférences de notification (design `CommonNotifPrefs`) — grille par
-/// catégorie, un toggle par canal (email / web / push selon l'API),
-/// sauvegarde automatique au changement.
-class AccountNotificationPrefsPage extends ConsumerWidget {
+/// COM-06 — categories × channels of the active role, saved at each tap (SMS and WhatsApp
+/// shown, not yet available), and the messages always sent, locked and explained.
+class AccountNotificationPrefsPage extends ConsumerStatefulWidget {
   const AccountNotificationPrefsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final tr = Translations.of(context);
-    final async = ref.watch(notificationPreferencesProvider);
-    return Scaffold(
-      backgroundColor: AppPalette.n100,
-      appBar: CommonTopBar(
-        title: tr.account.notificationPrefs.title,
-        subtitle: tr.account.notificationPrefs.subtitle,
-      ),
-      body: async.when(
-        // Garde la grille affichée pendant le re-fetch déclenché par un toggle
-        // (sinon flash du spinner à chaque sauvegarde).
-        skipLoadingOnReload: true,
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => ErrorView(
-          failure: e is Failure ? e : const UnknownFailure(),
-          onRetry: () => ref.invalidate(notificationPreferencesProvider),
-        ),
-        data: (prefs) => prefs.categories.isEmpty
-            ? Center(child: Text(tr.account.notificationPrefs.empty))
-            : _PrefsGrid(initial: prefs),
-      ),
-    );
-  }
+  ConsumerState<AccountNotificationPrefsPage> createState() =>
+      _AccountNotificationPrefsPageState();
 }
 
-String _channelLabel(Translations tr, String channel) => switch (channel) {
-      'email' => tr.account.notificationPrefs.channelEmail,
-      'web' => tr.account.notificationPrefs.channelWeb,
-      'push' => tr.account.notificationPrefs.channelPush,
-      _ => channel.toUpperCase(),
-    };
+class _AccountNotificationPrefsPageState
+    extends ConsumerState<AccountNotificationPrefsPage> {
+  /// The grid as last shown: changed at once on a tap, replaced by the server's answer.
+  NotificationPreferences? _shown;
+  DateTime? _savedAt;
 
-class _PrefsGrid extends ConsumerStatefulWidget {
-  const _PrefsGrid({required this.initial});
-  final NotificationPreferences initial;
-
-  @override
-  ConsumerState<_PrefsGrid> createState() => _PrefsGridState();
-}
-
-class _PrefsGridState extends ConsumerState<_PrefsGrid> {
-  late NotificationPreferences _prefs;
-  bool _savedHint = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _prefs = widget.initial;
-  }
-
-  Future<void> _toggle(NotificationCategory cat, String channel) async {
-    final tr = Translations.of(context);
-    final previous = _prefs;
-    final optimistic = _prefs.withUpdated(cat.toggle(channel));
-    setState(() {
-      _prefs = optimistic;
-      _savedHint = false;
-    });
-
-    final r = await ref
-        .read(commonRepositoryProvider)
-        .updateNotificationPreferences(optimistic);
-
-    if (!mounted) return;
-    switch (r) {
-      case Ok(:final value):
-        // Synchronise avec l'état serveur + rafraîchit le provider partagé
-        // (sous-titre du hub, et état correct au prochain accès).
+  Future<void> _toggle(PreferenceCategory category, String channel) async {
+    final before = _shown!;
+    final value = !category.channel(channel);
+    setState(() =>
+        _shown = before.withCategory(category.withChannel(channel, value)));
+    try {
+      final saved = await ref
+          .read(accountApiProvider)
+          .updateNotificationPreference(
+              category: category.key, channel: channel, value: value);
+      if (mounted) {
         setState(() {
-          _prefs = value;
-          _savedHint = true;
+          _shown = saved;
+          _savedAt = DateTime.now();
         });
-        ref.invalidate(notificationPreferencesProvider);
-      case Err():
-        setState(() => _prefs = previous); // revert
-        SoeToast.show(
-          context,
-          message: tr.account.notificationPrefs.saveFailed,
-          tone: SoeToastTone.danger,
-        );
+      }
+    } on Failure catch (failure) {
+      if (!mounted) return;
+      setState(() => _shown = before);
+      SoeToast.show(context,
+          message: accountFailureMessage(context, failure),
+          tone: SoeToastTone.danger);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final tr = Translations.of(context);
-    final channels = _prefs.channels;
-    return ListView(
-      padding: const EdgeInsets.all(16),
+    final tr = Translations.of(context).accountSpace.preferences;
+    final value = ref.watch(notificationPreferencesProvider);
+    return AccountScaffold(
+      title: tr.crumbTitle,
+      crumb: tr.crumb,
       children: [
-        // En-tête de colonnes
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  tr.account.notificationPrefs.categoryHeader,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: AppPalette.n700,
-                    letterSpacing: 1,
-                  ),
-                ),
-              ),
-              for (final ch in channels)
-                SizedBox(
-                  width: 48,
-                  child: Text(
-                    _channelLabel(tr, ch),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: AppPalette.n700,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            color: AppPalette.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppPalette.n300),
-          ),
-          child: Column(
-            children: [
-              for (var i = 0; i < _prefs.categories.length; i++)
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: i == _prefs.categories.length - 1
-                            ? Colors.transparent
-                            : AppPalette.n300,
-                      ),
-                    ),
-                  ),
-                  child: Row(
+        AccountPageTitle(tr.title, subtitle: tr.autosave),
+        AccountAsync(
+          value: value,
+          onRetry: () => ref.invalidate(notificationPreferencesProvider),
+          builder: (loaded) {
+            final prefs = _shown ?? loaded;
+            return Column(children: [
+              AccountCard(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _prefs.categories[i].label,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: AppPalette.ink,
-                              ),
-                            ),
-                            if (_prefs.categories[i].sub.isNotEmpty) ...[
-                              const SizedBox(height: 2),
-                              Text(
-                                _prefs.categories[i].sub,
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  color: AppPalette.n700,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
+                      AccountCardTitle(tr.grid,
+                          trailing: _savedAt == null
+                              ? null
+                              : Text(
+                                  tr.savedAt(
+                                      time: AccountFormat.time(_savedAt!)),
+                                  style: AppTypography.caption
+                                      .copyWith(color: AppPalette.text2))),
+                      _Grid(
+                        prefs: prefs,
+                        onToggle: (category, channel) {
+                          _shown ??= loaded;
+                          unawaited(_toggle(category, channel));
+                        },
                       ),
-                      for (final ch in channels)
-                        SizedBox(
-                          width: 48,
-                          child: Center(
-                            child: _Toggle(
-                              on: _prefs.categories[i].isOn(ch),
-                              onTap: () =>
-                                  _toggle(_prefs.categories[i], ch),
-                            ),
-                          ),
+                      if (prefs.channels.any((channel) => !channel.available))
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Text(tr.soon,
+                              style: AppTypography.caption
+                                  .copyWith(color: AppPalette.text2)),
                         ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
-        if (_savedHint) ...[
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AppPalette.successBg,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.check, size: 14, color: AppPalette.success),
-                    const SizedBox(width: 6),
-                    Text(
-                      tr.account.notificationPrefs.savedHint,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: AppPalette.success,
-                      ),
-                    ),
-                  ],
-                ),
+                    ]),
               ),
-            ],
-          ),
-        ],
+              if (prefs.mandatory.isNotEmpty)
+                AccountCard(
+                  soft: true,
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                          child: AccountCardTitle(tr.always),
+                        ),
+                        for (final message in prefs.mandatory)
+                          AccountRow(
+                            icon: Icons.lock_outline,
+                            iconBackground: AppPalette.white,
+                            title: message.title,
+                            subtitle: message.text,
+                            trailing: Text(tr.required,
+                                style: AppTypography.labelSm
+                                    .copyWith(color: AppPalette.text)),
+                          ),
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Text(tr.alwaysHelp,
+                              style: AppTypography.caption
+                                  .copyWith(color: AppPalette.text2)),
+                        ),
+                      ]),
+                ),
+            ]);
+          },
+        ),
       ],
     );
   }
 }
 
-class _Toggle extends StatelessWidget {
-  const _Toggle({required this.on, required this.onTap});
-  final bool on;
-  final VoidCallback onTap;
+class _Grid extends StatelessWidget {
+  const _Grid({required this.prefs, required this.onToggle});
+
+  final NotificationPreferences prefs;
+  final void Function(PreferenceCategory category, String channel) onToggle;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        width: 36,
-        height: 22,
-        decoration: BoxDecoration(
-          color: on ? AppPalette.success : AppPalette.n300,
-          borderRadius: BorderRadius.circular(99),
-        ),
-        child: AnimatedAlign(
-          duration: const Duration(milliseconds: 180),
-          alignment: on ? Alignment.centerRight : Alignment.centerLeft,
-          child: Container(
-            margin: const EdgeInsets.all(2),
-            width: 18,
-            height: 18,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [BoxShadow(color: Color(0x33000000), blurRadius: 3)],
+    final tr = Translations.of(context).accountSpace.preferences;
+    return Table(
+      columnWidths: const {0: FlexColumnWidth(1.5)},
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      children: [
+        TableRow(children: [
+          const SizedBox.shrink(),
+          for (final channel in prefs.channels)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              // One line, shrunk if the column is narrow (« WhatsApp » never breaks).
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(channel.label,
+                    maxLines: 1,
+                    softWrap: false,
+                    textAlign: TextAlign.center,
+                    style: AppTypography.caption
+                        .copyWith(color: AppPalette.text2)),
+              ),
             ),
-          ),
-        ),
-      ),
+        ]),
+        for (final category in prefs.categories)
+          TableRow(children: [
+            Text(category.label,
+                style: AppTypography.bodySm.copyWith(color: AppPalette.text2)),
+            for (final channel in prefs.channels)
+              _Box(
+                checked: channel.available && category.channel(channel.key),
+                available: channel.available,
+                label: tr.boxLabel(
+                    category: category.label, channel: channel.label),
+                onTap: channel.available
+                    ? () => onToggle(category, channel.key)
+                    : null,
+              ),
+          ]),
+      ],
     );
   }
+}
+
+class _Box extends StatelessWidget {
+  const _Box(
+      {required this.checked,
+      required this.available,
+      required this.label,
+      this.onTap});
+
+  final bool checked;
+  final bool available;
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+        label: label,
+        checked: checked,
+        enabled: available,
+        button: available,
+        excludeSemantics: true,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            height: 44,
+            margin: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              color: checked
+                  ? AppPalette.teal500
+                  : available
+                      ? AppPalette.white
+                      : AppPalette.n100,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: AppPalette.border),
+            ),
+            child: checked
+                ? const Icon(Icons.check, size: 16, color: AppPalette.white)
+                : null,
+          ),
+        ),
+      );
 }
