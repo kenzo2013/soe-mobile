@@ -39,14 +39,18 @@ class TutorApi {
   Future<TutorHome> home() => _guard(() async => TutorHome.fromJson(
       _data(await _dio.get<Map<String, dynamic>>(ApiEndpointsV2.tutorHome))));
 
-  Future<List<TutorSession>> sessions(DateTime from, DateTime to) =>
+  /// The sessions between two days (31 days at most), filtered as on the web
+  /// ([filter]: upcoming, to_report, disputed, suspended).
+  Future<List<TutorSession>> sessions(DateTime from, DateTime to,
+          {String? filter}) =>
       _guard(() async {
         final r = await _dio.get<Map<String, dynamic>>(
             ApiEndpointsV2.tutorSessions,
             queryParameters: {
               'from': _day(from),
               'to': _day(to),
-              'per_page': 100
+              'per_page': 100,
+              if (filter != null) 'filter': filter,
             });
         return Paginated.fromEnvelope(r.data ?? const {}, TutorSession.fromJson)
             .items;
@@ -71,6 +75,31 @@ class TutorApi {
       _guard(() async => TutorSessionDetail.fromJson(_data(await _dio
           .post<Map<String, dynamic>>(ApiEndpointsV2.tutorCheckOut(id),
               data: _position(position)))));
+
+  /// Moves a planned session to [date] at [startAt] (HH:MM), same month, same length; the
+  /// optional [comment] (500 characters at most) goes to the family. A refusal is a 422 on
+  /// `date` or `start_at`, or a 409, both with a message ready to display.
+  Future<TutorSessionDetail> moveSession(int id,
+          {required DateTime date, required String startAt, String? comment}) =>
+      _guard(() async => TutorSessionDetail.fromJson(_data(await _dio
+              .post<Map<String, dynamic>>(ApiEndpointsV2.tutorSessionMove(id),
+                  data: {
+                'date': _day(date),
+                'start_at': startAt,
+                if (comment != null && comment.isNotEmpty) 'comment': comment,
+              }))));
+
+  /// The first published offers in the tutor's subjects (home, « Offres pour moi »).
+  Future<List<TutorOfferPreview>> homeOffers({int limit = 2}) =>
+      _guard(() async {
+        final r = await _dio.get<Map<String, dynamic>>('/tutor/offers',
+            queryParameters: {'per_page': limit});
+        return Paginated.fromEnvelope(
+                r.data ?? const {}, TutorOfferPreview.fromJson)
+            .items
+            .take(limit)
+            .toList();
+      });
 
   Future<void> reportProblem(int id,
           {required String type, required String description}) =>

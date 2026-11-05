@@ -48,6 +48,7 @@ abstract final class ApiEndpointsV2 {
   static String tutorCheckIn(int id) => '/tutor/sessions/$id/check_in';
   static String tutorCheckOut(int id) => '/tutor/sessions/$id/check_out';
   static String tutorProblem(int id) => '/tutor/sessions/$id/problem';
+  static String tutorSessionMove(int id) => '/tutor/sessions/$id/move';
   static String tutorReport(int sessionId) =>
       '/tutor/sessions/$sessionId/report';
   static String tutorProposal(int id) => '/tutor/proposals/$id';

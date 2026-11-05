@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/error/failure_message.dart';
@@ -62,6 +63,23 @@ abstract final class TutorFormat {
       _ => day ?? '',
     };
   }
+
+  /// A length in minutes: « 2 h », « 1 h 30 », « 45 min ».
+  static String duration(BuildContext context, int minutes) {
+    final tr = Translations.of(context).tutorSpace.times.duration;
+    final h = minutes ~/ 60;
+    final m = minutes % 60;
+    if (h == 0) return tr.minutes(m: m);
+    return m == 0
+        ? tr.hours(h: h)
+        : tr.hoursMinutes(h: h, m: m.toString().padLeft(2, '0'));
+  }
+
+  /// « Lun. », the short day name.
+  static String weekdayShort(BuildContext context, DateTime date) =>
+      toBeginningOfSentenceCase(
+          DateFormat('EEE', _locale(context)).format(date)) ??
+      '';
 
   /// An option of the planning (« monday 16:00 ») as « Lundi 16:00 ».
   static String option(BuildContext context, String option) {
@@ -195,6 +213,105 @@ class TutorSheet extends StatelessWidget {
           ),
         ),
       );
+}
+
+/// Opens the phone app on the parent's number.
+Future<bool> tutorCall(String phone) =>
+    launchUrl(Uri(scheme: 'tel', path: phone.replaceAll(RegExp(r'[^\d+]'), '')),
+        mode: LaunchMode.externalApplication);
+
+/// Opens the maps app on the lessons address.
+Future<bool> tutorDirections(String place) => launchUrl(
+    Uri.https('www.google.com', '/maps/search/', {'api': '1', 'query': place}),
+    mode: LaunchMode.externalApplication);
+
+/// A row of a detail card: the label on the left, the value on the right, a line below.
+class TutorInfoRow extends StatelessWidget {
+  const TutorInfoRow(
+      {super.key,
+      required this.label,
+      required this.value,
+      this.valueColor,
+      this.last = false});
+
+  final String label;
+  final String value;
+  final Color? valueColor;
+  final bool last;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+            border: last
+                ? null
+                : const Border(bottom: BorderSide(color: AppPalette.n300))),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Flexible(
+            flex: 2,
+            child: Text(label,
+                style: AppTypography.bodySm.copyWith(color: AppPalette.text2)),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 3,
+            child: Text(value,
+                textAlign: TextAlign.right,
+                style: AppTypography.label
+                    .copyWith(color: valueColor ?? AppPalette.text)),
+          ),
+        ]),
+      );
+}
+
+/// A centred state card: an icon in a circle, a title, a text, then [children] (figures,
+/// steps, a button). Expired, accepted, waiting, not yet available, approved…
+class TutorStatusCard extends StatelessWidget {
+  const TutorStatusCard({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.body,
+    this.tone = SoeBadgeTone.info,
+    this.children = const [],
+  });
+
+  final IconData icon;
+  final String title;
+  final String body;
+  final SoeBadgeTone tone;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final (bg, fg) = switch (tone) {
+      SoeBadgeTone.success => (AppPalette.successBg, AppPalette.success),
+      SoeBadgeTone.warning => (AppPalette.gold50, AppPalette.warningText),
+      SoeBadgeTone.danger => (AppPalette.dangerBg, AppPalette.dangerText),
+      _ => (AppPalette.infoBg, AppPalette.teal800),
+    };
+    return SoeCard(
+      padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
+      child: Column(children: [
+        Container(
+          width: 72,
+          height: 72,
+          decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
+          alignment: Alignment.center,
+          child: Icon(icon, size: 32, color: fg),
+        ),
+        const SizedBox(height: 16),
+        Text(title,
+            textAlign: TextAlign.center,
+            style: AppTypography.h2.copyWith(color: AppPalette.teal800)),
+        const SizedBox(height: 8),
+        Text(body,
+            textAlign: TextAlign.center,
+            style: AppTypography.body.copyWith(color: AppPalette.text2)),
+        ...children,
+      ]),
+    );
+  }
 }
 
 /// A session in a list: time, subject · pupil, state.

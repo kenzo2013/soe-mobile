@@ -98,6 +98,7 @@ class TutorSessionDetail {
     required this.checkedOutAt,
     required this.reportAvailableAt,
     required this.reportDueAt,
+    this.canMove = false,
   });
 
   factory TutorSessionDetail.fromJson(Map<String, dynamic> json) {
@@ -117,6 +118,7 @@ class TutorSessionDetail {
       checkedOutAt: _date(checkIn['checked_out_at']),
       reportAvailableAt: _date(json['report_available_at']) ?? session.startsAt,
       reportDueAt: _date(json['report_due_at']),
+      canMove: json['can_move'] == true,
     );
   }
 
@@ -137,6 +139,12 @@ class TutorSessionDetail {
   final DateTime? checkedOutAt;
   final DateTime reportAvailableAt;
   final DateTime? reportDueAt;
+
+  /// POST /tutor/sessions/{id}/move is open (planned, not checked in, notice respected).
+  final bool canMove;
+
+  /// The length of the session in minutes (kept when it is moved).
+  int? get minutes => session.endsAt?.difference(session.startsAt).inMinutes;
 
   /// The family's contact is shared once the contract is signed.
   bool get hasContact =>
@@ -490,6 +498,40 @@ class TutorHome {
 
   /// The action that gets the gold button: the most urgent one SOE does not review.
   int get urgentIndex => actions.indexWhere((a) => a.kind != 'disputed');
+}
+
+/// An offer as the home lists it (« Offres pour moi »): the need, the neighbourhood, the pay.
+class TutorOfferPreview {
+  const TutorOfferPreview({
+    required this.id,
+    required this.subjects,
+    required this.schoolClasses,
+    required this.neighborhood,
+    required this.sessionRate,
+  });
+
+  factory TutorOfferPreview.fromJson(Map<String, dynamic> json) =>
+      TutorOfferPreview(
+        id: _int(json['id']),
+        subjects: _strings(json['subjects']),
+        schoolClasses: _strings(json['school_classes']),
+        neighborhood: json['neighborhood'] as String?,
+        sessionRate: _intOrNull(json['session_rate']),
+      );
+
+  final int id;
+  final List<String> subjects;
+  final List<String> schoolClasses;
+  final String? neighborhood;
+
+  /// The tutor's indicative pay per session (FCFA).
+  final int? sessionRate;
+
+  /// « Mathématiques · 3e ».
+  String get title => [
+        subjects.take(2).join(', '),
+        if (schoolClasses.isNotEmpty) schoolClasses.first,
+      ].where((s) => s.isNotEmpty).join(' · ');
 }
 
 /// The pay of the month for one pupil.
