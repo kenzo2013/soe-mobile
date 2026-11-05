@@ -47,7 +47,8 @@ class TutorInterviewPage extends ConsumerWidget {
           value: value,
           onRetry: () => ref.invalidate(tutorInterviewProvider),
           builder: (interview) => ListView(
-            padding: spacePagePadding(context, top: 8, bottom: 32),
+            padding: spacePagePadding(context,
+                top: 8, bottom: 32, insets: !charterNext),
             children: [
               Text(tr.title,
                   style: AppTypography.h1.copyWith(color: AppPalette.teal800)),

@@ -293,7 +293,7 @@ class _ParentSignableTextState extends State<ParentSignableText> {
       Expanded(
         child: ListView(
           controller: _scroll,
-          padding: const EdgeInsets.all(16),
+          padding: spacePagePadding(context, insets: !widget.canSign),
           children: [
             ...widget.header,
             const SizedBox(height: 12),

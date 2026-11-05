@@ -150,7 +150,8 @@ class _TutorCharterPageState extends ConsumerState<TutorCharterPage> {
                   controller: _scroll,
                   physics:
                       _drawing ? const NeverScrollableScrollPhysics() : null,
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+                  padding: spacePagePadding(context,
+                      top: 8, bottom: 32, insets: !signing),
                   children: [
                     Row(
                         crossAxisAlignment: CrossAxisAlignment.start,

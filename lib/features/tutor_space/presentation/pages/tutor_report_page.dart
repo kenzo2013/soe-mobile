@@ -619,9 +619,11 @@ class _ReportFormState extends ConsumerState<_ReportForm> {
     final tr = Translations.of(context).tutorSpace.report;
     final session = widget.detail.session;
     final last = _step == _steps - 1;
+    // The step bar below clears the navigation itself.
+    final padding = spacePagePadding(context, insets: false);
     return Column(children: [
       Expanded(
-        child: ListView(padding: spacePagePadding(context), children: [
+        child: ListView(padding: padding, children: [
           Text(
               [TutorFormat.dayLong(context, session.date), session.subject]
                   .whereType<String>()

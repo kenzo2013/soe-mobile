@@ -368,7 +368,7 @@ class _ParentReplacementPageState extends ConsumerState<ParentReplacementPage> {
       body: Column(children: [
         Expanded(
           child: ListView(
-            padding: spacePagePadding(context),
+            padding: spacePagePadding(context, insets: false),
             children: [
               ParentHeading(title: tr.heading, subtitle: current?.label),
               const SizedBox(height: 16),

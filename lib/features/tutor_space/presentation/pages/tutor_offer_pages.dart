@@ -373,9 +373,11 @@ class _TutorOfferPageState extends ConsumerState<TutorOfferPage> {
       if (offer.schoolClasses.isNotEmpty)
         (tr.detail.schoolClass, offer.schoolClasses.join(', ')),
     ];
+    // The apply bar clears the navigation itself.
+    final padding = spacePagePadding(context, insets: !offer.canApply);
     return RefreshIndicator(
       onRefresh: () => ref.refresh(tutorOfferProvider(widget.offerId).future),
-      child: ListView(padding: spacePagePadding(context), children: [
+      child: ListView(padding: padding, children: [
         Text(published.toUpperCase(),
             style: AppTypography.overline.copyWith(color: AppPalette.teal500)),
         const SizedBox(height: 4),

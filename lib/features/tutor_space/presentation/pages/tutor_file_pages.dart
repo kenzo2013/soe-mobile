@@ -87,7 +87,8 @@ class _TutorFilePageState extends ConsumerState<TutorFilePage> {
           value: value,
           onRetry: () => ref.invalidate(tutorFileProvider),
           builder: (file) => ListView(
-            padding: spacePagePadding(context, top: 8, bottom: 32),
+            padding: spacePagePadding(context,
+                top: 8, bottom: 32, insets: !file.canSubmit),
             children: [
               _Header(file: file),
               if (_nextRoute(file) != null) ...[

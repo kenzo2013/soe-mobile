@@ -486,7 +486,8 @@ class _TutorDocumentViewState extends State<TutorDocumentView> {
     return Column(children: [
       Expanded(
         child: ListView(
-          padding: spacePagePadding(context, top: 8, bottom: 24),
+          padding: spacePagePadding(context,
+              top: 8, bottom: 24, insets: !widget.canSign),
           children: [
             if (widget.reference != null)
               Text(widget.reference!.toUpperCase(),

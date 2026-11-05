@@ -580,7 +580,7 @@ class _ParentPaymentPageState extends ConsumerState<ParentPaymentPage> {
               ),
           };
           return ListView(
-            padding: const EdgeInsets.all(24),
+            padding: spacePagePadding(context, top: 24, bottom: 24),
             children: [
               Icon(icon, size: 56, color: color),
               const SizedBox(height: 16),

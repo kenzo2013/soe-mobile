@@ -506,8 +506,10 @@ class SpaceScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
       appBar: SpaceAppBar(section: section, title: title),
+      // The list clears the bottom inset itself (safe area, floating navigation).
       body: SafeArea(
         top: false,
+        bottom: false,
         child: onRefresh == null
             ? list
             : RefreshIndicator(onRefresh: onRefresh!, child: list),

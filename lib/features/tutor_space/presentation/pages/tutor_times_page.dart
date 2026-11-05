@@ -140,9 +140,11 @@ class _TutorTimesPageState extends ConsumerState<TutorTimesPage> {
     ].where((s) => s.isNotEmpty).join(' · ');
     final canSend =
         planning.canPropose && count > 0 && planning.options.isNotEmpty;
+    // The send bar clears the navigation itself.
+    final padding = spacePagePadding(context, insets: !canSend);
     return Column(children: [
       Expanded(
-        child: ListView(padding: spacePagePadding(context), children: [
+        child: ListView(padding: padding, children: [
           Text(tr.heading,
               style: AppTypography.h1.copyWith(color: AppPalette.teal800)),
           const SizedBox(height: 4),

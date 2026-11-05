@@ -70,8 +70,11 @@ class AccountScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The list clears the safe area and the floating navigation itself, so that it scrolls
+    // behind them; a sticky action takes that room instead.
     final list = ListView(
-      padding: spacePagePadding(context, top: 16, bottom: 32),
+      padding: spacePagePadding(context,
+          top: 16, bottom: 32, insets: bottom == null),
       children: [
         for (final child in children) SpaceCentred(child: child),
       ],
@@ -81,6 +84,7 @@ class AccountScaffold extends StatelessWidget {
       appBar: AccountHeader(title: title, crumb: crumb),
       body: SafeArea(
         top: false,
+        bottom: false,
         child: Column(children: [
           Expanded(
             child: onRefresh == null
@@ -94,8 +98,13 @@ class AccountScaffold extends StatelessWidget {
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                 boxShadow: AppShadows.card,
               ),
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-              child: SpaceCentred(child: bottom!),
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                  child: SpaceCentred(child: bottom!),
+                ),
+              ),
             ),
         ]),
       ),

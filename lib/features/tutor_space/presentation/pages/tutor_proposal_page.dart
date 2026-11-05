@@ -159,9 +159,11 @@ class _TutorProposalPageState extends ConsumerState<TutorProposalPage> {
       if (proposal.startDate != null)
         (tr.start, TutorFormat.dayLong(context, proposal.startDate!)),
     ];
+    // The answer bar clears the navigation itself.
+    final padding = spacePagePadding(context, insets: !proposal.canAnswer);
     return Column(children: [
       Expanded(
-        child: ListView(padding: spacePagePadding(context), children: [
+        child: ListView(padding: padding, children: [
           Text(tr.heading,
               style: AppTypography.h1.copyWith(color: AppPalette.teal800)),
           const SizedBox(height: 6),
