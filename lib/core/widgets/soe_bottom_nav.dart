@@ -167,10 +167,13 @@ class SoeNavRail extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(34)),
           boxShadow: AppShadows.nav,
         ),
-        child: Column(children: [
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           const SizedBox(height: 26),
-          SvgPicture.asset('assets/logo/logo_white.svg',
-              width: 54, semanticsLabel: 'SOE — Solution of Education'),
+          Center(
+            child: SvgPicture.asset('assets/logo/logo_white.svg',
+                width: 54, semanticsLabel: 'SOE — Solution of Education'),
+          ),
           const SizedBox(height: 28),
           for (int i = 0; i < items.length; i++)
             Padding(

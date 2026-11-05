@@ -139,18 +139,23 @@ class ParentHomePage extends ConsumerWidget {
       const SizedBox(height: 14),
       const ParentAdvisorCard(),
     ];
+    // A section title must not lie on the band: the content then starts below it.
+    final lead = (main.isEmpty ? side : main).first is _SectionTitle
+        ? const [SizedBox(height: SpaceBand.cardOverlap)]
+        : const <Widget>[];
     if (spaceIsWide(context)) {
       return [
+        ...lead,
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(
-              flex: 3,
+              flex: 1,
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: main.isEmpty ? side : main)),
           if (main.isNotEmpty) ...[
             const SizedBox(width: 16),
             Expanded(
-                flex: 2,
+                flex: 1,
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: side)),
@@ -158,7 +163,7 @@ class ParentHomePage extends ConsumerWidget {
         ]),
       ];
     }
-    return [...main, ...side];
+    return [...lead, ...main, ...side];
   }
 }
 

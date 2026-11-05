@@ -212,15 +212,25 @@ class _OffersPage extends ConsumerWidget {
       ),
       data: (page) =>
           Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        for (final offer in page.items)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: TutorOfferCard(
-              offer: offer,
-              onTap: () =>
-                  openTutorScreen(context, TutorSpaceRoutes.offer(offer.id)),
-            ),
-          ),
+        // A grid of two on a tablet.
+        LayoutBuilder(builder: (context, constraints) {
+          final columns = constraints.maxWidth >= 640 ? 2 : 1;
+          final width = (constraints.maxWidth - 12 * (columns - 1)) / columns;
+          return Wrap(spacing: 12, children: [
+            for (final offer in page.items)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: SizedBox(
+                  width: width,
+                  child: TutorOfferCard(
+                    offer: offer,
+                    onTap: () => openTutorScreen(
+                        context, TutorSpaceRoutes.offer(offer.id)),
+                  ),
+                ),
+              ),
+          ]);
+        }),
         if (last && page.hasMore)
           SoeButton(
             label: tr.loadMore,

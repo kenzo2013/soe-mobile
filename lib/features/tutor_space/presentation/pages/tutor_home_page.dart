@@ -262,13 +262,13 @@ class _HomeView extends ConsumerWidget {
         ...notices,
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(
-              flex: 3,
+              flex: 1,
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: main)),
           const SizedBox(width: 16),
           Expanded(
-              flex: 2,
+              flex: 1,
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: side)),

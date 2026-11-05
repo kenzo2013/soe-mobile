@@ -101,7 +101,9 @@ void main() {
       expect(find.text('Postulé'), findsOneWidget);
       expect(asked.single.filters, const TutorOfferFilters());
 
-      await tester.scrollUntilVisible(find.text('Voir plus d’offres'), 200);
+      // The whole tab is built at once (the cards overlap the band): bring the button in.
+      await tester.ensureVisible(find.text('Voir plus d’offres'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Voir plus d’offres'));
       await tester.pumpAndSettle();
       expect(find.text('OFF-2611-11 · Bonamoussadi'), findsOneWidget);

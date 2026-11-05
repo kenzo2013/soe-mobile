@@ -7,7 +7,6 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/soe_brand_logo.dart';
 import '../../../../i18n/translations.g.dart';
-import '../../../common/presentation/widgets/tab_top_bar.dart';
 
 /// Frame of the authentication screens (colourful direction, Login): a navy top with the way
 /// back, the white logo, the sign-up step and its progress, then the screen's [AuthHeading]
@@ -39,7 +38,7 @@ class AuthScaffold extends StatelessWidget {
     final top = Padding(
       padding: EdgeInsets.fromLTRB(
           compact ? 12 : 24, media.padding.top + (compact ? 8 : 32), 24, 28),
-      child: SpaceCentred(
+      child: _Narrow(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -118,7 +117,7 @@ class AuthScaffold extends StatelessWidget {
                           top: Radius.circular(AppRadius.band)),
                     ),
                     padding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
-                    child: SpaceCentred(
+                    child: _Narrow(
                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: body),
@@ -143,7 +142,7 @@ class AuthScaffold extends StatelessWidget {
                   top: false,
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-                    child: SpaceCentred(child: bottom!),
+                    child: _Narrow(child: bottom!),
                   ),
                 ),
               ),
@@ -402,4 +401,19 @@ class PasswordRules extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The content of an authentication screen, at most 560 wide (tablet), centred.
+class _Narrow extends StatelessWidget {
+  const _Narrow({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: child,
+        ),
+      );
 }
