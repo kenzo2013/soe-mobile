@@ -8,8 +8,30 @@ import '../data/tutor_models.dart';
 final tutorApiProvider =
     Provider<TutorApi>((ref) => TutorApi(ref.watch(dioV2Provider)));
 
-final tutorHomeProvider = FutureProvider.autoDispose<TutorHome>(
-    (ref) => ref.watch(tutorApiProvider).home());
+/// The last home read and when (kept for the app's life): shown « Hors connexion » when a
+/// new read fails for lack of network.
+final tutorHomeCacheProvider =
+    StateProvider<({TutorHome home, DateTime at})?>((ref) => null);
+
+final tutorHomeProvider = FutureProvider.autoDispose<TutorHome>((ref) async {
+  final home = await ref.watch(tutorApiProvider).home();
+  ref.read(tutorHomeCacheProvider.notifier).state =
+      (home: home, at: DateTime.now());
+  return home;
+});
+
+/// « Offres pour moi » on the home (the two first offers).
+final tutorHomeOffersProvider =
+    FutureProvider.autoDispose<List<TutorOfferPreview>>(
+        (ref) => ref.watch(tutorApiProvider).homeOffers());
+
+/// The sessions of a period (31 days at most) with an optional filter (REP-16).
+typedef TutorSessionsQuery = ({DateTime from, DateTime to, String? filter});
+
+final tutorSessionsProvider = FutureProvider.autoDispose
+    .family<List<TutorSession>, TutorSessionsQuery>((ref, query) => ref
+        .watch(tutorApiProvider)
+        .sessions(query.from, query.to, filter: query.filter));
 
 /// The sessions of the week starting on the given Monday.
 final tutorWeekSessionsProvider = FutureProvider.autoDispose
@@ -54,4 +76,5 @@ void refreshTutorSession(WidgetRef ref, int sessionId) => ref
   ..invalidate(tutorSessionProvider(sessionId))
   ..invalidate(tutorReportProvider(sessionId))
   ..invalidate(tutorHomeProvider)
-  ..invalidate(tutorWeekSessionsProvider);
+  ..invalidate(tutorWeekSessionsProvider)
+  ..invalidate(tutorSessionsProvider);
