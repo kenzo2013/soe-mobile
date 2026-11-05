@@ -203,7 +203,7 @@ void main() {
     expect(find.text('Après signature, vous payez le premier mois.'),
         findsOneWidget);
     expect(find.text('1 cours · Anglais'), findsOneWidget);
-    expect(find.text('Novembre'), findsOneWidget);
+    expect(find.text('NOVEMBRE · PAYÉ'), findsOneWidget);
     expect(find.textContaining('par MTN MoMo'), findsOneWidget);
     expect(find.text('Conseiller SOE'), findsOneWidget);
     expect(find.textContaining('+237 6 75 94 23 44'), findsOneWidget);

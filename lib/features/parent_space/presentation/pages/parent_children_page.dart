@@ -44,45 +44,43 @@ class ParentChildrenPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context).parentSpace;
-    return Scaffold(
-      backgroundColor: AppPalette.surfacePage,
-      body: TabBody(
-        title: Translations.of(context).shell.parent.children,
-        child: RefreshIndicator(
-          onRefresh: () => ref.refresh(parentChildrenProvider.future),
-          child: ParentAsyncBody<List<ParentChild>>(
-            value: ref.watch(parentChildrenProvider),
-            onRetry: () => ref.invalidate(parentChildrenProvider),
-            builder: (children) => ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                ParentHeading(
-                    title: tr.children.title, subtitle: tr.childFile.subtitle),
-                const SizedBox(height: 16),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: SoeButton(
-                    label: tr.childFile.add,
-                    size: SoeButtonSize.md,
-                    onPressed: () =>
-                        unawaited(context.push(ParentSpaceRoutes.newChild)),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                if (children.isEmpty)
-                  SoeEmptyState(
-                      title: tr.children.empty,
-                      message: tr.children.emptyText,
-                      icon: Icons.family_restroom_outlined),
-                ...children.map((child) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _ChildCard(child: child),
-                    )),
-              ],
-            ),
+    return SpaceTabAsync<List<ParentChild>>(
+      band: SpaceBand(
+        title: tr.children.title,
+        subtitle: tr.childFile.subtitle,
+        chips: Align(
+          alignment: Alignment.centerLeft,
+          child: SoeButton(
+            label: tr.childFile.add,
+            size: SoeButtonSize.md,
+            icon: Icons.add,
+            onPressed: () =>
+                unawaited(context.push(ParentSpaceRoutes.newChild)),
           ),
         ),
       ),
+      value: ref.watch(parentChildrenProvider),
+      onRetry: () => ref.invalidate(parentChildrenProvider),
+      onRefresh: () => ref.refresh(parentChildrenProvider.future),
+      builder: (children) => [
+        if (children.isEmpty)
+          SoeCard(
+            raised: true,
+            child: SoeEmptyState(
+                title: tr.children.empty,
+                message: tr.children.emptyText,
+                icon: Icons.family_restroom_outlined),
+          )
+        else
+          LayoutBuilder(builder: (context, constraints) {
+            final columns = constraints.maxWidth >= 640 ? 2 : 1;
+            final width = (constraints.maxWidth - 12 * (columns - 1)) / columns;
+            return Wrap(spacing: 12, runSpacing: 12, children: [
+              for (final child in children)
+                SizedBox(width: width, child: _ChildCard(child: child)),
+            ]);
+          }),
+      ],
     );
   }
 }
