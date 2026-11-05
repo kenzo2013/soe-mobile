@@ -103,6 +103,7 @@ class SpaceAppBar extends ConsumerWidget implements PreferredSizeWidget {
                               style:
                                   AppTypography.caption.copyWith(color: soft)),
                         Semantics(
+                          container: true,
                           header: true,
                           child: Text(title,
                               maxLines: 1,

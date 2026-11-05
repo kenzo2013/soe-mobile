@@ -23,10 +23,6 @@
     "or": "OU",
     "copyright": "© SOE 2026 · Solution of Education"
   },
-  "languages": {
-    "fr": "Français",
-    "en": "English"
-  },
   "errors": {
     "network": "Pas de connexion réseau.",
     "timeout": "Le serveur met trop de temps à répondre.",
@@ -1911,7 +1907,7 @@
       "modeTutor": "Mode répétiteur",
       "switchSpace": "Changer d’espace",
       "personal": "Informations personnelles",
-      "personalText": "Photo, nom, téléphone, e-mail, langue",
+      "personalText": "Photo, nom, téléphone, e-mail",
       "security": "Sécurité",
       "securityText": "Mot de passe, appareils connectés, suppression du compte",
       "address": "Adresse",
@@ -1927,9 +1923,7 @@
       "helpText": "FAQ, e-mail, appel et WhatsApp",
       "report": "Signaler un problème",
       "reportText": "Va à SOE, jamais à l’autre partie",
-      "signOut": "Se déconnecter",
-      "language": "Langue",
-      "application": "Application"
+      "signOut": "Se déconnecter"
     },
     "personal": {
       "title": "Informations personnelles",
@@ -1943,7 +1937,6 @@
       "civility": "Civilité",
       "mr": "M.",
       "mrs": "Mme",
-      "language": "Langue",
       "firstName": "Prénom",
       "lastName": "Nom",
       "phone": "Téléphone",

@@ -89,51 +89,69 @@ class SpaceBand extends ConsumerWidget {
     final top = MediaQuery.paddingOf(context).top;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
-      child: Container(
-        decoration: BoxDecoration(
-          color: band,
-          borderRadius: const BorderRadius.vertical(
-              bottom: Radius.circular(AppRadius.band)),
-        ),
-        padding: EdgeInsets.fromLTRB(20, top + 12, 20, 28 + overlap),
-        child: _Centred(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(children: [
-                const SoeBrandLogo(width: 57, onDark: true),
-                const Spacer(),
-                trailing ?? NotificationBell(band: band),
-              ]),
-              const SizedBox(height: 18),
-              if (heading != null)
-                heading!
-              else ...[
-                Text(date.toUpperCase(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTypography.labelSm
-                        .copyWith(color: soft, letterSpacing: 1.04)),
-                const SizedBox(height: 4),
-                Semantics(
-                  header: true,
-                  child: Text(title,
-                      style: AppTypography.h1.copyWith(
-                          fontSize: 30,
-                          height: 38 / 30,
-                          color: AppPalette.white)),
-                ),
-              ],
-              if (subtitle != null) ...[
-                const SizedBox(height: 6),
-                Text(subtitle!,
-                    style: AppTypography.bodySm.copyWith(color: soft)),
-              ],
-              if (chips != null) ...[
+      child: Semantics(
+        container: true,
+        explicitChildNodes: true,
+        child: Container(
+          decoration: BoxDecoration(
+            color: band,
+            borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(AppRadius.band)),
+          ),
+          padding: EdgeInsets.fromLTRB(20, top + 12, 20, 28 + overlap),
+          child: _Centred(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(children: [
+                  if (Navigator.of(context).canPop()) ...[
+                    IconButton(
+                      tooltip:
+                          MaterialLocalizations.of(context).backButtonTooltip,
+                      style: IconButton.styleFrom(
+                          backgroundColor: AppPalette.onBandSoft,
+                          fixedSize: const Size(40, 40)),
+                      icon: const Icon(Icons.arrow_back_rounded,
+                          size: 22, color: AppPalette.white),
+                      onPressed: () => Navigator.of(context).maybePop(),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  const SoeBrandLogo(width: 57, onDark: true),
+                  const Spacer(),
+                  trailing ?? NotificationBell(band: band),
+                ]),
                 const SizedBox(height: 18),
-                chips!,
+                if (heading != null)
+                  heading!
+                else ...[
+                  Text(date.toUpperCase(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.labelSm
+                          .copyWith(color: soft, letterSpacing: 1.04)),
+                  const SizedBox(height: 4),
+                  Semantics(
+                    container: true,
+                    header: true,
+                    child: Text(title,
+                        style: AppTypography.h1.copyWith(
+                            fontSize: 30,
+                            height: 38 / 30,
+                            color: AppPalette.white)),
+                  ),
+                ],
+                if (subtitle != null) ...[
+                  const SizedBox(height: 6),
+                  Text(subtitle!,
+                      style: AppTypography.bodySm.copyWith(color: soft)),
+                ],
+                if (chips != null) ...[
+                  const SizedBox(height: 18),
+                  chips!,
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -299,7 +317,11 @@ class SpaceTabView extends StatelessWidget {
             child: _Centred(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: children),
+                  children: [
+                    // Each card is its own node for the screen readers.
+                    for (final child in children)
+                      Semantics(container: true, child: child),
+                  ]),
             ),
           ),
         ),

@@ -22,9 +22,9 @@ Future<void> showMoreSheet(BuildContext context, WidgetRef ref) =>
       useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: AppPalette.white,
-      barrierColor: const Color(0x80010814),
+      barrierColor: const Color(0x8001202F),
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
       builder: (sheetContext) =>
           _MoreSheet(outerContext: context, outerRef: ref),
     );
@@ -80,8 +80,8 @@ class _MoreSheet extends ConsumerWidget {
               ),
             ]),
             const SizedBox(height: 8),
-            for (final entry in entries)
-              _MoreRow(entry: entry, onTap: () => open(entry.route)),
+            for (final (i, entry) in entries.indexed)
+              _MoreRow(entry: entry, tint: i, onTap: () => open(entry.route)),
             _MoreRow(
               entry: (
                 icon: Icons.person_outline,
@@ -89,6 +89,7 @@ class _MoreSheet extends ConsumerWidget {
                 hint: null,
                 route: RouteNames.account
               ),
+              tint: entries.length,
               onTap: () => open(RouteNames.account),
             ),
             _MoreRow(
@@ -98,6 +99,7 @@ class _MoreSheet extends ConsumerWidget {
                 hint: tr.shell.more.sameAccount,
                 route: RouteNames.accountRoles
               ),
+              tint: entries.length + 1,
               onTap: () => open(RouteNames.accountRoles),
             ),
             _MoreRow(
@@ -122,45 +124,59 @@ class _MoreSheet extends ConsumerWidget {
 
 class _MoreRow extends StatelessWidget {
   const _MoreRow(
-      {required this.entry, required this.onTap, this.danger = false});
+      {required this.entry,
+      required this.onTap,
+      this.danger = false,
+      this.tint = 0});
 
   final MoreEntry entry;
   final VoidCallback onTap;
   final bool danger;
 
+  /// The row's place: the icon tiles go round the colours of the direction.
+  final int tint;
+
+  static const _tints = [
+    (AppPalette.teal50, AppPalette.teal500),
+    (AppPalette.successBg, AppPalette.successText),
+    (AppPalette.gold50, AppPalette.gold700),
+    (AppPalette.warningBg, AppPalette.warningText),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final color = danger ? AppPalette.dangerText : AppPalette.text;
+    final tile = danger
+        ? (AppPalette.dangerBg, AppPalette.dangerText)
+        : _tints[tint % _tints.length];
     return InkWell(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: AppPalette.n300))),
+            border: Border(bottom: BorderSide(color: AppPalette.teal50))),
         child: Row(children: [
           Container(
-            width: 36,
-            height: 36,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-                color: danger ? AppPalette.dangerBg : AppPalette.surfaceSoft,
-                shape: BoxShape.circle),
-            child: Icon(entry.icon,
-                size: 18,
-                color: danger ? AppPalette.danger : AppPalette.teal800),
+                color: tile.$1, borderRadius: BorderRadius.circular(14)),
+            child: Icon(entry.icon, size: 20, color: tile.$2),
           ),
           const SizedBox(width: 14),
           Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(entry.label,
-                  style: AppTypography.labelSm.copyWith(color: color)),
+                  style:
+                      AppTypography.label.copyWith(fontSize: 15, color: color)),
               if (entry.hint != null)
                 Text(entry.hint!,
                     style: AppTypography.caption
                         .copyWith(color: AppPalette.text2)),
             ]),
           ),
-          const Icon(Icons.chevron_right, size: 20, color: AppPalette.n500),
+          const Icon(Icons.chevron_right, size: 20, color: AppPalette.ink400),
         ]),
       ),
     );

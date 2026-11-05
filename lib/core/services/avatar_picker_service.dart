@@ -70,7 +70,7 @@ abstract final class AvatarPickerService {
       backgroundColor: AppPalette.white,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
       builder: (ctx) => const _SourceSheet(),
     );

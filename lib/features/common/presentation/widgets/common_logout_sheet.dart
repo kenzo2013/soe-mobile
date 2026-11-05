@@ -40,7 +40,7 @@ class _LogoutSheet extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
         decoration: const BoxDecoration(
           color: AppPalette.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

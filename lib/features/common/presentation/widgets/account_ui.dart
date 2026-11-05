@@ -431,7 +431,7 @@ Future<T?> showAccountSheet<T>(
       isScrollControlled: true,
       backgroundColor: AppPalette.white,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
       builder: (sheetContext) => Padding(
         padding: EdgeInsets.only(
             bottom: MediaQuery.viewInsetsOf(sheetContext).bottom),

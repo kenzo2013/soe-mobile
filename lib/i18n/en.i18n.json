@@ -23,10 +23,6 @@
     "or": "OR",
     "copyright": "© SOE 2026 · Solution of Education"
   },
-  "languages": {
-    "fr": "Français",
-    "en": "English"
-  },
   "errors": {
     "network": "No internet connection.",
     "timeout": "The server is taking too long to respond.",
@@ -1909,7 +1905,7 @@
       "modeTutor": "Tutor mode",
       "switchSpace": "Switch space",
       "personal": "Personal information",
-      "personalText": "Photo, name, phone, e-mail, language",
+      "personalText": "Photo, name, phone, e-mail",
       "security": "Security",
       "securityText": "Password, connected devices, account deletion",
       "address": "Address",
@@ -1925,9 +1921,7 @@
       "helpText": "FAQ, e-mail, call and WhatsApp",
       "report": "Report a problem",
       "reportText": "Goes to SOE, never to the other party",
-      "signOut": "Sign out",
-      "language": "Language",
-      "application": "App"
+      "signOut": "Sign out"
     },
     "personal": {
       "title": "Personal information",
@@ -1941,7 +1935,6 @@
       "civility": "Title",
       "mr": "Mr",
       "mrs": "Mrs",
-      "language": "Language",
       "firstName": "First name",
       "lastName": "Last name",
       "phone": "Phone",

@@ -33,17 +33,17 @@ class SoeEmptyState extends StatelessWidget {
             Container(
               width: 64,
               height: 64,
-              decoration: const BoxDecoration(
-                color: AppPalette.infoBg,
-                shape: BoxShape.circle,
+              decoration: BoxDecoration(
+                color: AppPalette.gold50,
+                borderRadius: BorderRadius.circular(22),
               ),
               alignment: Alignment.center,
-              child: Icon(icon, size: 28, color: AppPalette.teal),
+              child: Icon(icon, size: 28, color: AppPalette.gold700),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             Text(
               title,
-              style: AppTypography.h4,
+              style: AppTypography.h3.copyWith(color: AppPalette.teal800),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
@@ -102,7 +102,9 @@ class SoeFullStatusView extends StatelessWidget {
             child: Icon(icon, size: 48, color: iconColor),
           ),
           const SizedBox(height: 24),
-          Text(title, style: AppTypography.h2, textAlign: TextAlign.center),
+          Text(title,
+              style: AppTypography.h2.copyWith(color: AppPalette.teal800),
+              textAlign: TextAlign.center),
           const SizedBox(height: 8),
           Text(
             message,
