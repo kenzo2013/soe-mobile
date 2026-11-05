@@ -10,6 +10,7 @@ import 'package:soe/features/parent_space/presentation/pages/parent_children_pag
 import 'package:soe/features/parent_space/presentation/pages/parent_contract_pages.dart';
 import 'package:soe/features/parent_space/presentation/pages/parent_home_page.dart';
 import 'package:soe/features/parent_space/presentation/pages/parent_request_detail_page.dart';
+import 'package:soe/features/parent_space/presentation/pages/parent_request_pages.dart';
 import 'package:soe/features/parent_space/presentation/pages/parent_request_wizard_page.dart';
 import 'package:soe/features/parent_space/presentation/pages/parent_session_pages.dart';
 import 'package:soe/features/parent_space/presentation/pages/parent_tutor_pages.dart';
@@ -341,6 +342,53 @@ void main() {
     await tester.tap(find.text('Confirmer l’annulation'));
     await tester.pumpAndSettle();
     verify(() => api.cancelRequest(7, '')).called(1);
+  });
+
+  Map<String, dynamic> contractRequest({required bool awaiting}) => {
+        'id': 8,
+        'reference': 'DEM-2610-32',
+        'stage': 'tutor_presented',
+        'step': 'contract',
+        'step_label': awaiting
+            ? 'En attente de la signature du répétiteur'
+            : 'Contrat à signer',
+        'awaiting_tutor_signature': awaiting,
+        'children': ['Léa'],
+        'action': null,
+        'contract_id': 5,
+        'contract_status': 'sent',
+        'needs': <Map<String, dynamic>>[],
+        'history': <Map<String, dynamic>>[],
+      };
+
+  testWidgets(
+      'PAR-06 a request waiting for the tutor: its label, no action to take',
+      (tester) async {
+    when(() => api.requests()).thenAnswer((_) async => [
+          ParentRequest.fromJson(contractRequest(awaiting: true)),
+          ParentRequest.fromJson(
+              {...contractRequest(awaiting: false), 'id': 9}),
+        ]);
+    when(() => api.requestDetail(any())).thenAnswer((invocation) async =>
+        ParentRequestDetail.fromJson(contractRequest(
+            awaiting: invocation.positionalArguments.first == 8)));
+    await pump(tester, const ParentRequestsPage());
+
+    expect(
+        find.text('En attente de la signature du répétiteur'), findsOneWidget);
+    // Only the request still to sign offers to sign; the other has nothing left to do.
+    expect(find.text('Lire et signer le contrat'), findsOneWidget);
+    expect(find.textContaining('Il reste à signer'), findsOneWidget);
+  });
+
+  testWidgets('PAR-07 a request waiting for the tutor has no action button',
+      (tester) async {
+    when(() => api.requestDetail(8)).thenAnswer((_) async =>
+        ParentRequestDetail.fromJson(contractRequest(awaiting: true)));
+    await pump(tester, const ParentRequestDetailPage(requestId: 8));
+
+    expect(find.text('En attente de la signature du répétiteur'), findsWidgets);
+    expect(find.text('Lire et signer le contrat'), findsNothing);
   });
 
   testWidgets('PAR-20 requires a reason before asking a replacement',

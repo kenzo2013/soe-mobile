@@ -34,7 +34,11 @@ void _refreshRequests(WidgetRef ref) => ref
 
 /// The next screen of a request for its holder action (or its contract to sign).
 /// A presented tutor is accepted by signing the contract; a signed one leads to the payment.
-String? parentRequestTarget(ParentRequest request) => switch (request.action) {
+/// None while a tutor has still to sign: the parent has nothing left to do.
+String? parentRequestTarget(ParentRequest request) =>
+    request.awaitingTutorSignature ? null : _actionTarget(request);
+
+String? _actionTarget(ParentRequest request) => switch (request.action) {
       'quote' => ParentSpaceRoutes.quote(request.id),
       'tutor' => ParentSpaceRoutes.tutors(request.id),
       'planning' => ParentSpaceRoutes.planning(request.id),
@@ -156,6 +160,7 @@ class _RequestCard extends ConsumerWidget {
     // the parent no longer has to sign gets no « il reste à signer » (its label says it).
     final stepText = request.explanation ??
         switch (request.step) {
+          _ when request.awaitingTutorSignature => null,
           'quote' => home.stepText.quote,
           'tutor' => home.stepText.tutor,
           'contract'
@@ -201,9 +206,11 @@ class _RequestCard extends ConsumerWidget {
                 label: request.stepLabel,
                 tone: request.step == 'closed'
                     ? SoeBadgeTone.neutral
-                    : (target != null
-                        ? SoeBadgeTone.warning
-                        : SoeBadgeTone.success)),
+                    : request.awaitingTutorSignature
+                        ? SoeBadgeTone.info
+                        : (target != null
+                            ? SoeBadgeTone.warning
+                            : SoeBadgeTone.success)),
           ]),
           const SizedBox(height: 10),
           Text(

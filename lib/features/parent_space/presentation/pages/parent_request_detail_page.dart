@@ -152,7 +152,9 @@ class _Detail extends ConsumerWidget {
               label: request.stepLabel,
               tone: request.step == 'closed'
                   ? SoeBadgeTone.neutral
-                  : SoeBadgeTone.warning),
+                  : (request.awaitingTutorSignature
+                      ? SoeBadgeTone.info
+                      : SoeBadgeTone.warning)),
         ),
         if (actionLabel != null && target != null) ...[
           const SizedBox(height: 14),

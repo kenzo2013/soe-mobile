@@ -614,7 +614,8 @@ class ParentHomeRequest {
       this.subjects = const [],
       this.childLabels = const [],
       this.explanation,
-      this.quoteValidUntil});
+      this.quoteValidUntil,
+      this.awaitingTutorSignature = false});
 
   factory ParentHomeRequest.fromJson(Map<String, dynamic> json) =>
       ParentHomeRequest(
@@ -631,6 +632,7 @@ class ParentHomeRequest {
         quoteValidUntil: json['quote_valid_until'] is String
             ? DateTime.tryParse(json['quote_valid_until'] as String)
             : null,
+        awaitingTutorSignature: json['awaiting_tutor_signature'] == true,
       );
 
   static const steps = [
@@ -655,6 +657,9 @@ class ParentHomeRequest {
   final List<String> childLabels;
   final String? explanation;
   final DateTime? quoteValidUntil;
+
+  /// The parent signed, a tutor has not: [stepLabel] says it, [step] stays contract.
+  final bool awaitingTutorSignature;
 }
 
 class ParentHome {
@@ -726,6 +731,7 @@ class ParentRequest {
     this.quoteStatus,
     this.createdAt,
     this.explanation,
+    this.awaitingTutorSignature = false,
   });
 
   factory ParentRequest.fromJson(Map<String, dynamic> json) => ParentRequest(
@@ -743,13 +749,23 @@ class ParentRequest {
         quoteStatus: json['quote_status'] as String?,
         createdAt: _date(json['created_at']),
         explanation: json['explanation'] as String?,
+        awaitingTutorSignature: json['awaiting_tutor_signature'] == true,
       );
 
   final int id;
   final String reference;
   final List<String> children;
+
+  /// One of [ParentHomeRequest.steps] (or closed): the progress bar.
   final String step;
+
+  /// Where the request stands as the server words it (« En attente de la signature du
+  /// répétiteur »): shown as is.
   final String stepLabel;
+
+  /// The parent signed and a tutor has not signed their mission letter yet: [step] stays
+  /// contract, [action] is null and nothing is left to the parent.
+  final bool awaitingTutorSignature;
 
   /// The server's sentence for where the request stands (« En attente de la signature du
   /// répétiteur »), shown as sent instead of the app's own text for the step.
