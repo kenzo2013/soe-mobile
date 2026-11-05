@@ -169,6 +169,12 @@ class _ActionCard extends StatelessWidget {
                       ? AppPalette.dangerText
                       : AppPalette.teal800)),
           const SizedBox(height: 6),
+          if (action.title != null)
+            Text(action.title!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.h3),
+          const SizedBox(height: 4),
           if (action.kind == 'report' && hours != null)
             Text(tr.home.hoursLeft(hours: hours < 0 ? 0 : hours),
                 style: AppTypography.title)
@@ -195,7 +201,10 @@ class _ActionCard extends StatelessWidget {
   String _label(TranslationsParentSpaceFr tr) => switch (action.kind) {
         'report' => tr.session.seeReport,
         'payment' => tr.pay.title,
-        _ => action.label,
+        'contract' => tr.requests.contract,
+        'quote' => tr.requests.quote,
+        'planning' => tr.requests.planning,
+        _ => tr.requests.title,
       };
 
   void _open(BuildContext context) {
@@ -204,8 +213,14 @@ class _ActionCard extends StatelessWidget {
         context.push(ParentSpaceRoutes.report(action.targetId));
       case 'payment':
         context.push(ParentSpaceRoutes.pay(action.targetId));
+      case 'contract':
+        context.push(ParentSpaceRoutes.contract(action.targetId));
+      case 'quote':
+        context.push(ParentSpaceRoutes.quote(action.targetId));
+      case 'planning':
+        context.push(ParentSpaceRoutes.planning(action.targetId));
       default:
-        context.go(RouteNames.parentMore);
+        context.push(ParentSpaceRoutes.requests);
     }
   }
 }

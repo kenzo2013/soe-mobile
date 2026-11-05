@@ -40,3 +40,21 @@ final parentPaymentsProvider = FutureProvider.autoDispose<List<ParentPayment>>(
 final parentPaymentProvider = FutureProvider.autoDispose
     .family<ParentPayment, int>(
         (ref, id) => ref.watch(parentApiProvider).payment(id));
+
+final parentRequestsProvider = FutureProvider.autoDispose<List<ParentRequest>>(
+    (ref) => ref.watch(parentApiProvider).requests());
+
+final parentRequestProvider = FutureProvider.autoDispose
+    .family<ParentRequest, int>(
+        (ref, id) => ref.watch(parentApiProvider).request(id));
+
+final parentQuoteProvider = FutureProvider.autoDispose.family<ParentQuote, int>(
+    (ref, requestId) => ref.watch(parentApiProvider).quote(requestId));
+
+final parentContractProvider = FutureProvider.autoDispose
+    .family<ParentContract, int>(
+        (ref, id) => ref.watch(parentApiProvider).contract(id));
+
+final parentPlanningProvider = FutureProvider.autoDispose
+    .family<List<ParentPlanningSlot>, int>(
+        (ref, requestId) => ref.watch(parentApiProvider).planning(requestId));

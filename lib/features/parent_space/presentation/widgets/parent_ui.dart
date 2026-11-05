@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/error/failure.dart';
+import '../../../../core/error/failure_message.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/error_view.dart';
@@ -36,6 +37,16 @@ abstract final class ParentFormat {
   static String dateTime(BuildContext context, DateTime date) =>
       '${day(context, date)}, ${time(date)}';
 }
+
+/// The message of a failed action: the server's text when it has one (conflict, validation,
+/// rate limit), else the shared error texts (network, timeout...).
+String parentFailureMessage(BuildContext context, Failure failure) =>
+    switch (failure) {
+      ConflictFailure(:final message) when message != null => message,
+      ValidationFailure(:final message) when message != null => message,
+      RateLimitedFailure(:final message) when message != null => message,
+      _ => failureMessage(failure, Translations.of(context)),
+    };
 
 /// A status of the parent's planning as a badge (the label comes from the API).
 class ParentStatusBadge extends StatelessWidget {

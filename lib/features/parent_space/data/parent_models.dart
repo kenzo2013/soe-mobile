@@ -241,6 +241,7 @@ class ParentInvoice {
 class ParentPayment {
   const ParentPayment({
     required this.id,
+    this.invoiceId,
     required this.amount,
     required this.method,
     required this.phone,
@@ -251,6 +252,7 @@ class ParentPayment {
 
   factory ParentPayment.fromJson(Map<String, dynamic> json) => ParentPayment(
         id: _int(json['id']),
+        invoiceId: (json['invoice_id'] as num?)?.toInt(),
         amount: _int(json['amount']),
         method: json['method'] as String? ?? '',
         phone: json['phone'] as String?,
@@ -260,6 +262,7 @@ class ParentPayment {
       );
 
   final int id;
+  final int? invoiceId;
   final int amount;
   final String method;
   final String? phone;
@@ -272,6 +275,7 @@ class ParentHomeAction {
   const ParentHomeAction(
       {required this.kind,
       required this.label,
+      this.title,
       required this.deadline,
       required this.overdue,
       required this.targetId});
@@ -280,6 +284,7 @@ class ParentHomeAction {
       ParentHomeAction(
         kind: json['kind'] as String? ?? '',
         label: json['label'] as String? ?? '',
+        title: json['title'] as String?,
         deadline: _date(json['deadline']),
         overdue: json['overdue'] == true,
         targetId: _int(json['target_id']),
@@ -287,6 +292,9 @@ class ParentHomeAction {
 
   final String kind;
   final String label;
+
+  /// Child first name, request reference or invoice number.
+  final String? title;
   final DateTime? deadline;
   final bool overdue;
   final int targetId;
@@ -362,4 +370,139 @@ class ParentHome {
   final ParentInvoice? invoice;
   final String? advisorName;
   final String? advisorPhone;
+}
+
+class ParentRequest {
+  const ParentRequest({
+    required this.id,
+    required this.reference,
+    required this.children,
+    required this.step,
+    required this.stepLabel,
+    required this.action,
+    required this.quoteAmount,
+    required this.contractId,
+  });
+
+  factory ParentRequest.fromJson(Map<String, dynamic> json) => ParentRequest(
+        id: _int(json['id']),
+        reference: json['reference'] as String? ?? '',
+        children:
+            (json['children'] as List<dynamic>? ?? const []).cast<String>(),
+        step: json['step'] as String? ?? 'request',
+        stepLabel: json['step_label'] as String? ?? '',
+        action: json['action'] as String?,
+        quoteAmount: (json['quote_amount'] as num?)?.toInt(),
+        contractId: (json['contract_id'] as num?)?.toInt(),
+      );
+
+  final int id;
+  final String reference;
+  final List<String> children;
+  final String step;
+  final String stepLabel;
+
+  /// The holder's action: quote, tutor, payment, planning, or null.
+  final String? action;
+  final int? quoteAmount;
+  final int? contractId;
+}
+
+class ParentQuote {
+  const ParentQuote({
+    required this.version,
+    required this.statusLabel,
+    required this.validUntil,
+    required this.lines,
+    required this.totalAmount,
+    required this.canAnswer,
+    required this.canReactivate,
+  });
+
+  factory ParentQuote.fromJson(Map<String, dynamic> json) => ParentQuote(
+        version: _int(json['version']),
+        statusLabel: json['status_label'] as String? ?? '',
+        validUntil: _date(json['valid_until']),
+        lines: (json['lines'] as List<dynamic>? ?? const [])
+            .cast<Map<String, dynamic>>()
+            .map((line) => (
+                  label: [line['subject'], line['child']]
+                      .whereType<String>()
+                      .join(' · '),
+                  rhythm:
+                      '${_int(line['sessions_per_week'])} × ${_int(line['session_minutes'])} min',
+                  amount: _int(line['monthly_amount'])
+                ))
+            .toList(growable: false),
+        totalAmount: _int(json['total_amount']),
+        canAnswer: json['can_answer'] == true,
+        canReactivate: json['can_reactivate'] == true,
+      );
+
+  final int version;
+  final String statusLabel;
+  final DateTime? validUntil;
+  final List<({String label, String rhythm, int amount})> lines;
+  final int totalAmount;
+  final bool canAnswer;
+  final bool canReactivate;
+}
+
+class ParentContract {
+  const ParentContract({
+    required this.id,
+    required this.reference,
+    required this.statusLabel,
+    required this.text,
+    required this.canSign,
+    required this.signedAt,
+  });
+
+  factory ParentContract.fromJson(Map<String, dynamic> json) => ParentContract(
+        id: _int(json['id']),
+        reference: json['reference'] as String? ?? '',
+        statusLabel: json['status_label'] as String? ?? '',
+        text: json['text'] as String? ?? '',
+        canSign: json['can_sign'] == true,
+        signedAt: _date(json['signed_at']),
+      );
+
+  final int id;
+  final String reference;
+  final String statusLabel;
+  final String text;
+  final bool canSign;
+  final DateTime? signedAt;
+}
+
+class ParentPlanningSlot {
+  const ParentPlanningSlot({
+    required this.id,
+    required this.title,
+    required this.tutorName,
+    required this.canAnswer,
+    required this.times,
+  });
+
+  factory ParentPlanningSlot.fromJson(Map<String, dynamic> json) =>
+      ParentPlanningSlot(
+        id: _int(json['id']),
+        title: [json['subject'], json['child']].whereType<String>().join(' · '),
+        tutorName: json['tutor_name'] as String? ?? '',
+        canAnswer: json['can_answer'] == true,
+        times: (json['times'] as List<dynamic>? ?? const [])
+            .cast<Map<String, dynamic>>()
+            .map((time) => (
+                  day: time['day'] as String? ?? '',
+                  from: time['from'] as String? ?? '',
+                  to: time['to'] as String? ?? ''
+                ))
+            .toList(growable: false),
+      );
+
+  final int id;
+  final String title;
+  final String tutorName;
+  final bool canAnswer;
+  final List<({String day, String from, String to})> times;
 }

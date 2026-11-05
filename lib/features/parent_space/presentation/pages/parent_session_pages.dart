@@ -16,15 +16,6 @@ import '../parent_space_routes.dart';
 import '../providers.dart';
 import '../widgets/parent_ui.dart';
 
-String _failureMessage(BuildContext context, Failure failure) =>
-    switch (failure) {
-      ConflictFailure(:final message) =>
-        message ?? Translations.of(context).parentSpace.retry,
-      ValidationFailure(:final message) =>
-        message ?? Translations.of(context).parentSpace.retry,
-      _ => Translations.of(context).parentSpace.retry,
-    };
-
 /// PAR-13 — a session: check-in, report, backup code (check-in window only), cancel.
 class ParentSessionPage extends ConsumerWidget {
   const ParentSessionPage({super.key, required this.sessionId});
@@ -179,7 +170,7 @@ class ParentSessionPage extends ConsumerWidget {
     } on Failure catch (failure) {
       if (context.mounted)
         SoeToast.show(context,
-            message: _failureMessage(context, failure),
+            message: parentFailureMessage(context, failure),
             tone: SoeToastTone.danger);
     }
   }
@@ -221,7 +212,7 @@ class _ParentReportPageState extends ConsumerState<ParentReportPage> {
     } on Failure catch (failure) {
       if (mounted)
         SoeToast.show(context,
-            message: _failureMessage(context, failure),
+            message: parentFailureMessage(context, failure),
             tone: SoeToastTone.danger);
     } finally {
       if (mounted) setState(() => _sending = false);

@@ -71,12 +71,13 @@ class ParentApi {
 
   Future<ParentReport> answerReport(int sessionId,
           {required bool approve, String? reason}) async =>
-      ParentReport.fromJson(_data(await _dio.post<Map<String, dynamic>>(
-          ApiEndpointsV2.parentReportAnswer(sessionId),
-          data: {
-            'decision': approve ? 'approve' : 'dispute',
-            'reason': reason
-          })));
+      _guard(() async => ParentReport.fromJson(_data(await _dio
+              .post<Map<String, dynamic>>(
+                  ApiEndpointsV2.parentReportAnswer(sessionId),
+                  data: {
+                'decision': approve ? 'approve' : 'dispute',
+                'reason': reason
+              }))));
 
   Future<List<ParentInvoice>> invoices() async {
     return _guard(() async {
@@ -90,9 +91,10 @@ class ParentApi {
 
   Future<ParentPayment> pay(int invoiceId,
           {required String operator, required String phone}) async =>
-      ParentPayment.fromJson(_data(await _dio.post<Map<String, dynamic>>(
-          ApiEndpointsV2.parentInvoicePay(invoiceId),
-          data: {'operator': operator, 'phone': phone})));
+      _guard(() async => ParentPayment.fromJson(_data(await _dio
+          .post<Map<String, dynamic>>(
+              ApiEndpointsV2.parentInvoicePay(invoiceId),
+              data: {'operator': operator, 'phone': phone}))));
 
   Future<ParentPayment> payment(int id) async =>
       _guard(() async => ParentPayment.fromJson(_data(await _dio
@@ -107,4 +109,70 @@ class ParentApi {
           .items;
     });
   }
+
+  Future<List<ParentRequest>> requests() => _guard(() async {
+        final r = await _dio.get<Map<String, dynamic>>(
+            ApiEndpointsV2.parentRequests,
+            queryParameters: {'per_page': 50});
+        return Paginated.fromEnvelope(
+                r.data ?? const {}, ParentRequest.fromJson)
+            .items;
+      });
+
+  Future<ParentRequest> request(int id) =>
+      _guard(() async => ParentRequest.fromJson(_data(await _dio
+          .get<Map<String, dynamic>>(ApiEndpointsV2.parentRequest(id)))));
+
+  Future<ParentQuote> quote(int requestId) =>
+      _guard(() async => ParentQuote.fromJson(_data(await _dio
+          .get<Map<String, dynamic>>(ApiEndpointsV2.parentQuote(requestId)))));
+
+  /// decision: accept, negotiate (message, proposedAmount), decline (reason) or reactivate.
+  Future<ParentQuote> answerQuote(int requestId, String decision,
+          {String? message, int? proposedAmount, String? reason}) =>
+      _guard(() async => ParentQuote.fromJson(_data(await _dio
+              .post<Map<String, dynamic>>(
+                  ApiEndpointsV2.parentQuoteAnswer(requestId),
+                  data: {
+                'decision': decision,
+                'message': message,
+                'proposed_amount': proposedAmount,
+                'reason': reason
+              }))));
+
+  Future<ParentContract> contract(int id) =>
+      _guard(() async => ParentContract.fromJson(_data(await _dio
+          .get<Map<String, dynamic>>(ApiEndpointsV2.parentContract(id)))));
+
+  /// The drawn signature as a PNG, sent once the text was read to the end.
+  Future<ParentContract> signContract(int id, List<int> png) =>
+      _guard(() async => ParentContract.fromJson(_data(await _dio
+          .post<Map<String, dynamic>>(ApiEndpointsV2.parentContractSign(id),
+              data: FormData.fromMap({
+                'read_confirmed': '1',
+                'signature': MultipartFile.fromBytes(png,
+                    filename: 'signature.png',
+                    contentType: DioMediaType('image', 'png')),
+              })))));
+
+  Future<List<ParentPlanningSlot>> planning(int requestId) => _guard(() async {
+        final data = _data(await _dio.get<Map<String, dynamic>>(
+            ApiEndpointsV2.parentPlanning(requestId)));
+        return (data['slots'] as List<dynamic>? ?? const [])
+            .cast<Map<String, dynamic>>()
+            .map(ParentPlanningSlot.fromJson)
+            .toList();
+      });
+
+  Future<void> answerPlanning(int requestId, int slotId,
+          {required bool approve, String? comment}) =>
+      _guard(() async {
+        await _dio.post<Map<String, dynamic>>(
+            ApiEndpointsV2.parentPlanningAnswer(requestId),
+            data: {
+              'slot_id': slotId,
+              'decision': approve ? 'approve' : 'change',
+              'comment': comment
+            });
+      });
 }

@@ -34,8 +34,9 @@ class ParentPaymentsPage extends ConsumerWidget {
           onRetry: () => ref.invalidate(parentInvoicesProvider),
           builder: (invoices) {
             final due = invoices.where((invoice) => invoice.payable).toList();
-            final receipts = ref.watch(parentPaymentsProvider).valueOrNull ??
-                const <ParentPayment>[];
+            final receiptsValue = ref.watch(parentPaymentsProvider);
+            final receipts =
+                receiptsValue.valueOrNull ?? const <ParentPayment>[];
             return RefreshIndicator(
               onRefresh: () {
                 ref.invalidate(parentPaymentsProvider);
@@ -106,7 +107,13 @@ class ParentPaymentsPage extends ConsumerWidget {
                         ),
                       )),
                   ParentSectionTitle(tr.payments.history),
-                  if (receipts.isEmpty)
+                  if (receiptsValue.hasError)
+                    TextButton(
+                        onPressed: () => ref.invalidate(parentPaymentsProvider),
+                        child: Text(tr.retry))
+                  else if (receiptsValue.isLoading && receipts.isEmpty)
+                    const LinearProgressIndicator()
+                  else if (receipts.isEmpty)
                     SoeEmptyState(
                         title: tr.payments.empty,
                         message: tr.payments.emptyText,
@@ -182,19 +189,12 @@ class _ParentPayPageState extends ConsumerState<ParentPayPage> {
     } on Failure catch (failure) {
       if (mounted)
         SoeToast.show(context,
-            message: _message(failure), tone: SoeToastTone.danger);
+            message: parentFailureMessage(context, failure),
+            tone: SoeToastTone.danger);
     } finally {
       if (mounted) setState(() => _sending = false);
     }
   }
-
-  String _message(Failure failure) => switch (failure) {
-        ConflictFailure(:final message) =>
-          message ?? Translations.of(context).parentSpace.retry,
-        ValidationFailure(:final message) =>
-          message ?? Translations.of(context).parentSpace.retry,
-        _ => Translations.of(context).parentSpace.retry,
-      };
 
   @override
   Widget build(BuildContext context) {
@@ -270,18 +270,35 @@ class ParentPaymentPage extends ConsumerStatefulWidget {
 }
 
 class _ParentPaymentPageState extends ConsumerState<ParentPaymentPage> {
+  static const _every = Duration(seconds: 5);
+  static const _limit = Duration(minutes: 15);
+  final _started = DateTime.now();
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 5), (_) {
-      final state =
-          ref.read(parentPaymentProvider(widget.paymentId)).valueOrNull?.state;
-      if (state == null || state == 'waiting' || state == 'checking') {
-        ref.invalidate(parentPaymentProvider(widget.paymentId));
-      } else {
-        _timer?.cancel();
+    _schedule();
+  }
+
+  // One check at a time: the next one is planned once the previous answer arrived, and the
+  // follow-up stops on a final state or after a while.
+  void _schedule() {
+    _timer = Timer(_every, () async {
+      if (!mounted || DateTime.now().difference(_started) > _limit) return;
+      try {
+        final payment =
+            await ref.refresh(parentPaymentProvider(widget.paymentId).future);
+        if (payment.state == 'success') {
+          ref
+            ..invalidate(parentInvoicesProvider)
+            ..invalidate(parentPaymentsProvider)
+            ..invalidate(parentHomeProvider);
+        }
+        if (payment.state == 'waiting' || payment.state == 'checking')
+          _schedule();
+      } on Object {
+        if (mounted) _schedule();
       }
     });
   }
@@ -329,10 +346,6 @@ class _ParentPaymentPageState extends ConsumerState<ParentPaymentPage> {
                 AppPalette.teal500
               ),
           };
-          if (payment.state == 'success') {
-            ref.invalidate(parentInvoicesProvider);
-            ref.invalidate(parentPaymentsProvider);
-          }
           return ListView(
             padding: const EdgeInsets.all(24),
             children: [
@@ -353,7 +366,11 @@ class _ParentPaymentPageState extends ConsumerState<ParentPaymentPage> {
                     ? SoeButtonVariant.primary
                     : SoeButtonVariant.outline,
                 fullWidth: true,
-                onPressed: () => context.pop(),
+                onPressed: () =>
+                    payment.state == 'failure' && payment.invoiceId != null
+                        ? context.pushReplacement(
+                            ParentSpaceRoutes.pay(payment.invoiceId!))
+                        : context.pop(),
               ),
             ],
           );
