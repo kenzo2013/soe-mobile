@@ -32,6 +32,23 @@ abstract final class ParentFormat {
           DateFormat('EEEE d MMMM', _locale(context)).format(date)) ??
       '';
 
+  /// « ven. 6 » (the day of an advised deadline).
+  static String dayShort(BuildContext context, DateTime date) =>
+      DateFormat('EEE d', _locale(context)).format(date);
+
+  /// « JEU » above the day number of a session row.
+  static String weekday(BuildContext context, DateTime date) =>
+      DateFormat('EEE', _locale(context))
+          .format(date)
+          .replaceAll('.', '')
+          .toUpperCase();
+
+  /// « Novembre » (FR) or « November » (EN).
+  static String month(BuildContext context, DateTime date) =>
+      toBeginningOfSentenceCase(
+          DateFormat('MMMM', _locale(context)).format(date)) ??
+      '';
+
   static String time(DateTime date) => DateFormat('HH:mm').format(date);
 
   static String dateTime(BuildContext context, DateTime date) =>
@@ -62,10 +79,11 @@ class ParentStatusBadge extends StatelessWidget {
         tone: switch (status) {
           'approved' || 'paid' => SoeBadgeTone.success,
           'report_to_approve' ||
-          'in_progress' ||
+          'report_expected' ||
           'issued' =>
             SoeBadgeTone.warning,
           'disputed' || 'suspended' || 'overdue' => SoeBadgeTone.danger,
+          'pending' || 'in_progress' => SoeBadgeTone.info,
           _ => SoeBadgeTone.neutral,
         },
       );
@@ -115,8 +133,46 @@ class ParentSectionTitle extends StatelessWidget {
         child: Row(children: [
           Expanded(
               child: Text(title,
-                  style: AppTypography.title.copyWith(color: AppPalette.text))),
+                  style: AppTypography.h3.copyWith(color: AppPalette.teal800))),
           if (trailing != null) trailing!,
         ]),
       );
+}
+
+/// The colour of a session's status (the bar of the session rows, the legend of PAR-12).
+Color parentSessionTone(String status) => switch (status) {
+      'approved' => AppPalette.success,
+      'report_to_approve' || 'report_expected' => AppPalette.warning,
+      'in_progress' => AppPalette.teal300,
+      'disputed' => AppPalette.danger,
+      'cancelled' || 'suspended' => AppPalette.n500,
+      _ => AppPalette.teal700,
+    };
+
+/// The initials of a person (« Aline N. » → « AN ») on a small teal disc.
+class ParentInitials extends StatelessWidget {
+  const ParentInitials({super.key, required this.name, this.size = 28});
+
+  final String name;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final initials = name
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .take(2)
+        .map((part) => part[0].toUpperCase())
+        .join();
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: const BoxDecoration(
+          color: AppPalette.teal100, shape: BoxShape.circle),
+      child: Text(initials,
+          style: AppTypography.caption.copyWith(
+              fontWeight: FontWeight.w700, color: AppPalette.teal800)),
+    );
+  }
 }

@@ -213,8 +213,10 @@ class ParentChild {
   final String? specialNeeds;
   final ParentAddress? address;
 
-  String get fullName =>
-      [firstName, lastName].whereType<String>().where((s) => s.isNotEmpty).join(' ');
+  String get fullName => [firstName, lastName]
+      .whereType<String>()
+      .where((s) => s.isNotEmpty)
+      .join(' ');
 }
 
 /// Where the courses take place (sent to the tutor only once the contract is signed).
@@ -291,12 +293,8 @@ class ParentCourse {
   final List<({String day, String from, String to})> times;
 
   /// A course in place: its tutor may be replaced.
-  bool get active => const [
-        'first_month_paid',
-        'scheduled',
-        'active',
-        'paused'
-      ].contains(stage);
+  bool get active => const ['first_month_paid', 'scheduled', 'active', 'paused']
+      .contains(stage);
 }
 
 class ParentInvoice {
@@ -310,6 +308,8 @@ class ParentInvoice {
     required this.status,
     required this.statusLabel,
     required this.lines,
+    this.paidAt,
+    this.issuedOn,
   });
 
   factory ParentInvoice.fromJson(Map<String, dynamic> json) => ParentInvoice(
@@ -321,6 +321,8 @@ class ParentInvoice {
         dueOn: _date(json['due_on']),
         status: json['status'] as String? ?? 'issued',
         statusLabel: json['status_label'] as String? ?? '',
+        paidAt: _date(json['paid_at']),
+        issuedOn: _date(json['issued_on']),
         lines: (json['lines'] as List<dynamic>? ?? const [])
             .cast<Map<String, dynamic>>()
             .map((line) => (
@@ -341,6 +343,12 @@ class ParentInvoice {
   final String status;
   final String statusLabel;
   final List<({String label, int amount})> lines;
+
+  /// When the invoice was paid in full.
+  final DateTime? paidAt;
+
+  /// When SOE issued the invoice (the 25th of the month before).
+  final DateTime? issuedOn;
 
   bool get payable => status == 'issued' || status == 'overdue';
 }

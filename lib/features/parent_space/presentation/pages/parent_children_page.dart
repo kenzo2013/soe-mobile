@@ -20,6 +20,7 @@ import '../widgets/parent_child_avatar.dart';
 import '../widgets/parent_session_tile.dart';
 import '../widgets/parent_ui.dart';
 import '../widgets/parent_widgets.dart';
+import '../../../common/presentation/widgets/tab_top_bar.dart';
 
 /// Labels of a child's schooling: « CM2 · section francophone · École de Bonapriso ».
 String parentSchooling(BuildContext context, ParentChild child) {
@@ -44,7 +45,8 @@ class ParentChildrenPage extends ConsumerWidget {
     final tr = Translations.of(context).parentSpace;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      body: SafeArea(
+      body: TabBody(
+        title: Translations.of(context).shell.parent.children,
         child: RefreshIndicator(
           onRefresh: () => ref.refresh(parentChildrenProvider.future),
           child: ParentAsyncBody<List<ParentChild>>(
@@ -116,7 +118,8 @@ class _ChildCard extends ConsumerWidget {
         ParentChildAvatar(child: child, radius: 28),
         const SizedBox(width: 14),
         Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(child.firstName, style: AppTypography.label),
             const SizedBox(height: 2),
             Text(parentSchooling(context, child),
@@ -198,8 +201,8 @@ class _ParentChildPageState extends ConsumerState<ParentChildPage> {
                           .whereType<String>()
                           .where((s) => s.isNotEmpty)
                           .join(' · '),
-                      style: AppTypography.body
-                          .copyWith(color: AppPalette.text2)),
+                      style:
+                          AppTypography.body.copyWith(color: AppPalette.text2)),
                 ),
               const SizedBox(height: 14),
               ParentChoiceChips<_ChildTab>(
@@ -274,8 +277,7 @@ class _ParentChildPageState extends ConsumerState<ParentChildPage> {
                   ]),
             ),
             if (course.active)
-              SoeBadge(
-                  label: tr.childFile.active, tone: SoeBadgeTone.success),
+              SoeBadge(label: tr.childFile.active, tone: SoeBadgeTone.success),
           ]),
           const SizedBox(height: 8),
           ParentInfoRow(tr.childFile.tutor, course.tutorName),
@@ -341,16 +343,21 @@ class _SessionsPanel extends ConsumerWidget {
                   style:
                       AppTypography.bodySm.copyWith(color: AppPalette.text2)),
             ])
-          : Column(children: [
-              for (final session in sessions.reversed)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: ParentSessionTile(
+          : Container(
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppPalette.n300),
+              ),
+              child: Column(children: [
+                for (final (i, session) in sessions.reversed.indexed)
+                  ParentSessionTile(
                       session: session,
-                      onTap: () => unawaited(context
-                          .push(ParentSpaceRoutes.session(session.id)))),
-                ),
-            ]),
+                      divider: i < sessions.length - 1,
+                      onTap: () => unawaited(
+                          context.push(ParentSpaceRoutes.session(session.id)))),
+              ]),
+            ),
     );
   }
 }
@@ -493,8 +500,8 @@ class _SafetyPanel extends ConsumerWidget {
                   message: tr.safetyNoSession, tone: SoeToastTone.warning);
               return;
             }
-            unawaited(context
-                .push(ParentSpaceRoutes.sessionSerious(held.last.id)));
+            unawaited(
+                context.push(ParentSpaceRoutes.sessionSerious(held.last.id)));
           },
         ),
       ],
