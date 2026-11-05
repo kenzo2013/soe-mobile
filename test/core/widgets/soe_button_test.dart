@@ -22,14 +22,14 @@ void main() {
       tester,
       child: const SoeButton(label: 'Off', onPressed: null),
     );
-    // Studio: disabled = n300 background, ink600 text, not announced as enabled.
+    // Disabled = teal 100 background, ink600 text, not announced as enabled.
     final material = tester.widget<Material>(
       find
           .descendant(
               of: find.byType(SoeButton), matching: find.byType(Material))
           .first,
     );
-    expect(material.color, AppPalette.n300);
+    expect(material.color, AppPalette.teal100);
     final text = tester.widget<Text>(find.text('Off'));
     expect(text.style?.color, AppPalette.ink600);
     expect(tester.getSemantics(find.byType(SoeButton)),

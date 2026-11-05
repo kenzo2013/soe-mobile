@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/error/result.dart';
+import '../../../../i18n/translations.g.dart';
 import '../../domain/entities/auth_flow.dart';
 import '../../domain/entities/auth_session.dart';
 import '../../domain/entities/sign_up_answers.dart';
@@ -82,8 +83,12 @@ class SignUpController extends Notifier<SignUpState> {
     ref.listen(authTokenProvider, (previous, next) {
       if (previous != next) reset();
     });
-    return const SignUpState();
+    return _fresh();
   }
+
+  /// No answer yet; the account speaks the phone's language (no switch in the app).
+  SignUpState _fresh() => SignUpState(
+      answers: SignUpAnswers(lang: LocaleSettings.currentLocale.languageCode));
 
   void update(SignUpAnswers Function(SignUpAnswers) change) =>
       state = SignUpState(
@@ -130,7 +135,7 @@ class SignUpController extends Notifier<SignUpState> {
         fieldErrors: failed.fieldErrors);
   }
 
-  void reset() => state = const SignUpState();
+  void reset() => state = _fresh();
 }
 
 final signUpControllerProvider =

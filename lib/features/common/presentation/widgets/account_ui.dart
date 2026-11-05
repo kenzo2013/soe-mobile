@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/error/failure.dart';
@@ -11,7 +12,8 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_skeleton.dart';
 import '../../../../i18n/translations.g.dart';
-import 'notification_bell.dart';
+import 'space_app_bar.dart';
+import 'tab_top_bar.dart';
 
 /// Shared bits of the account and common screens (COM-01 to COM-10): the header with its
 /// breadcrumb and bell, cards, rows and the async body.
@@ -69,14 +71,17 @@ class AccountScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final list = ListView(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-      children: children,
+      padding: spacePagePadding(context, top: 16, bottom: 32),
+      children: [
+        for (final child in children) SpaceCentred(child: child),
+      ],
     );
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
+      appBar: AccountHeader(title: title, crumb: crumb),
       body: SafeArea(
+        top: false,
         child: Column(children: [
-          AccountHeader(title: title, crumb: crumb),
           Expanded(
             child: onRefresh == null
                 ? list
@@ -86,10 +91,11 @@ class AccountScaffold extends StatelessWidget {
             Container(
               decoration: const BoxDecoration(
                 color: AppPalette.white,
-                border: Border(top: BorderSide(color: AppPalette.border)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                boxShadow: AppShadows.card,
               ),
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-              child: bottom,
+              child: SpaceCentred(child: bottom!),
             ),
         ]),
       ),
@@ -97,48 +103,21 @@ class AccountScaffold extends StatelessWidget {
   }
 }
 
-/// The header of the Studio screens: back arrow when the screen can close, breadcrumb and
-/// title, the bell on the right.
-class AccountHeader extends StatelessWidget {
+/// The header of the account screens: the compact coloured bar with the way back, the
+/// breadcrumb (« Compte » by default) and the title, the bell.
+class AccountHeader extends StatelessWidget implements PreferredSizeWidget {
   const AccountHeader({super.key, required this.title, this.crumb});
 
   final String title;
   final String? crumb;
 
   @override
-  Widget build(BuildContext context) {
-    final canPop = context.canPop();
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 8, 16, 8),
-      child: Row(children: [
-        if (canPop)
-          IconButton(
-            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-            icon: const Icon(Icons.chevron_left, color: AppPalette.text),
-            onPressed: () => context.pop(),
-          )
-        else
-          const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(crumb ?? Translations.of(context).accountSpace.crumb,
-                  style:
-                      AppTypography.caption.copyWith(color: AppPalette.text2),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis),
-              Text(title,
-                  style: AppTypography.label.copyWith(color: AppPalette.text),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis),
-            ],
-          ),
-        ),
-        const NotificationBell(),
-      ]),
-    );
-  }
+  Size get preferredSize => const Size.fromHeight(SpaceAppBar.barHeight);
+
+  @override
+  Widget build(BuildContext context) => SpaceAppBar(
+      title: title,
+      crumb: crumb ?? Translations.of(context).accountSpace.crumb);
 }
 
 /// The page title in Literata, with an optional lead text.
@@ -194,9 +173,9 @@ class AccountCard extends StatelessWidget {
         padding: padding,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: color ?? (soft ? AppPalette.surfaceSoft : AppPalette.white),
+          color: color ?? (soft ? AppPalette.gold50 : AppPalette.white),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: soft || color != null ? null : AppShadows.sm,
+          boxShadow: soft || color != null ? null : AppShadows.card,
         ),
         child: child,
       );
@@ -230,8 +209,8 @@ class AccountRow extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.onTap,
-    this.iconColor = AppPalette.teal800,
-    this.iconBackground = AppPalette.n100,
+    this.iconColor = AppPalette.teal500,
+    this.iconBackground = AppPalette.teal50,
     this.divider = true,
   });
 
@@ -258,8 +237,9 @@ class AccountRow extends StatelessWidget {
             Container(
               width: 40,
               height: 40,
-              decoration:
-                  BoxDecoration(color: iconBackground, shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                  color: iconBackground,
+                  borderRadius: BorderRadius.circular(14)),
               child: Icon(icon, size: 20, color: iconColor),
             ),
             const SizedBox(width: 12),
@@ -453,7 +433,7 @@ Future<T?> showAccountSheet<T>(
       isScrollControlled: true,
       backgroundColor: AppPalette.white,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
       builder: (sheetContext) => Padding(
         padding: EdgeInsets.only(
             bottom: MediaQuery.viewInsetsOf(sheetContext).bottom),

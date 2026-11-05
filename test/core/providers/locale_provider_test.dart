@@ -16,35 +16,34 @@ Future<PreferencesStorage> _prefs(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('before any choice, follows the phone language', () async {
+  test('French when the phone speaks French', () async {
+    final notifier = LocaleNotifier(await _prefs(),
+        deviceLocales: const [Locale('fr', 'CM')]);
+
+    expect(notifier.state, AppLocale.fr);
+  });
+
+  test('English when the phone speaks English', () async {
     final notifier = LocaleNotifier(await _prefs(),
         deviceLocales: const [Locale('en', 'CM')]);
 
     expect(notifier.state, AppLocale.en);
   });
 
-  test('takes the first phone language that the app speaks', () async {
+  test('English when the phone speaks neither French nor English', () async {
     final notifier = LocaleNotifier(await _prefs(),
-        deviceLocales: const [Locale('pt'), Locale('fr', 'CM'), Locale('en')]);
+        deviceLocales: const [Locale('pt'), Locale('fr')]);
 
-    expect(notifier.state, AppLocale.fr);
+    expect(notifier.state, AppLocale.en);
   });
 
-  test('French when the phone speaks neither French nor English', () async {
-    final notifier =
-        LocaleNotifier(await _prefs(), deviceLocales: const [Locale('de')]);
-
-    expect(notifier.state, AppLocale.fr);
-  });
-
-  test('a choice made in the app wins over the phone language and is kept',
+  test('a choice kept by an earlier version is ignored and forgotten',
       () async {
-    final prefs = await _prefs({StorageKeys.preferredLang: 'fr'});
-    final notifier = LocaleNotifier(prefs, deviceLocales: const [Locale('en')]);
+    final prefs = await _prefs({StorageKeys.preferredLang: 'en'});
+    final notifier = LocaleNotifier(prefs, deviceLocales: const [Locale('fr')]);
 
     expect(notifier.state, AppLocale.fr);
-    await notifier.toggle();
-
-    expect(prefs.readString(StorageKeys.preferredLang), 'en');
+    await Future<void>.delayed(Duration.zero);
+    expect(prefs.readString(StorageKeys.preferredLang), isNull);
   });
 }

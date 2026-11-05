@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_palette.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/lang_segmented.dart';
 import '../../../../core/widgets/soe_brand_logo.dart';
 import '../../../../i18n/translations.g.dart';
 
-/// Frame of the authentication screens (Studio AUT, mobile): back arrow, logo, step and
-/// FR | EN on top, the content scrolling, the main action pinned at the bottom.
+/// Frame of the authentication screens (colourful direction, Login): a navy top with the way
+/// back, the white logo, the sign-up step and its progress, then the screen's [AuthHeading]
+/// (lifted from [children]) in white; below, a white sheet with 32 px top corners
+/// holding the rest of [children], the main action pinned at the bottom.
 class AuthScaffold extends StatelessWidget {
   const AuthScaffold(
       {super.key, required this.children, this.bottom, this.step});
@@ -22,64 +25,155 @@ class AuthScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tr = Translations.of(context);
-    return Scaffold(
-      backgroundColor: AppPalette.white,
-      body: SafeArea(
+    final headingIndex = children.indexWhere((child) => child is AuthHeading);
+    final heading =
+        headingIndex < 0 ? null : children[headingIndex] as AuthHeading;
+    final body = [
+      for (final (i, child) in children.indexed)
+        if (i != headingIndex) child,
+    ];
+    final media = MediaQuery.of(context);
+    final canPop = context.canPop();
+    final compact = canPop || step != null;
+    final top = Padding(
+      padding: EdgeInsets.fromLTRB(
+          compact ? 12 : 24, media.padding.top + (compact ? 8 : 32), 24, 28),
+      child: _Narrow(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Row(children: [
+              if (canPop) ...[
+                IconButton(
+                  onPressed: context.pop,
+                  style: IconButton.styleFrom(
+                      backgroundColor: AppPalette.onBandSoft,
+                      fixedSize: const Size(40, 40)),
+                  icon: const Icon(Icons.arrow_back_rounded,
+                      color: AppPalette.white, size: 22),
+                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                ),
+                const SizedBox(width: 12),
+              ] else if (compact)
+                const SizedBox(width: 12),
+              SoeBrandLogo(width: compact ? 57 : 80, onDark: true),
+              const Spacer(),
+              if (step != null)
+                Text(
+                  tr.auth.step(current: step!, total: 4),
+                  style: AppTypography.labelSm
+                      .copyWith(color: AppPalette.navInactive),
+                ),
+            ]),
             Padding(
-              padding: const EdgeInsets.fromLTRB(4, 4, 16, 0),
-              child: Row(
+              padding: EdgeInsets.only(left: compact ? 12 : 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (context.canPop())
-                    IconButton(
-                      onPressed: context.pop,
-                      icon: const Icon(Icons.chevron_left),
-                      tooltip:
-                          MaterialLocalizations.of(context).backButtonTooltip,
-                    )
-                  else
-                    const SizedBox(width: 12),
-                  const SoeBrandLogo(width: 48),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Wrap(
-                      alignment: WrapAlignment.end,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 8,
-                      children: [
-                        if (step != null)
-                          Text(
-                            tr.auth.step(current: step!, total: 4),
-                            style: AppTypography.labelSm
-                                .copyWith(color: AppPalette.ink700),
-                          ),
-                        const LangSegmented(),
-                      ],
+                  if (step != null) _Progress(step: step!),
+                  if (heading != null) ...[
+                    SizedBox(height: compact ? 20 : 22),
+                    Semantics(
+                      header: true,
+                      child: Text(heading.title,
+                          style: AppTypography.display.copyWith(
+                              fontSize: compact ? 28 : 32,
+                              height: compact ? 36 / 28 : 40 / 32,
+                              color: AppPalette.white)),
                     ),
-                  ),
+                    if (heading.lead != null) ...[
+                      const SizedBox(height: 8),
+                      Text(heading.lead!,
+                          style: AppTypography.body
+                              .copyWith(color: AppPalette.navInactive)),
+                    ],
+                  ],
+                  if (step == null) ...[
+                    const SizedBox(height: 22),
+                    const _BrandBars(),
+                  ],
                 ],
               ),
             ),
-            if (step != null) _Progress(step: step!),
+          ],
+        ),
+      ),
+    );
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: AppPalette.navy,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: children),
-              ),
+              child: CustomScrollView(slivers: [
+                SliverToBoxAdapter(child: top),
+                SliverToBoxAdapter(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: AppPalette.white,
+                      borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(AppRadius.band)),
+                    ),
+                    padding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
+                    child: _Narrow(
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: body),
+                    ),
+                  ),
+                ),
+                // The sheet runs down to the bottom of the screen.
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: ColoredBox(
+                    color: AppPalette.white,
+                    child: SizedBox(
+                        height: bottom == null ? media.padding.bottom : 0),
+                  ),
+                ),
+              ]),
             ),
             if (bottom != null)
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  child: bottom),
+              ColoredBox(
+                color: AppPalette.white,
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+                    child: _Narrow(child: bottom!),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
+}
+
+/// The three bars of the brand under the heading (gold, green, teal).
+class _BrandBars extends StatelessWidget {
+  const _BrandBars();
+
+  @override
+  Widget build(BuildContext context) => ExcludeSemantics(
+        child: Row(children: [
+          for (final (width, color) in const [
+            (32.0, AppPalette.gold400),
+            (12.0, AppPalette.success),
+            (12.0, AppPalette.teal400),
+          ])
+            Container(
+              width: width,
+              height: 6,
+              margin: const EdgeInsets.only(right: 8),
+              decoration: BoxDecoration(
+                  color: color, borderRadius: BorderRadius.circular(3)),
+            ),
+        ]),
+      );
 }
 
 class _Progress extends StatelessWidget {
@@ -90,21 +184,21 @@ class _Progress extends StatelessWidget {
   Widget build(BuildContext context) {
     return ExcludeSemantics(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+        padding: const EdgeInsets.only(top: 16),
         child: Row(
           children: [
             for (var i = 1; i <= 4; i++)
               Expanded(
                 child: Container(
-                  height: 4,
-                  margin: EdgeInsets.only(right: i < 4 ? 4 : 0),
+                  height: 6,
+                  margin: EdgeInsets.only(right: i < 4 ? 6 : 0),
                   decoration: BoxDecoration(
                     color: i < step
-                        ? AppPalette.teal800
+                        ? AppPalette.success
                         : i == step
-                            ? AppPalette.teal300
-                            : AppPalette.teal50,
-                    borderRadius: BorderRadius.circular(999),
+                            ? AppPalette.gold400
+                            : const Color(0x40FFFFFF),
+                    borderRadius: BorderRadius.circular(3),
                   ),
                 ),
               ),
@@ -200,7 +294,7 @@ class ChoiceSegmented extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: AppPalette.n50,
+              color: AppPalette.teal50,
               borderRadius: BorderRadius.circular(999),
               border: errorText != null
                   ? Border.all(color: AppPalette.danger, width: 2)
@@ -307,4 +401,19 @@ class PasswordRules extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The content of an authentication screen, at most 560 wide (tablet), centred.
+class _Narrow extends StatelessWidget {
+  const _Narrow({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: child,
+        ),
+      );
 }

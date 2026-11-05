@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/soe_toast.dart';
 import '../../../../i18n/translations.g.dart';
@@ -92,9 +93,9 @@ class ParentPanel extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: soft ? AppPalette.surfaceSoft : AppPalette.white,
+          color: soft ? AppPalette.gold50 : AppPalette.white,
           borderRadius: BorderRadius.circular(20),
-          border: soft ? null : Border.all(color: AppPalette.n300),
+          boxShadow: soft ? null : AppShadows.card,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

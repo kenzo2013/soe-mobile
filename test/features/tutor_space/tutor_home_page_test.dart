@@ -36,12 +36,12 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Bonjour Daniel.'), findsOneWidget);
-      expect(find.text('À faire'), findsOneWidget);
-      expect(find.text('Affectation à confirmer'), findsOneWidget);
+      expect(find.text('à faire'), findsOneWidget);
+      expect(find.text('AFFECTATION À CONFIRMER'), findsOneWidget);
       // The most urgent action gets the single gold button; the disputed one is reviewed by SOE.
       expect(_button(tester, 'Voir la proposition').variant,
           SoeButtonVariant.primary);
-      expect(_button(tester, 'Voir le PV').variant, SoeButtonVariant.tertiary);
+      expect(_button(tester, 'Voir le PV').variant, SoeButtonVariant.secondary);
       expect(find.text('SOE examine'), findsOneWidget);
       // Today's session with its place and the parent.
       expect(find.text('Makepe Missoke'), findsOneWidget);
@@ -49,10 +49,10 @@ void main() {
       expect(find.text('J’arrive'), findsOneWidget);
       expect(find.text('Itinéraire'), findsOneWidget);
       expect(find.text('Appeler le parent'), findsOneWidget);
-      expect(find.text('Ce mois-ci'), findsOneWidget);
+      expect(find.textContaining('CE MOIS-CI'), findsOneWidget);
       expect(find.text('Offres pour moi'), findsOneWidget);
-      expect(find.text('Mathématiques · 3e'), findsOneWidget);
-      expect(find.text('Voir toutes les offres'), findsOneWidget);
+      expect(find.text('3e'), findsOneWidget);
+      expect(find.bySemanticsLabel('Voir toutes les offres'), findsOneWidget);
     });
 
     testWidgets('recruitment: the next step, what is missing, the journey',
@@ -63,7 +63,7 @@ void main() {
           child: const TutorHomePage(), overrides: tutorOverrides(api));
       await tester.pumpAndSettle();
 
-      expect(find.text('Dossier'), findsOneWidget);
+      expect(find.text('étape'), findsOneWidget);
       expect(find.text('Ce qui manque'), findsOneWidget);
       expect(
           find.text('Diplômes et justificatifs · à refaire'), findsOneWidget);
@@ -74,7 +74,7 @@ void main() {
       expect(find.text('Offres près de chez vous'), findsOneWidget);
       // No fake empty dashboard for a candidate.
       expect(find.text('À faire'), findsNothing);
-      expect(find.text('Ce mois-ci'), findsNothing);
+      expect(find.textContaining('CE MOIS-CI'), findsNothing);
     });
 
     testWidgets(
@@ -99,7 +99,7 @@ void main() {
       expect(find.text('Délai de validation'), findsOneWidget);
       expect(find.textContaining('sous 5 jours'), findsOneWidget);
       expect(find.text('Offres près de chez vous'), findsOneWidget);
-      expect(find.text('Mathématiques · 3e'), findsOneWidget);
+      expect(find.text('3e'), findsOneWidget);
       expect(find.textContaining('500'), findsWidgets);
       expect(
           find.text(
@@ -123,7 +123,7 @@ void main() {
 
       expect(find.text('Hors connexion · données de 16:12'), findsOneWidget);
       expect(find.text('Disponible au retour du réseau'), findsNWidgets(2));
-      expect(find.text('Ce mois-ci'), findsOneWidget);
+      expect(find.textContaining('CE MOIS-CI'), findsOneWidget);
 
       api
         ..homeFailure = null

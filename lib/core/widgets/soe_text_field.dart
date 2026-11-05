@@ -6,10 +6,8 @@ import '../theme/app_palette.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_typography.dart';
 
-/// Champ de saisie SOE — design system officiel.
-///
-/// Hauteur 56, radius 10, icône optionnelle à gauche, action à droite.
-/// État erreur : bordure rouge + halo dangerBg + message sous le champ.
+/// SOE text field: label above, filled light teal, radius 16, no border at rest; a 2 px
+/// teal ring on focus, a red ring and the message below on error.
 class SoeTextField extends StatelessWidget {
   const SoeTextField({
     super.key,
@@ -56,112 +54,86 @@ class SoeTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasError = errorText != null && errorText!.isNotEmpty;
-    final borderColor = hasError ? AppPalette.danger : AppPalette.n300;
-
+    final fill = SoeFieldFill.of(context);
     final showLabel = label != null && label!.isNotEmpty;
+    OutlineInputBorder ring(Color color) => OutlineInputBorder(
+          borderRadius: AppRadius.rField,
+          borderSide: BorderSide(color: color, width: 2),
+        );
+    const rest = OutlineInputBorder(
+      borderRadius: AppRadius.rField,
+      borderSide: BorderSide.none,
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         if (showLabel)
           Padding(
-            padding: const EdgeInsets.only(bottom: 6),
+            padding: const EdgeInsets.only(bottom: 8),
             child: Text(
               label!,
-              style: AppTypography.label.copyWith(
-                color: AppPalette.n700,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTypography.label.copyWith(color: AppPalette.teal800),
             ),
           ),
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 120),
-          decoration: BoxDecoration(
-            borderRadius: AppRadius.rSm,
-            boxShadow: hasError
-                ? const [
-                    BoxShadow(
-                      color: AppPalette.dangerBg,
-                      blurRadius: 0,
-                      spreadRadius: 4,
-                    ),
-                  ]
-                : null,
+        TextFormField(
+          controller: controller,
+          enabled: enabled,
+          obscureText: obscureText,
+          keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
+          validator: validator,
+          onChanged: onChanged,
+          onFieldSubmitted: onFieldSubmitted,
+          textInputAction: textInputAction,
+          autofocus: autofocus,
+          maxLines: obscureText ? 1 : maxLines,
+          maxLength: maxLength,
+          style: AppTypography.body.copyWith(
+            color: enabled ? AppPalette.ink : AppPalette.ink600,
           ),
-          child: TextFormField(
-            controller: controller,
-            enabled: enabled,
-            obscureText: obscureText,
-            keyboardType: keyboardType,
-            inputFormatters: inputFormatters,
-            validator: validator,
-            onChanged: onChanged,
-            onFieldSubmitted: onFieldSubmitted,
-            textInputAction: textInputAction,
-            autofocus: autofocus,
-            maxLines: obscureText ? 1 : maxLines,
-            maxLength: maxLength,
-            style: AppTypography.body.copyWith(
-              color: enabled ? AppPalette.ink : AppPalette.n500,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: AppTypography.body.copyWith(color: AppPalette.ink600),
+            filled: true,
+            fillColor: enabled ? fill : AppPalette.n100,
+            counterText: '',
+            prefixIcon: leadingIcon == null
+                ? null
+                : Padding(
+                    padding: const EdgeInsets.only(left: 16, right: 10),
+                    child:
+                        Icon(leadingIcon, size: 18, color: AppPalette.ink600),
+                  ),
+            prefixIconConstraints: const BoxConstraints(minWidth: 0),
+            suffixIcon: trailing,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 17,
             ),
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: AppTypography.body.copyWith(color: AppPalette.n500),
-              filled: true,
-              fillColor: enabled ? AppPalette.white : AppPalette.n100,
-              counterText: '',
-              prefixIcon: leadingIcon == null
-                  ? null
-                  : Padding(
-                      padding: const EdgeInsets.only(left: 18, right: 12),
-                      child:
-                          Icon(leadingIcon, size: 18, color: AppPalette.n500),
-                    ),
-              prefixIconConstraints: const BoxConstraints(minWidth: 0),
-              suffixIcon: trailing,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 18,
-                vertical: 18,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: AppRadius.rSm,
-                borderSide: BorderSide(color: borderColor, width: 1.5),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: AppRadius.rSm,
-                borderSide: BorderSide(
-                  color: hasError ? AppPalette.danger : AppPalette.teal,
-                  width: 1.5,
-                ),
-              ),
-              errorBorder: const OutlineInputBorder(
-                borderRadius: AppRadius.rSm,
-                borderSide: BorderSide(color: AppPalette.danger, width: 1.5),
-              ),
-              focusedErrorBorder: const OutlineInputBorder(
-                borderRadius: AppRadius.rSm,
-                borderSide: BorderSide(color: AppPalette.danger, width: 1.5),
-              ),
-              disabledBorder: const OutlineInputBorder(
-                borderRadius: AppRadius.rSm,
-                borderSide: BorderSide(color: AppPalette.n300, width: 1.5),
-              ),
-              errorStyle: const TextStyle(height: 0, fontSize: 0),
-            ),
+            border: rest,
+            enabledBorder: hasError ? ring(AppPalette.dangerText) : rest,
+            disabledBorder: rest,
+            focusedBorder:
+                ring(hasError ? AppPalette.dangerText : AppPalette.teal500),
+            errorBorder: ring(AppPalette.dangerText),
+            focusedErrorBorder: ring(AppPalette.dangerText),
+            errorStyle: const TextStyle(height: 0, fontSize: 0),
           ),
         ),
         if (hasError)
           Padding(
-            padding: const EdgeInsets.only(top: 6, left: 18),
+            padding: const EdgeInsets.only(top: 6, left: 16),
             child: Row(
               children: [
-                const Icon(Icons.close, size: 12, color: AppPalette.danger),
+                const Icon(Icons.error_outline,
+                    size: 14, color: AppPalette.dangerText),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     errorText!,
                     style: AppTypography.caption.copyWith(
-                      color: AppPalette.danger,
+                      color: AppPalette.dangerText,
                     ),
                   ),
                 ),
@@ -171,6 +143,21 @@ class SoeTextField extends StatelessWidget {
       ],
     );
   }
+}
+
+/// The fill of the fields below it: light teal (#EEF5F8) by default, on a white card or
+/// sheet; a form laid straight on the light teal page ground gives white.
+class SoeFieldFill extends InheritedWidget {
+  const SoeFieldFill({super.key, required this.color, required super.child});
+
+  final Color color;
+
+  static Color of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<SoeFieldFill>()?.color ??
+      AppPalette.teal50;
+
+  @override
+  bool updateShouldNotify(SoeFieldFill oldWidget) => color != oldWidget.color;
 }
 
 /// Champ mot de passe avec œil pour afficher/masquer.
@@ -222,7 +209,7 @@ class _SoePasswordFieldState extends State<SoePasswordField> {
         icon: Icon(
           _obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
           size: 20,
-          color: AppPalette.n500,
+          color: AppPalette.ink600,
         ),
         onPressed: () => setState(() => _obscure = !_obscure),
       ),
@@ -230,7 +217,7 @@ class _SoePasswordFieldState extends State<SoePasswordField> {
   }
 }
 
-/// Champ recherche compact (hauteur 48, fond n300).
+/// Compact search field (height 48, pill, filled like the fields).
 class SoeSearchField extends StatelessWidget {
   const SoeSearchField({
     super.key,
@@ -251,9 +238,9 @@ class SoeSearchField extends StatelessWidget {
     return Container(
       height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 18),
-      decoration: const BoxDecoration(
-        color: AppPalette.n300,
-        borderRadius: AppRadius.rSm,
+      decoration: BoxDecoration(
+        color: SoeFieldFill.of(context),
+        borderRadius: AppRadius.rPill,
       ),
       child: Row(
         children: [

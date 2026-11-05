@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_palette.dart';
 
-/// Bouton retour SOE — 40×40, fond n100, radius 12, chevron gauche.
-///
-/// Design system officiel (cf. auth artboards). À utiliser comme `leading`
-/// d'un `SoeAppBar` ou en haut d'un layout sans AppBar.
+/// SOE back button — 40×40, n100 ground, radius 12, left chevron. The leading of a screen
+/// without an app bar.
 class SoeBackButton extends StatelessWidget {
   const SoeBackButton({super.key, this.onPressed, this.tooltip});
 
-  /// Si null, fait `Navigator.maybePop(context)`.
+  /// Null: `Navigator.maybePop(context)`.
   final VoidCallback? onPressed;
   final String? tooltip;
 

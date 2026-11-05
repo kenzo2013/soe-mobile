@@ -1,13 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/network/paginated.dart';
 import '../../../../core/theme/app_palette.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/soe_chip.dart';
@@ -22,6 +26,7 @@ import '../tutor_space_routes.dart';
 import '../widgets/tutor_offer_ui.dart';
 import '../widgets/tutor_ui.dart';
 import '../../../common/presentation/widgets/space_app_bar.dart';
+import '../../../common/presentation/widgets/tab_top_bar.dart';
 import '../tutor_navigation.dart';
 
 /// REP-10 — the offers SOE publishes, filtered by the tutor's subjects, their city and a class,
@@ -99,83 +104,81 @@ class _TutorOffersPageState extends ConsumerState<TutorOffersPage> {
             .firstOrNull;
     final first =
         ref.watch(tutorOffersPageProvider(TutorOfferPageKey(_filters, 1)));
-    return Scaffold(
-      backgroundColor: AppPalette.surfacePage,
-      appBar: SpaceAppBar(section: tutorMoreSection(context), title: tr.title),
-      body: RefreshIndicator(
-        onRefresh: _refresh,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-          children: [
-            Text(tr.intro,
-                style: AppTypography.body.copyWith(color: AppPalette.text2)),
-            const SizedBox(height: 12),
-            TutorInfoBanner(title: tr.applyBeforeValidation),
-            const SizedBox(height: 12),
-            Wrap(spacing: 8, runSpacing: 8, children: [
-              SoeChip(
-                label: tr.filters.mine,
-                selected: _filters.mine,
-                onTap: () => _filter(_filters.copyWith(mine: !_filters.mine)),
-              ),
-              SoeChip(
-                label: tr.filters.zone,
-                selected: _filters.zone,
-                onTap: () => _filter(_filters.copyWith(zone: !_filters.zone)),
-              ),
-              SoeChip(
-                label: className ?? tr.filters.schoolClass,
-                selected: classId != null,
-                onTap:
-                    references == null ? null : () => unawaited(_chooseClass()),
-              ),
-            ]),
-            const SizedBox(height: 12),
-            ...first.when(
-              loading: () => const [
-                SoeSkeleton(height: 160),
-                SizedBox(height: 12),
-                SoeSkeleton(height: 160),
-              ],
-              error: (error, _) => [
-                SoeEmptyState(
-                  title: tutorFailureMessage(context, asFailure(error)),
-                  message: '',
-                  icon: Icons.cloud_off_outlined,
-                  actionLabel: Translations.of(context).common.retry,
-                  onAction: () => ref.invalidate(tutorOffersPageProvider),
-                ),
-              ],
-              data: (page) => page.items.isEmpty
-                  ? [
-                      SoeEmptyState(
-                        title: tr.empty,
-                        message: tr.emptyText,
-                        icon: Icons.work_outline,
-                        actionLabel: _filters.zone ? tr.changeZone : null,
-                        onAction: () => unawaited(context
-                            .push(TutorSpaceRoutes.fileSection('address'))),
-                      ),
-                    ]
-                  : [
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(tr.count(n: page.totalCount),
-                            style: AppTypography.caption
-                                .copyWith(color: AppPalette.text2)),
-                      ),
-                      const SizedBox(height: 8),
-                      for (var p = 1; p <= _pages; p++)
-                        _OffersPage(
-                          pageKey: TutorOfferPageKey(_filters, p),
-                          last: p == _pages,
-                          onMore: () => setState(() => _pages++),
-                        ),
-                    ],
+    final root = !(ModalRoute.of(context)?.canPop ?? false);
+    return SpaceScreen(
+      section: tutorMoreSection(context),
+      title: tr.title,
+      subtitle: tr.intro,
+      onRefresh: _refresh,
+      children: [
+        if (!root) ...[
+          Text(tr.intro,
+              style: AppTypography.body.copyWith(color: AppPalette.text2)),
+          const SizedBox(height: 12),
+        ],
+        TutorInfoBanner(title: tr.applyBeforeValidation),
+        const SizedBox(height: 12),
+        Wrap(spacing: 8, runSpacing: 8, children: [
+          SoeChip(
+            label: tr.filters.mine,
+            selected: _filters.mine,
+            onTap: () => _filter(_filters.copyWith(mine: !_filters.mine)),
+          ),
+          SoeChip(
+            label: tr.filters.zone,
+            selected: _filters.zone,
+            onTap: () => _filter(_filters.copyWith(zone: !_filters.zone)),
+          ),
+          SoeChip(
+            label: className ?? tr.filters.schoolClass,
+            selected: classId != null,
+            onTap: references == null ? null : () => unawaited(_chooseClass()),
+          ),
+        ]),
+        const SizedBox(height: 12),
+        ...first.when(
+          loading: () => const [
+            SoeSkeleton(height: 160),
+            SizedBox(height: 12),
+            SoeSkeleton(height: 160),
+          ],
+          error: (error, _) => [
+            SoeEmptyState(
+              title: tutorFailureMessage(context, asFailure(error)),
+              message: '',
+              icon: Icons.cloud_off_outlined,
+              actionLabel: Translations.of(context).common.retry,
+              onAction: () => ref.invalidate(tutorOffersPageProvider),
             ),
           ],
+          data: (page) => page.items.isEmpty
+              ? [
+                  SoeEmptyState(
+                    title: tr.empty,
+                    message: tr.emptyText,
+                    icon: Icons.work_outline,
+                    actionLabel: _filters.zone ? tr.changeZone : null,
+                    onAction: () => unawaited(
+                        context.push(TutorSpaceRoutes.fileSection('address'))),
+                  ),
+                ]
+              : [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(tr.count(n: page.totalCount),
+                        style: AppTypography.caption
+                            .copyWith(color: AppPalette.text2)),
+                  ),
+                  const SizedBox(height: 8),
+                  for (var p = 1; p <= _pages; p++)
+                    _OffersPage(
+                      pageKey: TutorOfferPageKey(_filters, p),
+                      last: p == _pages,
+                      onMore: () => setState(() => _pages++),
+                    ),
+                ],
         ),
-      ),
+      ],
     );
   }
 }
@@ -211,15 +214,25 @@ class _OffersPage extends ConsumerWidget {
       ),
       data: (page) =>
           Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        for (final offer in page.items)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: TutorOfferCard(
-              offer: offer,
-              onTap: () =>
-                  openTutorScreen(context, TutorSpaceRoutes.offer(offer.id)),
-            ),
-          ),
+        // A grid of two on a tablet.
+        LayoutBuilder(builder: (context, constraints) {
+          final columns = constraints.maxWidth >= 640 ? 2 : 1;
+          final width = (constraints.maxWidth - 12 * (columns - 1)) / columns;
+          return Wrap(spacing: 12, children: [
+            for (final offer in page.items)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: SizedBox(
+                  width: width,
+                  child: TutorOfferCard(
+                    offer: offer,
+                    onTap: () => openTutorScreen(
+                        context, TutorSpaceRoutes.offer(offer.id)),
+                  ),
+                ),
+              ),
+          ]);
+        }),
         if (last && page.hasMore)
           SoeButton(
             label: tr.loadMore,
@@ -362,7 +375,7 @@ class _TutorOfferPageState extends ConsumerState<TutorOfferPage> {
     ];
     return RefreshIndicator(
       onRefresh: () => ref.refresh(tutorOfferProvider(widget.offerId).future),
-      child: ListView(padding: const EdgeInsets.all(16), children: [
+      child: ListView(padding: spacePagePadding(context), children: [
         Text(published.toUpperCase(),
             style: AppTypography.overline.copyWith(color: AppPalette.teal500)),
         const SizedBox(height: 4),
@@ -484,7 +497,7 @@ class _SentView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tr = Translations.of(context).tutorSpace.offers.detail;
-    return ListView(padding: const EdgeInsets.all(16), children: [
+    return ListView(padding: spacePagePadding(context), children: [
       SoeCard(
         padding: const EdgeInsets.all(24),
         child: Column(children: [
@@ -528,52 +541,63 @@ class TutorApplicationsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context).tutorSpace.offers;
-    return Scaffold(
-      backgroundColor: AppPalette.surfacePage,
-      appBar: SpaceAppBar(
-          section: tutorMoreSection(context), title: tr.applications.title),
-      body: TutorAsyncBody<List<TutorApplication>>(
-        value: ref.watch(tutorApplicationsProvider),
-        onRetry: () => ref.invalidate(tutorApplicationsProvider),
-        builder: (applications) => RefreshIndicator(
-          onRefresh: () => ref.refresh(tutorApplicationsProvider.future),
-          child: ListView(padding: const EdgeInsets.all(16), children: [
-            if (applications.isEmpty)
-              SoeEmptyState(
+    final value = ref.watch(tutorApplicationsProvider);
+    return SpaceScreen(
+      section: tutorMoreSection(context),
+      title: tr.applications.title,
+      onRefresh: () => ref.refresh(tutorApplicationsProvider.future),
+      children: value.when(
+        loading: () => const [
+          SoeSkeleton(height: 140, borderRadius: AppRadius.rCardLg),
+        ],
+        error: (error, _) => [
+          SoeCard(
+            raised: true,
+            child: ErrorView(
+                failure: asFailure(error),
+                onRetry: () => ref.invalidate(tutorApplicationsProvider)),
+          ),
+        ],
+        data: (applications) => [
+          if (applications.isEmpty)
+            SoeCard(
+              raised: true,
+              child: SoeEmptyState(
                 title: tr.applications.empty,
                 message: tr.applications.emptyText,
                 icon: Icons.insert_drive_file_outlined,
                 actionLabel: tr.applications.seeOffers,
                 onAction: () =>
                     openTutorScreen(context, TutorSpaceRoutes.offers),
-              )
-            else
-              TutorListCard(
-                note: applications.any((a) => a.status == 'selected')
-                    ? tr.applications.selectedNote
-                    : null,
-                children: [
-                  for (final application in applications)
-                    TutorListTile(
-                      leading: const TutorTileLeading(icon: Icons.work_outline),
-                      title: application.title(tr.and),
-                      subtitle: [
-                        application.neighborhood,
-                        if (application.sentAt != null)
-                          tr.applications.sentOn(
-                              date: TutorFormat.day(
-                                  context, application.sentAt!)),
-                      ].whereType<String>().join(' · '),
-                      badge: TutorToneBadge(
-                          state: application.status,
-                          label: application.statusLabel),
-                      onTap: () => openTutorScreen(
-                          context, TutorSpaceRoutes.offer(application.offerId)),
-                    ),
-                ],
               ),
-          ]),
-        ),
+            )
+          else
+            TutorListCard(
+              raised: true,
+              note: applications.any((a) => a.status == 'selected')
+                  ? tr.applications.selectedNote
+                  : null,
+              children: [
+                for (final application in applications)
+                  TutorListTile(
+                    leading: const TutorTileLeading(icon: Icons.work_outline),
+                    title: application.title(tr.and),
+                    subtitle: [
+                      application.neighborhood,
+                      if (application.sentAt != null)
+                        tr.applications.sentOn(
+                            date:
+                                TutorFormat.day(context, application.sentAt!)),
+                    ].whereType<String>().join(' · '),
+                    badge: TutorToneBadge(
+                        state: application.status,
+                        label: application.statusLabel),
+                    onTap: () => openTutorScreen(
+                        context, TutorSpaceRoutes.offer(application.offerId)),
+                  ),
+              ],
+            ),
+        ],
       ),
     );
   }

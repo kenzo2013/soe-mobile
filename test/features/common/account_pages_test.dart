@@ -85,7 +85,8 @@ void main() {
       expect(find.text('Demandes et devis'), findsNothing);
     });
 
-    testWidgets('the account card, the pages, help, sign-out and the language',
+    testWidgets(
+        'the account card, the pages, help and sign-out, no language switch',
         (tester) async {
       await pumpAccountApp(tester, api: _apiWithAddress(), location: '/more');
 
@@ -103,10 +104,10 @@ void main() {
         'Aide et contact SOE',
         'Signaler un problème',
         'Se déconnecter',
-        'Langue',
       ]) {
         expect(find.text(label), findsOneWidget, reason: label);
       }
+      expect(find.text('Langue'), findsNothing);
       expect(find.text('Changer d’espace'), findsNothing);
     });
 

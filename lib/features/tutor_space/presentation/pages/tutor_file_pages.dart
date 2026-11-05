@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -85,7 +87,7 @@ class _TutorFilePageState extends ConsumerState<TutorFilePage> {
           value: value,
           onRetry: () => ref.invalidate(tutorFileProvider),
           builder: (file) => ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+            padding: spacePagePadding(context, top: 8, bottom: 32),
             children: [
               _Header(file: file),
               if (_nextRoute(file) != null) ...[
@@ -292,7 +294,7 @@ class _Badge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppPalette.surfaceSoft,
+        color: AppPalette.gold50,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -345,7 +347,7 @@ class _Journey extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppPalette.surfaceSoft,
+        color: AppPalette.white,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -420,7 +422,8 @@ class TutorFileSectionPage extends ConsumerWidget {
     final tr = Translations.of(context).tutorSpace.file;
     if (!TutorFileSections.all.contains(section)) {
       return Scaffold(
-        appBar: AppBar(),
+        backgroundColor: AppPalette.surfacePage,
+        appBar: SpaceAppBar(title: tr.title),
         body: SoeEmptyState(
             title: tr.unknownSection,
             message: '',

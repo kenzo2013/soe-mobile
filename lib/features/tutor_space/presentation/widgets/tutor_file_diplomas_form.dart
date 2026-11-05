@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_palette.dart';
@@ -68,7 +70,7 @@ class _TutorFileDiplomasFormState extends ConsumerState<TutorFileDiplomasForm>
     return Column(children: [
       Expanded(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: spacePagePadding(context),
           children: [
             TutorFileSectionHeader(
                 data: widget.data,

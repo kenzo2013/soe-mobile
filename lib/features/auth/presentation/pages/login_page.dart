@@ -87,23 +87,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         : null;
     if (expired != null) return _expiredView(context, expired, state);
     return AuthScaffold(
-      bottom: AuthSubmit(
-        button: SoeButton(
-          label: tr.submit,
-          onPressed: _ready ? _submit : null,
-          loading: state.busy,
-          fullWidth: true,
-        ),
-        hint: _ready ? null : tr.missing,
-      ),
       children: [
-        AuthHeading(title: tr.heading, lead: tr.lead),
+        AuthHeading(title: tr.heading, lead: tr.tagline),
         AuthErrorText(failure: state.failure),
         SoeTextField(
           controller: _login,
           label: tr.login,
           hint: tr.loginHint,
-          leadingIcon: Icons.person_outline,
           keyboardType: TextInputType.emailAddress,
           textInputAction: TextInputAction.next,
         ),
@@ -115,34 +105,44 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           textInputAction: TextInputAction.done,
           onFieldSubmitted: (_) => _submit(),
         ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton(
-            onPressed: () => context.push(RouteNames.passwordForgot),
-            style: TextButton.styleFrom(minimumSize: const Size(44, 44)),
-            child: Text(tr.forgot,
-                style:
-                    AppTypography.labelSm.copyWith(color: AppPalette.teal500)),
-          ),
-        ),
+        _forgot(context),
         const SizedBox(height: 8),
-        Wrap(
-          alignment: WrapAlignment.center,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            Text(tr.noAccount,
-                style: AppTypography.bodySm.copyWith(color: AppPalette.ink700)),
-            TextButton(
-              onPressed: () => context.go(RouteNames.roleChoice),
-              child: Text(tr.signUp,
-                  style:
-                      AppTypography.label.copyWith(color: AppPalette.teal500)),
-            ),
-          ],
+        AuthSubmit(
+          button: SoeButton(
+            label: tr.submit,
+            size: SoeButtonSize.xl,
+            onPressed: _ready ? _submit : null,
+            loading: state.busy,
+            fullWidth: true,
+          ),
+          hint: _ready ? null : tr.missing,
         ),
+        const SizedBox(height: 20),
+        _Divider(label: tr.newHere),
+        const SizedBox(height: 16),
+        SoeButton(
+          label: tr.signUp,
+          variant: SoeButtonVariant.secondary,
+          fullWidth: true,
+          onPressed: () => context.go(RouteNames.roleChoice),
+        ),
+        const SizedBox(height: 28),
+        Text(tr.phoneLanguage,
+            textAlign: TextAlign.center,
+            style: AppTypography.caption.copyWith(color: AppPalette.ink600)),
       ],
     );
   }
+
+  Widget _forgot(BuildContext context) => Align(
+        alignment: Alignment.centerRight,
+        child: TextButton(
+          onPressed: () => context.push(RouteNames.passwordForgot),
+          style: TextButton.styleFrom(minimumSize: const Size(44, 44)),
+          child: Text(Translations.of(context).auth.signIn.forgot,
+              style: AppTypography.label.copyWith(color: AppPalette.teal500)),
+        ),
+      );
 
   Widget _expiredView(BuildContext context, User user, FlowState state) {
     final tr = Translations.of(context).auth.signIn;
@@ -150,14 +150,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         .where((part) => part.isNotEmpty)
         .join(' ');
     return AuthScaffold(
-      bottom: AuthSubmit(
-        button: SoeButton(
-          label: tr.expired.submit,
-          onPressed: _ready ? _submit : null,
-          loading: state.busy,
-          fullWidth: true,
-        ),
-      ),
       children: [
         AuthHeading(title: tr.expired.heading, lead: tr.expired.lead),
         AuthErrorText(failure: state.failure),
@@ -167,8 +159,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-              color: AppPalette.surfaceSoft,
-              borderRadius: BorderRadius.circular(14)),
+              color: AppPalette.teal50,
+              borderRadius: BorderRadius.circular(16)),
           child: Row(children: [
             const Icon(Icons.person_outline, size: 20, color: AppPalette.text2),
             const SizedBox(width: 12),
@@ -191,16 +183,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           textInputAction: TextInputAction.done,
           onFieldSubmitted: (_) => _submit(),
         ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton(
-            onPressed: () => context.push(RouteNames.passwordForgot),
-            style: TextButton.styleFrom(minimumSize: const Size(44, 44)),
-            child: Text(tr.forgot,
-                style:
-                    AppTypography.labelSm.copyWith(color: AppPalette.teal500)),
-          ),
+        _forgot(context),
+        const SizedBox(height: 8),
+        SoeButton(
+          label: tr.expired.submit,
+          size: SoeButtonSize.xl,
+          onPressed: _ready ? _submit : null,
+          loading: state.busy,
+          fullWidth: true,
         ),
+        const SizedBox(height: 8),
         Wrap(
           alignment: WrapAlignment.center,
           crossAxisAlignment: WrapCrossAlignment.center,
@@ -225,4 +217,22 @@ String maskEmail(String email) {
   final at = email.indexOf('@');
   if (at < 1) return email;
   return '${email[0]}•••••${email.substring(at)}';
+}
+
+/// « ——— Nouveau sur SOE ? ——— »
+class _Divider extends StatelessWidget {
+  const _Divider({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Row(children: [
+        const Expanded(child: Divider(color: AppPalette.teal100)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text(label,
+              style: AppTypography.caption.copyWith(color: AppPalette.ink600)),
+        ),
+        const Expanded(child: Divider(color: AppPalette.teal100)),
+      ]);
 }

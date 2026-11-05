@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -210,7 +212,7 @@ class _TutorSessionPageState extends ConsumerState<TutorSessionPage> {
           return RefreshIndicator(
             onRefresh: () =>
                 ref.refresh(tutorSessionProvider(widget.sessionId).future),
-            child: ListView(padding: const EdgeInsets.all(16), children: [
+            child: ListView(padding: spacePagePadding(context), children: [
               Text(
                   tr
                       .when(
@@ -554,8 +556,7 @@ class _TutorSessionPageState extends ConsumerState<TutorSessionPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-          color: AppPalette.surfaceSoft,
-          borderRadius: BorderRadius.circular(16)),
+          color: AppPalette.gold50, borderRadius: BorderRadius.circular(16)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(tr.title,
             style: AppTypography.h3.copyWith(color: AppPalette.teal800)),

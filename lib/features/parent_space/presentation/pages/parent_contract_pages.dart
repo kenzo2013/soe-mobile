@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -39,7 +41,7 @@ class ParentContractsPage extends ConsumerWidget {
           value: ref.watch(parentContractsProvider),
           onRetry: () => ref.invalidate(parentContractsProvider),
           builder: (contracts) => ListView(
-            padding: const EdgeInsets.all(16),
+            padding: spacePagePadding(context),
             children: [
               ParentHeading(title: tr.title, subtitle: tr.subtitle),
               const SizedBox(height: 16),

@@ -11,6 +11,16 @@ abstract final class AppRadius {
   static const double xl = 28;
   static const double pill = 999;
 
+  /// Fields (filled, no border at rest).
+  static const double field = 16;
+
+  /// Bottom corners of a header band, top corners of a sheet.
+  static const double band = 32;
+
+  static const BorderRadius rField = BorderRadius.all(Radius.circular(field));
+  static const BorderRadius rCard = BorderRadius.all(Radius.circular(lg));
+  static const BorderRadius rCardLg = BorderRadius.all(Radius.circular(xxl));
+
   static const BorderRadius rXs = BorderRadius.all(Radius.circular(xs));
   static const BorderRadius rSm = BorderRadius.all(Radius.circular(sm));
   static const BorderRadius rMd = BorderRadius.all(Radius.circular(md));

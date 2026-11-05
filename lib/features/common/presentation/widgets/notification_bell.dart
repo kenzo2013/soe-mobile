@@ -16,10 +16,14 @@ import '../providers.dart';
 import 'account_ui.dart';
 import 'notification_visuals.dart';
 
-/// The bell of the headers (COM-07): a red dot while something is unread; a tap opens the
-/// panel of the latest unread notifications and « Tout voir ».
+/// The bell of the headers (COM-07): a gold dot while something is unread; a tap opens the
+/// panel of the latest unread notifications and « Tout voir ». On a coloured band ([band]),
+/// a translucent circle with a white bell, the dot ringed with the band's colour.
 class NotificationBell extends ConsumerWidget {
-  const NotificationBell({super.key});
+  const NotificationBell({super.key, this.band});
+
+  /// The colour of the band the bell sits on; null: a light ground.
+  final Color? band;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,25 +37,30 @@ class NotificationBell extends ConsumerWidget {
         onTap: () => unawaited(showNotificationPanel(context, ref)),
         radius: 24,
         child: Container(
-          width: 40,
-          height: 40,
-          decoration: const BoxDecoration(
-              color: AppPalette.surfaceSoft, shape: BoxShape.circle),
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+              color: band == null ? AppPalette.white : AppPalette.onBandSoft,
+              shape: BoxShape.circle),
           child: Stack(alignment: Alignment.center, children: [
-            const Icon(Icons.notifications_none,
-                size: 22, color: AppPalette.teal800),
+            Icon(Icons.notifications_none_rounded,
+                size: 22,
+                color: band == null ? AppPalette.teal800 : AppPalette.white),
             if (count > 0)
               Positioned(
-                top: 7,
-                right: 8,
+                top: 9,
+                right: 10,
                 child: Container(
                   key: const Key('notification-bell-dot'),
                   width: 9,
                   height: 9,
                   decoration: BoxDecoration(
-                    color: AppPalette.danger,
+                    color: AppPalette.gold400,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppPalette.white, width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                          color: band ?? AppPalette.white, spreadRadius: 2),
+                    ],
                   ),
                 ),
               ),

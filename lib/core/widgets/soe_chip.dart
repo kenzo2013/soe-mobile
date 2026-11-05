@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_palette.dart';
 
-/// Chip filtre SOE — état `selected` = teal plein, sinon outline.
+/// SOE filter chip: selected = filled SOE teal, white text; otherwise white on the page ground.
 class SoeChip extends StatelessWidget {
   const SoeChip({
     super.key,
@@ -17,9 +17,9 @@ class SoeChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = selected ? AppPalette.teal800 : AppPalette.white;
-    final fg = selected ? AppPalette.white : AppPalette.text;
-    final border = selected ? AppPalette.teal800 : AppPalette.n300;
+    final bg = selected ? AppPalette.teal500 : AppPalette.white;
+    final fg = selected ? AppPalette.white : AppPalette.teal800;
+    final border = selected ? AppPalette.teal500 : AppPalette.teal100;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -37,7 +37,7 @@ class SoeChip extends StatelessWidget {
             style: TextStyle(
               color: fg,
               fontSize: 13,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),

@@ -30,10 +30,12 @@ abstract final class AppPalette {
   static const Color ink700 = Color(0xFF526684);
   static const Color ink600 = Color(0xFF60748F);
   static const Color ink400 = Color(0xFFA3BCE2);
+  // Colourful direction: the light neutrals take the teal tint of the page ground (lines,
+  // soft fills, disabled), instead of the grey-blue of the web tokens.
   static const Color n0 = Color(0xFFFCFDFF);
-  static const Color n50 = Color(0xFFF5F9FF);
-  static const Color n100 = Color(0xFFEAF0F9);
-  static const Color n300 = Color(0xFFDCEAFF);
+  static const Color n50 = Color(0xFFF3F8FA);
+  static const Color n100 = teal50;
+  static const Color n300 = teal100;
   static const Color white = Color(0xFFFFFFFF);
 
   // States: charter colour (icons, bars) + AA text variant + tinted background.
@@ -60,9 +62,37 @@ abstract final class AppPalette {
   static const Color subjectPhilosophy = Color(0xFF526684);
   static const Color subjectComputing = Color(0xFF01324A);
 
+  // Colourful direction (2026-11): the brand grounds of the bands, the slides and the chips.
+  /// Header band of the tutor space and of the account, the navigation, the launch screen.
+  static const Color navy = teal800;
+
+  /// Header band of the parent space.
+  static const Color parentBand = teal500;
+
+  /// The band of a role's space: SOE teal for a parent, navy otherwise.
+  static Color band(String? role) => role == 'parent' ? parentBand : navy;
+
+  /// Urgency: countdowns, disputed (text [warningText] on [warningBg]).
+  static const Color orange = warning;
+
+  /// Grounds of the welcome slides (« Chaque séance suivie », « Un contrat clair »).
+  static const Color greenDeep = Color(0xFF014A2A);
+  static const Color orangeDeep = Color(0xFF5A2A00);
+
+  /// Text on a gold chip.
+  static const Color goldInk = Color(0xFF3A2900);
+
+  /// Inactive icons of the navigation, secondary text on navy.
+  static const Color navInactive = Color(0xFFC5D8E6);
+
+  /// The active tab (translucent grey pill) and the bell circle on a band.
+  static const Color onBandActive = Color(0x29FFFFFF);
+  static const Color onBandSoft = Color(0x1FFFFFFF);
+
   // Roles.
-  static const Color surfacePage = n0;
-  static const Color surfaceSoft = n50;
+  /// Page ground: light teal, so that the white cards stand out.
+  static const Color surfacePage = teal50;
+  static const Color surfaceSoft = teal50;
   static const Color surfaceSunken = n100;
   static const Color surfaceCard = white;
   static const Color surfaceNav = teal800;
@@ -108,4 +138,25 @@ abstract final class AppPalette {
     stops: [0, 0.55, 1],
     colors: [ink900, teal800, teal500],
   );
+}
+
+/// The colour of a school subject (web tokens), from its name in French or English.
+abstract final class SubjectColors {
+  static Color of(String? subject) {
+    final name = (subject ?? '').toLowerCase();
+    bool has(List<String> words) => words.any(name.contains);
+    if (has(['math'])) return AppPalette.subjectMaths;
+    if (has(['fran', 'french'])) return AppPalette.subjectFrench;
+    if (has(['angl', 'english'])) return AppPalette.subjectEnglish;
+    if (has(['phys', 'chim', 'chem'])) return AppPalette.subjectPhysics;
+    if (has(['svt', 'bio', 'vie et'])) return AppPalette.subjectBiology;
+    if (has(['hist', 'géo', 'geo'])) return AppPalette.subjectHistory;
+    if (has(['philo'])) return AppPalette.subjectPhilosophy;
+    if (has(['info', 'comput'])) return AppPalette.subjectComputing;
+    return AppPalette.teal500;
+  }
+
+  /// The text on a subject's colour: ink on the golden French, white otherwise.
+  static Color onColor(Color color) =>
+      color == AppPalette.subjectFrench ? AppPalette.ink900 : AppPalette.white;
 }

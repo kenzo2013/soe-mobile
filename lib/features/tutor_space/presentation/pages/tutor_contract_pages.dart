@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -49,7 +51,7 @@ class TutorContractsPage extends ConsumerWidget {
             final signed = letters.where((c) => c.status != 'sent').toList();
             final legacy = contracts.where((c) => c.legacy).toList();
             return ListView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+              padding: spacePagePadding(context, top: 8, bottom: 32),
               children: [
                 Text(tr.title, style: AppTypography.h1),
                 const SizedBox(height: 16),
@@ -484,7 +486,7 @@ class _TutorDocumentViewState extends State<TutorDocumentView> {
     return Column(children: [
       Expanded(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          padding: spacePagePadding(context, top: 8, bottom: 24),
           children: [
             if (widget.reference != null)
               Text(widget.reference!.toUpperCase(),

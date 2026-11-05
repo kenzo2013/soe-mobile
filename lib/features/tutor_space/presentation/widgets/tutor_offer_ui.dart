@@ -79,13 +79,14 @@ class TutorTileLeading extends StatelessWidget {
         width: 40,
         height: 40,
         alignment: Alignment.center,
-        decoration: const BoxDecoration(
-            color: AppPalette.surfaceSunken, shape: BoxShape.circle),
+        decoration: BoxDecoration(
+            color: icon != null ? AppPalette.teal50 : AppPalette.gold100,
+            shape: BoxShape.circle),
         child: icon != null
-            ? Icon(icon, size: 20, color: AppPalette.teal800)
+            ? Icon(icon, size: 20, color: AppPalette.teal500)
             : Text(text ?? '',
-                style:
-                    AppTypography.labelSm.copyWith(color: AppPalette.teal800)),
+                style: AppTypography.labelSm.copyWith(
+                    fontWeight: FontWeight.w700, color: AppPalette.gold700)),
       );
 }
 
@@ -134,16 +135,21 @@ class TutorListTile extends StatelessWidget {
 
 /// A white card holding list tiles separated by lines, with an optional note at the bottom.
 class TutorListCard extends StatelessWidget {
-  const TutorListCard({super.key, required this.children, this.note});
+  const TutorListCard(
+      {super.key, required this.children, this.note, this.raised = false});
 
   final List<Widget> children;
   final String? note;
 
+  /// The first card of a tab, overlapping the band.
+  final bool raised;
+
   @override
   Widget build(BuildContext context) => SoeCard(
         padding: EdgeInsets.zero,
+        raised: raised,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           child: Material(
             color: Colors.transparent,
             child: Column(
@@ -218,7 +224,7 @@ class TutorOfferCard extends StatelessWidget {
                       .format(rate)
                       .replaceAll(',', ' '),
                   style: AppTypography.numberM
-                      .copyWith(color: AppPalette.teal800)),
+                      .copyWith(color: AppPalette.successText)),
               Text(tr.perSession,
                   style:
                       AppTypography.caption.copyWith(color: AppPalette.text2)),
@@ -228,7 +234,7 @@ class TutorOfferCard extends StatelessWidget {
         const SizedBox(height: 12),
         SoeButton(
           label: tr.see,
-          variant: SoeButtonVariant.outline,
+          variant: SoeButtonVariant.secondary,
           size: SoeButtonSize.md,
           fullWidth: true,
           onPressed: onTap,

@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -124,7 +126,7 @@ class _TutorProposalPageState extends ConsumerState<TutorProposalPage> {
   }
 
   Widget _outcome(Widget card) =>
-      ListView(padding: const EdgeInsets.all(16), children: [card]);
+      ListView(padding: spacePagePadding(context), children: [card]);
 
   Widget _backButton(TranslationsTutorSpaceProposalFr tr) => Padding(
         padding: const EdgeInsets.only(top: 20),
@@ -159,7 +161,7 @@ class _TutorProposalPageState extends ConsumerState<TutorProposalPage> {
     ];
     return Column(children: [
       Expanded(
-        child: ListView(padding: const EdgeInsets.all(16), children: [
+        child: ListView(padding: spacePagePadding(context), children: [
           Text(tr.heading,
               style: AppTypography.h1.copyWith(color: AppPalette.teal800)),
           const SizedBox(height: 6),

@@ -4,8 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_palette.dart';
+import '../../../../core/theme/app_radius.dart';
+import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/soe_chip.dart';
 import '../../../../core/widgets/soe_pill_switch.dart';
 import '../../../../i18n/translations.g.dart';
 import '../../../common/presentation/widgets/tab_top_bar.dart';
@@ -61,166 +62,130 @@ class _ParentPlanningPageState extends ConsumerState<ParentPlanningPage> {
         ? tr.planning.weekOf(date: DateFormat('d MMMM', locale).format(_monday))
         : toBeginningOfSentenceCase(
             DateFormat('MMMM y', locale).format(_month));
-    return Scaffold(
-      backgroundColor: AppPalette.surfacePage,
-      body: SafeArea(
-        child: Column(children: [
-          TabTopBar(title: Translations.of(context).shell.parent.planning),
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: () =>
-                  ref.refresh(parentSessionsRangeProvider(_range).future),
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-                children: [
-                  Text(tr.planning.title,
-                      style:
-                          AppTypography.h1.copyWith(color: AppPalette.teal800)),
-                  if (names.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                        tr.planning.subtitle(
-                            names: names.length < 2
-                                ? names.join()
-                                : '${names.sublist(0, names.length - 1).join(', ')} ${tr.home.and} ${names.last}'),
-                        style: AppTypography.body
-                            .copyWith(color: AppPalette.text2)),
-                  ],
-                  if (children.length > 1) ...[
-                    const SizedBox(height: 14),
-                    Wrap(spacing: 8, runSpacing: 8, children: [
-                      SoeChip(
-                        label: tr.planning.allChildren,
-                        selected: _childId == null,
-                        onTap: () => setState(() => _childId = null),
-                      ),
-                      for (final child in children)
-                        SoeChip(
-                          label: child.firstName,
-                          selected: _childId == child.id,
-                          onTap: () => setState(() => _childId = child.id),
-                        ),
-                    ]),
-                  ],
-                  const SizedBox(height: 16),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AppPalette.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppPalette.n300),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                            child: Row(children: [
-                              _RoundButton(
-                                  icon: Icons.chevron_left,
-                                  tooltip: tr.planning.previous,
-                                  onTap: () => _move(-1)),
-                              const SizedBox(width: 8),
-                              _RoundButton(
-                                  icon: Icons.chevron_right,
-                                  tooltip: tr.planning.next,
-                                  onTap: () => _move(1)),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: Text(title,
-                                    style: AppTypography.h3
-                                        .copyWith(color: AppPalette.teal800)),
-                              ),
-                            ]),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: SoePillSwitch<_View>(
-                                options: [
-                                  (value: _View.week, label: tr.planning.week),
-                                  (
-                                    value: _View.month,
-                                    label: tr.planning.month
-                                  ),
-                                ],
-                                selected: _view,
-                                onChanged: (view) =>
-                                    setState(() => _view = view),
-                              ),
-                            ),
-                          ),
-                          ...value.when(
-                            loading: () => const [
-                              Padding(
-                                padding: EdgeInsets.all(24),
-                                child:
-                                    Center(child: CircularProgressIndicator()),
-                              ),
-                            ],
-                            error: (error, _) => [
-                              Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: ParentAsyncBody<void>(
-                                  value: AsyncValue.error(
-                                      error, StackTrace.current),
-                                  onRetry: () => ref.invalidate(
-                                      parentSessionsRangeProvider(_range)),
-                                  builder: (_) => const SizedBox.shrink(),
-                                ),
-                              ),
-                            ],
-                            data: (all) {
-                              final sessions = _childId == null
-                                  ? all
-                                  : all
-                                      .where((session) =>
-                                          session.childId == _childId)
-                                      .toList();
-                              return [
-                                if (_view == _View.week)
-                                  _WeekStrip(
-                                      monday: _monday, sessions: sessions),
-                                const Divider(
-                                    height: 1, color: AppPalette.n300),
-                                if (sessions.isEmpty)
-                                  Padding(
-                                    padding: const EdgeInsets.all(20),
-                                    child: Column(children: [
-                                      Text(
-                                          _view == _View.week
-                                              ? tr.planning.empty
-                                              : tr.planning.emptyMonth,
-                                          style: AppTypography.label),
-                                      const SizedBox(height: 4),
-                                      Text(tr.planning.emptyText,
-                                          textAlign: TextAlign.center,
-                                          style: AppTypography.bodySm.copyWith(
-                                              color: AppPalette.text2)),
-                                    ]),
-                                  )
-                                else
-                                  for (final (i, session) in sessions.indexed)
-                                    ParentSessionTile(
-                                      session: session,
-                                      divider: i < sessions.length - 1,
-                                      onTap: () => context.push(
-                                          ParentSpaceRoutes.session(
-                                              session.id)),
-                                    ),
-                                const _Legend(),
-                              ];
-                            },
-                          ),
-                        ]),
-                  ),
+    return SpaceTabView(
+      onRefresh: () => ref.refresh(parentSessionsRangeProvider(_range).future),
+      band: SpaceBand(
+        title: tr.planning.title,
+        subtitle: names.isEmpty
+            ? null
+            : tr.planning.subtitle(
+                names: names.length < 2
+                    ? names.join()
+                    : '${names.sublist(0, names.length - 1).join(', ')} ${tr.home.and} ${names.last}'),
+        chips: children.length > 1
+            ? BandFilters<int?>(
+                options: [
+                  (null, tr.planning.allChildren),
+                  for (final child in children) (child.id, child.firstName),
                 ],
+                selected: _childId,
+                onSelected: (id) => setState(() => _childId = id),
+              )
+            : null,
+      ),
+      children: [
+        Container(
+          decoration: const BoxDecoration(
+            color: AppPalette.white,
+            borderRadius: AppRadius.rCardLg,
+            boxShadow: AppShadows.raised,
+          ),
+          clipBehavior: Clip.antiAlias,
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Row(children: [
+                _RoundButton(
+                    icon: Icons.chevron_left,
+                    tooltip: tr.planning.previous,
+                    onTap: () => _move(-1)),
+                const SizedBox(width: 8),
+                _RoundButton(
+                    icon: Icons.chevron_right,
+                    tooltip: tr.planning.next,
+                    onTap: () => _move(1)),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(title,
+                      style:
+                          AppTypography.h3.copyWith(color: AppPalette.teal800)),
+                ),
+              ]),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: SoePillSwitch<_View>(
+                  options: [
+                    (value: _View.week, label: tr.planning.week),
+                    (value: _View.month, label: tr.planning.month),
+                  ],
+                  selected: _view,
+                  onChanged: (view) => setState(() => _view = view),
+                ),
               ),
             ),
-          ),
-        ]),
-      ),
+            ...value.when(
+              loading: () => const [
+                Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              ],
+              error: (error, _) => [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ParentAsyncBody<void>(
+                    value: AsyncValue.error(error, StackTrace.current),
+                    onRetry: () =>
+                        ref.invalidate(parentSessionsRangeProvider(_range)),
+                    builder: (_) => const SizedBox.shrink(),
+                  ),
+                ),
+              ],
+              data: (all) {
+                final sessions = _childId == null
+                    ? all
+                    : all
+                        .where((session) => session.childId == _childId)
+                        .toList();
+                return [
+                  if (_view == _View.week)
+                    _WeekStrip(monday: _monday, sessions: sessions),
+                  const Divider(height: 1, color: AppPalette.n300),
+                  if (sessions.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(children: [
+                        Text(
+                            _view == _View.week
+                                ? tr.planning.empty
+                                : tr.planning.emptyMonth,
+                            style: AppTypography.label),
+                        const SizedBox(height: 4),
+                        Text(tr.planning.emptyText,
+                            textAlign: TextAlign.center,
+                            style: AppTypography.bodySm
+                                .copyWith(color: AppPalette.text2)),
+                      ]),
+                    )
+                  else
+                    for (final (i, session) in sessions.indexed)
+                      ParentSessionTile(
+                        session: session,
+                        divider: i < sessions.length - 1,
+                        onTap: () =>
+                            context.push(ParentSpaceRoutes.session(session.id)),
+                      ),
+                  const _Legend(),
+                ];
+              },
+            ),
+          ]),
+        ),
+      ],
     );
   }
 }
@@ -245,7 +210,7 @@ class _RoundButton extends StatelessWidget {
       );
 }
 
-/// The seven days of the week: today on a teal disc, a dot under the days with a session.
+/// The seven days of the week: today on a gold disc, a dot under the days with a session.
 class _WeekStrip extends StatelessWidget {
   const _WeekStrip({required this.monday, required this.sessions});
 
@@ -276,18 +241,19 @@ class _WeekStrip extends StatelessWidget {
                   height: 36,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                      color: isToday ? AppPalette.teal700 : null,
+                      color: isToday ? AppPalette.gold400 : null,
                       shape: BoxShape.circle),
                   child: Text('${day.day}',
                       style: AppTypography.labelSm.copyWith(
-                          color: isToday ? AppPalette.white : AppPalette.text)),
+                          color:
+                              isToday ? AppPalette.ink900 : AppPalette.text)),
                 ),
                 const SizedBox(height: 4),
                 Container(
                   width: 5,
                   height: 5,
                   decoration: BoxDecoration(
-                      color: busy ? AppPalette.teal700 : Colors.transparent,
+                      color: busy ? AppPalette.success : Colors.transparent,
                       shape: BoxShape.circle),
                 ),
               ]),

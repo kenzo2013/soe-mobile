@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -31,180 +33,151 @@ class ParentPaymentsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context).parentSpace;
-    return Scaffold(
-      backgroundColor: AppPalette.surfacePage,
-      body: TabBody(
-        title: Translations.of(context).shell.parent.payments,
-        child: ParentAsyncBody<List<ParentInvoice>>(
-          value: ref.watch(parentInvoicesProvider),
-          onRetry: () => ref.invalidate(parentInvoicesProvider),
-          builder: (invoices) {
-            final due = invoices.where((invoice) => invoice.payable).toList();
-            final receiptsValue = ref.watch(parentPaymentsProvider);
-            final receipts =
-                receiptsValue.valueOrNull ?? const <ParentPayment>[];
-            return RefreshIndicator(
-              onRefresh: () {
-                ref.invalidate(parentPaymentsProvider);
-                return ref.refresh(parentInvoicesProvider.future);
-              },
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Text(tr.payments.title,
-                      style:
-                          AppTypography.h1.copyWith(color: AppPalette.teal800)),
-                  if (due.isNotEmpty) ParentSectionTitle(tr.payments.toPay),
-                  ...due.map((invoice) => Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: SoeCard(
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
+    return SpaceTabAsync<List<ParentInvoice>>(
+      band: SpaceBand(title: tr.payments.title),
+      value: ref.watch(parentInvoicesProvider),
+      onRetry: () => ref.invalidate(parentInvoicesProvider),
+      onRefresh: () {
+        ref.invalidate(parentPaymentsProvider);
+        return ref.refresh(parentInvoicesProvider.future);
+      },
+      builder: (invoices) {
+        final due = invoices.where((invoice) => invoice.payable).toList();
+        final receiptsValue = ref.watch(parentPaymentsProvider);
+        final receipts = receiptsValue.valueOrNull ?? const <ParentPayment>[];
+        return [
+          // The lists start under the band (their first line is a title).
+          const SizedBox(height: SpaceBand.cardOverlap - 12),
+          if (due.isNotEmpty) ParentSectionTitle(tr.payments.toPay),
+          ...due.map((invoice) => Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: SoeCard(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                        child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                  tr.payments
-                                                      .invoice(
-                                                          number:
-                                                              invoice.number)
-                                                      .toUpperCase(),
-                                                  style: AppTypography.overline
-                                                      .copyWith(
-                                                          color: AppPalette
-                                                              .teal700)),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                  toBeginningOfSentenceCase(
-                                                      DateFormat.yMMMM(
-                                                              Localizations
-                                                                      .localeOf(
-                                                                          context)
-                                                                  .languageCode)
-                                                          .format(
-                                                              invoice.period)),
-                                                  style: AppTypography.h3
-                                                      .copyWith(
-                                                          color: AppPalette
-                                                              .teal800)),
-                                            ]),
-                                      ),
-                                      ParentStatusBadge(
-                                          status: invoice.status,
-                                          label: invoice.statusLabel),
+                                      Text(
+                                          tr.payments
+                                              .invoice(number: invoice.number)
+                                              .toUpperCase(),
+                                          style: AppTypography.overline
+                                              .copyWith(
+                                                  color: AppPalette.teal700)),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                          toBeginningOfSentenceCase(
+                                              DateFormat.yMMMM(
+                                                      Localizations.localeOf(
+                                                              context)
+                                                          .languageCode)
+                                                  .format(invoice.period)),
+                                          style: AppTypography.h3.copyWith(
+                                              color: AppPalette.teal800)),
                                     ]),
-                                const SizedBox(height: 10),
-                                Text(
-                                    ParentFormat.amount(
-                                        context, invoice.balanceDue),
-                                    style: AppTypography.h1
-                                        .copyWith(color: AppPalette.teal800)),
-                                Text(
-                                    [
-                                      if (invoice.issuedOn != null)
-                                        tr.payments.issued(
-                                            date: ParentFormat.day(
-                                                context, invoice.issuedOn!)),
-                                      if (invoice.dueOn != null)
-                                        tr.payments.dueShort(
-                                            date: ParentFormat.dayLong(
-                                                context, invoice.dueOn!)),
-                                    ].join(' · '),
-                                    style: AppTypography.caption
-                                        .copyWith(color: AppPalette.text2)),
-                                const SizedBox(height: 6),
-                                ...invoice.lines.map((line) => Padding(
-                                      padding: const EdgeInsets.only(top: 6),
-                                      child: Row(children: [
-                                        Expanded(
-                                            child: Text(line.label,
-                                                style: AppTypography.bodySm)),
-                                        Text(
-                                            ParentFormat.amount(
-                                                context, line.amount),
-                                            style: AppTypography.labelSm),
-                                      ]),
-                                    )),
-                                const SizedBox(height: 12),
-                                SoeButton(
-                                  label: tr.payments.pay(
-                                      amount: ParentFormat.amount(
-                                          context, invoice.balanceDue)),
-                                  variant: invoice == due.first
-                                      ? SoeButtonVariant.primary
-                                      : SoeButtonVariant.secondary,
-                                  fullWidth: true,
-                                  onPressed: () => context
-                                      .push(ParentSpaceRoutes.pay(invoice.id)),
-                                ),
+                              ),
+                              ParentStatusBadge(
+                                  status: invoice.status,
+                                  label: invoice.statusLabel),
+                            ]),
+                        const SizedBox(height: 10),
+                        Text(ParentFormat.amount(context, invoice.balanceDue),
+                            style: AppTypography.h1
+                                .copyWith(color: AppPalette.teal800)),
+                        Text(
+                            [
+                              if (invoice.issuedOn != null)
+                                tr.payments.issued(
+                                    date: ParentFormat.day(
+                                        context, invoice.issuedOn!)),
+                              if (invoice.dueOn != null)
+                                tr.payments.dueShort(
+                                    date: ParentFormat.dayLong(
+                                        context, invoice.dueOn!)),
+                            ].join(' · '),
+                            style: AppTypography.caption
+                                .copyWith(color: AppPalette.text2)),
+                        const SizedBox(height: 6),
+                        ...invoice.lines.map((line) => Padding(
+                              padding: const EdgeInsets.only(top: 6),
+                              child: Row(children: [
+                                Expanded(
+                                    child: Text(line.label,
+                                        style: AppTypography.bodySm)),
+                                Text(ParentFormat.amount(context, line.amount),
+                                    style: AppTypography.labelSm),
                               ]),
+                            )),
+                        const SizedBox(height: 12),
+                        SoeButton(
+                          label: tr.payments.pay(
+                              amount: ParentFormat.amount(
+                                  context, invoice.balanceDue)),
+                          variant: invoice == due.first
+                              ? SoeButtonVariant.primary
+                              : SoeButtonVariant.secondary,
+                          fullWidth: true,
+                          onPressed: () =>
+                              context.push(ParentSpaceRoutes.pay(invoice.id)),
                         ),
-                      )),
-                  ParentSectionTitle(tr.payments.history),
-                  if (receiptsValue.hasError)
-                    TextButton(
-                        onPressed: () => ref.invalidate(parentPaymentsProvider),
-                        child: Text(tr.retry))
-                  else if (receiptsValue.isLoading && receipts.isEmpty)
-                    const LinearProgressIndicator()
-                  else if (receipts.isEmpty)
-                    SoeEmptyState(
-                        title: tr.payments.empty,
-                        message: tr.payments.emptyText,
-                        icon: Icons.receipt_long_outlined),
-                  for (final payment in receipts.take(5))
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: ParentPaymentTile(payment: payment),
-                    ),
-                  if (receipts.isNotEmpty)
-                    SoeButton(
-                      label: tr.history.seeAll,
-                      variant: SoeButtonVariant.tertiary,
-                      fullWidth: true,
-                      onPressed: () => unawaited(
-                          context.push(ParentSpaceRoutes.paymentsHistory)),
-                    ),
-                  const SizedBox(height: 12),
-                  ParentPanel(
-                      soft: true,
-                      title: tr.history.howTitle,
-                      children: [
-                        for (final rule in [
-                          tr.history.how1,
-                          tr.history.how2,
-                          tr.history.how3,
-                          tr.history.how4
-                        ])
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 6),
-                            child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Padding(
-                                    padding: EdgeInsets.only(top: 2, right: 8),
-                                    child: Icon(Icons.info_outline,
-                                        size: 16, color: AppPalette.teal600),
-                                  ),
-                                  Expanded(
-                                      child: Text(rule,
-                                          style: AppTypography.bodySm)),
-                                ]),
-                          ),
                       ]),
-                ],
+                ),
+              )),
+          ParentSectionTitle(tr.payments.history),
+          if (receiptsValue.hasError)
+            TextButton(
+                onPressed: () => ref.invalidate(parentPaymentsProvider),
+                child: Text(tr.retry))
+          else if (receiptsValue.isLoading && receipts.isEmpty)
+            const LinearProgressIndicator()
+          else if (receipts.isEmpty)
+            SoeEmptyState(
+                title: tr.payments.empty,
+                message: tr.payments.emptyText,
+                icon: Icons.receipt_long_outlined),
+          for (final payment in receipts.take(5))
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: ParentPaymentTile(payment: payment),
+            ),
+          if (receipts.isNotEmpty)
+            SoeButton(
+              label: tr.history.seeAll,
+              variant: SoeButtonVariant.tertiary,
+              fullWidth: true,
+              onPressed: () =>
+                  unawaited(context.push(ParentSpaceRoutes.paymentsHistory)),
+            ),
+          const SizedBox(height: 12),
+          ParentPanel(soft: true, title: tr.history.howTitle, children: [
+            for (final rule in [
+              tr.history.how1,
+              tr.history.how2,
+              tr.history.how3,
+              tr.history.how4
+            ])
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(top: 2, right: 8),
+                        child: Icon(Icons.info_outline,
+                            size: 16, color: AppPalette.teal600),
+                      ),
+                      Expanded(child: Text(rule, style: AppTypography.bodySm)),
+                    ]),
               ),
-            );
-          },
-        ),
-      ),
+          ]),
+        ];
+      },
     );
   }
 }
@@ -373,7 +346,7 @@ class _ParentPaymentsHistoryPageState
           return false;
         },
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: spacePagePadding(context),
           children: [
             if (_payments.isEmpty && _done)
               SoeEmptyState(
@@ -451,7 +424,7 @@ class _ParentPayPageState extends ConsumerState<ParentPayPage> {
           section: Translations.of(context).shell.parent.payments,
           title: tr.pay.title),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: spacePagePadding(context),
         children: [
           if (invoice != null) ...[
             Text(tr.pay.amount,

@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_palette.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/soe_bottom_nav.dart';
 import 'more_sheet.dart';
 
@@ -27,8 +26,8 @@ class ShellTab {
   final List<int> branches;
 }
 
-/// The frame of a signed-in space (Q5): a tab bar of 4 tabs + « Plus » on a phone, a
-/// rail on a tablet. Each tab keeps its own history (go_router branches). On a phone, « Plus »
+/// The frame of a signed-in space (Q5): a floating navy pill of 4 tabs + « Plus » on a
+/// phone, a floating navy rail on the left on a tablet. Each tab keeps its own history (go_router branches). On a phone, « Plus »
 /// (the last tab) opens its menu as a sheet over the open tab.
 class RoleShell extends ConsumerWidget {
   const RoleShell(
@@ -78,61 +77,71 @@ class RoleShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tablet = MediaQuery.sizeOf(context).shortestSide >= railShortestSide;
+    final items = [
+      for (final tab in tabs)
+        SoeBottomNavItem(
+            icon: tab.icon, activeIcon: tab.activeIcon, label: tab.label)
+    ];
     if (!tablet) {
+      final media = MediaQuery.of(context);
       return Scaffold(
-        body: navigationShell,
-        bottomNavigationBar: _OnNavigation(
-          builder: (context) => SoeBottomNav(
-            items: [
-              for (final tab in tabs)
-                SoeBottomNavItem(icon: tab.icon, label: tab.label)
-            ],
-            currentIndex: _currentTab(context),
-            onTap: (index) {
-              if (index == tabs.length - 1) {
-                unawaited(showMoreSheet(context, ref));
-              } else {
-                _open(index);
-              }
-            },
+        backgroundColor: AppPalette.surfacePage,
+        // The floating pill lies over the content, which scrolls behind it: the screens get
+        // the pill's room as their bottom padding.
+        body: Stack(children: [
+          MediaQuery(
+            data: media.copyWith(
+                padding: media.padding.copyWith(
+                    bottom: media.padding.bottom + SoeBottomNav.clearance)),
+            child: navigationShell,
           ),
-        ),
-      );
-    }
-    return Scaffold(
-      body: Row(
-        children: [
-          SafeArea(
-            right: false,
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
             child: _OnNavigation(
-              builder: (context) => NavigationRail(
-                selectedIndex: _currentTab(context),
-                onDestinationSelected: _open,
-                labelType: NavigationRailLabelType.all,
-                backgroundColor: AppPalette.white,
-                indicatorColor: AppPalette.infoBg,
-                selectedIconTheme: const IconThemeData(color: AppPalette.teal),
-                unselectedIconTheme:
-                    const IconThemeData(color: AppPalette.n500),
-                selectedLabelTextStyle:
-                    AppTypography.labelSm.copyWith(color: AppPalette.teal),
-                unselectedLabelTextStyle:
-                    AppTypography.labelSm.copyWith(color: AppPalette.n700),
-                destinations: [
-                  for (final tab in tabs)
-                    NavigationRailDestination(
-                      icon: Icon(tab.icon),
-                      selectedIcon: Icon(tab.activeIcon),
-                      label: Text(tab.label),
-                    ),
-                ],
+              builder: (context) => SoeBottomNav(
+                items: items,
+                currentIndex: _currentTab(context),
+                onTap: (index) {
+                  if (index == tabs.length - 1) {
+                    unawaited(showMoreSheet(context, ref));
+                  } else {
+                    _open(index);
+                  }
+                },
               ),
             ),
           ),
-          const VerticalDivider(width: 1, color: AppPalette.n300),
-          Expanded(child: navigationShell),
-        ],
-      ),
+        ]),
+      );
+    }
+    final media = MediaQuery.of(context);
+    const railRoom = SoeNavRail.width + 14;
+    return Scaffold(
+      backgroundColor: AppPalette.surfacePage,
+      body: Stack(children: [
+        // The screens start right of the floating rail; their bands run under it.
+        MediaQuery(
+          data: media.copyWith(padding: media.padding.copyWith(left: 0)),
+          child: Padding(
+            padding: EdgeInsets.only(left: railRoom + media.padding.left),
+            child: navigationShell,
+          ),
+        ),
+        Positioned(
+          left: 0,
+          top: 0,
+          bottom: 0,
+          child: _OnNavigation(
+            builder: (context) => SoeNavRail(
+              items: items,
+              currentIndex: _currentTab(context),
+              onTap: _open,
+            ),
+          ),
+        ),
+      ]),
     );
   }
 }

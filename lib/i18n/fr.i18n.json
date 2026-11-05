@@ -23,10 +23,6 @@
     "or": "OU",
     "copyright": "© SOE 2026 · Solution of Education"
   },
-  "languages": {
-    "fr": "Français",
-    "en": "English"
-  },
   "errors": {
     "network": "Pas de connexion réseau.",
     "timeout": "Le serveur met trop de temps à répondre.",
@@ -68,22 +64,26 @@
       "tutor": {
         "title": "Un répétiteur choisi pour votre enfant",
         "body": "Identité, diplômes, entretien et test : SOE vérifie chaque répétiteur et le choisit pour vous.",
-        "alt": "Une répétitrice SOE aide une élève à faire ses devoirs au salon, sous le regard de sa mère."
+        "alt": "Une répétitrice SOE aide une élève à faire ses devoirs au salon, sous le regard de sa mère.",
+        "tag": "Répétiteurs vérifiés"
       },
       "report": {
         "title": "Chaque séance suivie",
         "body": "Après chaque cours, un procès-verbal que vous validez ou contestez.",
-        "alt": "Un cahier corrigé au stylo rouge, noté 20 sur 20."
+        "alt": "Un cahier corrigé au stylo rouge, noté 20 sur 20.",
+        "tag": "Un PV après chaque cours"
       },
       "contract": {
         "title": "Un contrat clair, signé en ligne",
         "body": "Vous lisez le contrat et le signez depuis votre téléphone.",
-        "alt": "Un père signe le contrat du doigt sur son téléphone, sous sa véranda."
+        "alt": "Un père signe le contrat du doigt sur son téléphone, sous sa véranda.",
+        "tag": "Signature en ligne"
       },
       "payment": {
         "title": "Payez par Mobile Money",
         "body": "MTN MoMo ou Orange Money, une facture par mois, sans vous déplacer.",
-        "alt": "Une mère règle la facture par Mobile Money sur son téléphone."
+        "alt": "Une mère règle la facture par Mobile Money sur son téléphone.",
+        "tag": "MTN MoMo · Orange Money"
       }
     },
     "panel": {
@@ -103,7 +103,7 @@
           "body": "Un reçu pour chaque paiement."
         }
       },
-      "footer": "Disponible en français et en anglais."
+      "footer": "L’application parle la langue de votre téléphone."
     },
     "slideLabel": "Diapositive {{current}} sur {{total}}"
   },
@@ -143,7 +143,10 @@
         "submit": "Se reconnecter",
         "notYou": "Ce n’est pas vous ?",
         "changeAccount": "Changer de compte"
-      }
+      },
+      "tagline": "Le bon répétiteur, au bon moment, chez vous.",
+      "newHere": "Nouveau sur SOE ?",
+      "phoneLanguage": "Langue de l’application : celle de votre téléphone."
     },
     "profile": {
       "heading": "Bienvenue sur SOE",
@@ -168,7 +171,6 @@
       "firstNameHint": "Ex. Mireille",
       "lastName": "Nom",
       "lastNameHint": "Ex. Mbarga",
-      "lang": "Langue de l’application",
       "linkWithChildren": "Votre lien avec l’enfant",
       "father": "Père",
       "mother": "Mère",
@@ -922,7 +924,9 @@
         "disputedDetail": "La séance est retirée des revenus jusqu’à la décision.",
         "offline": "Disponible au retour du réseau",
         "sessionOf": "séance du {{date}}",
-        "perSession": "{{amount}} par séance"
+        "perSession": "{{amount}} par séance",
+        "left": "Reste {{time}}",
+        "overdue": "En retard"
       },
       "buttons": {
         "assignment": "Voir la proposition",
@@ -958,7 +962,9 @@
         "nearTitle": "Offres près de chez vous",
         "empty": "Aucune offre pour l’instant dans vos matières.",
         "seeAll": "Voir toutes les offres",
-        "note": "Vous pouvez postuler avant la validation de votre dossier."
+        "note": "Vous pouvez postuler avant la validation de votre dossier.",
+        "rate": "{{amount}} / séance",
+        "seeAllShort": "Tout voir"
       },
       "offline": {
         "title": "Hors connexion · données de {{time}}",
@@ -997,6 +1003,22 @@
           "interview": "Voir l’entretien",
           "test": "Voir l’entretien",
           "charter": "Lire et signer la charte"
+        }
+      },
+      "chips": {
+        "todo": "à faire",
+        "today": {
+          "zero": "séance auj.",
+          "one": "séance auj.",
+          "other": "séances auj."
+        },
+        "month": "FCFA ce mois",
+        "step": "étape",
+        "sections": "sections",
+        "offers": {
+          "zero": "offre près de vous",
+          "one": "offre près de vous",
+          "other": "offres près de vous"
         }
       }
     },
@@ -1885,7 +1907,7 @@
       "modeTutor": "Mode répétiteur",
       "switchSpace": "Changer d’espace",
       "personal": "Informations personnelles",
-      "personalText": "Photo, nom, téléphone, e-mail, langue",
+      "personalText": "Photo, nom, téléphone, e-mail",
       "security": "Sécurité",
       "securityText": "Mot de passe, appareils connectés, suppression du compte",
       "address": "Adresse",
@@ -1901,9 +1923,7 @@
       "helpText": "FAQ, e-mail, appel et WhatsApp",
       "report": "Signaler un problème",
       "reportText": "Va à SOE, jamais à l’autre partie",
-      "signOut": "Se déconnecter",
-      "language": "Langue",
-      "application": "Application"
+      "signOut": "Se déconnecter"
     },
     "personal": {
       "title": "Informations personnelles",
@@ -1917,7 +1937,6 @@
       "civility": "Civilité",
       "mr": "M.",
       "mrs": "Mme",
-      "language": "Langue",
       "firstName": "Prénom",
       "lastName": "Nom",
       "phone": "Téléphone",

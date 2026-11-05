@@ -83,9 +83,9 @@ void main() {
     final router = await _pump(tester, candidate: true);
 
     for (final label in ['Dossier', 'Offres', 'Candidatures', 'Plus']) {
-      expect(find.text(label), findsOneWidget);
+      expect(find.byTooltip(label), findsOneWidget);
     }
-    expect(find.text('Planning'), findsNothing);
+    expect(find.byTooltip('Planning'), findsNothing);
     expect(find.text('home'), findsOneWidget);
     expect(_selected(tester), 0);
 
@@ -99,7 +99,7 @@ void main() {
     expect(find.text('home'), findsOneWidget);
 
     // « Offres » is a tab; an offer keeps the tab bar on « Offres » (REP-11).
-    await tester.tap(find.text('Offres'));
+    await tester.tap(find.byTooltip('Offres'));
     await tester.pumpAndSettle();
     expect(find.text('offers'), findsOneWidget);
     expect(_selected(tester), 1);
@@ -109,7 +109,7 @@ void main() {
     expect(find.byType(SoeBottomNav), findsOneWidget);
     expect(_selected(tester), 1);
 
-    await tester.tap(find.text('Candidatures'));
+    await tester.tap(find.byTooltip('Candidatures'));
     await tester.pumpAndSettle();
     expect(find.text('applications'), findsOneWidget);
     expect(_selected(tester), 2);
@@ -120,9 +120,9 @@ void main() {
       (tester) async {
     final router = await _pump(tester, candidate: false);
 
-    expect(find.text('Aujourd’hui'), findsOneWidget);
-    expect(find.text('Revenus'), findsOneWidget);
-    expect(find.text('Candidatures'), findsNothing);
+    expect(find.byTooltip('Aujourd’hui'), findsOneWidget);
+    expect(find.byTooltip('Revenus'), findsOneWidget);
+    expect(find.byTooltip('Candidatures'), findsNothing);
 
     unawaited(router.push('/tutor/space/contracts'));
     await tester.pumpAndSettle();

@@ -14,24 +14,25 @@ enum SoeButtonVariant {
   /// Teal 500 filled, white text.
   secondary,
 
-  /// Teal outline 1.5 px.
+  /// Soft: light teal fill, SOE teal text (a secondary action next to a filled one).
   outline,
 
   /// Text only, teal.
   tertiary,
 
-  /// Destructive confirmation: danger text colour filled, white text.
+  /// Destructive action: soft red (danger background, danger text).
   danger,
 
   /// Risky action: danger outline.
   dangerOutline,
 
-  /// On deep teal surfaces: white text, outline in onDark2.
+  /// On a coloured ground (navy, teal, slides): translucent white fill, white text.
   onBrand,
 }
 
-/// Studio heights: sm 40 (compact) · md 48 (standard) · lg 52 (mobile).
-enum SoeButtonSize { sm, md, lg }
+/// Heights: sm 40 (compact) · md 48 (standard) · lg 52 (mobile) · xl 56 (main action of
+/// the welcome and sign-in screens).
+enum SoeButtonSize { sm, md, lg, xl }
 
 /// SoeButton — always a pill; the label is a verb. One `primary` (gold) button per screen.
 /// Mirror of the web `Soe::ButtonComponent` (soe/app/components/soe/button_component.rb).
@@ -71,10 +72,12 @@ class SoeButton extends StatelessWidget {
       SoeButtonSize.sm => 40.0,
       SoeButtonSize.md => 48.0,
       SoeButtonSize.lg => 52.0,
+      SoeButtonSize.xl => 56.0,
     };
     final textStyle = switch (size) {
       SoeButtonSize.sm => AppTypography.buttonSm,
-      _ when variant == SoeButtonVariant.primary => AppTypography.buttonLg,
+      SoeButtonSize.xl => AppTypography.buttonLg.copyWith(fontSize: 17),
+      _ when variant != SoeButtonVariant.tertiary => AppTypography.buttonLg,
       _ => AppTypography.button,
     };
 
@@ -145,16 +148,16 @@ class SoeButton extends StatelessWidget {
         SoeButtonVariant.secondary =>
           const _ButtonSpec(AppPalette.teal500, AppPalette.white),
         SoeButtonVariant.outline => const _ButtonSpec(
-            Colors.transparent,
+            AppPalette.teal50,
             AppPalette.teal500,
-            border: BorderSide(color: AppPalette.teal500, width: 1.5),
-            overlay: AppPalette.teal50,
+            border: BorderSide(color: AppPalette.teal100),
+            overlay: AppPalette.overlayHover,
           ),
         SoeButtonVariant.tertiary => const _ButtonSpec(
             Colors.transparent, AppPalette.teal500,
             overlay: AppPalette.teal50),
         SoeButtonVariant.danger =>
-          const _ButtonSpec(AppPalette.dangerText, AppPalette.white),
+          const _ButtonSpec(AppPalette.dangerBg, AppPalette.dangerText),
         SoeButtonVariant.dangerOutline => const _ButtonSpec(
             Colors.transparent,
             AppPalette.dangerText,
@@ -162,9 +165,8 @@ class SoeButton extends StatelessWidget {
             overlay: AppPalette.dangerBg,
           ),
         SoeButtonVariant.onBrand => const _ButtonSpec(
-            Colors.transparent,
+            Color(0x24FFFFFF),
             AppPalette.white,
-            border: BorderSide(color: AppPalette.onDark2, width: 1.5),
             overlay: AppPalette.overlayDarkHover,
           ),
       };
@@ -173,15 +175,15 @@ class SoeButton extends StatelessWidget {
         SoeButtonVariant.outline ||
         SoeButtonVariant.dangerOutline =>
           const _ButtonSpec(
-            Colors.transparent,
+            AppPalette.n50,
             AppPalette.ink600,
-            border: BorderSide(color: AppPalette.n300, width: 1.5),
+            border: BorderSide(color: AppPalette.teal100),
           ),
         SoeButtonVariant.tertiary =>
           const _ButtonSpec(Colors.transparent, AppPalette.ink600),
         SoeButtonVariant.onBrand =>
           const _ButtonSpec(AppPalette.lineDark, AppPalette.onDark2),
-        _ => const _ButtonSpec(AppPalette.n300, AppPalette.ink600),
+        _ => const _ButtonSpec(AppPalette.teal100, AppPalette.ink600),
       };
 }
 
@@ -199,7 +201,7 @@ class _ButtonSpec {
   final Color overlay;
 }
 
-/// Bouton icône seul (44×44, radius 14). Variants `filled` (teal) ou `outline`.
+/// Icon-only button (44×44, round). `filled` (teal) or `outline` (white).
 class SoeIconButton extends StatelessWidget {
   const SoeIconButton({
     super.key,
@@ -223,13 +225,13 @@ class SoeIconButton extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onPressed,
-        borderRadius: AppRadius.rMd,
+        borderRadius: AppRadius.rPill,
         child: Container(
           width: 44,
           height: 44,
           decoration: BoxDecoration(
             color: bg,
-            borderRadius: AppRadius.rMd,
+            borderRadius: AppRadius.rPill,
             border: Border.all(color: border, width: 1.5),
           ),
           child: Icon(icon, size: 20, color: fg),

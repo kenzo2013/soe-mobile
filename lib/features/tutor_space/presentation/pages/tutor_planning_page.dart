@@ -7,7 +7,6 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/error_view.dart';
-import '../../../../core/widgets/soe_chip.dart';
 import '../../../../core/widgets/soe_pill_switch.dart';
 import '../../../../core/widgets/soe_skeleton.dart';
 import '../../../../i18n/translations.g.dart';
@@ -94,70 +93,57 @@ class _TutorPlanningPageState extends ConsumerState<TutorPlanningPage> {
     final query = _query;
     final value = ref.watch(tutorSessionsProvider(query));
     final sessions = value.valueOrNull ?? const <TutorSession>[];
-    return Scaffold(
-      backgroundColor: AppPalette.surfacePage,
-      body: TabBody(
-        title: Translations.of(context).shell.tutor.planning,
-        child: RefreshIndicator(
-          onRefresh: () => ref.refresh(tutorSessionsProvider(query).future),
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-            children: [
-              Text(tr.title,
-                  style: AppTypography.h1.copyWith(color: AppPalette.teal800)),
-              Text(tr.subtitle,
-                  style: AppTypography.body.copyWith(color: AppPalette.text2)),
-              const SizedBox(height: 12),
-              Wrap(spacing: 8, runSpacing: 8, children: [
-                for (final filter in _filters)
-                  SoeChip(
-                    label: _filterLabel(tr, filter),
-                    selected: _filter == filter,
-                    onTap: () => setState(() => _filter = filter),
-                  ),
-              ]),
-              const SizedBox(height: 16),
-              SoeCard(
-                padding: EdgeInsets.zero,
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _periodHeader(tr),
-                      const Divider(height: 1, color: AppPalette.n300),
-                      _calendar(sessions),
-                      const Divider(height: 1, color: AppPalette.n300),
-                      value.when(
-                        data: (sessions) => sessions.isEmpty
-                            ? _empty(tr)
-                            : Column(children: [
-                                for (final session in sessions)
-                                  _SessionRow(session: session),
-                              ]),
-                        loading: () => const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Column(children: [
-                            SoeSkeleton(height: 56),
-                            SizedBox(height: 12),
-                            SoeSkeleton(height: 56),
-                          ]),
-                        ),
-                        error: (error, _) => ErrorView(
-                            failure: asFailure(error),
-                            onRetry: () =>
-                                ref.invalidate(tutorSessionsProvider(query))),
-                      ),
-                      if (_filter == 'disputed')
-                        _footer(Text(tr.disputedNote,
-                            style: AppTypography.caption
-                                .copyWith(color: AppPalette.text2)))
-                      else
-                        _footer(_Legend(tr: tr.legend)),
-                    ]),
-              ),
-            ],
-          ),
+    return SpaceTabView(
+      onRefresh: () => ref.refresh(tutorSessionsProvider(query).future),
+      band: SpaceBand(
+        title: tr.title,
+        subtitle: tr.subtitle,
+        chips: BandFilters<String?>(
+          options: [
+            for (final filter in _filters) (filter, _filterLabel(tr, filter))
+          ],
+          selected: _filter,
+          onSelected: (filter) => setState(() => _filter = filter),
         ),
       ),
+      children: [
+        SoeCard(
+          raised: true,
+          padding: EdgeInsets.zero,
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            _periodHeader(tr),
+            const Divider(height: 1, color: AppPalette.n300),
+            _calendar(sessions),
+            const Divider(height: 1, color: AppPalette.n300),
+            value.when(
+              data: (sessions) => sessions.isEmpty
+                  ? _empty(tr)
+                  : Column(children: [
+                      for (final session in sessions)
+                        _SessionRow(session: session),
+                    ]),
+              loading: () => const Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(children: [
+                  SoeSkeleton(height: 56),
+                  SizedBox(height: 12),
+                  SoeSkeleton(height: 56),
+                ]),
+              ),
+              error: (error, _) => ErrorView(
+                  failure: asFailure(error),
+                  onRetry: () => ref.invalidate(tutorSessionsProvider(query))),
+            ),
+            if (_filter == 'disputed')
+              _footer(Text(tr.disputedNote,
+                  style:
+                      AppTypography.caption.copyWith(color: AppPalette.text2)))
+            else
+              _footer(_Legend(tr: tr.legend)),
+          ]),
+        ),
+      ],
     );
   }
 
@@ -226,12 +212,12 @@ class _TutorPlanningPageState extends ConsumerState<TutorPlanningPage> {
             height: 30,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-                color: isToday ? AppPalette.teal800 : null,
+                color: isToday ? AppPalette.gold400 : null,
                 shape: BoxShape.circle),
             child: Text('${day.day}',
                 style: AppTypography.label.copyWith(
                     color: isToday
-                        ? AppPalette.white
+                        ? AppPalette.ink900
                         : (faded ? AppPalette.text3 : AppPalette.text))),
           ),
           const SizedBox(height: 2),
@@ -241,7 +227,7 @@ class _TutorPlanningPageState extends ConsumerState<TutorPlanningPage> {
             decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: busy.contains(day) && !faded
-                    ? AppPalette.teal800
+                    ? AppPalette.success
                     : Colors.transparent),
           ),
         ]),

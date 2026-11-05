@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -80,7 +82,7 @@ class _ParentRequestsPageState extends ConsumerState<ParentRequestsPage> {
         value: ref.watch(parentRequestsProvider),
         onRetry: () => ref.invalidate(parentRequestsProvider),
         builder: (requests) => ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+          padding: spacePagePadding(context, top: 8, bottom: 32),
           children: [
             Text(tr.title,
                 style: AppTypography.h1.copyWith(color: AppPalette.teal800)),
@@ -314,7 +316,7 @@ class _ParentQuotePageState extends ConsumerState<ParentQuotePage> {
         value: ref.watch(parentQuoteProvider(widget.requestId)),
         onRetry: () => ref.invalidate(parentQuoteProvider(widget.requestId)),
         builder: (quote) => ListView(
-          padding: const EdgeInsets.all(16),
+          padding: spacePagePadding(context),
           children: [
             Row(children: [
               Text(tr.version(version: quote.version),
@@ -628,7 +630,7 @@ class _ParentPlanningProposalPageState
         value: ref.watch(parentPlanningProvider(widget.requestId)),
         onRetry: () => ref.invalidate(parentPlanningProvider(widget.requestId)),
         builder: (slots) => ListView(
-          padding: const EdgeInsets.all(16),
+          padding: spacePagePadding(context),
           children: [
             if (slots.every((slot) => slot.times.isEmpty))
               SoeEmptyState(

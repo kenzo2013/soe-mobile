@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soe/core/providers/core_providers.dart';
 import 'package:soe/core/storage/preferences_storage.dart';
-import 'package:soe/core/storage/storage_keys.dart';
 import 'package:soe/core/theme/app_theme.dart';
 import 'package:soe/features/auth/domain/entities/user.dart';
 import 'package:soe/features/auth/presentation/providers/current_user_provider.dart';
@@ -47,7 +46,7 @@ Future<GoRouter> pumpAccountApp(
   tester.view.physicalSize = const Size(700, 1800);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  SharedPreferences.setMockInitialValues({StorageKeys.preferredLang: 'fr'});
+  SharedPreferences.setMockInitialValues({});
   final prefs = PreferencesStorage(await SharedPreferences.getInstance());
   LocaleSettings.setLocaleSync(AppLocale.fr);
   Widget stand(BuildContext context, GoRouterState state) =>

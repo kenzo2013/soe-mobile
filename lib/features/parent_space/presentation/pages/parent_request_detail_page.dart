@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -134,7 +136,7 @@ class _Detail extends ConsumerWidget {
     final current = steps.indexOf(request.step);
     final planned = _plannedStages.contains(request.stage);
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: spacePagePadding(context),
       children: [
         ParentHeading(
           overline: tr.requestDetail.overline(reference: request.reference),
@@ -181,7 +183,7 @@ class _Detail extends ConsumerWidget {
                     height: 5,
                     decoration: BoxDecoration(
                       color: i < current
-                          ? AppPalette.teal800
+                          ? AppPalette.success
                           : (i == current
                               ? AppPalette.gold400
                               : AppPalette.teal100),

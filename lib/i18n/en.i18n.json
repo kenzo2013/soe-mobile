@@ -23,10 +23,6 @@
     "or": "OR",
     "copyright": "© SOE 2026 · Solution of Education"
   },
-  "languages": {
-    "fr": "Français",
-    "en": "English"
-  },
   "errors": {
     "network": "No internet connection.",
     "timeout": "The server is taking too long to respond.",
@@ -68,22 +64,26 @@
       "tutor": {
         "title": "A tutor chosen for your child",
         "body": "ID, diplomas, interview and test: SOE vets every tutor and chooses for you.",
-        "alt": "An SOE tutor helps a student with her homework in the living room, as her mother looks on."
+        "alt": "An SOE tutor helps a student with her homework in the living room, as her mother looks on.",
+        "tag": "Vetted tutors"
       },
       "report": {
         "title": "Every session followed",
         "body": "After each lesson, a report you approve or dispute.",
-        "alt": "An exercise book marked in red pen, graded 20 out of 20."
+        "alt": "An exercise book marked in red pen, graded 20 out of 20.",
+        "tag": "A report after each lesson"
       },
       "contract": {
         "title": "A clear contract, signed online",
         "body": "You read the contract and sign it from your phone.",
-        "alt": "A father signs the contract with his finger on his phone, on his veranda."
+        "alt": "A father signs the contract with his finger on his phone, on his veranda.",
+        "tag": "Signed online"
       },
       "payment": {
         "title": "Pay with Mobile Money",
         "body": "MTN MoMo or Orange Money, one invoice a month, from home.",
-        "alt": "A mother pays the invoice by Mobile Money on her phone."
+        "alt": "A mother pays the invoice by Mobile Money on her phone.",
+        "tag": "MTN MoMo · Orange Money"
       }
     },
     "panel": {
@@ -103,7 +103,7 @@
           "body": "A receipt for every payment."
         }
       },
-      "footer": "Available in French and English."
+      "footer": "The app speaks your phone’s language."
     },
     "slideLabel": "Slide {{current}} of {{total}}"
   },
@@ -143,7 +143,10 @@
         "submit": "Sign in again",
         "notYou": "Not you?",
         "changeAccount": "Change account"
-      }
+      },
+      "tagline": "The right tutor, at the right time, at home.",
+      "newHere": "New to SOE?",
+      "phoneLanguage": "App language: your phone’s language."
     },
     "profile": {
       "heading": "Welcome to SOE",
@@ -168,7 +171,6 @@
       "firstNameHint": "E.g. Mireille",
       "lastName": "Last name",
       "lastNameHint": "E.g. Mbarga",
-      "lang": "App language",
       "linkWithChildren": "Your link with the child",
       "father": "Father",
       "mother": "Mother",
@@ -922,7 +924,9 @@
         "disputedDetail": "The session is removed from your earnings until the decision.",
         "offline": "Available when the network is back",
         "sessionOf": "session of {{date}}",
-        "perSession": "{{amount}} per session"
+        "perSession": "{{amount}} per session",
+        "left": "{{time}} left",
+        "overdue": "Late"
       },
       "buttons": {
         "assignment": "See the proposal",
@@ -958,7 +962,9 @@
         "nearTitle": "Offers near you",
         "empty": "No offer in your subjects for now.",
         "seeAll": "See all offers",
-        "note": "You can apply before your file is approved."
+        "note": "You can apply before your file is approved.",
+        "rate": "{{amount}} / session",
+        "seeAllShort": "See all"
       },
       "offline": {
         "title": "Offline · data from {{time}}",
@@ -997,6 +1003,20 @@
           "interview": "See the interview",
           "test": "See the interview",
           "charter": "Read and sign the charter"
+        }
+      },
+      "chips": {
+        "todo": "to do",
+        "today": {
+          "one": "session today",
+          "other": "sessions today"
+        },
+        "month": "FCFA this month",
+        "step": "step",
+        "sections": "sections",
+        "offers": {
+          "one": "offer near you",
+          "other": "offers near you"
         }
       }
     },
@@ -1885,7 +1905,7 @@
       "modeTutor": "Tutor mode",
       "switchSpace": "Switch space",
       "personal": "Personal information",
-      "personalText": "Photo, name, phone, e-mail, language",
+      "personalText": "Photo, name, phone, e-mail",
       "security": "Security",
       "securityText": "Password, connected devices, account deletion",
       "address": "Address",
@@ -1901,9 +1921,7 @@
       "helpText": "FAQ, e-mail, call and WhatsApp",
       "report": "Report a problem",
       "reportText": "Goes to SOE, never to the other party",
-      "signOut": "Sign out",
-      "language": "Language",
-      "application": "App"
+      "signOut": "Sign out"
     },
     "personal": {
       "title": "Personal information",
@@ -1917,7 +1935,6 @@
       "civility": "Title",
       "mr": "Mr",
       "mrs": "Mrs",
-      "language": "Language",
       "firstName": "First name",
       "lastName": "Last name",
       "phone": "Phone",
