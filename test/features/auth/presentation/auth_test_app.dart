@@ -17,6 +17,8 @@ import 'package:soe/features/auth/domain/entities/auth_session.dart';
 import 'package:soe/features/auth/domain/entities/sign_up_answers.dart';
 import 'package:soe/features/auth/domain/entities/user.dart';
 import 'package:soe/features/auth/domain/repositories/auth_repository.dart';
+import 'package:soe/core/data/cameroon_city.dart';
+import 'package:soe/core/providers/cameroon_cities_provider.dart';
 import 'package:soe/features/auth/presentation/providers.dart';
 import 'package:soe/features/auth/presentation/routes.dart';
 import 'package:soe/features/parent_space/presentation/parent_space_routes.dart';
@@ -114,6 +116,15 @@ class FakeAuthRepository implements AuthRepository {
   Future<Result<User, Failure>> fetchCurrentUser() async => Ok(session().user);
 }
 
+/// Cities of `GET /auth/cities` in the auth tests: two main ones, two others (one with an
+/// apostrophe, as stored by the server).
+final testCities = [
+  CameroonCity(name: 'Douala', major: true, region: 'Littoral'),
+  CameroonCity(name: 'Yaoundé', major: true, region: 'Centre'),
+  CameroonCity(name: 'Akonolinga'),
+  CameroonCity(name: "Sa'a"),
+];
+
 /// The auth routes of the app, the two homes as placeholders, in French on a phone.
 Future<void> pumpAuthApp(WidgetTester tester, FakeAuthRepository repository,
     {required String start, List<Override> overrides = const []}) async {
@@ -149,6 +160,7 @@ Future<void> pumpAuthApp(WidgetTester tester, FakeAuthRepository repository,
         authRepositoryProvider.overrideWithValue(repository),
         preferencesStorageProvider.overrideWithValue(prefs),
         secureStorageProvider.overrideWithValue(storage),
+        cameroonCitiesProvider.overrideWith((ref) async => testCities),
         ...overrides,
       ],
       child: TranslationProvider(

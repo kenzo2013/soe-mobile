@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../data/countries.dart';
-import '../theme/app_palette.dart';
-import '../theme/app_radius.dart';
-import '../theme/app_typography.dart';
 import 'soe_country_picker_sheet.dart';
+import 'soe_picker.dart';
 
-/// Sélecteur pays — ressemble à un input mais ouvre un BottomSheet.
+/// Sélecteur pays — un [SoePickerField] qui ouvre [showSoeCountryPicker].
 ///
 /// Affichage : drapeau + « Cameroun · CM » + chevron ↓.
 class SoeCountryField extends StatelessWidget {
@@ -25,8 +23,10 @@ class SoeCountryField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: AppRadius.rSm,
+    return SoePickerField(
+      placeholder: country.name,
+      valueText: '${country.name} · ${country.code}',
+      leading: CountryFlag(country: country),
       onTap: () async {
         final picked = await showSoeCountryPicker(
           context,
@@ -36,36 +36,6 @@ class SoeCountryField extends StatelessWidget {
         );
         if (picked != null) onChanged(picked);
       },
-      child: Container(
-        height: 54,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        decoration: BoxDecoration(
-          color: AppPalette.white,
-          borderRadius: AppRadius.rSm,
-          border: Border.all(color: AppPalette.n300, width: 1.5),
-        ),
-        child: Row(
-          children: [
-            CountryFlag(country: country),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                '${country.name} · ${country.code}',
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.body.copyWith(
-                  color: AppPalette.ink,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            const Icon(
-              Icons.keyboard_arrow_down,
-              size: 18,
-              color: AppPalette.n500,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

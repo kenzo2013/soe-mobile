@@ -19,6 +19,7 @@ import '../../../tutor_space/data/tutor_location.dart';
 import '../../data/account_models.dart';
 import '../providers.dart';
 import '../widgets/account_ui.dart';
+import '../../../../core/widgets/soe_city_field.dart';
 
 /// Reads the phone's position for « Utiliser ma position » (replaced in tests).
 final addressLocatorProvider =
@@ -137,8 +138,6 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
   Widget build(BuildContext context) {
     final tr = Translations.of(context).accountSpace.address;
     final tutor = ref.watch(currentRoleProvider) == 'tutor';
-    final cities = ref.watch(cityNamesProvider).valueOrNull ??
-        [if ((_city ?? '').isNotEmpty) _city!];
     FlutterGooglePlacesSdk? places;
     try {
       places = ref.watch(googlePlacesClientProvider);
@@ -180,31 +179,12 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
               errorText: fieldError(_error, 'neighborhood'),
             ),
             AccountFieldLabel(tr.city),
-            if (cities.length <= 3 && cities.isNotEmpty)
-              AccountSegmented<String>(
-                options: [
-                  for (final city in cities) (value: city, label: city)
-                ],
-                selected: _city,
-                onChanged: (city) => setState(() => _city = city),
-              )
-            else
-              DropdownButton<String>(
-                isExpanded: true,
-                value: cities.contains(_city) ? _city : null,
-                items: [
-                  for (final city in cities)
-                    DropdownMenuItem(value: city, child: Text(city))
-                ],
-                onChanged: (city) => setState(() => _city = city),
-              ),
-            if (fieldError(_error, 'city') != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Text(fieldError(_error, 'city')!,
-                    style: AppTypography.caption
-                        .copyWith(color: AppPalette.dangerText)),
-              ),
+            SoeCityField(
+              value: _city,
+              semanticLabel: tr.city,
+              errorText: fieldError(_error, 'city'),
+              onChanged: (city) => setState(() => _city = city),
+            ),
             AccountFieldLabel(tr.landmark),
             SoeTextField(
               controller: _landmark,

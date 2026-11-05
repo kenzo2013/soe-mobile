@@ -115,16 +115,6 @@ class AccountApi {
           await _dio.patch<Map<String, dynamic>>(ApiEndpointsV2.accountAddress,
               data: address.toJson()))));
 
-  /// The cities SOE serves (/references `cities`), for the address.
-  Future<List<String>> cities() => _guard(() async =>
-      ((_data(await _dio.get<Map<String, dynamic>>(ApiEndpointsV2.references))[
-                  'cities'] as List<dynamic>?) ??
-              const [])
-          .whereType<Map<String, dynamic>>()
-          .map((city) => city['name'] as String? ?? '')
-          .where((name) => name.isNotEmpty)
-          .toList());
-
   // ── Roles (COM-05) ────────────────────────────────────────
 
   Future<AccountRoles> roles() =>

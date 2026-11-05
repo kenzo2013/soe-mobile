@@ -144,7 +144,19 @@ void main() {
 
     expect(find.text('Où habitez-vous ?'), findsOneWidget);
     await _enter(tester, 'Quartier', 'Makepe');
+    await tester.tap(find.text('Choisissez votre ville'));
+    await tester.pumpAndSettle();
+    expect(find.text('GRANDES VILLES'), findsOneWidget);
+    await tester.enterText(
+        find.widgetWithText(TextField, 'Rechercher une ville'), 'akono');
+    await tester.pump();
+    expect(find.text('Douala'), findsNothing);
+    await tester.enterText(
+        find.widgetWithText(TextField, 'Rechercher une ville'), 'doua');
+    await tester.pump();
     await tester.tap(find.text('Douala'));
+    await tester.pumpAndSettle();
+    expect(find.text('Douala'), findsOneWidget);
     for (final consent in [
       'J’accepte les conditions générales d’utilisation',
       'J’accepte les conditions générales de vente',

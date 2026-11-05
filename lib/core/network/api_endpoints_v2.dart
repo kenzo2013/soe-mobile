@@ -13,6 +13,9 @@ abstract final class ApiEndpointsV2 {
   static const String passwordResetVerify = '/auth/password_resets/verify';
   static const String passwordResetResend = '/auth/password_resets/resend';
 
+  /// Every city of Cameroon, the main ones first (public: called at sign-up).
+  static const String cities = '/auth/cities';
+
   // Parent space (lot 3, PAR-01 to PAR-17).
   static const String parentHome = '/parent/home';
   static const String parentChildren = '/parent/children';

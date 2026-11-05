@@ -17,9 +17,6 @@ final pushDevicesProvider = Provider<PushDevices>((ref) => PushDevices(
 final accountAddressProvider = FutureProvider.autoDispose<AccountAddress>(
     (ref) => ref.watch(accountApiProvider).address());
 
-final cityNamesProvider = FutureProvider.autoDispose<List<String>>(
-    (ref) => ref.watch(accountApiProvider).cities());
-
 final accountRolesProvider = FutureProvider.autoDispose<AccountRoles>(
     (ref) => ref.watch(accountApiProvider).roles());
 

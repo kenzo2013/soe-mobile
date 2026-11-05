@@ -111,6 +111,15 @@
     "phoneTitle": "Indicatif pays",
     "addressTitle": "Choisir un pays"
   },
+  "cityPicker": {
+    "title": "Choisir votre ville",
+    "search": "Rechercher une ville",
+    "major": "Grandes villes",
+    "others": "Autres villes du Cameroun",
+    "empty": "Aucune ville ne correspond.",
+    "placeholder": "Choisissez votre ville",
+    "retry": "Liste des villes indisponible. Réessayer"
+  },
   "widgets": {
     "password": "Mot de passe",
     "passwordHint": "8 caractères minimum",
