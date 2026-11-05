@@ -7,13 +7,15 @@ import '../../helpers/pump_app.dart';
 
 void main() {
   testWidgets(
-      'AUT-00: teal screen with the logo and a labelled loader, no action',
+      'AUT-00: navy launch with the logo and a labelled loader, no action',
       (tester) async {
     await pumpAppWith(tester, child: const SplashPage());
+    await tester.pump(const Duration(seconds: 1));
 
     final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
     expect(scaffold.backgroundColor, AppPalette.teal800);
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(
+        find.bySemanticsLabel('SOE — Solution of Education'), findsOneWidget);
     expect(find.bySemanticsLabel('Chargement de SOE'), findsOneWidget);
     expect(find.byType(ButtonStyleButton), findsNothing);
   });

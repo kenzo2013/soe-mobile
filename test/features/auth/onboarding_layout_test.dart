@@ -6,13 +6,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soe/app/app.dart';
 import 'package:soe/core/providers/core_providers.dart';
 import 'package:soe/core/storage/preferences_storage.dart';
-import 'package:soe/core/storage/storage_keys.dart';
 import 'package:soe/core/theme/app_theme.dart';
 import 'package:soe/features/auth/presentation/pages/onboarding_page.dart';
 import 'package:soe/i18n/translations.g.dart';
 
 Future<PreferencesStorage> _prefs() async {
-  SharedPreferences.setMockInitialValues({StorageKeys.preferredLang: 'fr'});
+  SharedPreferences.setMockInitialValues({});
   return PreferencesStorage(await SharedPreferences.getInstance());
 }
 
@@ -40,7 +39,7 @@ Future<void> _pumpPage(WidgetTester tester, Size size, double textScale) async {
                 .copyWith(textScaler: TextScaler.linear(textScale)),
             child: child!,
           ),
-          home: const OnboardingPage(),
+          home: const OnboardingPage(launch: false),
         ),
       ),
     ),
@@ -49,9 +48,10 @@ Future<void> _pumpPage(WidgetTester tester, Size size, double textScale) async {
 }
 
 void main() {
-  testWidgets('changing the language in the real app keeps the current slide',
-      (tester) async {
+  testWidgets('the real app speaks the phone\'s language', (tester) async {
     _setScreen(tester, const Size(390, 844));
+    tester.platformDispatcher.localesTestValue = const [Locale('en', 'US')];
+    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
     final prefs = await _prefs();
     await tester.pumpWidget(
       ProviderScope(
@@ -59,25 +59,21 @@ void main() {
         child: const SoeApp(),
       ),
     );
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Suivant'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Suivant'));
+    await tester.pump(const Duration(milliseconds: 2500));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('EN'));
+    expect(find.text('A tutor chosen for your child'), findsOneWidget);
+    await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
-
-    expect(find.text('A clear contract, signed online'), findsOneWidget);
+    expect(find.text('Every session followed'), findsOneWidget);
   });
 
-  testWidgets(
-      'an iPhone turned sideways keeps the phone layout, without overflow',
+  testWidgets('an iPhone turned sideways shows the slide without overflow',
       (tester) async {
     await _pumpPage(tester, const Size(844, 390), 1);
 
     expect(tester.takeException(), isNull);
-    expect(find.text('Répétiteurs vérifiés'), findsNothing);
+    expect(find.text('Suivant'), findsOneWidget);
   });
 
   testWidgets('a small phone with a very large font does not overflow',
@@ -89,7 +85,7 @@ void main() {
   });
 
   testWidgets(
-      'a tablet with a very large font shows the panel without overflow',
+      'a tablet with a very large font shows the slide without overflow',
       (tester) async {
     await _pumpPage(tester, const Size(834, 1194), 2);
 

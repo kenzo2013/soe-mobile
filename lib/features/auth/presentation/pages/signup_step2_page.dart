@@ -83,7 +83,8 @@ class _SignupStep2PageState extends ConsumerState<SignupStep2Page> {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-              color: AppPalette.n50, borderRadius: BorderRadius.circular(14)),
+              color: AppPalette.teal50,
+              borderRadius: BorderRadius.circular(16)),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

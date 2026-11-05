@@ -43,14 +43,27 @@ class RoleChoicePage extends ConsumerWidget {
       children: [
         AuthHeading(title: tr.heading, lead: tr.lead),
         AuthErrorText(failure: state.failure),
-        for (final (value, icon, title, text) in [
-          ('parent', Icons.person_outline, tr.parentTitle, tr.parentText),
-          ('tutor', Icons.school_outlined, tr.tutorTitle, tr.tutorText),
+        for (final (value, icon, title, text, tile) in [
+          (
+            'parent',
+            Icons.family_restroom_outlined,
+            tr.parentTitle,
+            tr.parentText,
+            AppPalette.teal500
+          ),
+          (
+            'tutor',
+            Icons.school_outlined,
+            tr.tutorTitle,
+            tr.tutorText,
+            AppPalette.success
+          ),
         ])
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: _ProfileCard(
               icon: icon,
+              tile: tile,
               title: title,
               text: text,
               selected: role == value,
@@ -61,12 +74,13 @@ class RoleChoicePage extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-              color: AppPalette.n50, borderRadius: BorderRadius.circular(14)),
+              color: AppPalette.gold50,
+              borderRadius: BorderRadius.circular(16)),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Icon(Icons.info_outline,
-                  size: 18, color: AppPalette.teal500),
+                  size: 18, color: AppPalette.gold700),
               const SizedBox(width: 10),
               Expanded(
                   child: Text(tr.later,
@@ -98,6 +112,7 @@ class RoleChoicePage extends ConsumerWidget {
 class _ProfileCard extends StatelessWidget {
   const _ProfileCard({
     required this.icon,
+    required this.tile,
     required this.title,
     required this.text,
     required this.selected,
@@ -105,6 +120,9 @@ class _ProfileCard extends StatelessWidget {
   });
 
   final IconData icon;
+
+  /// The colour of the icon's tile.
+  final Color tile;
   final String title;
   final String text;
   final bool selected;
@@ -116,27 +134,26 @@ class _ProfileCard extends StatelessWidget {
       button: true,
       selected: selected,
       child: Material(
-        color: selected ? AppPalette.teal50 : AppPalette.n50,
+        color: selected ? AppPalette.gold50 : AppPalette.teal50,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           side: BorderSide(
-              color: selected ? AppPalette.teal500 : Colors.transparent,
-              width: 1.5),
+              color: selected ? AppPalette.gold400 : Colors.transparent,
+              width: 2),
         ),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           child: Padding(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(16),
             child: Row(
               children: [
                 Container(
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                      color: AppPalette.white,
-                      borderRadius: BorderRadius.circular(12)),
-                  child: Icon(icon, color: AppPalette.teal500),
+                      color: tile, borderRadius: BorderRadius.circular(14)),
+                  child: Icon(icon, color: AppPalette.white),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -156,7 +173,7 @@ class _ProfileCard extends StatelessWidget {
                     selected
                         ? Icons.radio_button_checked
                         : Icons.radio_button_unchecked,
-                    color: selected ? AppPalette.teal500 : AppPalette.ink400),
+                    color: selected ? AppPalette.gold700 : AppPalette.ink400),
               ],
             ),
           ),

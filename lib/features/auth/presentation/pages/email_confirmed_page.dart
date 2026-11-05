@@ -62,7 +62,8 @@ class EmailConfirmedPage extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-              color: AppPalette.n50, borderRadius: BorderRadius.circular(16)),
+              color: AppPalette.successBg,
+              borderRadius: BorderRadius.circular(20)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

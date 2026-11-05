@@ -17,9 +17,11 @@ Future<PreferencesStorage> _pump(
   WidgetTester tester, {
   Size size = const Size(390, 844),
   AppLocale locale = AppLocale.fr,
+  bool launch = false,
 }) async {
-  SharedPreferences.setMockInitialValues(
-      {StorageKeys.preferredLang: locale.languageCode});
+  SharedPreferences.setMockInitialValues({});
+  tester.platformDispatcher.localesTestValue = [locale.flutterLocale];
+  addTearDown(tester.platformDispatcher.clearLocalesTestValue);
   final prefs = PreferencesStorage(await SharedPreferences.getInstance());
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -30,7 +32,7 @@ Future<PreferencesStorage> _pump(
     routes: [
       GoRoute(
           path: RouteNames.onboarding,
-          builder: (_, __) => const OnboardingPage()),
+          builder: (_, __) => OnboardingPage(launch: launch)),
       GoRoute(
           path: RouteNames.roleChoice,
           builder: (_, __) => const Text('role-choice')),
@@ -51,7 +53,7 @@ Future<PreferencesStorage> _pump(
       ),
     ),
   );
-  await tester.pumpAndSettle();
+  if (!launch) await tester.pumpAndSettle();
   return prefs;
 }
 
@@ -108,22 +110,37 @@ void main() {
     expect(find.text('login'), findsOneWidget);
   });
 
-  testWidgets('the FR / EN switch changes the texts', (tester) async {
-    await _pump(tester);
+  testWidgets('the launch screen comes first, then the slides', (tester) async {
+    await _pump(tester, launch: true);
 
-    await tester.tap(find.text('EN'));
+    expect(find.bySemanticsLabel('Chargement de SOE'), findsOneWidget);
+    expect(find.text('Suivant'), findsNothing);
+
+    await tester.pump(const Duration(milliseconds: 2400));
     await tester.pumpAndSettle();
+    expect(find.text('Un répétiteur choisi pour votre enfant'), findsOneWidget);
+    expect(find.text('Répétiteurs vérifiés'), findsOneWidget);
+  });
+
+  testWidgets('a phone in English shows the slides in English, no switch',
+      (tester) async {
+    await _pump(tester, locale: AppLocale.en);
 
     expect(find.text('A tutor chosen for your child'), findsOneWidget);
     expect(find.text('Next'), findsOneWidget);
+    expect(find.text('EN'), findsNothing);
+    expect(find.text('FR'), findsNothing);
   });
 
-  testWidgets('on a tablet, the brand panel sits next to the slides',
-      (tester) async {
+  testWidgets('on a tablet, the photo sits next to the text', (tester) async {
     await _pump(tester, size: const Size(834, 1194));
 
-    expect(find.text('Le soutien scolaire à domicile, suivi de bout en bout.'),
-        findsOneWidget);
+    expect(find.text('Un répétiteur choisi pour votre enfant'), findsOneWidget);
     expect(find.text('Répétiteurs vérifiés'), findsOneWidget);
+    final photo =
+        tester.getRect(find.bySemanticsLabel(RegExp('sous le regard')));
+    final title =
+        tester.getRect(find.text('Un répétiteur choisi pour votre enfant'));
+    expect(photo.right, lessThan(title.left));
   });
 }

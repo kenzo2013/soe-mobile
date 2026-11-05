@@ -68,22 +68,26 @@
       "tutor": {
         "title": "A tutor chosen for your child",
         "body": "ID, diplomas, interview and test: SOE vets every tutor and chooses for you.",
-        "alt": "An SOE tutor helps a student with her homework in the living room, as her mother looks on."
+        "alt": "An SOE tutor helps a student with her homework in the living room, as her mother looks on.",
+        "tag": "Vetted tutors"
       },
       "report": {
         "title": "Every session followed",
         "body": "After each lesson, a report you approve or dispute.",
-        "alt": "An exercise book marked in red pen, graded 20 out of 20."
+        "alt": "An exercise book marked in red pen, graded 20 out of 20.",
+        "tag": "A report after each lesson"
       },
       "contract": {
         "title": "A clear contract, signed online",
         "body": "You read the contract and sign it from your phone.",
-        "alt": "A father signs the contract with his finger on his phone, on his veranda."
+        "alt": "A father signs the contract with his finger on his phone, on his veranda.",
+        "tag": "Signed online"
       },
       "payment": {
         "title": "Pay with Mobile Money",
         "body": "MTN MoMo or Orange Money, one invoice a month, from home.",
-        "alt": "A mother pays the invoice by Mobile Money on her phone."
+        "alt": "A mother pays the invoice by Mobile Money on her phone.",
+        "tag": "MTN MoMo · Orange Money"
       }
     },
     "panel": {
@@ -103,7 +107,7 @@
           "body": "A receipt for every payment."
         }
       },
-      "footer": "Available in French and English."
+      "footer": "The app speaks your phone’s language."
     },
     "slideLabel": "Slide {{current}} of {{total}}"
   },
@@ -143,7 +147,10 @@
         "submit": "Sign in again",
         "notYou": "Not you?",
         "changeAccount": "Change account"
-      }
+      },
+      "tagline": "The right tutor, at the right time, at home.",
+      "newHere": "New to SOE?",
+      "phoneLanguage": "App language: your phone’s language."
     },
     "profile": {
       "heading": "Welcome to SOE",
@@ -168,7 +175,6 @@
       "firstNameHint": "E.g. Mireille",
       "lastName": "Last name",
       "lastNameHint": "E.g. Mbarga",
-      "lang": "App language",
       "linkWithChildren": "Your link with the child",
       "father": "Father",
       "mother": "Mother",

@@ -9,7 +9,8 @@ import '../controllers/auth_controllers.dart';
 import '../widgets/auth_scaffold.dart';
 import '../widgets/sign_up_step_page.dart';
 
-/// AUT-03 — identity: civility, names, app language, link with the child (parent).
+/// AUT-03 — identity: civility, names, link with the child (parent). The account takes the
+/// phone's language.
 class SignupStep1Page extends ConsumerStatefulWidget {
   const SignupStep1Page({super.key});
 
@@ -79,12 +80,6 @@ class _SignupStep1PageState extends ConsumerState<SignupStep1Page> {
           onChanged: (value) => _update((a) => a.copyWith(lastName: value)),
         ),
         const SizedBox(height: 20),
-        ChoiceSegmented(
-          label: tr.lang,
-          options: const {'fr': 'Français', 'en': 'English'},
-          value: answers.lang,
-          onChanged: (value) => _update((a) => a.copyWith(lang: value)),
-        ),
         if (answers.isParent)
           ChoiceSegmented(
             label: tr.linkWithChildren,
