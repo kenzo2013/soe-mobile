@@ -362,44 +362,6 @@ class SpaceCentred extends StatelessWidget {
   Widget build(BuildContext context) => _Centred(child: child);
 }
 
-/// The body of a tab's first screen whose content scrolls on its own (lists with filters):
-/// the [SpaceBand] with the tab's name, then [child] below it.
-class TabBody extends StatelessWidget {
-  const TabBody(
-      {super.key, required this.title, required this.child, this.chips});
-
-  final String title;
-  final Widget child;
-  final Widget? chips;
-
-  @override
-  Widget build(BuildContext context) => Column(children: [
-        SpaceBand(title: title, chips: chips, overlap: 0),
-        Expanded(
-          child: MediaQuery.removePadding(
-            context: context,
-            removeTop: true,
-            child: SafeArea(top: false, child: child),
-          ),
-        ),
-      ]);
-}
-
-/// The band of a tab whose content scrolls on its own, without overlap.
-class TabTopBar extends StatelessWidget {
-  const TabTopBar({super.key, required this.title, this.now, this.chips});
-
-  final String title;
-  final Widget? chips;
-
-  /// Today, injectable for the tests.
-  final DateTime? now;
-
-  @override
-  Widget build(BuildContext context) =>
-      SpaceBand(title: title, now: now, chips: chips, overlap: 0);
-}
-
 /// One choice among a few, on a band (the filters of a list): the chosen pill is gold, the
 /// others translucent.
 class BandFilters<T> extends StatelessWidget {

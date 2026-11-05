@@ -420,7 +420,8 @@ class TutorFileSectionPage extends ConsumerWidget {
     final tr = Translations.of(context).tutorSpace.file;
     if (!TutorFileSections.all.contains(section)) {
       return Scaffold(
-        appBar: AppBar(),
+        backgroundColor: AppPalette.surfacePage,
+        appBar: SpaceAppBar(title: tr.title),
         body: SoeEmptyState(
             title: tr.unknownSection,
             message: '',
