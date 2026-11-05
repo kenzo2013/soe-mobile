@@ -26,6 +26,9 @@ void main() {
             'school_classes': ['3e'],
             'neighborhood': 'Bonamoussadi',
             'session_rate': 6500,
+            'start_date': '2026-11-02',
+            'start_label': 'Dès que possible',
+            'start_passed': true,
           }
         ]),
         detailValue: detail(),
@@ -53,6 +56,12 @@ void main() {
       expect(find.text('Offres pour moi'), findsOneWidget);
       expect(find.text('3e'), findsOneWidget);
       expect(find.bySemanticsLabel('Voir toutes les offres'), findsOneWidget);
+      expect(find.text('Dès que possible'), findsOneWidget);
+      // The API sends no note for an active tutor: none shown.
+      expect(
+          find.text(
+              'Vous pouvez postuler avant la validation de votre dossier.'),
+          findsNothing);
     });
 
     testWidgets('recruitment: the next step, what is missing, the journey',
@@ -72,6 +81,11 @@ void main() {
       expect(find.text('Étape 1 sur 6'), findsOneWidget);
       expect(find.text('Activation du compte'), findsOneWidget);
       expect(find.text('Offres près de chez vous'), findsOneWidget);
+      // A file not validated: our note when the API sends none.
+      expect(
+          find.text(
+              'Vous pouvez postuler avant la validation de votre dossier.'),
+          findsOneWidget);
       // No fake empty dashboard for a candidate.
       expect(find.text('À faire'), findsNothing);
       expect(find.textContaining('CE MOIS-CI'), findsNothing);

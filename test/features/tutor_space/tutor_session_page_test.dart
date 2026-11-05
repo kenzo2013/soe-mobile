@@ -31,6 +31,19 @@ void main() {
       expect(find.text('Signaler un problème'), findsOneWidget);
     });
 
+    testWidgets('the pay line of the server follows the state', (tester) async {
+      final api = FakeTutorApi(
+          detailValue: detail(rateLabel: '6 500 FCFA · séance validée'));
+      useTallView(tester);
+      await pumpAppWith(tester,
+          child: const TutorSessionPage(sessionId: 12),
+          overrides: tutorOverrides(api));
+      await tester.pumpAndSettle();
+
+      expect(find.text('6 500 FCFA · séance validée'), findsOneWidget);
+      expect(find.textContaining('si validée'), findsNothing);
+    });
+
     testWidgets('before the contract: the neighbourhood only, no move',
         (tester) async {
       final api =

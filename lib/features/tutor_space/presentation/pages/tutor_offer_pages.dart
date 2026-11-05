@@ -21,6 +21,7 @@ import '../../../../core/widgets/soe_toast.dart';
 import '../../../../i18n/translations.g.dart';
 import '../../data/tutor_offer_models.dart';
 import '../../data/tutor_references.dart';
+import '../providers.dart' show tutorHomeCacheProvider;
 import '../tutor_offer_providers.dart';
 import '../tutor_space_routes.dart';
 import '../widgets/tutor_offer_ui.dart';
@@ -105,6 +106,11 @@ class _TutorOffersPageState extends ConsumerState<TutorOffersPage> {
     final first =
         ref.watch(tutorOffersPageProvider(TutorOfferPageKey(_filters, 1)));
     final root = !(ModalRoute.of(context)?.canPop ?? false);
+    // « Vous pouvez postuler avant la validation » only while the file is not validated: the
+    // home's note, else ours for a candidate; nothing for an active tutor.
+    final home = ref.watch(tutorHomeCacheProvider)?.home;
+    final note = home?.offersNote ??
+        (home?.active == false ? tr.applyBeforeValidation : null);
     return SpaceScreen(
       section: tutorMoreSection(context),
       title: tr.title,
@@ -116,8 +122,10 @@ class _TutorOffersPageState extends ConsumerState<TutorOffersPage> {
               style: AppTypography.body.copyWith(color: AppPalette.text2)),
           const SizedBox(height: 12),
         ],
-        TutorInfoBanner(title: tr.applyBeforeValidation),
-        const SizedBox(height: 12),
+        if (note != null) ...[
+          TutorInfoBanner(title: note),
+          const SizedBox(height: 12),
+        ],
         Wrap(spacing: 8, runSpacing: 8, children: [
           SoeChip(
             label: tr.filters.mine,
@@ -360,6 +368,10 @@ class _TutorOfferPageState extends ConsumerState<TutorOfferPage> {
   Widget _details(TutorOffer offer) {
     final tr = Translations.of(context).tutorSpace.offers;
     final rate = offer.sessionRate;
+    final start = TutorFormat.offerStart(context,
+        label: offer.startLabel,
+        date: offer.startDate,
+        passed: offer.startPassed);
     final published = offer.publishedAt == null
         ? offer.reference
         : tr.detail.published(
@@ -368,8 +380,7 @@ class _TutorOfferPageState extends ConsumerState<TutorOfferPage> {
     final rows = <(String, String)>[
       if (offer.neighborhood != null)
         (tr.detail.neighborhood, offer.neighborhood!),
-      if (offer.startDate != null)
-        (tr.detail.start, TutorFormat.dayLong(context, offer.startDate!)),
+      if (start != null) (tr.detail.start, start),
       if (offer.schoolClasses.isNotEmpty)
         (tr.detail.schoolClass, offer.schoolClasses.join(', ')),
     ];

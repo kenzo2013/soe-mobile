@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:soe/core/error/failure.dart';
+import 'package:soe/features/tutor_space/data/tutor_models.dart';
 import 'package:soe/features/tutor_space/data/tutor_offer_api.dart';
 import 'package:soe/features/tutor_space/data/tutor_offer_models.dart';
 import 'package:soe/features/tutor_space/data/tutor_student_models.dart';
@@ -58,6 +59,50 @@ void main() {
       expect(offer.applied, isTrue);
       expect(offer.canApply, isFalse);
       expect(offer.appliedAt, isNotNull);
+    });
+
+    test('reads the start as the server words it', () {
+      final offer = TutorOffer.fromJson({
+        ..._offerJson,
+        'start_date': '2026-11-02',
+        'start_label': 'Dès que possible',
+        'start_passed': true,
+      });
+      expect(offer.startLabel, 'Dès que possible');
+      expect(offer.startPassed, isTrue);
+      expect(offer.copyWith(applied: false).startLabel, 'Dès que possible');
+      expect(offer.copyWith(applied: false).startPassed, isTrue);
+    });
+
+    test('without start_passed, compares the start with today', () {
+      final past =
+          TutorOffer.fromJson({..._offerJson, 'start_date': '2020-01-06'});
+      final future =
+          TutorOffer.fromJson({..._offerJson, 'start_date': '2999-01-06'});
+      expect(past.startLabel, isNull);
+      expect(past.startPassed, isTrue);
+      expect(future.startPassed, isFalse);
+      expect(
+          tutorOfferStartPassed(DateTime(2026, 11, 5),
+              today: DateTime(2026, 11, 5, 18)),
+          isFalse);
+      expect(tutorOfferStartPassed(null), isFalse);
+    });
+
+    test('the home preview reads the start too', () {
+      final preview = TutorOfferPreview.fromJson(const {
+        'id': 4,
+        'start_date': '2027-01-07',
+        'start_label': 'Jeudi 7 janvier 2027',
+        'start_passed': false,
+      });
+      expect(preview.startDate, DateTime(2027, 1, 7));
+      expect(preview.startLabel, 'Jeudi 7 janvier 2027');
+      expect(preview.startPassed, isFalse);
+      expect(
+          TutorOfferPreview.fromJson(
+              const {'id': 4, 'start_date': '2020-01-06'}).startPassed,
+          isTrue);
     });
 
     test('tolerates a minimal offer', () {

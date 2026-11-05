@@ -42,6 +42,19 @@ abstract final class TutorFormat {
           DateFormat('MMMM yyyy', _locale(context)).format(date)) ??
       '';
 
+  /// When an offer starts: the server's [label] as is; without one (an older API), « Dès que
+  /// possible » once [passed], else the day, with the year when it is not this year.
+  static String? offerStart(BuildContext context,
+      {String? label, DateTime? date, bool passed = false}) {
+    if (label != null && label.isNotEmpty) return label;
+    if (date == null) return null;
+    if (passed) return Translations.of(context).tutorSpace.offers.asap;
+    if (date.year == DateTime.now().year) return dayLong(context, date);
+    return toBeginningOfSentenceCase(
+            DateFormat('EEEE d MMMM y', _locale(context)).format(date)) ??
+        '';
+  }
+
   static String time(DateTime date) => DateFormat('HH:mm').format(date);
 
   static String dateTime(BuildContext context, DateTime date) =>

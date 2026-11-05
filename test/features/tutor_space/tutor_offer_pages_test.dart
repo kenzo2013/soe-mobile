@@ -3,16 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:soe/core/error/failure.dart';
 import 'package:soe/core/network/paginated.dart';
+import 'package:soe/features/tutor_space/data/tutor_models.dart';
 import 'package:soe/features/tutor_space/data/tutor_offer_api.dart';
 import 'package:soe/features/tutor_space/data/tutor_offer_models.dart';
 import 'package:soe/features/tutor_space/data/tutor_references.dart';
 import 'package:soe/features/tutor_space/presentation/pages/tutor_offer_pages.dart';
+import 'package:soe/features/tutor_space/presentation/providers.dart';
 import 'package:soe/features/tutor_space/presentation/tutor_offer_providers.dart';
 
 import '../../helpers/pump_app.dart';
+import 'tutor_daily_fakes.dart';
 
 TutorOffer _offer(int id,
-        {bool applied = false, String reference = 'OFF-2611-07'}) =>
+        {bool applied = false,
+        String reference = 'OFF-2611-07',
+        DateTime? startDate,
+        String? startLabel,
+        bool startPassed = false}) =>
     TutorOffer(
       id: id,
       reference: reference,
@@ -20,7 +27,9 @@ TutorOffer _offer(int id,
       schoolClasses: const ['3e'],
       neighborhood: 'Bonamoussadi',
       description: 'Élève de 3e, préparation du BEPC.',
-      startDate: DateTime(2026, 11, 16),
+      startDate: startDate ?? DateTime(2026, 11, 16),
+      startLabel: startLabel,
+      startPassed: startPassed,
       sessionRate: 6500,
       publishedAt: DateTime(2026, 11, 2),
       applied: applied,
@@ -123,6 +132,58 @@ void main() {
       expect(find.text('Tle D'), findsOneWidget);
     });
 
+    Future<void> pumpOffers(WidgetTester tester, TutorHome? home,
+            {List<TutorOffer>? offers}) =>
+        pumpAppWith(
+          tester,
+          overrides: [
+            tutorReferencesProvider.overrideWith((ref) async => _references),
+            tutorOffersPageProvider
+                .overrideWith((ref, key) async => _page(offers ?? [_offer(1)])),
+            tutorHomeCacheProvider.overrideWith((ref) =>
+                home == null ? null : (home: home, at: DateTime.now())),
+          ],
+          child: const TutorOffersPage(),
+        );
+
+    const note = 'Vous pouvez postuler avant la validation de votre dossier.';
+
+    testWidgets('the note of the server for a candidate', (tester) async {
+      await pumpOffers(tester, candidateHome());
+      await tester.pumpAndSettle();
+      expect(find.text(note), findsOneWidget);
+    });
+
+    testWidgets('our note for a candidate when the server sends none',
+        (tester) async {
+      await pumpOffers(tester, recruitmentHome());
+      await tester.pumpAndSettle();
+      expect(find.text(note), findsOneWidget);
+    });
+
+    testWidgets('no note for an active tutor', (tester) async {
+      await pumpOffers(tester, activeHome());
+      await tester.pumpAndSettle();
+      expect(find.text(note), findsNothing);
+    });
+
+    testWidgets('the start as the server words it, else ours', (tester) async {
+      await pumpOffers(tester, activeHome(), offers: [
+        _offer(1,
+            startDate: DateTime(2026, 11, 2),
+            startLabel: 'Dès que possible',
+            startPassed: true),
+        _offer(2,
+            reference: 'OFF-2611-11',
+            startDate: DateTime(2020, 1, 6),
+            startPassed: true),
+        _offer(3, reference: 'OFF-2611-12', startDate: DateTime(2999, 1, 7)),
+      ]);
+      await tester.pumpAndSettle();
+      expect(find.text('Début : Dès que possible'), findsNWidgets(2));
+      expect(find.text('Début : Lundi 7 janvier 2999'), findsOneWidget);
+    });
+
     testWidgets('shows the empty state', (tester) async {
       await pumpAppWith(
         tester,
@@ -203,12 +264,31 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      expect(find.text('Lundi 16 novembre'), findsOneWidget);
       expect(find.text('Vous avez déjà postulé le Mardi 24 novembre'),
           findsOneWidget);
       expect(find.text('Voir'), findsOneWidget);
       expect(find.text('Postuler'), findsNothing);
       expect(find.byKey(const Key('offer-message')), findsNothing);
     });
+  });
+
+  testWidgets('REP-11 offer: the start label of the server', (tester) async {
+    await pumpAppWith(
+      tester,
+      overrides: [
+        tutorOfferProvider.overrideWith((ref, id) async => _offer(id,
+            applied: true,
+            startDate: DateTime(2026, 11, 2),
+            startLabel: 'Dès que possible',
+            startPassed: true)),
+      ],
+      child: const TutorOfferPage(offerId: 7),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Dès que possible'), findsOneWidget);
+    expect(find.text('Lundi 2 novembre'), findsNothing);
   });
 
   group('REP-12 applications', () {

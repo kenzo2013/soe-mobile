@@ -14,6 +14,13 @@ DateTime? _day(Object? value) {
       : DateTime(parsed.year, parsed.month, parsed.day);
 }
 
+/// The start date is before today (the API's `start_passed` when it does not say it).
+bool tutorOfferStartPassed(DateTime? start, {DateTime? today}) {
+  if (start == null) return false;
+  final now = today ?? DateTime.now();
+  return start.isBefore(DateTime(now.year, now.month, now.day));
+}
+
 List<String> _strings(Object? value) =>
     (value as List<dynamic>? ?? const []).whereType<String>().toList();
 
@@ -41,23 +48,32 @@ class TutorOffer {
     required this.applicationStatus,
     required this.appliedAt,
     required this.canApply,
+    this.startLabel,
+    this.startPassed = false,
   });
 
-  factory TutorOffer.fromJson(Map<String, dynamic> json) => TutorOffer(
-        id: (json['id'] as num?)?.toInt() ?? 0,
-        reference: json['reference'] as String? ?? '',
-        subjects: _strings(json['subjects']),
-        schoolClasses: _strings(json['school_classes']),
-        neighborhood: json['neighborhood'] as String?,
-        description: json['description'] as String? ?? '',
-        startDate: _day(json['start_date']),
-        sessionRate: (json['session_rate'] as num?)?.toInt(),
-        publishedAt: _date(json['published_at']),
-        applied: json['applied'] == true,
-        applicationStatus: json['application_status'] as String?,
-        appliedAt: _date(json['applied_at']),
-        canApply: json['can_apply'] == true,
-      );
+  factory TutorOffer.fromJson(Map<String, dynamic> json) {
+    final startDate = _day(json['start_date']);
+    return TutorOffer(
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      reference: json['reference'] as String? ?? '',
+      subjects: _strings(json['subjects']),
+      schoolClasses: _strings(json['school_classes']),
+      neighborhood: json['neighborhood'] as String?,
+      description: json['description'] as String? ?? '',
+      startDate: startDate,
+      startLabel: json['start_label'] as String?,
+      startPassed: json['start_passed'] is bool
+          ? json['start_passed'] as bool
+          : tutorOfferStartPassed(startDate),
+      sessionRate: (json['session_rate'] as num?)?.toInt(),
+      publishedAt: _date(json['published_at']),
+      applied: json['applied'] == true,
+      applicationStatus: json['application_status'] as String?,
+      appliedAt: _date(json['applied_at']),
+      canApply: json['can_apply'] == true,
+    );
+  }
 
   final int id;
   final String reference;
@@ -66,6 +82,13 @@ class TutorOffer {
   final String? neighborhood;
   final String description;
   final DateTime? startDate;
+
+  /// The server's words for the start (« Jeudi 12 novembre », the year when it is another
+  /// year, « Dès que possible » once passed); null from an older API.
+  final String? startLabel;
+
+  /// The start date is in the past: the offer starts as soon as possible.
+  final bool startPassed;
 
   /// The tutor's indicative pay per approved session (FCFA), never the family's price.
   final int? sessionRate;
@@ -89,6 +112,8 @@ class TutorOffer {
         neighborhood: neighborhood,
         description: description,
         startDate: startDate,
+        startLabel: startLabel,
+        startPassed: startPassed,
         sessionRate: sessionRate,
         publishedAt: publishedAt,
         applied: applied ?? this.applied,
