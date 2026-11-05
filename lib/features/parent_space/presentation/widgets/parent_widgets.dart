@@ -140,7 +140,7 @@ class ParentInfoRow extends StatelessWidget {
                   style:
                       AppTypography.bodySm.copyWith(color: AppPalette.text2))),
           const SizedBox(width: 12),
-          Flexible(
+          Expanded(
             flex: 2,
             child: Text(value,
                 textAlign: TextAlign.right,
@@ -397,8 +397,7 @@ class ParentTimeline extends StatelessWidget {
                   ),
                   if (i < items.length - 1)
                     Expanded(
-                        child:
-                            Container(width: 2, color: AppPalette.teal100)),
+                        child: Container(width: 2, color: AppPalette.teal100)),
                 ]),
               ),
               const SizedBox(width: 10),
@@ -484,8 +483,7 @@ class ParentPickerField extends StatelessWidget {
             onTap: onTap,
             borderRadius: BorderRadius.circular(12),
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               decoration: BoxDecoration(
                 color: AppPalette.surfaceSoft,
                 borderRadius: BorderRadius.circular(12),
@@ -498,9 +496,8 @@ class ParentPickerField extends StatelessWidget {
                 const SizedBox(width: 10),
                 Text(label,
                     style: AppTypography.body.copyWith(
-                        color: placeholder
-                            ? AppPalette.text3
-                            : AppPalette.text)),
+                        color:
+                            placeholder ? AppPalette.text3 : AppPalette.text)),
               ]),
             ),
           ),
@@ -519,6 +516,7 @@ class ParentErrorText extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.only(top: 6),
         child: Text(text,
-            style: AppTypography.caption.copyWith(color: AppPalette.dangerText)),
+            style:
+                AppTypography.caption.copyWith(color: AppPalette.dangerText)),
       );
 }

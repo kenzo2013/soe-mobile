@@ -18,6 +18,7 @@ import '../tutor_file_providers.dart';
 import '../tutor_space_routes.dart';
 import '../widgets/tutor_file_ui.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// REP-24 — the charter and code of conduct: read to the end, then signed with the finger (a PNG
 /// sent to the API); the condition of the account's activation.
@@ -115,7 +116,8 @@ class _TutorCharterPageState extends ConsumerState<TutorCharterPage> {
     final signing = charter != null && charter.canSign && !_justSigned;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.short)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab, title: tr.short),
       bottomNavigationBar: signing
           ? TutorBottomBar(
               hint: _readToEnd ? null : tr.readFirst,

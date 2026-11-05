@@ -385,7 +385,14 @@
       "lateWarning": "Less than 24 h before, the session remains due.",
       "reason": "Reason",
       "confirmCancel": "Confirm the cancellation",
-      "cancelled": "Session cancelled."
+      "cancelled": "Session cancelled.",
+      "overline": "Session of {{date}}",
+      "checkInText": "{{tutor}} will check in on arrival and on leaving; the position is checked (within 150 m of the lessons address). You have nothing to do.",
+      "backupOverline": "Only without network or GPS",
+      "backupHintTutor": "Give it to {{tutor}} only if they cannot check in from their phone. A new code is created for each session.",
+      "child": "Child",
+      "place": "Place",
+      "atHome": "At home · {{place}}"
     },
     "report": {
       "title": "Session report",
@@ -599,7 +606,12 @@
       "safetyAction": "Report serious behaviour",
       "safetyNoSession": "No past session to report: call your SOE advisor.",
       "requestTutor": "Ask for a tutor",
-      "noCourseText": "Ask for a tutor: your SOE advisor prepares a quote within 24 working hours."
+      "noCourseText": "Ask for a tutor: your SOE advisor prepares a quote within 24 working hours.",
+      "rhythm": "Rhythm",
+      "perWeek": {
+        "one": "{{n}} session a week",
+        "other": "{{n}} sessions a week"
+      }
     },
     "wizard": {
       "title": "New request",
@@ -746,7 +758,10 @@
       "describe": "Describe what happened",
       "seriousSent": "Report received: SOE will contact you.",
       "describeMissing": "Describe the problem.",
-      "overline": "Session of {{date}}"
+      "overline": "Session of {{date}}",
+      "title": "A problem?",
+      "toAdvisor": "Your report goes to {{name}}, your SOE advisor. There is no messaging with the tutor.",
+      "toSoe": "Your report goes to your SOE advisor. There is no messaging with the tutor."
     },
     "contracts": {
       "title": "Contracts",
@@ -901,7 +916,9 @@
         "planningDetail": "The contract is signed: propose the weekly times.",
         "contractDetail": "Read and sign your mission letter.",
         "disputedDetail": "The session is removed from your earnings until the decision.",
-        "offline": "Available when the network is back"
+        "offline": "Available when the network is back",
+        "sessionOf": "session of {{date}}",
+        "perSession": "{{amount}} per session"
       },
       "buttons": {
         "assignment": "See the proposal",

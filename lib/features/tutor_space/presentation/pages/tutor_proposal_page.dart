@@ -17,6 +17,7 @@ import '../../../../i18n/translations.g.dart';
 import '../../data/tutor_models.dart';
 import '../providers.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// REP-13 — a family proposed to the tutor: the pupil and the need, the time left to answer,
 /// the pay; accept, or decline with a reason. Expired, accepted and declined proposals show
@@ -88,7 +89,8 @@ class _TutorProposalPageState extends ConsumerState<TutorProposalPage> {
     final tr = Translations.of(context).tutorSpace.proposal;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.tutor.today, title: tr.title),
       body: TutorAsyncBody<TutorProposal>(
         value: ref.watch(tutorProposalProvider(widget.proposalId)),
         onRetry: () => ref.invalidate(tutorProposalProvider(widget.proposalId)),

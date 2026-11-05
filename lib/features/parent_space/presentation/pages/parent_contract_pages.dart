@@ -19,6 +19,7 @@ import '../parent_space_routes.dart';
 import '../providers.dart';
 import '../widgets/parent_ui.dart';
 import '../widgets/parent_widgets.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// PAR-10 / COM-08 — the family's contracts (including those of the former platform),
 /// with their amendments to sign.
@@ -30,7 +31,8 @@ class ParentContractsPage extends ConsumerWidget {
     final tr = Translations.of(context).parentSpace.contracts;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab, title: tr.title),
       body: RefreshIndicator(
         onRefresh: () => ref.refresh(parentContractsProvider.future),
         child: ParentAsyncBody<List<ParentContract>>(
@@ -74,7 +76,8 @@ class ParentContractCard extends StatelessWidget {
           unawaited(context.push(ParentSpaceRoutes.contract(contract.id))),
       child: Row(children: [
         Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(contract.reference,
                 style:
                     AppTypography.overline.copyWith(color: AppPalette.text2)),
@@ -161,10 +164,11 @@ class ParentAmendmentPage extends ConsumerWidget {
     final value = ref.watch(parentAmendmentProvider(key));
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(
-        title: Text(value.valueOrNull == null
+      appBar: SpaceAppBar(
+        section: Translations.of(context).shell.more.tab,
+        title: value.valueOrNull == null
             ? tr.contracts.amendments
-            : tr.contracts.amendment(reference: value.valueOrNull!.reference)),
+            : tr.contracts.amendment(reference: value.valueOrNull!.reference),
         actions: [
           IconButton(
             tooltip: tr.common.pdf,

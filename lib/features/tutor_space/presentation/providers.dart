@@ -82,3 +82,22 @@ void refreshTutorSession(WidgetRef ref, int sessionId) => ref
 /// The private quality view (REP-22).
 final tutorQualityProvider = FutureProvider.autoDispose<TutorQuality>(
     (ref) => ref.watch(tutorApiProvider).quality());
+
+/// What an action of the home is about (REP-01): the proposal, the session of the report or
+/// the contract it opens. `null` for the others: the card keeps the title of the action.
+final tutorActionSubjectProvider = FutureProvider.autoDispose
+    .family<TutorActionSubject?, ({String kind, int targetId})>(
+        (ref, key) async {
+  final api = ref.watch(tutorApiProvider);
+  switch (key.kind) {
+    case 'assignment':
+      return TutorActionSubject(proposal: await api.proposal(key.targetId));
+    case 'report' || 'disputed':
+      return TutorActionSubject(
+          session: (await api.session(key.targetId)).session);
+    case 'contract':
+      return TutorActionSubject(contract: await api.contract(key.targetId));
+    default:
+      return null;
+  }
+});

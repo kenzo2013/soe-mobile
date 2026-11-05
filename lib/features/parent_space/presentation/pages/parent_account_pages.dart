@@ -24,6 +24,7 @@ import '../providers.dart';
 import '../widgets/parent_advisor_card.dart';
 import '../widgets/parent_ui.dart';
 import '../widgets/parent_widgets.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 String _longDate(BuildContext context, DateTime date) =>
     DateFormat.yMMMMd(Localizations.localeOf(context).languageCode)
@@ -36,11 +37,12 @@ class ParentReviewsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context).parentSpace.reviews;
-    final reviews = ref.watch(parentReviewsProvider).valueOrNull ??
-        const <ParentReview>[];
+    final reviews =
+        ref.watch(parentReviewsProvider).valueOrNull ?? const <ParentReview>[];
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab, title: tr.title),
       body: ParentAsyncBody<List<ParentReviewTutor>>(
         value: ref.watch(parentReviewTutorsProvider),
         onRetry: () => ref
@@ -120,8 +122,8 @@ class ParentReviewsPage extends ConsumerWidget {
               ParentPanel(soft: true, title: tr.given, children: [
                 if (given.isEmpty)
                   Text(tr.noneGiven,
-                      style: AppTypography.body
-                          .copyWith(color: AppPalette.text2)),
+                      style:
+                          AppTypography.body.copyWith(color: AppPalette.text2)),
                 for (final review in given)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12),
@@ -228,7 +230,10 @@ class _ParentReviewFormPageState extends ConsumerState<ParentReviewFormPage> {
     final reviews = ref.watch(parentReviewsProvider).valueOrNull;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(leading: const CloseButton(), title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab,
+          title: tr.title,
+          close: true),
       body: ParentAsyncBody<List<ParentReviewTutor>>(
         value: tutors,
         onRetry: () => ref.invalidate(parentReviewTutorsProvider),
@@ -341,11 +346,11 @@ class ParentCoParentsPage extends ConsumerWidget {
 
   Future<void> _invite(BuildContext context, WidgetRef ref) async {
     final tr = Translations.of(context).parentSpace.coParents;
-    final children = (ref.read(parentChildrenProvider).valueOrNull ??
-            const <ParentChild>[])
-        .where((child) => child.editable)
-        .map((child) => child.firstName)
-        .toList();
+    final children =
+        (ref.read(parentChildrenProvider).valueOrNull ?? const <ParentChild>[])
+            .where((child) => child.editable)
+            .map((child) => child.firstName)
+            .toList();
     final sent = await showParentSheet<bool>(context,
         title: tr.invite,
         text: tr.inviteText,
@@ -382,27 +387,26 @@ class ParentCoParentsPage extends ConsumerWidget {
     final reports = await showParentSheet<bool>(context,
         title: tr.editRights,
         text: coParent.name,
-        builder: (sheet) => Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 12),
-                  ListTile(
-                    leading: Icon(!coParent.canAnswerReports
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_unchecked),
-                    title: Text(tr.readOnly),
-                    subtitle: Text(tr.rule1),
-                    onTap: () => Navigator.pop(sheet, false),
-                  ),
-                  ListTile(
-                    leading: Icon(coParent.canAnswerReports
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_unchecked),
-                    title: Text(tr.reports),
-                    subtitle: Text(tr.rule2),
-                    onTap: () => Navigator.pop(sheet, true),
-                  ),
-                ]));
+        builder: (sheet) =>
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              const SizedBox(height: 12),
+              ListTile(
+                leading: Icon(!coParent.canAnswerReports
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked),
+                title: Text(tr.readOnly),
+                subtitle: Text(tr.rule1),
+                onTap: () => Navigator.pop(sheet, false),
+              ),
+              ListTile(
+                leading: Icon(coParent.canAnswerReports
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked),
+                title: Text(tr.reports),
+                subtitle: Text(tr.rule2),
+                onTap: () => Navigator.pop(sheet, true),
+              ),
+            ]));
     if (reports == null ||
         reports == coParent.canAnswerReports ||
         !context.mounted) {
@@ -427,7 +431,8 @@ class ParentCoParentsPage extends ConsumerWidget {
         const <ParentInvitation>[];
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab, title: tr.title),
       body: ParentAsyncBody<List<ParentCoParent>>(
         value: ref.watch(parentCoParentsProvider),
         onRetry: () => _refresh(ref),
@@ -750,7 +755,8 @@ class ParentAdvisorPage extends ConsumerWidget {
     final tr = Translations.of(context).parentSpace.advisor;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab, title: tr.title),
       body: ParentAsyncBody<ParentHome>(
         value: ref.watch(parentHomeProvider),
         onRetry: () => ref.invalidate(parentHomeProvider),

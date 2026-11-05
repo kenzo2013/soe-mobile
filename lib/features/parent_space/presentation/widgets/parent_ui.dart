@@ -49,6 +49,24 @@ abstract final class ParentFormat {
           DateFormat('MMMM', _locale(context)).format(date)) ??
       '';
 
+  /// « Mercredi » for the `wednesday` of the API (any other value as it comes).
+  static String weekdayName(BuildContext context, String day) {
+    const days = [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ];
+    final index = days.indexOf(day);
+    if (index < 0) return day;
+    // 1 January 2024 is a Monday.
+    return toBeginningOfSentenceCase(DateFormat('EEEE', _locale(context))
+        .format(DateTime(2024, 1, 1 + index)));
+  }
+
   static String time(DateTime date) => DateFormat('HH:mm').format(date);
 
   static String dateTime(BuildContext context, DateTime date) =>

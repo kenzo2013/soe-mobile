@@ -19,6 +19,7 @@ import '../providers.dart';
 import '../widgets/parent_need_fields.dart';
 import '../widgets/parent_ui.dart';
 import '../widgets/parent_widgets.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// PAR-05 — a new request in three steps: the children, each child's need, the summary.
 /// The server keeps the draft at each step: leaving and coming back resumes it.
@@ -30,7 +31,10 @@ class ParentRequestWizardPage extends ConsumerWidget {
     final tr = Translations.of(context).parentSpace.wizard;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(leading: const CloseButton(), title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab,
+          title: tr.title,
+          close: true),
       body: ParentAsyncBody<ParentRequestDraft>(
         value: ref.watch(parentDraftProvider),
         onRetry: () => ref.invalidate(parentDraftProvider),
@@ -118,9 +122,8 @@ class _ParentRequestWizardState extends ConsumerState<ParentRequestWizard> {
   }
 
   Future<void> _saveChildren() async {
-    final draft = await _call(() => ref
-        .read(parentApiProvider)
-        .draftChildren(_selected.toList()..sort()));
+    final draft = await _call(() =>
+        ref.read(parentApiProvider).draftChildren(_selected.toList()..sort()));
     if (draft == null || !mounted) return;
     setState(() {
       _draft = draft;
@@ -354,8 +357,8 @@ class _ParentRequestWizardState extends ConsumerState<ParentRequestWizard> {
       iconColor: AppPalette.successText,
       iconBgColor: AppPalette.successBg,
       primaryActionLabel: tr.seeRequest,
-      onPrimaryAction: () => context
-          .pushReplacement(ParentSpaceRoutes.request(_sent!.request.id)),
+      onPrimaryAction: () =>
+          context.pushReplacement(ParentSpaceRoutes.request(_sent!.request.id)),
     );
   }
 }
@@ -372,34 +375,30 @@ class _Progress extends StatelessWidget {
     final labels = [tr.stepChildren, tr.stepNeed, tr.stepSummary];
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(
-          [tr.step(n: step + 1), if (childName != null) childName!]
-              .join(' · '),
+          [tr.step(n: step + 1), if (childName != null) childName!].join(' · '),
           style: AppTypography.caption.copyWith(color: AppPalette.text2)),
       const SizedBox(height: 6),
       Row(children: [
         for (var i = 0; i < 3; i++) ...[
           Expanded(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: i < step
-                          ? AppPalette.teal800
-                          : i == step
-                              ? AppPalette.teal400
-                              : AppPalette.teal100,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(labels[i],
-                      style: AppTypography.caption.copyWith(
-                          color: i <= step
-                              ? AppPalette.text
-                              : AppPalette.text2)),
-                ]),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Container(
+                height: 4,
+                decoration: BoxDecoration(
+                  color: i < step
+                      ? AppPalette.teal800
+                      : i == step
+                          ? AppPalette.teal400
+                          : AppPalette.teal100,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(labels[i],
+                  style: AppTypography.caption.copyWith(
+                      color: i <= step ? AppPalette.text : AppPalette.text2)),
+            ]),
           ),
           if (i < 2) const SizedBox(width: 6),
         ],
@@ -434,8 +433,8 @@ class _NeedSummary extends StatelessWidget {
       trailing: TextButton(onPressed: onEdit, child: Text(tr.common.edit)),
       children: [
         ParentInfoRow(tr.wizard.subjects, need.subjects.join(', ')),
-        ParentInfoRow(
-            tr.wizard.objective, draft.labelOf(draft.objectives, need.objective)),
+        ParentInfoRow(tr.wizard.objective,
+            draft.labelOf(draft.objectives, need.objective)),
         if (need.startOn != null)
           ParentInfoRow(
               tr.wizard.start, ParentFormat.dayLong(context, need.startOn!)),
@@ -450,8 +449,7 @@ class _NeedSummary extends StatelessWidget {
                   .map((moment) => draft.labelOf(draft.moments, moment))
                   .join(', ')),
         ParentInfoRow(
-            tr.wizard.preference,
-            draft.labelOf(draft.genders, need.gender),
+            tr.wizard.preference, draft.labelOf(draft.genders, need.gender),
             last: true),
       ],
     );

@@ -21,6 +21,7 @@ import '../widgets/parent_session_tile.dart';
 import '../widgets/parent_ui.dart';
 import '../widgets/parent_widgets.dart';
 import '../../../common/presentation/widgets/tab_top_bar.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// Labels of a child's schooling: « CM2 · section francophone · École de Bonapriso ».
 String parentSchooling(BuildContext context, ParentChild child) {
@@ -162,8 +163,9 @@ class _ParentChildPageState extends ConsumerState<ParentChildPage> {
     final value = ref.watch(parentChildProvider(widget.childId));
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(
-          title: Text(value.valueOrNull?.firstName ?? tr.children.title)),
+      appBar: SpaceAppBar(
+          section: tr.children.title,
+          title: value.valueOrNull?.firstName ?? tr.children.title),
       body: ParentAsyncBody<ParentChild>(
         value: value,
         onRetry: () => ref.invalidate(parentChildProvider(widget.childId)),
@@ -281,12 +283,15 @@ class _ParentChildPageState extends ConsumerState<ParentChildPage> {
           ]),
           const SizedBox(height: 8),
           ParentInfoRow(tr.childFile.tutor, course.tutorName),
-          if (course.times.isNotEmpty)
+          if (course.times.isNotEmpty) ...[
+            ParentInfoRow(tr.childFile.rhythm, _rhythm(context, course)),
             ParentInfoRow(
                 tr.childFile.times,
                 course.times
-                    .map((time) => '${time.day} ${time.from}')
+                    .map((time) =>
+                        '${ParentFormat.weekdayName(context, time.day)} ${time.from}')
                     .join(', ')),
+          ],
           ParentInfoRow(
             tr.childFile.since,
             course.since == null
@@ -507,4 +512,31 @@ class _SafetyPanel extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// « 2 séances par semaine · 1 h 30 »: the course's weekly times and their length.
+String _rhythm(BuildContext context, ParentCourse course) {
+  final tr = Translations.of(context).parentSpace.childFile;
+  int? minutes(String value) {
+    final parts = value.split(':');
+    if (parts.length != 2) return null;
+    final hours = int.tryParse(parts[0]);
+    final mins = int.tryParse(parts[1]);
+    return hours == null || mins == null ? null : hours * 60 + mins;
+  }
+
+  final first = course.times.first;
+  final from = minutes(first.from);
+  final to = minutes(first.to);
+  final length = from == null || to == null || to <= from ? null : to - from;
+  final perWeek = tr.perWeek(n: course.times.length);
+  if (length == null) return perWeek;
+  final hours = length ~/ 60;
+  final rest = length % 60;
+  final duration = hours == 0
+      ? '$rest min'
+      : (rest == 0
+          ? '$hours h'
+          : '$hours h ${rest.toString().padLeft(2, '0')}');
+  return '$perWeek · $duration';
 }

@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:soe/features/common/presentation/providers.dart';
 import 'package:soe/core/theme/app_theme.dart';
 import 'package:soe/core/widgets/soe_button.dart';
 import 'package:soe/features/tutor_space/data/tutor_file_api.dart';
@@ -96,6 +97,8 @@ Future<void> _pump(WidgetTester tester, Widget child, _FakeApi api) async {
   await tester.pumpWidget(ProviderScope(
     overrides: [
       tutorFileApiProvider.overrideWithValue(api),
+      // The bell of the headers: no notification server in the tests.
+      unreadNotificationsProvider.overrideWith((ref) async => 0),
       tutorReferencesProvider.overrideWith((ref) async => const TutorReferences(
             subjects: [TutorReference(id: 1, name: 'Mathématiques')],
             schoolClasses: [TutorReference(id: 7, name: '4e')],

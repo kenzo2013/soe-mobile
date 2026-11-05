@@ -22,6 +22,7 @@ import '../providers.dart';
 import '../widgets/parent_ui.dart';
 import '../widgets/parent_widgets.dart';
 import '../../../common/presentation/widgets/tab_top_bar.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// PAR-15 — invoices to pay (oldest first) and the receipts.
 class ParentPaymentsPage extends ConsumerWidget {
@@ -355,7 +356,9 @@ class _ParentPaymentsHistoryPageState
     final tr = Translations.of(context).parentSpace;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.history.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.parent.payments,
+          title: tr.history.title),
       body: NotificationListener<ScrollNotification>(
         onNotification: (notification) {
           if (notification.metrics.extentAfter < 200) unawaited(_more());
@@ -436,7 +439,9 @@ class _ParentPayPageState extends ConsumerState<ParentPayPage> {
         .firstOrNull;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.pay.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.parent.payments,
+          title: tr.pay.title),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -559,7 +564,9 @@ class _ParentPaymentPageState extends ConsumerState<ParentPaymentPage> {
     final tr = Translations.of(context).parentSpace.payment;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.parent.payments,
+          title: Translations.of(context).parentSpace.pay.title),
       body: ParentAsyncBody<ParentPayment>(
         value: ref.watch(parentPaymentProvider(widget.paymentId)),
         onRetry: () => ref.invalidate(parentPaymentProvider(widget.paymentId)),

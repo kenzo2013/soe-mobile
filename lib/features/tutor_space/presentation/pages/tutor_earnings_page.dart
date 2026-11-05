@@ -21,6 +21,7 @@ import '../widgets/tutor_download.dart';
 import '../widgets/tutor_panel.dart';
 import '../widgets/tutor_ui.dart';
 import '../../../common/presentation/widgets/tab_top_bar.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 String _number(int value) =>
     NumberFormat.decimalPattern('fr').format(value).replaceAll(',', ' ');
@@ -303,7 +304,9 @@ class _TutorEarningsHistoryPageState
     final tr = Translations.of(context).tutorSpace.earnings;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.historyTitle)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.tutor.earnings,
+          title: tr.historyTitle),
       body: RefreshIndicator(
         onRefresh: () => ref.refresh(tutorStatementsProvider(_page).future),
         child: TutorAsyncBody(

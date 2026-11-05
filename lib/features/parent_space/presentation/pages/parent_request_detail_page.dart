@@ -20,6 +20,7 @@ import '../providers.dart';
 import '../widgets/parent_need_fields.dart';
 import '../widgets/parent_ui.dart';
 import '../widgets/parent_widgets.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 import 'parent_request_pages.dart';
 
 /// Stages where the tutor's times and the sessions exist (planning, payments in place).
@@ -43,16 +44,16 @@ class ParentRequestDetailPage extends ConsumerWidget {
     final value = ref.watch(parentRequestDetailProvider(requestId));
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(
-          title: Text(value.valueOrNull?.request.reference ??
-              Translations.of(context).parentSpace.requests.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).parentSpace.requests.title,
+          title: value.valueOrNull?.request.reference ??
+              Translations.of(context).parentSpace.requests.title),
       body: RefreshIndicator(
         onRefresh: () =>
             ref.refresh(parentRequestDetailProvider(requestId).future),
         child: ParentAsyncBody<ParentRequestDetail>(
           value: value,
-          onRetry: () =>
-              ref.invalidate(parentRequestDetailProvider(requestId)),
+          onRetry: () => ref.invalidate(parentRequestDetailProvider(requestId)),
           builder: (detail) => _Detail(detail: detail),
         ),
       ),
@@ -77,23 +78,24 @@ class _Detail extends ConsumerWidget {
       context,
       title: tr.cancel,
       text: tr.cancelText,
-      builder: (sheet) => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 12),
-            SoeTextField(controller: reason, label: tr.reason, maxLines: 3),
-            const SizedBox(height: 16),
-            SoeButton(
-                label: tr.confirmCancel,
-                variant: SoeButtonVariant.danger,
-                onPressed: () => Navigator.pop(sheet, true)),
-          ]),
+      builder: (sheet) =>
+          Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        const SizedBox(height: 12),
+        SoeTextField(controller: reason, label: tr.reason, maxLines: 3),
+        const SizedBox(height: 16),
+        SoeButton(
+            label: tr.confirmCancel,
+            variant: SoeButtonVariant.danger,
+            onPressed: () => Navigator.pop(sheet, true)),
+      ]),
     );
     final text = reason.text.trim();
     reason.dispose();
     if (confirmed != true || !context.mounted) return;
-    final done = await runParentAction(context,
-        () => ref.read(parentApiProvider).cancelRequest(detail.request.id, text));
+    final done = await runParentAction(
+        context,
+        () =>
+            ref.read(parentApiProvider).cancelRequest(detail.request.id, text));
     if (done == null || !context.mounted) return;
     _refresh(ref);
     SoeToast.show(context, message: tr.cancelled, tone: SoeToastTone.success);
@@ -109,8 +111,7 @@ class _Detail extends ConsumerWidget {
     if (saved == true && context.mounted) {
       _refresh(ref);
       SoeToast.show(context,
-          message:
-              Translations.of(context).parentSpace.requestDetail.needSaved,
+          message: Translations.of(context).parentSpace.requestDetail.needSaved,
           tone: SoeToastTone.success);
     }
   }
@@ -119,9 +120,8 @@ class _Detail extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context).parentSpace;
     final request = detail.request;
-    final subjects = {
-      for (final need in detail.needs) ...need.subjects
-    }.join(', ');
+    final subjects =
+        {for (final need in detail.needs) ...need.subjects}.join(', ');
     final target = parentRequestTarget(request);
     final actionLabel = switch (request.action) {
       'quote' => tr.requests.quote,

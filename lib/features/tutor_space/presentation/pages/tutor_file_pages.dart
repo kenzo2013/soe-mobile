@@ -25,6 +25,7 @@ import '../widgets/tutor_file_presentation_form.dart';
 import '../widgets/tutor_file_subjects_form.dart';
 import '../widgets/tutor_file_ui.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// REP-02 — the recruitment file: where the candidate stands, the 7 sections with their state,
 /// what SOE asks to redo, the « Vérifié SOE » badge as parents will see it, the journey; the file
@@ -65,7 +66,8 @@ class _TutorFilePageState extends ConsumerState<TutorFilePage> {
     final file = value.valueOrNull;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab, title: tr.title),
       bottomNavigationBar: file != null && file.canSubmit
           ? TutorBottomBar(
               hint: tr.submitHint,
@@ -438,7 +440,8 @@ class TutorFileSectionPage extends ConsumerWidget {
     };
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab, title: title),
       body: TutorAsyncBody<TutorFileSection>(
         value: ref.watch(tutorFileSectionProvider(section)),
         onRetry: () => ref.invalidate(tutorFileSectionProvider(section)),

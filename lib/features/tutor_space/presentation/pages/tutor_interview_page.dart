@@ -14,6 +14,7 @@ import '../tutor_file_providers.dart';
 import '../tutor_space_routes.dart';
 import '../widgets/tutor_file_ui.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// REP-23 — the interview with SOE's recruitment team (its date is set by SOE, what to bring)
 /// and the level test with its result; then the way to the charter.
@@ -27,7 +28,8 @@ class TutorInterviewPage extends ConsumerWidget {
     final charterNext = value.valueOrNull?.stage == 'charter';
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.more.tab, title: tr.title),
       bottomNavigationBar: charterNext
           ? TutorBottomBar(
               child: SoeButton(

@@ -385,7 +385,14 @@
       "lateWarning": "À moins de 24 h, la séance reste due.",
       "reason": "Motif",
       "confirmCancel": "Confirmer l’annulation",
-      "cancelled": "Séance annulée."
+      "cancelled": "Séance annulée.",
+      "overline": "Séance du {{date}}",
+      "checkInText": "{{tutor}} pointera à son arrivée et à son départ ; sa position est vérifiée (à moins de 150 m de l’adresse des cours). Vous n’avez rien à faire.",
+      "backupOverline": "Seulement sans réseau ou sans GPS",
+      "backupHintTutor": "À donner à {{tutor}} uniquement s’il ne peut pas pointer depuis son téléphone. Un nouveau code est créé pour chaque séance.",
+      "child": "Enfant",
+      "place": "Lieu",
+      "atHome": "À domicile · {{place}}"
     },
     "report": {
       "title": "Procès-verbal",
@@ -599,7 +606,12 @@
       "safetyAction": "Signaler un comportement grave",
       "safetyNoSession": "Aucune séance passée à signaler : appelez votre conseiller SOE.",
       "requestTutor": "Demander un répétiteur",
-      "noCourseText": "Demandez un répétiteur : votre conseiller SOE prépare un devis sous 24 h ouvrées."
+      "noCourseText": "Demandez un répétiteur : votre conseiller SOE prépare un devis sous 24 h ouvrées.",
+      "rhythm": "Rythme",
+      "perWeek": {
+        "one": "{{n}} séance par semaine",
+        "other": "{{n}} séances par semaine"
+      }
     },
     "wizard": {
       "title": "Nouvelle demande",
@@ -746,7 +758,10 @@
       "describe": "Décrivez ce qui s’est passé",
       "seriousSent": "Signalement reçu : SOE vous contacte.",
       "describeMissing": "Décrivez le problème.",
-      "overline": "Séance du {{date}}"
+      "overline": "Séance du {{date}}",
+      "title": "Un problème ?",
+      "toAdvisor": "Votre signalement va à {{name}}, votre conseiller SOE. Il n’y a pas de messagerie avec le répétiteur.",
+      "toSoe": "Votre signalement va à votre conseiller SOE. Il n’y a pas de messagerie avec le répétiteur."
     },
     "contracts": {
       "title": "Contrats",
@@ -901,7 +916,9 @@
         "planningDetail": "Le contrat est signé : proposez les créneaux de la semaine.",
         "contractDetail": "Lisez et signez votre lettre de mission.",
         "disputedDetail": "La séance est retirée des revenus jusqu’à la décision.",
-        "offline": "Disponible au retour du réseau"
+        "offline": "Disponible au retour du réseau",
+        "sessionOf": "séance du {{date}}",
+        "perSession": "{{amount}} par séance"
       },
       "buttons": {
         "assignment": "Voir la proposition",

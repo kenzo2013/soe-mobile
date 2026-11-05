@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:soe/features/common/presentation/providers.dart';
 import 'package:soe/features/auth/domain/entities/user.dart';
 import 'package:soe/features/auth/presentation/providers/current_user_provider.dart';
 import 'package:soe/features/tutor_space/data/tutor_api.dart';
@@ -308,6 +309,8 @@ List<Override> tutorOverrides(FakeTutorApi api) => [
           firstName: 'Daniel',
           lastName: 'K.',
           role: UserRole.tutor)),
+      // The bell of the headers: no notification server in the tests.
+      unreadNotificationsProvider.overrideWith((ref) async => 0),
     ];
 
 /// A tall phone view; wider than 390 because the test font (Ahem) draws every glyph as wide

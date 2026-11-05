@@ -21,6 +21,7 @@ import '../../data/tutor_models.dart';
 import '../providers.dart';
 import '../tutor_space_routes.dart';
 import '../widgets/tutor_ui.dart';
+import '../../../common/presentation/widgets/space_app_bar.dart';
 
 /// REP-17 — a session: « J'arrive » by GPS (out of zone: a clear message and « Réessayer »; no
 /// GPS or network: the parent's 4-digit backup code), « Je pars », the address and the parent
@@ -192,7 +193,9 @@ class _TutorSessionPageState extends ConsumerState<TutorSessionPage> {
     final tr = Translations.of(context).tutorSpace.session;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
-      appBar: AppBar(title: Text(tr.title)),
+      appBar: SpaceAppBar(
+          section: Translations.of(context).shell.tutor.planning,
+          title: tr.title),
       body: TutorAsyncBody<TutorSessionDetail>(
         value: ref.watch(tutorSessionProvider(widget.sessionId)),
         onRetry: () => ref.invalidate(tutorSessionProvider(widget.sessionId)),
