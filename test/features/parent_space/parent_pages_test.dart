@@ -64,6 +64,35 @@ ParentRequestDraft _draft({List<int> childIds = const []}) =>
       },
     });
 
+/// Yann (child 3) is in Sixième, which teaches Mathématiques only.
+final _catalogReferences = ParentReferences.fromJson({
+  'subjects': [
+    {
+      'id': 1,
+      'name': 'Mathématiques',
+      'name_en': 'Mathematics',
+      'active': true
+    },
+    {'id': 2, 'name': 'Philosophie', 'name_en': 'Philosophy', 'active': true},
+  ],
+  'school_classes': <Object>[],
+  'classes': [
+    {
+      'id': 11,
+      'name': 'Sixième (6e)',
+      'subsystem': 'francophone',
+      'track': 'general',
+      'cycle': 'lower_secondary',
+      'active': true,
+      'subjects': [
+        {'id': 1, 'status': 'core', 'verified': true}
+      ],
+    }
+  ],
+  'sections': <Object>[],
+  'cities': <Object>[],
+});
+
 const _references = ParentReferences(
   subjects: [(id: 1, name: 'Mathématiques')],
   schoolClasses: [],
@@ -269,6 +298,47 @@ void main() {
     expect(find.text('Le besoin de Yann'), findsOneWidget);
     expect(find.text('Mathématiques'), findsOneWidget);
     expect(find.text('Suivi régulier'), findsOneWidget);
+  });
+
+  testWidgets(
+      'PAR-05 offers only the subjects of the child\'s class, and says when one is not taught',
+      (tester) async {
+    when(() => api.children()).thenAnswer((_) async => const [
+          ParentChild(
+              id: 3,
+              firstName: 'Yann',
+              schoolClass: 'Sixième (6e)',
+              schoolName: null,
+              schoolClassId: 11,
+              courses: [])
+        ]);
+    when(() => api.draftChildren(any()))
+        .thenAnswer((_) async => _draft(childIds: [3]));
+    when(() => api.draftNeed(any())).thenThrow(const ValidationFailure({
+      'subjects_not_taught': ['Philosophie']
+    }));
+    await pump(
+        tester,
+        Scaffold(
+            body: ParentRequestWizard(
+                draft: _draft(), references: _catalogReferences)));
+
+    await tester.tap(find.text('Yann'));
+    await tester.pump();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Mathématiques'), findsOneWidget);
+    expect(find.text('Philosophie'), findsNothing);
+
+    await tester.tap(find.text('Mathématiques'));
+    await tester.pump();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+    expect(
+        find.text(
+            'Certaines matières ne sont pas enseignées dans la classe de l’enfant.'),
+        findsOneWidget);
   });
 
   testWidgets('PAR-05 resumes a started draft at the first incomplete need',

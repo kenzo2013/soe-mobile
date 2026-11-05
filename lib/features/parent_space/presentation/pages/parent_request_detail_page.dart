@@ -403,7 +403,10 @@ class _NeedSheetState extends ConsumerState<_NeedSheet> {
       ParentNeedFields(
         need: _need,
         draft: draft,
-        subjects: references.subjects,
+        subjects: references.subjectsFor(
+            ref.watch(parentChildClassIdProvider(_need.childId)),
+            Localizations.localeOf(context).languageCode,
+            keep: widget.need.subjectIds),
         missing: _missing,
         onChanged: (next) => setState(() => _need = next),
       ),

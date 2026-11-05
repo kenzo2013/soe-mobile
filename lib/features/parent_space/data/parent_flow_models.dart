@@ -4,6 +4,7 @@
 library;
 
 import 'parent_models.dart';
+import '../../../core/data/school_catalog.dart';
 
 DateTime? _date(Object? value) =>
     value is String ? DateTime.tryParse(value)?.toLocal() : null;
@@ -567,10 +568,12 @@ class ParentReferences {
     required this.schoolClasses,
     required this.sections,
     required this.cities,
+    this.catalog = SchoolCatalog.empty,
   });
 
   factory ParentReferences.fromJson(Map<String, dynamic> json) =>
       ParentReferences(
+        catalog: SchoolCatalog.fromJson(json),
         subjects: _subjects(json['subjects']),
         schoolClasses: _maps(json['school_classes'])
             .map((item) => (
@@ -599,6 +602,20 @@ class ParentReferences {
       schoolClasses;
   final List<ParentOption> sections;
   final List<({String name, List<String> neighborhoods})> cities;
+
+  /// The classes × subjects referential (which subjects each class teaches).
+  final SchoolCatalog catalog;
+
+  /// The subjects a need of a child in [classId] offers, named in [languageCode]: the class's
+  /// subjects (any when none listed), plus [keep] (already on a sent request).
+  List<ParentSubject> subjectsFor(int? classId, String languageCode,
+          {Iterable<int> keep = const []}) =>
+      catalog.subjects.isEmpty
+          ? subjects
+          : [
+              for (final subject in catalog.subjectsFor(classId, keep: keep))
+                (id: subject.id, name: subject.label(languageCode))
+            ];
 
   /// The classes of a section (all of them when the section is unknown).
   List<({int id, String name, String? education, String? section})> classesOf(

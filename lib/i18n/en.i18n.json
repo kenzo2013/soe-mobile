@@ -120,6 +120,25 @@
     "placeholder": "Choose your city",
     "retry": "City list unavailable. Try again"
   },
+  "schoolCatalog": {
+    "pickerTitle": "Child’s class",
+    "choose": "Choose the class",
+    "search": "Search for a class",
+    "empty": "No class matches.",
+    "groups": {
+      "primary": "Primary",
+      "lower_secondary": "Secondary (lower)",
+      "upper_secondary": "High school",
+      "technical": "Technical education",
+      "other": "Other classes"
+    },
+    "subsystems": {
+      "francophone": "French-speaking",
+      "anglophone": "English-speaking"
+    },
+    "notTaught": "Some subjects are not taught in the child’s class.",
+    "droppedSubjects": "Subjects removed, not taught in this class: {{names}}"
+  },
   "widgets": {
     "password": "Password",
     "passwordHint": "At least 8 characters",

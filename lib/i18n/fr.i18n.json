@@ -120,6 +120,25 @@
     "placeholder": "Choisissez votre ville",
     "retry": "Liste des villes indisponible. Réessayer"
   },
+  "schoolCatalog": {
+    "pickerTitle": "Classe de l’enfant",
+    "choose": "Choisir la classe",
+    "search": "Rechercher une classe",
+    "empty": "Aucune classe ne correspond.",
+    "groups": {
+      "primary": "Primaire",
+      "lower_secondary": "Collège",
+      "upper_secondary": "Lycée",
+      "technical": "Enseignement technique",
+      "other": "Autres classes"
+    },
+    "subsystems": {
+      "francophone": "francophone",
+      "anglophone": "anglophone"
+    },
+    "notTaught": "Certaines matières ne sont pas enseignées dans la classe de l’enfant.",
+    "droppedSubjects": "Matières retirées, non enseignées dans cette classe : {{names}}"
+  },
   "widgets": {
     "password": "Mot de passe",
     "passwordHint": "8 caractères minimum",

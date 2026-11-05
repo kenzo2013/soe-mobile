@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/error/exception_mapper.dart';
+import '../../../core/data/school_catalog.dart';
 import '../../../core/providers/core_providers.dart';
 
 /// An item of a list of the forms (a subject, a school class).
@@ -40,6 +41,7 @@ class TutorReferences {
     required this.subjects,
     required this.schoolClasses,
     required this.cities,
+    this.catalog = SchoolCatalog.empty,
   });
 
   factory TutorReferences.fromJson(Map<String, dynamic> json) {
@@ -48,6 +50,7 @@ class TutorReferences {
             .whereType<Map<String, dynamic>>()
             .toList();
     return TutorReferences(
+      catalog: SchoolCatalog.fromJson(json),
       subjects: list('subjects').map(TutorReference.fromJson).toList(),
       schoolClasses:
           list('school_classes').map(TutorReference.fromJson).toList(),
@@ -58,6 +61,9 @@ class TutorReferences {
   final List<TutorReference> subjects;
   final List<TutorReference> schoolClasses;
   final List<TutorCity> cities;
+
+  /// The classes × subjects referential (which subjects each class teaches).
+  final SchoolCatalog catalog;
 }
 
 /// The references, read once while a screen needs them.

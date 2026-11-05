@@ -326,7 +326,11 @@ class _ParentRequestWizardState extends ConsumerState<ParentRequestWizard> {
         ParentNeedFields(
           need: need,
           draft: _draft,
-          subjects: widget.references.subjects,
+          subjects: widget.references.subjectsFor(
+              ref.watch(parentChildClassIdProvider(need.childId)),
+              Localizations.localeOf(context).languageCode,
+              // A subject chosen earlier stays visible, to be unticked if the server refuses it.
+              keep: need.subjectIds),
           missing: {..._missing, ...need.missing},
           onChanged: (next) => setState(() => _need = next),
         ),

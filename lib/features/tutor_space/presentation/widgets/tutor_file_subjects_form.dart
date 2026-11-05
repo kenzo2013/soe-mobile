@@ -12,6 +12,7 @@ import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/soe_chip.dart';
 import '../../../../core/widgets/soe_empty_state.dart';
+import '../../../../core/widgets/soe_school_class_field.dart';
 import '../../../../i18n/translations.g.dart';
 import '../../data/tutor_file_models.dart';
 import '../../data/tutor_references.dart';
@@ -133,11 +134,42 @@ class _AddCourseSheetState extends ConsumerState<_AddCourseSheet> {
   int? _classId;
   final Set<int> _subjectIds = {};
 
+  /// Subjects unticked because the new class does not teach them, named to the tutor.
+  List<String> _dropped = const [];
+
+  void _chooseClass(TutorReferences refs, int classId, String language) {
+    final catalog = refs.catalog;
+    final dropped =
+        _subjectIds.where((id) => !catalog.teaches(classId, id)).toList();
+    setState(() {
+      _classId = classId;
+      _subjectIds.removeAll(dropped);
+      _dropped = [
+        for (final id in dropped)
+          catalog.subjectById(id)?.label(language) ??
+              refs.subjects.where((s) => s.id == id).firstOrNull?.name ??
+              '$id'
+      ];
+    });
+  }
+
+  /// The subjects of the chosen class (any when none is chosen or the class lists none), in the
+  /// app's language; the older servers' plain list when the referential is missing.
+  List<({int id, String label})> _subjectsOffered(
+          TutorReferences refs, String language) =>
+      refs.catalog.subjects.isEmpty
+          ? [for (final s in refs.subjects) (id: s.id, label: s.name)]
+          : [
+              for (final s in refs.catalog.subjectsFor(_classId))
+                (id: s.id, label: s.label(language))
+            ];
+
   @override
   Widget build(BuildContext context) {
     final tr = Translations.of(context).tutorSpace.file;
     final trS = tr.subjects;
     final references = ref.watch(tutorReferencesProvider);
+    final language = Localizations.localeOf(context).languageCode;
     return TutorSheet(children: [
       Text(trS.addTitle,
           style: AppTypography.title.copyWith(color: AppPalette.teal800)),
@@ -154,21 +186,28 @@ class _AddCourseSheetState extends ConsumerState<_AddCourseSheet> {
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(trS.schoolClass, style: AppTypography.label),
           const SizedBox(height: 8),
-          Wrap(spacing: 8, runSpacing: 8, children: [
-            for (final c in refs.schoolClasses)
-              SoeChip(
-                label: c.abbr ?? c.name,
-                selected: _classId == c.id,
-                onTap: () => setState(() => _classId = c.id),
-              ),
-          ]),
+          SoeSchoolClassField(
+            catalog: refs.catalog,
+            value: _classId,
+            semanticLabel: trS.schoolClass,
+            onChanged: (id) => _chooseClass(refs, id, language),
+          ),
+          if (_dropped.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+                Translations.of(context)
+                    .schoolCatalog
+                    .droppedSubjects(names: _dropped.join(', ')),
+                style: AppTypography.caption
+                    .copyWith(color: AppPalette.warningText)),
+          ],
           const SizedBox(height: 16),
           Text(trS.subjects, style: AppTypography.label),
           const SizedBox(height: 8),
           Wrap(spacing: 8, runSpacing: 8, children: [
-            for (final s in refs.subjects)
+            for (final s in _subjectsOffered(refs, language))
               SoeChip(
-                label: s.name,
+                label: s.label,
                 selected: _subjectIds.contains(s.id),
                 onTap: () => setState(() => _subjectIds.contains(s.id)
                     ? _subjectIds.remove(s.id)

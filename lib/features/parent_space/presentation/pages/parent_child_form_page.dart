@@ -15,6 +15,7 @@ import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/soe_alert.dart';
 import '../../../../core/widgets/soe_button.dart';
+import '../../../../core/widgets/soe_school_class_field.dart';
 import '../../../../core/widgets/soe_dialog.dart';
 import '../../../../core/widgets/soe_text_field.dart';
 import '../../../../core/widgets/soe_toast.dart';
@@ -230,7 +231,6 @@ class _ChildFormState extends ConsumerState<_ChildForm> {
   Widget build(BuildContext context) {
     final tr = Translations.of(context).parentSpace.childForm;
     final refs = widget.references;
-    final classes = refs.classesOf(_section);
     final cities = refs.cities;
     final neighborhoods =
         cities.where((city) => city.name == _city).firstOrNull?.neighborhoods ??
@@ -334,9 +334,9 @@ class _ChildFormState extends ConsumerState<_ChildForm> {
                 value: _section,
                 onChanged: (value) => setState(() {
                   _section = value;
-                  if (!refs
-                      .classesOf(value)
-                      .any((item) => item.id == _schoolClassId)) {
+                  final current = refs.catalog.classById(_schoolClassId);
+                  if (current?.subsystem != null &&
+                      current!.subsystem != value) {
                     _schoolClassId = null;
                   }
                 }),
@@ -352,18 +352,12 @@ class _ChildFormState extends ConsumerState<_ChildForm> {
                 onChanged: (value) => setState(() => _schoolType = value),
               ),
               ParentFieldLabel(tr.schoolClass),
-              DropdownButtonFormField<int>(
-                key: ValueKey('class-$_section'),
-                initialValue: classes.any((item) => item.id == _schoolClassId)
-                    ? _schoolClassId
-                    : null,
-                isExpanded: true,
-                hint: Text(tr.chooseClass),
-                decoration: _decoration(_error('school_class')),
-                items: [
-                  for (final item in classes)
-                    DropdownMenuItem(value: item.id, child: Text(item.name)),
-                ],
+              SoeSchoolClassField(
+                catalog: refs.catalog,
+                value: _schoolClassId,
+                subsystem: _section,
+                semanticLabel: tr.schoolClass,
+                errorText: _error('school_class'),
                 onChanged: (value) => setState(() => _schoolClassId = value),
               ),
               ParentFieldLabel(tr.schoolName, optional: true),

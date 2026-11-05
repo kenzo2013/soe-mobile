@@ -45,7 +45,10 @@ class ParentNeedFields extends StatelessWidget {
                 ? (need.subjectIds.toList()..remove(id))
                 : [...need.subjectIds, id])),
       ),
-      if (error('subject_ids') != null) ParentErrorText(error('subject_ids')!),
+      if (missing.contains('subjects_not_taught'))
+        ParentErrorText(Translations.of(context).schoolCatalog.notTaught)
+      else if (error('subject_ids') != null || error('subjects') != null)
+        ParentErrorText(Translations.of(context).parentSpace.common.required),
       ParentFieldLabel(tr.objective),
       ParentSegmented<String>(
         options: [
