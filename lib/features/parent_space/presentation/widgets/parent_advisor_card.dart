@@ -20,16 +20,21 @@ class ParentAdvisorCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context).parentSpace;
     final home = ref.watch(parentHomeProvider).valueOrNull;
-    final name = home?.advisorName;
+    final advisor = home?.advisor;
+    final name = advisor?.name ?? home?.advisorName;
     if (name == null || name.isEmpty) return const SizedBox.shrink();
-    final phone = home?.advisorPhone;
+    final phone = advisor?.phone ?? home?.advisorPhone;
     final digits = phone?.replaceAll(RegExp(r'[^\d+]'), '') ?? '';
-    final initials = name
-        .split(' ')
-        .where((part) => part.isNotEmpty)
-        .take(2)
-        .map((part) => part[0].toUpperCase())
-        .join();
+    final initials = advisor?.initials ??
+        name
+            .split(' ')
+            .where((part) => part.isNotEmpty)
+            .take(2)
+            .map((part) => part[0].toUpperCase())
+            .join();
+    final whatsapp = advisor?.whatsappUrl == null
+        ? Uri.https('wa.me', '/${digits.replaceAll('+', '')}')
+        : Uri.parse(advisor!.whatsappUrl!);
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 12),
@@ -55,7 +60,7 @@ class ParentAdvisorCard extends ConsumerWidget {
               Text(name,
                   style:
                       AppTypography.label.copyWith(color: AppPalette.onDark)),
-              Text(tr.advisor.role,
+              Text(advisor?.roleLabel ?? tr.advisor.role,
                   style: AppTypography.caption
                       .copyWith(color: AppPalette.onDark2)),
             ]),
@@ -63,7 +68,8 @@ class ParentAdvisorCard extends ConsumerWidget {
         ]),
         if (phone != null && digits.isNotEmpty) ...[
           const SizedBox(height: 12),
-          Text('${formatCameroonPhone(phone)} · ${tr.advisor.hours}',
+          Text(
+              '${advisor?.phoneLabel ?? formatCameroonPhone(phone)} · ${advisor?.hoursLabel ?? tr.advisor.hours}',
               style: AppTypography.bodySm.copyWith(color: AppPalette.onDark)),
           const SizedBox(height: 14),
           Row(children: [
@@ -89,9 +95,8 @@ class ParentAdvisorCard extends ConsumerWidget {
                     foregroundColor: AppPalette.teal800,
                     minimumSize: const Size.fromHeight(44),
                     shape: const StadiumBorder()),
-                onPressed: () => unawaited(launchUrl(
-                    Uri.https('wa.me', '/${digits.replaceAll('+', '')}'),
-                    mode: LaunchMode.externalApplication)),
+                onPressed: () => unawaited(
+                    launchUrl(whatsapp, mode: LaunchMode.externalApplication)),
                 icon: const Icon(Icons.chat_bubble_outline, size: 18),
                 label: Text(tr.home.whatsapp),
               ),

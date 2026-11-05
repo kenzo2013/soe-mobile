@@ -30,6 +30,13 @@ abstract final class RouteNames {
   static const String tutorEarnings = '/tutor/earnings';
   static const String tutorMore = '/tutor/more';
 
+  // A candidate's tabs (REP-01 « Mode recrutement »): Dossier (the home, then the file),
+  // Offres, Candidatures, Plus. Their screens open under these paths to keep the tab bar.
+  static const String tutorCandidateFile = '/tutor/candidate/file';
+  static const String tutorCandidateOffers = '/tutor/candidate/offers';
+  static const String tutorCandidateApplications =
+      '/tutor/candidate/applications';
+
   // Common · account (COM-01 to COM-10)
   static const String account = '/account';
   static const String accountProfile = '/account/profile';
@@ -60,5 +67,7 @@ abstract final class RouteNames {
     tutorStudents,
     tutorEarnings,
     tutorMore,
+    tutorCandidateOffers,
+    tutorCandidateApplications,
   };
 }

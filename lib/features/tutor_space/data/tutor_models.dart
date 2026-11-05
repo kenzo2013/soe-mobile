@@ -438,10 +438,40 @@ class TutorRecruitment {
     required this.step,
     required this.totalSteps,
     required this.missingDocuments,
+    this.sectionsComplete,
+    this.sectionsTotal,
+    this.missingSections = const [],
+    this.subtitle,
+    this.nextLabel,
+    this.waitingText,
+    this.delayLabel,
+    this.stepOfLabel,
+    this.journey = const [],
   });
 
   factory TutorRecruitment.fromJson(Map<String, dynamic> json) =>
       TutorRecruitment(
+        sectionsComplete: _intOrNull(json['sections_complete']),
+        sectionsTotal: _intOrNull(json['sections_total']),
+        missingSections: _list(json['missing_sections'])
+            .map((section) => (
+                  section: section['section'] as String? ?? '',
+                  label: section['label'] as String? ?? '',
+                  reason: section['reason'] as String? ?? ''
+                ))
+            .toList(),
+        subtitle: json['subtitle'] as String?,
+        nextLabel: json['next_label'] as String?,
+        waitingText: json['waiting_text'] as String?,
+        delayLabel: json['delay_label'] as String?,
+        stepOfLabel: json['step_of_label'] as String?,
+        journey: _list(json['journey'])
+            .map((step) => (
+                  stage: step['stage'] as String? ?? '',
+                  label: step['label'] as String? ?? '',
+                  state: step['state'] as String? ?? 'todo'
+                ))
+            .toList(),
         stage: json['stage'] as String? ?? 'file',
         stageLabel: json['stage_label'] as String? ?? '',
         refused: json['refused'] == true,
@@ -458,6 +488,23 @@ class TutorRecruitment {
   final int step;
   final int totalSteps;
   final List<TutorMissingDocument> missingDocuments;
+
+  /// « 5 / 7 sections complètes », and at the file stage the sections to complete or redo
+  /// (with SOE's reason).
+  final int? sectionsComplete;
+  final int? sectionsTotal;
+  final List<({String section, String label, String reason})> missingSections;
+
+  /// The texts of the web: subtitle, « Prochaine étape · … », what SOE does after the file,
+  /// the review delay (« à confirmer » until SOE sets it), « Étape 1 sur 6 ».
+  final String? subtitle;
+  final String? nextLabel;
+  final String? waitingText;
+  final String? delayLabel;
+  final String? stepOfLabel;
+
+  /// The 6 steps: done, current or todo.
+  final List<({String stage, String label, String state})> journey;
 }
 
 /// The tutor's home: to do, today, the month; the recruitment of a candidate.
@@ -469,6 +516,9 @@ class TutorHome {
     required this.todaySessions,
     required this.month,
     required this.recruitment,
+    this.offers,
+    this.offersTitle,
+    this.offersNote,
   });
 
   factory TutorHome.fromJson(Map<String, dynamic> json) {
@@ -483,8 +533,20 @@ class TutorHome {
           json['month'] as Map<String, dynamic>? ?? const {}),
       recruitment:
           recruitment == null ? null : TutorRecruitment.fromJson(recruitment),
+      offers: json['offers'] is List
+          ? _list(json['offers']).map(TutorOfferPreview.fromJson).toList()
+          : null,
+      offersTitle: json['offers_title'] as String?,
+      offersNote: json['offers_note'] as String?,
     );
   }
+
+  /// The web's two offers (the tutor's pay per session); null from an older API.
+  final List<TutorOfferPreview>? offers;
+  final String? offersTitle;
+
+  /// A candidate: one may apply before the file is validated.
+  final String? offersNote;
 
   /// False: still in recruitment.
   final bool active;

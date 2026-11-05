@@ -17,6 +17,7 @@ import '../../../auth/presentation/providers/current_user_provider.dart';
 import '../../../common/presentation/widgets/notification_bell.dart';
 import '../../data/tutor_models.dart';
 import '../providers.dart';
+import '../tutor_navigation.dart';
 import '../tutor_space_routes.dart';
 import '../widgets/tutor_ui.dart';
 import '../../../common/presentation/pages/account_hub_page.dart'
@@ -107,9 +108,10 @@ class _HomeContent extends ConsumerWidget {
         Text(
             recruitment == null
                 ? '${TutorFormat.dayLong(context, now)} · ${tr.todayCount(n: sessions.length)}'
-                : (recruitment.refused
-                    ? tr.recruitment.refused
-                    : tr.recruitment.subtitle),
+                : (recruitment.subtitle ??
+                    (recruitment.refused
+                        ? tr.recruitment.refused
+                        : tr.recruitment.subtitle)),
             style: AppTypography.body.copyWith(color: AppPalette.text2)),
         if (offline) ...[
           const SizedBox(height: 16),
@@ -155,7 +157,7 @@ class _HomeContent extends ConsumerWidget {
           const SizedBox(height: 6),
           _MonthCard(month: home.month),
           const SizedBox(height: 16),
-          const _OffersCard(),
+          _OffersCard(home: home),
         ],
       ],
     );
@@ -175,7 +177,9 @@ class _HomeContent extends ConsumerWidget {
       const SizedBox(height: 16),
       _JourneyCard(recruitment: recruitment),
       const SizedBox(height: 16),
-      const _OffersCard(recruiting: true),
+      _DelayCard(recruitment: recruitment),
+      const SizedBox(height: 16),
+      _OffersCard(home: home, recruiting: true),
     ];
   }
 }
@@ -496,22 +500,25 @@ class _MonthCard extends StatelessWidget {
   }
 }
 
-/// « Offres pour moi » (« Offres près de chez vous » for a candidate, who may already apply).
-class _OffersCard extends ConsumerWidget {
-  const _OffersCard({this.recruiting = false});
+/// « Offres pour moi » (« Offres près de chez vous » for a candidate, who may already apply):
+/// the two offers the home sends, with the tutor's pay per session.
+class _OffersCard extends StatelessWidget {
+  const _OffersCard({required this.home, this.recruiting = false});
 
+  final TutorHome home;
   final bool recruiting;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final tr = Translations.of(context).tutorSpace.home.offers;
-    final offers = ref.watch(tutorHomeOffersProvider).valueOrNull ?? const [];
+    final offers = home.offers ?? const <TutorOfferPreview>[];
     return SoeCard(
       padding: EdgeInsets.zero,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-          child: Text(recruiting ? tr.nearTitle : tr.title,
+          child: Text(
+              home.offersTitle ?? (recruiting ? tr.nearTitle : tr.title),
               style: AppTypography.h3.copyWith(color: AppPalette.teal800)),
         ),
         if (offers.isEmpty)
@@ -522,7 +529,8 @@ class _OffersCard extends ConsumerWidget {
           ),
         for (final offer in offers)
           InkWell(
-            onTap: () => context.push(TutorSpaceRoutes.offer(offer.id)),
+            onTap: () =>
+                openTutorScreen(context, TutorSpaceRoutes.offer(offer.id)),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(children: [
@@ -554,14 +562,14 @@ class _OffersCard extends ConsumerWidget {
             ),
           ),
         TextButton(
-          onPressed: () => context.push(TutorSpaceRoutes.offers),
+          onPressed: () => openTutorScreen(context, TutorSpaceRoutes.offers),
           child: Text(tr.seeAll),
         ),
         if (recruiting)
           Container(
             color: AppPalette.surfaceSoft,
             padding: const EdgeInsets.all(16),
-            child: Text(tr.note,
+            child: Text(home.offersNote ?? tr.note,
                 style: AppTypography.caption.copyWith(color: AppPalette.text2)),
           ),
       ]),
@@ -625,16 +633,39 @@ class _NextStepCard extends StatelessWidget {
     final label = recruitment.stageLabel.isNotEmpty
         ? recruitment.stageLabel
         : _stepLabel(tr, stage);
+    final complete = recruitment.sectionsComplete;
+    final total = recruitment.sectionsTotal;
+    final fileStage = stage == 'file' && complete != null && total != null;
     return SoeCard(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(tr.next(step: label).toUpperCase(),
+        Text((recruitment.nextLabel ?? tr.next(step: label)).toUpperCase(),
             style: AppTypography.overline.copyWith(color: AppPalette.teal800)),
         const SizedBox(height: 4),
         Text(tr.missingTitle,
             style: AppTypography.h3.copyWith(color: AppPalette.teal800)),
         const SizedBox(height: 8),
-        if (recruitment.missingDocuments.isEmpty)
-          Text(waiting,
+        if (fileStage) ...[
+          // « 5 / 7 sections complètes », then each section to complete or redo.
+          Text('$complete / $total',
+              style: AppTypography.h1.copyWith(color: AppPalette.teal800)),
+          Text(tr.sectionsComplete,
+              style: AppTypography.caption.copyWith(color: AppPalette.text2)),
+          const SizedBox(height: 8),
+          for (final section in recruitment.missingSections)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child:
+                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Icon(Icons.warning_amber_rounded,
+                    size: 18, color: AppPalette.warningText),
+                const SizedBox(width: 8),
+                Expanded(
+                    child: Text('${section.label} : ${section.reason}',
+                        style: AppTypography.bodySm)),
+              ]),
+            ),
+        ] else if (recruitment.missingDocuments.isEmpty)
+          Text(recruitment.waitingText ?? waiting,
               style: AppTypography.bodySm.copyWith(color: AppPalette.text2))
         else
           for (final document in recruitment.missingDocuments)
@@ -665,7 +696,7 @@ class _NextStepCard extends StatelessWidget {
           SoeButton(
             label: action,
             size: SoeButtonSize.md,
-            onPressed: () => context.push(target),
+            onPressed: () => openTutorScreen(context, target),
           ),
         ],
       ]),
@@ -695,20 +726,49 @@ class _JourneyCard extends StatelessWidget {
           Expanded(
               child: Text(tr.journey,
                   style: AppTypography.h3.copyWith(color: AppPalette.teal800))),
-          Text(tr.stepOf(step: step, total: total),
+          Text(recruitment.stepOfLabel ?? tr.stepOf(step: step, total: total),
               style: AppTypography.caption.copyWith(color: AppPalette.text2)),
         ]),
         const SizedBox(height: 8),
-        for (var i = 0; i < tutorJourney.length; i++)
-          _JourneyStep(
-            label: _stepLabel(tr, tutorJourney[i]),
-            done: i + 1 < step,
-            current: i + 1 == step,
-          ),
-        const SizedBox(height: 12),
-        Text(tr.delayTitle, style: AppTypography.label),
-        const SizedBox(height: 2),
-        Text(tr.delayTbc,
+        if (recruitment.journey.isNotEmpty)
+          for (final item in recruitment.journey)
+            _JourneyStep(
+              label: item.label,
+              done: item.state == 'done',
+              current: item.state == 'current',
+            )
+        else
+          for (var i = 0; i < tutorJourney.length; i++)
+            _JourneyStep(
+              label: _stepLabel(tr, tutorJourney[i]),
+              done: i + 1 < step,
+              current: i + 1 == step,
+            ),
+      ]),
+    );
+  }
+}
+
+/// « Délai de validation »: the review delay SOE sets, « à confirmer » until then.
+class _DelayCard extends StatelessWidget {
+  const _DelayCard({required this.recruitment});
+
+  final TutorRecruitment recruitment;
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = Translations.of(context).tutorSpace.home.recruitment;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+          color: AppPalette.surfaceSoft,
+          borderRadius: BorderRadius.circular(16)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(tr.delayTitle,
+            style: AppTypography.h3.copyWith(color: AppPalette.teal800)),
+        const SizedBox(height: 6),
+        Text(recruitment.delayLabel ?? tr.delayTbc,
             style: AppTypography.bodySm.copyWith(color: AppPalette.text2)),
       ]),
     );

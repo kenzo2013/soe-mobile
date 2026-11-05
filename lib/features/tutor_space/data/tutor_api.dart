@@ -89,18 +89,6 @@ class TutorApi {
                 if (comment != null && comment.isNotEmpty) 'comment': comment,
               }))));
 
-  /// The first published offers in the tutor's subjects (home, « Offres pour moi »).
-  Future<List<TutorOfferPreview>> homeOffers({int limit = 2}) =>
-      _guard(() async {
-        final r = await _dio.get<Map<String, dynamic>>('/tutor/offers',
-            queryParameters: {'per_page': limit});
-        return Paginated.fromEnvelope(
-                r.data ?? const {}, TutorOfferPreview.fromJson)
-            .items
-            .take(limit)
-            .toList();
-      });
-
   Future<void> reportProblem(int id,
           {required String type, required String description}) =>
       _guard(() async {

@@ -85,8 +85,11 @@ TutorSessionDetail detail({
   });
 }
 
-TutorHome activeHome({List<Map<String, dynamic>>? actions}) =>
+TutorHome activeHome(
+        {List<Map<String, dynamic>>? actions,
+        List<Map<String, dynamic>>? offers}) =>
     TutorHome.fromJson({
+      if (offers != null) 'offers': offers,
       'active': true,
       'may_teach': true,
       'actions': actions ??
@@ -141,6 +144,74 @@ TutorHome recruitmentHome() => TutorHome.fromJson({
             'state': 'redo',
             'state_label': 'à refaire'
           }
+        ],
+      },
+    });
+
+/// A candidate at the file stage, as the API sends it since the home carries the web texts:
+/// the sections, the journey, the delay and the two offers.
+TutorHome candidateHome({String stage = 'file', int step = 1}) =>
+    TutorHome.fromJson({
+      'active': false,
+      'may_teach': false,
+      'actions': <Map<String, dynamic>>[],
+      'today_sessions': <Map<String, dynamic>>[],
+      'month': <String, dynamic>{},
+      'offers': [
+        {
+          'id': 4,
+          'reference': 'OFF-2611-07',
+          'subjects': ['Mathématiques'],
+          'school_classes': ['3e'],
+          'neighborhood': 'Bonamoussadi',
+          'session_rate': 6500,
+        }
+      ],
+      'offers_title': 'Offres près de chez vous',
+      'offers_note':
+          'Vous pouvez postuler avant la validation de votre dossier.',
+      'recruitment': {
+        'stage': stage,
+        'stage_label': 'Compléter le dossier',
+        'refused': false,
+        'step': step,
+        'total_steps': 6,
+        'missing_documents': <Map<String, dynamic>>[],
+        'sections_complete': 5,
+        'sections_total': 7,
+        'missing_sections': [
+          {
+            'section': 'diplomas',
+            'label': 'Diplômes et justificatifs',
+            'reason': 'à refaire (relevé illisible).'
+          },
+          {
+            'section': 'presentation',
+            'label': 'Présentation',
+            'reason': 'à compléter.'
+          },
+        ],
+        'subtitle': 'Votre candidature avance. Voici la prochaine étape.',
+        'next_label': 'Prochaine étape · Compléter le dossier',
+        'waiting_text': null,
+        'delay_label':
+            'Après l’envoi du dossier, SOE vérifie vos pièces sous 5 jours puis vous propose un entretien.',
+        'step_of_label': 'Étape $step sur 6',
+        'journey': [
+          for (final (i, name) in [
+            'Dossier complet',
+            'Vérification des pièces',
+            'Entretien',
+            'Test de niveau',
+            'Charte et code de conduite',
+            'Activation du compte'
+          ].indexed)
+            {
+              'stage': 'file',
+              'label': name,
+              'state':
+                  i + 1 < step ? 'done' : (i + 1 == step ? 'current' : 'todo')
+            }
         ],
       },
     });
@@ -207,7 +278,6 @@ class FakeTutorApi extends TutorApi {
     this.proposalValue,
     this.planningValue,
     this.sessionsValue = const [],
-    this.offers = const [],
   }) : super(Dio());
 
   TutorHome? homeValue;
@@ -216,7 +286,6 @@ class FakeTutorApi extends TutorApi {
   TutorProposal? proposalValue;
   TutorPlanning? planningValue;
   List<TutorSession> sessionsValue;
-  List<TutorOfferPreview> offers;
 
   /// Thrown by the next read of the home / the next action.
   Object? homeFailure;
@@ -234,9 +303,6 @@ class FakeTutorApi extends TutorApi {
     if (homeFailure != null) throw homeFailure!;
     return homeValue!;
   }
-
-  @override
-  Future<List<TutorOfferPreview>> homeOffers({int limit = 2}) async => offers;
 
   @override
   Future<List<TutorSession>> sessions(DateTime from, DateTime to,

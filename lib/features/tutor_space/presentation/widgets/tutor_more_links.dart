@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../i18n/translations.g.dart';
@@ -13,8 +14,32 @@ import '../tutor_space_routes.dart';
 
 /// The tutor entries of « Plus » (REP-01, variant « Menu Plus »): offers, applications, the
 /// file, the contracts (with what is left to sign), the payout methods and the quality view.
+/// A candidate's « Plus » (recruitment mode, as the web): the interview and test, the charter,
+/// help; the file, offers and applications are tabs.
 List<MoreEntry> tutorMoreEntries(BuildContext context, WidgetRef ref) {
   final tr = Translations.of(context).tutorSpace.nav;
+  if (ref.watch(tutorCandidateProvider)) {
+    return [
+      (
+        icon: Icons.calendar_today_outlined,
+        label: tr.interview,
+        hint: null,
+        route: TutorSpaceRoutes.interview
+      ),
+      (
+        icon: Icons.draw_outlined,
+        label: tr.charter,
+        hint: null,
+        route: TutorSpaceRoutes.charter
+      ),
+      (
+        icon: Icons.chat_bubble_outline,
+        label: tr.help,
+        hint: null,
+        route: RouteNames.help
+      ),
+    ];
+  }
   final toSign = ref.watch(tutorContractsProvider).valueOrNull?.fold<int>(
           0,
           (sum, contract) =>

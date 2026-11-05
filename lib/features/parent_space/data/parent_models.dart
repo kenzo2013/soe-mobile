@@ -7,6 +7,11 @@ DateTime? _date(Object? value) =>
 
 int _int(Object? value) => (value as num?)?.toInt() ?? 0;
 
+int? _intOrNull(Object? value) => (value as num?)?.toInt();
+
+List<String> _strings(Object? value) =>
+    (value as List<dynamic>? ?? const []).whereType<String>().toList();
+
 class ParentSession {
   const ParentSession({
     required this.id,
@@ -161,6 +166,9 @@ class ParentChild {
     this.editable = false,
     this.specialNeeds,
     this.address,
+    this.pendingStep,
+    this.statusLabel,
+    this.statusTone,
   });
 
   factory ParentChild.fromJson(Map<String, dynamic> json) {
@@ -186,8 +194,20 @@ class ParentChild {
       editable: json['editable'] == true,
       specialNeeds: json['special_needs'] as String?,
       address: address == null ? null : ParentAddress.fromJson(address),
+      pendingStep: json['pending_step'] as String?,
+      statusLabel: json['status_label'] as String?,
+      statusTone: json['status_tone'] as String?,
     );
   }
+
+  /// Home only: the step of the request on its way (no course yet).
+  final String? pendingStep;
+
+  /// Home only: the line of the web card, « 1 cours · Anglais » or « Contrat à signer ».
+  final String? statusLabel;
+
+  /// Home only: neutral, warning (the parent must act) or info (SOE acts).
+  final String? statusTone;
 
   final int id;
   final String firstName;
@@ -310,9 +330,19 @@ class ParentInvoice {
     required this.lines,
     this.paidAt,
     this.issuedOn,
+    this.monthLabel,
+    this.summary,
+    this.canPay,
+    this.paymentMethodLabel,
+    this.receiptPaymentId,
   });
 
   factory ParentInvoice.fromJson(Map<String, dynamic> json) => ParentInvoice(
+        monthLabel: json['month_label'] as String?,
+        summary: json['summary'] as String?,
+        canPay: json['can_pay'] as bool?,
+        paymentMethodLabel: json['payment_method_label'] as String?,
+        receiptPaymentId: _intOrNull(json['receipt_payment_id']),
         id: _int(json['id']),
         number: json['number'] as String? ?? '',
         period: _date(json['period']) ?? DateTime.now(),
@@ -350,6 +380,14 @@ class ParentInvoice {
   /// When SOE issued the invoice (the 25th of the month before).
   final DateTime? issuedOn;
 
+  /// Home only: « Novembre », the card's text, whether the card offers to pay (not when « À
+  /// faire » already does), the means and the payment of the receipt once paid.
+  final String? monthLabel;
+  final String? summary;
+  final bool? canPay;
+  final String? paymentMethodLabel;
+  final int? receiptPaymentId;
+
   bool get payable => status == 'issued' || status == 'overdue';
 }
 
@@ -368,9 +406,19 @@ class ParentPayment {
     this.methodLabel,
     this.period,
     this.createdAt,
+    this.children = const [],
+    this.subjects = const [],
+    this.firstMonth = false,
+    this.title,
+    this.meansLabel,
   });
 
   factory ParentPayment.fromJson(Map<String, dynamic> json) => ParentPayment(
+        children: _strings(json['children']),
+        subjects: _strings(json['subjects']),
+        firstMonth: json['first_month'] == true,
+        title: json['title'] as String?,
+        meansLabel: json['means_label'] as String?,
         id: _int(json['id']),
         invoiceId: (json['invoice_id'] as num?)?.toInt(),
         amount: _int(json['amount']),
@@ -404,6 +452,15 @@ class ParentPayment {
   final DateTime? period;
   final DateTime? createdAt;
 
+  /// The children and subjects the payment is for (empty when unknown).
+  final List<String> children;
+  final List<String> subjects;
+  final bool firstMonth;
+
+  /// The web line: « Novembre · Yann (premier mois) », « MTN MoMo · •• 21 09 ».
+  final String? title;
+  final String? meansLabel;
+
   /// A receipt exists (PDF) once the payment went through.
   bool get hasReceipt => state == 'success' && receiptNumber != null;
 }
@@ -415,7 +472,20 @@ class ParentHomeAction {
       this.title,
       required this.deadline,
       required this.overdue,
-      required this.targetId});
+      required this.targetId,
+      this.kindLabel,
+      this.heading,
+      this.explanation,
+      this.buttonLabel,
+      this.subjects = const [],
+      this.children = const [],
+      this.tutorName,
+      this.hoursLeft,
+      this.totalHours,
+      this.daysLeft,
+      this.badgeLabel,
+      this.countdownLabel,
+      this.deadlineLabel});
 
   factory ParentHomeAction.fromJson(Map<String, dynamic> json) =>
       ParentHomeAction(
@@ -425,6 +495,19 @@ class ParentHomeAction {
         deadline: _date(json['deadline']),
         overdue: json['overdue'] == true,
         targetId: _int(json['target_id']),
+        kindLabel: json['kind_label'] as String?,
+        heading: json['heading'] as String?,
+        explanation: json['explanation'] as String?,
+        buttonLabel: json['button_label'] as String?,
+        subjects: _strings(json['subjects']),
+        children: _strings(json['children']),
+        tutorName: json['tutor_name'] as String?,
+        hoursLeft: _intOrNull(json['hours_left']),
+        totalHours: _intOrNull(json['total_hours']),
+        daysLeft: _intOrNull(json['days_left']),
+        badgeLabel: json['badge_label'] as String?,
+        countdownLabel: json['countdown_label'] as String?,
+        deadlineLabel: json['deadline_label'] as String?,
       );
 
   final String kind;
@@ -435,6 +518,30 @@ class ParentHomeAction {
   final DateTime? deadline;
   final bool overdue;
   final int targetId;
+
+  /// The texts of the web card: the overline (« Paiement en retard »), the heading
+  /// (« Anglais · Léa »), why, the button.
+  final String? kindLabel;
+  final String? heading;
+  final String? explanation;
+  final String? buttonLabel;
+  final List<String> subjects;
+  final List<String> children;
+
+  /// Report or review: « Aline N. ».
+  final String? tutorName;
+
+  /// Report: hours before the automatic validation, out of [totalHours].
+  final int? hoursLeft;
+  final int? totalHours;
+
+  /// Payment: days before the due date (negative when overdue), and its badge.
+  final int? daysLeft;
+  final String? badgeLabel;
+
+  /// What the card shows big (« 46 h », « 3 j », « ven. 6 ») and the caption below it.
+  final String? countdownLabel;
+  final String? deadlineLabel;
 }
 
 class ParentHomeRequest {
@@ -443,7 +550,12 @@ class ParentHomeRequest {
       required this.reference,
       required this.step,
       required this.stepLabel,
-      required this.children});
+      required this.children,
+      this.title,
+      this.subjects = const [],
+      this.childLabels = const [],
+      this.explanation,
+      this.quoteValidUntil});
 
   factory ParentHomeRequest.fromJson(Map<String, dynamic> json) =>
       ParentHomeRequest(
@@ -453,6 +565,13 @@ class ParentHomeRequest {
         stepLabel: json['step_label'] as String? ?? '',
         children:
             (json['children'] as List<dynamic>? ?? const []).cast<String>(),
+        title: json['title'] as String?,
+        subjects: _strings(json['subjects']),
+        childLabels: _strings(json['child_labels']),
+        explanation: json['explanation'] as String?,
+        quoteValidUntil: json['quote_valid_until'] is String
+            ? DateTime.tryParse(json['quote_valid_until'] as String)
+            : null,
       );
 
   static const steps = [
@@ -469,6 +588,14 @@ class ParentHomeRequest {
   final String step;
   final String stepLabel;
   final List<String> children;
+
+  /// The web card: « Maths et physique pour Yann », the subjects, « Yann, 4e », what happens
+  /// next, the end of the quote's validity (quote step).
+  final String? title;
+  final List<String> subjects;
+  final List<String> childLabels;
+  final String? explanation;
+  final DateTime? quoteValidUntil;
 }
 
 class ParentHome {
@@ -480,6 +607,8 @@ class ParentHome {
     required this.invoice,
     required this.advisorName,
     required this.advisorPhone,
+    this.todo,
+    this.advisor,
   });
 
   factory ParentHome.fromJson(Map<String, dynamic> json) {
@@ -500,8 +629,19 @@ class ParentHome {
               .whereType<String>()
               .join(' '),
       advisorPhone: advisor?['phone'] as String?,
+      todo: json['todo'] is List
+          ? list('todo').map(ParentHomeAction.fromJson).toList()
+          : null,
+      advisor: advisor == null ? null : ParentHomeAdvisor.fromJson(advisor),
     );
   }
+
+  /// The web « À faire » (the reviews to give included); null from an older API.
+  final List<ParentHomeAction>? todo;
+  final ParentHomeAdvisor? advisor;
+
+  /// What « À faire » lists: [todo], else [actions].
+  List<ParentHomeAction> get todoActions => todo ?? actions;
 
   final List<ParentHomeAction> actions;
   final List<ParentSession> weekSessions;
@@ -685,4 +825,47 @@ class ParentPlanningSlot {
   final String tutorName;
   final bool canAnswer;
   final List<({String day, String from, String to})> times;
+}
+
+/// « Mon conseiller SOE » as the web card shows it.
+class ParentHomeAdvisor {
+  const ParentHomeAdvisor({
+    required this.name,
+    required this.initials,
+    this.phone,
+    this.roleLabel,
+    this.hoursLabel,
+    this.phoneLabel,
+    this.whatsappUrl,
+  });
+
+  factory ParentHomeAdvisor.fromJson(Map<String, dynamic> json) {
+    final fallback = [json['first_name'], json['last_name']]
+        .whereType<String>()
+        .where((part) => part.isNotEmpty)
+        .join(' ');
+    return ParentHomeAdvisor(
+      name: json['name'] as String? ?? fallback,
+      initials: json['initials'] as String? ??
+          fallback
+              .split(' ')
+              .where((part) => part.isNotEmpty)
+              .take(2)
+              .map((part) => part[0].toUpperCase())
+              .join(),
+      phone: json['phone'] as String?,
+      roleLabel: json['role_label'] as String?,
+      hoursLabel: json['hours_label'] as String?,
+      phoneLabel: json['phone_label'] as String?,
+      whatsappUrl: json['whatsapp_url'] as String?,
+    );
+  }
+
+  final String name;
+  final String initials;
+  final String? phone;
+  final String? roleLabel;
+  final String? hoursLabel;
+  final String? phoneLabel;
+  final String? whatsappUrl;
 }

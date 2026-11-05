@@ -268,6 +268,9 @@
       "planning": "Planning",
       "students": "Élèves",
       "earnings": "Revenus",
+      "file": "Dossier",
+      "offers": "Offres",
+      "applications": "Candidatures",
       "contracts": "Contrats"
     },
     "more": {
@@ -308,6 +311,7 @@
       "sessionOf": "Séance du {{date}} avec {{tutor}}",
       "hours": "{{hours}} h",
       "hoursOf": "restantes sur {{total}} h",
+      "quoteValidUntil": "devis valable jusqu’au",
       "signBefore": "signature conseillée avant",
       "before": "à faire avant",
       "why": {
@@ -965,6 +969,7 @@
         "subtitle": "Votre candidature avance. Voici la prochaine étape.",
         "refused": "Votre candidature n’a pas été retenue. Votre contact SOE peut vous en dire plus.",
         "next": "Prochaine étape · {{step}}",
+        "sectionsComplete": "sections complètes",
         "missingTitle": "Ce qui manque",
         "journey": "Votre parcours",
         "stepOf": "Étape {{step}} sur {{total}}",
@@ -1435,6 +1440,9 @@
       },
       "payoutMethods": "Moyens de paiement",
       "earningsHistory": "Historique des versements",
+      "interview": "Entretien et test",
+      "charter": "Charte",
+      "help": "Aide",
       "quality": "Ma qualité"
     },
     "offers": {

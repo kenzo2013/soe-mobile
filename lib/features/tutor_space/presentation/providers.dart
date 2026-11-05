@@ -9,9 +9,15 @@ final tutorApiProvider =
     Provider<TutorApi>((ref) => TutorApi(ref.watch(dioV2Provider)));
 
 /// The last home read and when (kept for the app's life): shown « Hors connexion » when a
-/// new read fails for lack of network.
+/// new read fails for lack of network. Forgotten at sign-out: the next account starts fresh
+/// (a candidate's tabs never show for an active tutor).
 final tutorHomeCacheProvider =
-    StateProvider<({TutorHome home, DateTime at})?>((ref) => null);
+    StateProvider<({TutorHome home, DateTime at})?>((ref) {
+  ref.listen(authTokenProvider, (previous, next) {
+    if (next == null) ref.invalidateSelf();
+  });
+  return null;
+});
 
 final tutorHomeProvider = FutureProvider.autoDispose<TutorHome>((ref) async {
   final home = await ref.watch(tutorApiProvider).home();
@@ -20,10 +26,10 @@ final tutorHomeProvider = FutureProvider.autoDispose<TutorHome>((ref) async {
   return home;
 });
 
-/// « Offres pour moi » on the home (the two first offers).
-final tutorHomeOffersProvider =
-    FutureProvider.autoDispose<List<TutorOfferPreview>>(
-        (ref) => ref.watch(tutorApiProvider).homeOffers());
+/// A candidate (REP-01 « Mode recrutement »): the last home read says the account is not
+/// active yet. The tab bar then reads Dossier · Offres · Candidatures · Plus.
+final tutorCandidateProvider = Provider<bool>(
+    (ref) => ref.watch(tutorHomeCacheProvider)?.home.active == false);
 
 /// The sessions of a period (31 days at most) with an optional filter (REP-16).
 typedef TutorSessionsQuery = ({DateTime from, DateTime to, String? filter});

@@ -124,36 +124,58 @@ void main() {
       expect(sessions.single.id, 12);
     });
 
-    test('reads the first offers of the home', () async {
-      final (api, adapter) = _api(200, {
-        'data': [
-          {
-            'id': 4,
-            'subjects': ['Mathématiques'],
-            'school_classes': ['3e'],
-            'neighborhood': 'Bonamoussadi',
-            'session_rate': 6500,
+    test('the home carries the web offers and the recruitment texts', () async {
+      final (api, _) = _api(200, {
+        'data': {
+          'active': false,
+          'may_teach': false,
+          'actions': <Map<String, dynamic>>[],
+          'today_sessions': <Map<String, dynamic>>[],
+          'month': <String, dynamic>{},
+          'offers': [
+            {
+              'id': 4,
+              'subjects': ['Mathématiques'],
+              'school_classes': ['3e'],
+              'neighborhood': 'Bonamoussadi',
+              'session_rate': 6500,
+            },
+          ],
+          'offers_title': 'Offres près de chez vous',
+          'offers_note': 'Vous pouvez postuler avant la validation.',
+          'recruitment': {
+            'stage': 'file',
+            'stage_label': 'Compléter le dossier',
+            'refused': false,
+            'step': 1,
+            'total_steps': 6,
+            'missing_documents': <Map<String, dynamic>>[],
+            'sections_complete': 5,
+            'sections_total': 7,
+            'missing_sections': [
+              {
+                'section': 'presentation',
+                'label': 'Présentation',
+                'reason': 'à compléter.'
+              }
+            ],
+            'delay_label': 'Délai communiqué par SOE (à confirmer).',
+            'journey': [
+              {'stage': 'file', 'label': 'Dossier complet', 'state': 'current'}
+            ],
           },
-          {
-            'id': 5,
-            'subjects': ['SVT'],
-            'school_classes': <String>[]
-          },
-          {
-            'id': 6,
-            'subjects': ['Anglais'],
-            'school_classes': <String>[]
-          },
-        ],
-        'meta': {'page': 1, 'per_page': 2, 'total_count': 3, 'total_pages': 2}
+        },
+        'meta': <String, dynamic>{},
       });
-      final offers = await api.homeOffers();
-      expect(adapter.last!.path, '/tutor/offers');
-      expect(adapter.last!.queryParameters['per_page'], 2);
-      expect(offers, hasLength(2));
-      expect(offers.first.title, 'Mathématiques · 3e');
-      expect(offers.first.sessionRate, 6500);
-      expect(offers.last.title, 'SVT');
+      final home = await api.home();
+      expect(home.offers!.single.title, 'Mathématiques · 3e');
+      expect(home.offers!.single.sessionRate, 6500);
+      expect(home.offersNote, 'Vous pouvez postuler avant la validation.');
+      final recruitment = home.recruitment!;
+      expect(recruitment.sectionsComplete, 5);
+      expect(recruitment.missingSections.single.label, 'Présentation');
+      expect(recruitment.journey.single.state, 'current');
+      expect(recruitment.delayLabel, contains('à confirmer'));
     });
 
     test('no network is a network failure (the home shows « Hors connexion »)',

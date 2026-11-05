@@ -8,6 +8,7 @@ import 'package:soe/features/parent_space/data/parent_models.dart';
 import 'package:soe/features/parent_space/presentation/pages/parent_account_pages.dart';
 import 'package:soe/features/parent_space/presentation/pages/parent_children_page.dart';
 import 'package:soe/features/parent_space/presentation/pages/parent_contract_pages.dart';
+import 'package:soe/features/parent_space/presentation/pages/parent_home_page.dart';
 import 'package:soe/features/parent_space/presentation/pages/parent_request_detail_page.dart';
 import 'package:soe/features/parent_space/presentation/pages/parent_request_wizard_page.dart';
 import 'package:soe/features/parent_space/presentation/pages/parent_tutor_pages.dart';
@@ -91,6 +92,128 @@ void main() {
         child: child, overrides: [parentApiProvider.overrideWithValue(api)]);
     await tester.pumpAndSettle();
   }
+
+  testWidgets(
+      'PAR-01 shows each card with the texts of the home, without a call per card',
+      (tester) async {
+    final home = ParentHome.fromJson({
+      'actions': <Map<String, dynamic>>[],
+      'todo': [
+        {
+          'kind': 'report',
+          'label': 'Procès-verbal à valider',
+          'kind_label': 'Procès-verbal à valider',
+          'title': 'Léa',
+          'deadline':
+              DateTime.now().add(const Duration(hours: 46)).toIso8601String(),
+          'overdue': false,
+          'target_id': 12,
+          'heading': 'Anglais · Léa',
+          'explanation':
+              'Séance du lundi 2 nov. avec Aline N. · validé automatiquement sans réponse.',
+          'button_label': 'Examiner le PV',
+          'subjects': ['Anglais'],
+          'children': ['Léa'],
+          'tutor_name': 'Aline N.',
+          'hours_left': 46,
+          'total_hours': 72,
+          'countdown_label': '46 h',
+          'deadline_label': 'restantes sur 72 h',
+        },
+        {
+          'kind': 'review',
+          'label': 'Avis à donner',
+          'title': 'Aline',
+          'deadline': null,
+          'overdue': false,
+          'target_id': 5,
+          'heading': 'Comment se passent les cours avec Aline N. ?',
+          'explanation':
+              'Léa a 4 séances validées. Votre avis aide SOE à suivre la qualité.',
+          'button_label': 'Donner mon avis',
+        },
+      ],
+      'week_sessions': <Map<String, dynamic>>[],
+      'requests': [
+        {
+          'id': 52,
+          'reference': 'DEM-2610-31',
+          'step': 'contract',
+          'step_label': 'Contrat à signer',
+          'children': ['Yann'],
+          'title': 'Maths et physique pour Yann',
+          'subjects': ['Maths', 'Physique'],
+          'child_labels': ['Yann, 4e'],
+          'explanation': 'Après signature, vous payez le premier mois.',
+          'quote_valid_until': null,
+        }
+      ],
+      'children': [
+        {
+          'id': 3,
+          'first_name': 'Léa',
+          'school_class': 'CM2',
+          'courses': [
+            {
+              'subject': 'Anglais',
+              'tutor_name': 'Aline N.',
+              'reservation_id': 51
+            }
+          ],
+          'status_label': '1 cours · Anglais',
+          'status_tone': 'neutral',
+        },
+      ],
+      'invoice': {
+        'id': 1,
+        'number': 'INV-1',
+        'period': '2026-11-01',
+        'amount': 42000,
+        'balance_due': 0,
+        'status': 'paid',
+        'status_label': 'Payé',
+        'lines': <Map<String, dynamic>>[],
+        'month_label': 'Novembre',
+        'summary':
+            'Anglais de Léa · payé le 28 oct. par MTN MoMo · reçu disponible.',
+        'can_pay': false,
+        'receipt_payment_id': 45,
+      },
+      'advisor': {
+        'first_name': 'Carine',
+        'last_name': 'Ekotto',
+        'phone': '+237675942344',
+        'name': 'Carine Ekotto',
+        'initials': 'CE',
+        'role_label': 'Conseiller SOE',
+        'hours_label': 'lun. – sam., 8:00 – 18:00',
+        'phone_label': '+237 6 75 94 23 44',
+      },
+    });
+    when(() => api.home()).thenAnswer((_) async => home);
+    await pump(tester, const ParentHomePage());
+
+    expect(find.text('Anglais · Léa'), findsOneWidget);
+    expect(find.textContaining('Séance du lundi 2 nov.'), findsOneWidget);
+    expect(find.text('46 h'), findsOneWidget);
+    expect(find.text('restantes sur 72 h'), findsOneWidget);
+    expect(find.text('Comment se passent les cours avec Aline N. ?'),
+        findsOneWidget);
+    expect(find.text('Maths et physique pour Yann'), findsOneWidget);
+    expect(find.text('Après signature, vous payez le premier mois.'),
+        findsOneWidget);
+    expect(find.text('1 cours · Anglais'), findsOneWidget);
+    expect(find.text('Novembre'), findsOneWidget);
+    expect(find.textContaining('par MTN MoMo'), findsOneWidget);
+    expect(find.text('Conseiller SOE'), findsOneWidget);
+    expect(find.textContaining('+237 6 75 94 23 44'), findsOneWidget);
+    // Only the home was read: no request, session, contract or child per card.
+    verify(() => api.home()).called(greaterThanOrEqualTo(1));
+    verifyNever(() => api.requestDetail(any()));
+    verifyNever(() => api.session(any()));
+    verifyNever(() => api.contract(any()));
+    verifyNever(() => api.child(any()));
+  });
 
   testWidgets('PAR-02 lists the children as cards with « Ajouter un enfant »',
       (tester) async {

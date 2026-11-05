@@ -19,17 +19,16 @@ void main() {
         'active: actions by deadline, one gold button, today, the month',
         (tester) async {
       final api = FakeTutorApi(
-        homeValue: activeHome(),
-        detailValue: detail(),
-        offers: [
-          TutorOfferPreview.fromJson({
+        homeValue: activeHome(offers: [
+          {
             'id': 4,
             'subjects': ['Mathématiques'],
             'school_classes': ['3e'],
             'neighborhood': 'Bonamoussadi',
             'session_rate': 6500,
-          })
-        ],
+          }
+        ]),
+        detailValue: detail(),
       );
       useTallView(tester);
       await pumpAppWith(tester,
@@ -76,6 +75,38 @@ void main() {
       // No fake empty dashboard for a candidate.
       expect(find.text('À faire'), findsNothing);
       expect(find.text('Ce mois-ci'), findsNothing);
+    });
+
+    testWidgets(
+        'recruitment mode: sections complete, what is missing, the journey, the delay, offers',
+        (tester) async {
+      final api = FakeTutorApi(homeValue: candidateHome());
+      useTallView(tester);
+      await pumpAppWith(tester,
+          child: const TutorHomePage(), overrides: tutorOverrides(api));
+      await tester.pumpAndSettle();
+
+      expect(
+          find.text('PROCHAINE ÉTAPE · COMPLÉTER LE DOSSIER'), findsOneWidget);
+      expect(find.text('5 / 7'), findsOneWidget);
+      expect(find.text('sections complètes'), findsOneWidget);
+      expect(find.text('Présentation : à compléter.'), findsOneWidget);
+      expect(
+          find.text(
+              'Diplômes et justificatifs : à refaire (relevé illisible).'),
+          findsOneWidget);
+      expect(find.text('Dossier complet'), findsOneWidget);
+      expect(find.text('Délai de validation'), findsOneWidget);
+      expect(find.textContaining('sous 5 jours'), findsOneWidget);
+      expect(find.text('Offres près de chez vous'), findsOneWidget);
+      expect(find.text('Mathématiques · 3e'), findsOneWidget);
+      expect(find.textContaining('500'), findsWidgets);
+      expect(
+          find.text(
+              'Vous pouvez postuler avant la validation de votre dossier.'),
+          findsOneWidget);
+      // The offers come with the home: no other read.
+      expect(api.calls, ['home']);
     });
 
     testWidgets('offline: the last data with « Hors connexion » and retry',
