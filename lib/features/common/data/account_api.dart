@@ -6,6 +6,7 @@ import 'package:http_parser/http_parser.dart';
 import '../../../core/error/exception_mapper.dart';
 import '../../../core/network/api_endpoints_v2.dart';
 import '../../../core/network/paginated.dart';
+import '../../../core/data/cameroon_city.dart';
 import 'account_models.dart';
 
 /// Calls of the API v2 account and common endpoints (COM-01 to COM-10). Returns models built
@@ -115,14 +116,15 @@ class AccountApi {
           await _dio.patch<Map<String, dynamic>>(ApiEndpointsV2.accountAddress,
               data: address.toJson()))));
 
-  /// The cities SOE serves (/references `cities`), for the address.
-  Future<List<String>> cities() => _guard(() async =>
-      ((_data(await _dio.get<Map<String, dynamic>>(ApiEndpointsV2.references))[
-                  'cities'] as List<dynamic>?) ??
+  /// Every city of Cameroon (`/auth/cities`, public), the main ones first: the sign-up and the
+  /// address choose from it.
+  Future<List<CameroonCity>> cities() => _guard(() async =>
+      (((await _dio.get<Map<String, dynamic>>(ApiEndpointsV2.cities))
+                  .data?['data'] as List<dynamic>?) ??
               const [])
           .whereType<Map<String, dynamic>>()
-          .map((city) => city['name'] as String? ?? '')
-          .where((name) => name.isNotEmpty)
+          .map(CameroonCity.fromJson)
+          .where((city) => city.name.isNotEmpty)
           .toList());
 
   // ── Roles (COM-05) ────────────────────────────────────────

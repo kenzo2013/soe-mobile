@@ -471,18 +471,28 @@ void main() {
 
     testWidgets('the address saves the fields and the pin', (tester) async {
       final api = _apiWithAddress()
-        ..on('GET /references', (
+        ..on('GET /auth/cities', (
           200,
-          envelope({
-            'subjects': <Object>[],
-            'school_classes': <Object>[],
-            'educations': <Object>[],
-            'sections': <Object>[],
-            'cities': [
-              {'name': 'Douala', 'neighborhoods': <Object>[]},
-              {'name': 'Yaoundé', 'neighborhoods': <Object>[]}
-            ]
-          })
+          envelope([
+            {
+              'name': 'Douala',
+              'major': true,
+              'region': 'Littoral',
+              'neighborhoods': <Object>[]
+            },
+            {
+              'name': 'Yaoundé',
+              'major': true,
+              'region': 'Centre',
+              'neighborhoods': <Object>[]
+            },
+            {
+              'name': 'Akonolinga',
+              'major': false,
+              'region': null,
+              'neighborhoods': <Object>[]
+            }
+          ])
         ))
         ..on('PATCH /account/address', (
           200,
@@ -502,7 +512,10 @@ void main() {
       expect(find.textContaining('moins de 150 m'), findsOneWidget);
 
       await tester.enterText(_field('Bonapriso'), 'Bastos');
+      await tester.tap(find.text('Douala'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Yaoundé'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Enregistrer l’adresse'));
       await tester.pumpAndSettle();
 

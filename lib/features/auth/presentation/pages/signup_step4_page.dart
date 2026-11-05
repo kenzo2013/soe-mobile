@@ -13,6 +13,7 @@ import '../../domain/entities/sign_up_answers.dart';
 import '../controllers/auth_controllers.dart';
 import '../widgets/auth_feedback.dart';
 import '../widgets/auth_scaffold.dart';
+import '../../../common/presentation/widgets/city_field.dart';
 
 /// AUT-06 — address and consents, then the account is created and a code is sent.
 class SignupStep4Page extends ConsumerStatefulWidget {
@@ -113,13 +114,13 @@ class _SignupStep4PageState extends ConsumerState<SignupStep4Page> {
           onChanged: (value) => _update((a) => a.copyWith(neighborhood: value)),
         ),
         const SizedBox(height: 20),
-        ChoiceSegmented(
+        CityField(
           label: tr.city,
-          options: const {'Douala': 'Douala', 'Yaoundé': 'Yaoundé'},
           value: answers.city,
           errorText: state.fieldError('city'),
           onChanged: (value) => _update((a) => a.copyWith(city: value)),
         ),
+        const SizedBox(height: 20),
         SoeTextField(
           controller: _landmark,
           label: tr.landmark,

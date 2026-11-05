@@ -111,6 +111,15 @@
     "phoneTitle": "Country code",
     "addressTitle": "Choose a country"
   },
+  "cityPicker": {
+    "title": "Choose your city",
+    "search": "Search for a city",
+    "major": "Main cities",
+    "others": "Other cities in Cameroon",
+    "empty": "No city matches.",
+    "placeholder": "Choose your city",
+    "retry": "City list unavailable. Try again"
+  },
   "widgets": {
     "password": "Password",
     "passwordHint": "At least 8 characters",

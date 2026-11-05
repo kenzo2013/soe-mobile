@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/data/cameroon_city.dart';
 import '../../../core/providers/core_providers.dart';
 import '../data/account_api.dart';
 import '../data/account_models.dart';
@@ -17,7 +18,9 @@ final pushDevicesProvider = Provider<PushDevices>((ref) => PushDevices(
 final accountAddressProvider = FutureProvider.autoDispose<AccountAddress>(
     (ref) => ref.watch(accountApiProvider).address());
 
-final cityNamesProvider = FutureProvider.autoDispose<List<String>>(
+/// Every city of Cameroon, the main ones first (sign-up and address). Kept while the app runs:
+/// the list barely changes.
+final cameroonCitiesProvider = FutureProvider<List<CameroonCity>>(
     (ref) => ref.watch(accountApiProvider).cities());
 
 final accountRolesProvider = FutureProvider.autoDispose<AccountRoles>(
