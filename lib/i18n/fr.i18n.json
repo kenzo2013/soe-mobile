@@ -290,8 +290,8 @@
       "subtitle": "Voici ce qui vous attend.",
       "todo": "À faire",
       "sorted": "Trié par échéance",
-      "week": "Aujourd’hui et cette semaine",
-      "noSession": "Aucune séance cette semaine.",
+      "week": "Les 7 prochains jours",
+      "noSession": "Aucune séance dans les 7 prochains jours.",
       "requests": "Où en est ma demande",
       "children": "Mes enfants",
       "advisor": "Mon conseiller SOE",
@@ -417,6 +417,7 @@
       "stateApproved": "Validé",
       "stateDisputed": "Contesté · SOE examine",
       "stateToApprove": "À valider",
+      "yourReason": "Votre motif de contestation",
       "autoOn": "Sans réponse, validé automatiquement le {{date}}."
     },
     "children": {
@@ -454,6 +455,8 @@
       "submit": "Payer {{amount}}"
     },
     "payment": {
+      "title": "Paiement",
+      "titlePending": "Paiement en cours",
       "waitingTitle": "Confirmez sur votre téléphone",
       "waitingText": "Une demande de {{amount}} a été envoyée. Saisissez votre code secret pour la valider.",
       "checkingTitle": "Nous vérifions votre paiement",
@@ -783,7 +786,8 @@
       "createdOn": "Émis le {{date}}",
       "read": "Lire",
       "signedBadge": "Signé",
-      "toSignBadge": "À signer"
+      "toSignBadge": "À signer",
+      "untitled": "Contrat d’accompagnement"
     },
     "history": {
       "title": "Historique des paiements",

@@ -534,9 +534,13 @@ class _RequestCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                            '${i < current ? '✓ ' : ''}${_stepName(tr, ParentHomeRequest.steps[i])}',
-                            maxLines: 1,
+                        // Done steps show in green (the check is read aloud); a long
+                        // name wraps on a second line rather than being cut.
+                        Text(_stepName(tr, ParentHomeRequest.steps[i]),
+                            semanticsLabel: i < current
+                                ? '✓ ${_stepName(tr, ParentHomeRequest.steps[i])}'
+                                : null,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: AppTypography.caption.copyWith(
                                 fontSize: 9,

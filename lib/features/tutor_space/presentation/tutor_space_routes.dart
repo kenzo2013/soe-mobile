@@ -3,8 +3,10 @@
 abstract final class TutorSpaceRoutes {
   // Sessions (REP-13 to REP-18).
   static String session(int id) => '/tutor/space/sessions/$id';
-  static String report(int sessionId) =>
-      '/tutor/space/sessions/$sessionId/report';
+
+  /// [fromToday]: opened from « Aujourd'hui », whose name heads the breadcrumb.
+  static String report(int sessionId, {bool fromToday = false}) =>
+      '/tutor/space/sessions/$sessionId/report${fromToday ? '?from=today' : ''}';
   static String proposal(int id) => '/tutor/space/proposals/$id';
   static String times(int slotId) => '/tutor/space/slots/$slotId/times';
 

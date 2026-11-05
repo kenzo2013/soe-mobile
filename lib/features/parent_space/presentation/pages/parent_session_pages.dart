@@ -136,11 +136,11 @@ class _ParentSessionPageState extends ConsumerState<ParentSessionPage> {
                   ]),
                 if (detail.reportSubmittedAt != null)
                   ParentPanel(title: tr.report, children: [
-                    if (detail.reportAutoValidatesAt != null)
+                    if (detail.pendingAutoValidation != null)
                       Text(
                           tr.autoIn(
                               date: ParentFormat.dateTime(
-                                  context, detail.reportAutoValidatesAt!)),
+                                  context, detail.pendingAutoValidation!)),
                           style: AppTypography.bodySm
                               .copyWith(color: AppPalette.text2)),
                     const SizedBox(height: 10),
@@ -335,7 +335,8 @@ class _ParentReportPageState extends ConsumerState<ParentReportPage> {
         value: ref.watch(parentReportProvider(widget.sessionId)),
         onRetry: () => ref.invalidate(parentReportProvider(widget.sessionId)),
         builder: (report) {
-          final state = report.disputeReason != null
+          final reason = report.disputeReason?.trim() ?? '';
+          final state = reason.isNotEmpty
               ? (tr.stateDisputed, 'disputed')
               : report.validated == true
                   ? (tr.stateApproved, 'approved')
@@ -374,6 +375,15 @@ class _ParentReportPageState extends ConsumerState<ParentReportPage> {
                     field(tr.comment, report.comment),
                   ]),
             ),
+            // The parent's own reason, as sent (the API's `dispute_reason`).
+            if (reason.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              SoeAlert(
+                  key: const Key('report-dispute-reason'),
+                  tone: SoeAlertTone.danger,
+                  title: tr.yourReason,
+                  body: reason),
+            ],
             if (report.canAnswer) ...[
               const SizedBox(height: 12),
               if (report.autoValidatesAt != null)

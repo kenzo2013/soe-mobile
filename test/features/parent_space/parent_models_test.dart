@@ -89,4 +89,59 @@ void main() {
             .state,
         'checking');
   });
+
+  test('a contract is titled by its children and subjects when sent', () {
+    final contract = ParentContract.fromJson({
+      'id': 4,
+      'reference': 'CTR-1',
+      'status': 'signed',
+      'status_label': 'Signé',
+      'children': ['Léa'],
+      'subjects': [
+        {'name': 'Anglais'},
+        'Maths'
+      ],
+    });
+    expect(contract.title, 'Léa · Anglais, Maths');
+    expect(ParentContract.fromJson({'id': 5}).title, isNull);
+  });
+
+  test('a child file reads its requests on their way, optional', () {
+    final child = ParentChild.fromJson({
+      'id': 3,
+      'first_name': 'Yann',
+      'courses': <dynamic>[],
+      'requests': [
+        {
+          'id': 9,
+          'reference': 'RES-9',
+          'step_label': 'Contrat en signature',
+          'subjects': ['Maths', 'Physique-Chimie'],
+        },
+      ],
+    });
+    expect(child.requests.single.stepLabel, 'Contrat en signature');
+    expect(child.requests.single.subjects, ['Maths', 'Physique-Chimie']);
+    expect(ParentChild.fromJson({'id': 3}).requests, isEmpty);
+  });
+
+  test('a disputed report has no automatic validation ahead', () {
+    Map<String, dynamic> json({bool disputed = false}) => {
+          'id': 12,
+          'date': '2026-11-01',
+          'starts_at': '2026-11-01T16:00:00+01:00',
+          'status': disputed ? 'disputed' : 'report_to_approve',
+          'report': {
+            'submitted_at': '2026-11-01T18:00:00+01:00',
+            'auto_validates_at': '2026-11-04T17:30:00+01:00',
+            'disputed': disputed,
+          },
+        };
+    expect(
+        ParentSessionDetail.fromJson(json()).pendingAutoValidation, isNotNull);
+    expect(
+        ParentSessionDetail.fromJson(json(disputed: true))
+            .pendingAutoValidation,
+        isNull);
+  });
 }

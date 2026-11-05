@@ -128,6 +128,13 @@ class _TutorProfile extends ConsumerWidget {
         detail?.request.contractStatus == 'sent';
     final reviews = ref.watch(
         parentTutorReviewsProvider((requestId: requestId, tutorId: tutor.id)));
+    final presentation = tutor.presentation?.trim() ?? '';
+    // « En confirmant, vous signez » only while the parent has the contract to sign; after,
+    // where things stand as the server words it (e.g. waiting for the tutor's signature).
+    final request = detail?.request;
+    final decision = toSign
+        ? tr.decisionText
+        : (request?.explanation ?? request?.stepLabel ?? '');
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       ParentHeading(
           title: tr.heading(name: firstName),
@@ -178,26 +185,32 @@ class _TutorProfile extends ConsumerWidget {
         ]),
       ),
       const SizedBox(height: 12),
-      ParentPanel(children: [
-        if (tutor.trainings.isNotEmpty) _Block(tr.training, tutor.trainings),
-        if (tutor.experiences.isNotEmpty)
-          _Block(tr.experience, tutor.experiences),
-        if (tutor.subjects.isNotEmpty) _Block(tr.subjects, tutor.subjects),
-        if (tutor.availabilities.isNotEmpty)
-          _Block(tr.availabilities, [
-            for (final day in tutor.availabilities)
-              '${day.day} · ${day.ranges.join(', ')}'
-          ]),
-        if (tutor.presentation != null) ...[
-          Text(tr.presentation.toUpperCase(),
-              style:
-                  AppTypography.overline.copyWith(color: AppPalette.teal700)),
-          const SizedBox(height: 4),
-          Text('« ${tutor.presentation!} »',
-              style: AppTypography.body.copyWith(
-                  fontStyle: FontStyle.italic, color: AppPalette.teal800)),
-        ],
-      ]),
+      // Only the sections the API filled: no empty white card.
+      if (tutor.trainings.isNotEmpty ||
+          tutor.experiences.isNotEmpty ||
+          tutor.subjects.isNotEmpty ||
+          tutor.availabilities.isNotEmpty ||
+          presentation.isNotEmpty)
+        ParentPanel(key: const Key('tutor-profile-sections'), children: [
+          if (tutor.trainings.isNotEmpty) _Block(tr.training, tutor.trainings),
+          if (tutor.experiences.isNotEmpty)
+            _Block(tr.experience, tutor.experiences),
+          if (tutor.subjects.isNotEmpty) _Block(tr.subjects, tutor.subjects),
+          if (tutor.availabilities.isNotEmpty)
+            _Block(tr.availabilities, [
+              for (final day in tutor.availabilities)
+                '${day.day} · ${day.ranges.join(', ')}'
+            ]),
+          if (presentation.isNotEmpty) ...[
+            Text(tr.presentation.toUpperCase(),
+                style:
+                    AppTypography.overline.copyWith(color: AppPalette.teal700)),
+            const SizedBox(height: 4),
+            Text('« $presentation »',
+                style: AppTypography.body.copyWith(
+                    fontStyle: FontStyle.italic, color: AppPalette.teal800)),
+          ],
+        ]),
       ParentSectionTitle(tr.reviewsTitle),
       Text(tr.reviewsHint,
           style: AppTypography.caption.copyWith(color: AppPalette.text2)),
@@ -232,9 +245,11 @@ class _TutorProfile extends ConsumerWidget {
       },
       const SizedBox(height: 12),
       ParentPanel(title: tr.decisionTitle, children: [
-        Text(tr.decisionText,
-            style: AppTypography.bodySm.copyWith(color: AppPalette.text2)),
-        const SizedBox(height: 12),
+        if (decision.isNotEmpty) ...[
+          Text(decision,
+              style: AppTypography.bodySm.copyWith(color: AppPalette.text2)),
+          const SizedBox(height: 12),
+        ],
         if (toSign)
           SoeButton(
             label: tr.confirm(name: firstName),

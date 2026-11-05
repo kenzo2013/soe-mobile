@@ -84,7 +84,9 @@ List<GoRoute> _tutorRoutes() => [
       ),
       GoRoute(
         path: '/tutor/space/sessions/:id/report',
-        builder: (context, state) => TutorReportPage(sessionId: _id(state)),
+        builder: (context, state) => TutorReportPage(
+            sessionId: _id(state),
+            fromToday: state.uri.queryParameters['from'] == 'today'),
       ),
       GoRoute(
         path: '/tutor/space/proposals/:id',

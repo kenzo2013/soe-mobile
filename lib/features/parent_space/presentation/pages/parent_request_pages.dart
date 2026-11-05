@@ -152,15 +152,22 @@ class _RequestCard extends ConsumerWidget {
       for (final need in needs) ...need.subjects.where((s) => s.isNotEmpty)
     }.toList();
     final children = request.children.join(', ');
-    final stepText = switch (request.step) {
-      'quote' => home.stepText.quote,
-      'tutor' => home.stepText.tutor,
-      'contract' => home.stepText.contract,
-      'payment' => home.stepText.payment,
-      'first_session' => home.stepText.firstSession,
-      'closed' => null,
-      _ => home.stepText.request,
-    };
+    // The server's sentence first; the app's text of the step only without one. A contract
+    // the parent no longer has to sign gets no « il reste à signer » (its label says it).
+    final stepText = request.explanation ??
+        switch (request.step) {
+          'quote' => home.stepText.quote,
+          'tutor' => home.stepText.tutor,
+          'contract'
+              when request.contractStatus != null &&
+                  request.contractStatus != 'sent' =>
+            null,
+          'contract' => home.stepText.contract,
+          'payment' => home.stepText.payment,
+          'first_session' => home.stepText.firstSession,
+          'closed' => null,
+          _ => home.stepText.request,
+        };
     final target = parentRequestTarget(request);
     final label = switch (request.action) {
       'quote' => tr.quote,

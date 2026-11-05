@@ -149,10 +149,12 @@ void main() {
         TutorHomeAction.fromJson({'kind': kind, 'label': '', 'target_id': 7});
     expect(
         tutorActionTarget(action('assignment')), TutorSpaceRoutes.proposal(7));
-    expect(tutorActionTarget(action('report')), TutorSpaceRoutes.report(7));
+    expect(tutorActionTarget(action('report')),
+        '/tutor/space/sessions/7/report?from=today');
     expect(tutorActionTarget(action('planning')), TutorSpaceRoutes.times(7));
     expect(tutorActionTarget(action('contract')), TutorSpaceRoutes.contract(7));
-    expect(tutorActionTarget(action('disputed')), TutorSpaceRoutes.report(7));
+    expect(tutorActionTarget(action('disputed')),
+        TutorSpaceRoutes.report(7, fromToday: true));
   });
 
   test('each recruitment stage leads to its screen', () {

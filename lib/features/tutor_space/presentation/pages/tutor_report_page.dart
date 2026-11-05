@@ -66,18 +66,23 @@ final tutorReportDraftsProvider =
 /// the network is back. Before it opens: when it will. Once sent: waiting, disputed (the
 /// parent's reason, the times, the follow-up) or approved (the pay of the month).
 class TutorReportPage extends ConsumerWidget {
-  const TutorReportPage({super.key, required this.sessionId});
+  const TutorReportPage(
+      {super.key, required this.sessionId, this.fromToday = false});
 
   final int sessionId;
+
+  /// Opened from « Aujourd'hui » (an action of the home): the breadcrumb starts there, not
+  /// at « Planning ».
+  final bool fromToday;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context).tutorSpace.report;
+    final shell = Translations.of(context).shell.tutor;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
       appBar: SpaceAppBar(
-          section: Translations.of(context).shell.tutor.planning,
-          title: tr.title),
+          section: fromToday ? shell.today : shell.planning, title: tr.title),
       body: TutorAsyncBody<TutorReport?>(
         value: ref.watch(tutorReportProvider(sessionId)),
         onRetry: () => ref.invalidate(tutorReportProvider(sessionId)),
