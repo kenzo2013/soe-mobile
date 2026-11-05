@@ -35,10 +35,10 @@ class TutorCity {
   final List<String> neighborhoods;
 }
 
-/// The lists of the forms (`GET /references` of the API v2): subjects, school classes, cities.
+/// The lists of the forms (`GET /references` of the API v2): the classes × subjects referential
+/// ([catalog], the single source of subjects), the plain class names of the offer filter, cities.
 class TutorReferences {
   const TutorReferences({
-    required this.subjects,
     required this.schoolClasses,
     required this.cities,
     this.catalog = SchoolCatalog.empty,
@@ -51,14 +51,12 @@ class TutorReferences {
             .toList();
     return TutorReferences(
       catalog: SchoolCatalog.fromJson(json),
-      subjects: list('subjects').map(TutorReference.fromJson).toList(),
       schoolClasses:
           list('school_classes').map(TutorReference.fromJson).toList(),
       cities: list('cities').map(TutorCity.fromJson).toList(),
     );
   }
 
-  final List<TutorReference> subjects;
   final List<TutorReference> schoolClasses;
   final List<TutorCity> cities;
 

@@ -168,7 +168,11 @@ void main() {
         }
       ],
     });
-    expect(refs.classesOf('francophone').map((item) => item.name), ['CM2']);
+    expect(
+        refs.catalog
+            .offeredClasses(subsystem: 'francophone')
+            .map((item) => item.name),
+        ['CM2']);
     expect(refs.cities.single.neighborhoods, ['Bonapriso']);
 
     final coParent = ParentCoParent.fromJson({

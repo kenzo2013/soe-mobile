@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:soe/core/data/school_catalog.dart';
 import 'package:soe/features/common/presentation/providers.dart';
 import 'package:soe/core/theme/app_theme.dart';
 import 'package:soe/core/widgets/soe_button.dart';
@@ -103,7 +104,10 @@ Future<void> _pump(WidgetTester tester, Widget child, _FakeApi api,
       tutorReferencesProvider.overrideWith((ref) async =>
           references ??
           const TutorReferences(
-            subjects: [TutorReference(id: 1, name: 'Mathématiques')],
+            catalog: SchoolCatalog(
+              subjects: [SchoolSubjectRef(id: 1, name: 'Mathématiques')],
+              classes: [SchoolClassRef(id: 7, name: '4e')],
+            ),
             schoolClasses: [TutorReference(id: 7, name: '4e')],
             cities: [
               TutorCity(name: 'Douala', neighborhoods: ['Makepe', 'Akwa'])

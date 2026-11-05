@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:soe/core/data/school_catalog.dart';
 import 'package:soe/core/error/failure.dart';
 import 'package:soe/features/parent_space/data/parent_api.dart';
 import 'package:soe/features/parent_space/data/parent_flow_models.dart';
@@ -94,9 +95,10 @@ final _catalogReferences = ParentReferences.fromJson({
 });
 
 const _references = ParentReferences(
-  subjects: [(id: 1, name: 'Mathématiques')],
-  schoolClasses: [],
-  sections: [],
+  catalog: SchoolCatalog(
+    subjects: [SchoolSubjectRef(id: 1, name: 'Mathématiques')],
+    classes: [],
+  ),
   cities: [],
 );
 
@@ -280,6 +282,14 @@ void main() {
 
   testWidgets('PAR-05 saves the chosen children then asks the need',
       (tester) async {
+    when(() => api.children()).thenAnswer((_) async => const [
+          ParentChild(
+              id: 3,
+              firstName: 'Yann',
+              schoolClass: null,
+              schoolName: null,
+              courses: [])
+        ]);
     when(() => api.draftChildren(any()))
         .thenAnswer((_) async => _draft(childIds: [3]));
     await pump(
@@ -298,6 +308,42 @@ void main() {
     expect(find.text('Le besoin de Yann'), findsOneWidget);
     expect(find.text('Mathématiques'), findsOneWidget);
     expect(find.text('Suivi régulier'), findsOneWidget);
+  });
+
+  testWidgets(
+      'PAR-05 the subjects wait for the child\'s class: a retry when it cannot be loaded',
+      (tester) async {
+    var calls = 0;
+    when(() => api.children()).thenAnswer((_) async {
+      calls++;
+      if (calls == 1) throw const NetworkFailure();
+      return const [
+        ParentChild(
+            id: 3,
+            firstName: 'Yann',
+            schoolClass: null,
+            schoolName: null,
+            courses: [])
+      ];
+    });
+    when(() => api.draftChildren(any()))
+        .thenAnswer((_) async => _draft(childIds: [3]));
+    await pump(
+        tester,
+        Scaffold(
+            body:
+                ParentRequestWizard(draft: _draft(), references: _references)));
+
+    await tester.tap(find.text('Yann'));
+    await tester.pump();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Mathématiques'), findsNothing);
+    expect(find.textContaining('Matières indisponibles'), findsOneWidget);
+    await tester.tap(find.text('Réessayer'));
+    await tester.pumpAndSettle();
+    expect(find.text('Mathématiques'), findsOneWidget);
   });
 
   testWidgets(

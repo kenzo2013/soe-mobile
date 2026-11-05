@@ -122,8 +122,12 @@ class _Detail extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tr = Translations.of(context).parentSpace;
     final request = detail.request;
+    final references = ref.watch(parentReferencesProvider).valueOrNull;
+    final language = Localizations.localeOf(context).languageCode;
+    List<String> namesOf(ParentNeed need) =>
+        references?.subjectNames(need, language) ?? need.subjects;
     final subjects =
-        {for (final need in detail.needs) ...need.subjects}.join(', ');
+        {for (final need in detail.needs) ...namesOf(need)}.join(', ');
     final target = parentRequestTarget(request);
     final actionLabel = switch (request.action) {
       'quote' => tr.requests.quote,
@@ -207,7 +211,7 @@ class _Detail extends ConsumerWidget {
                 : null,
             children: [
               ParentInfoRow(tr.requestDetail.child, need.childName ?? ''),
-              ParentInfoRow(tr.wizard.subjects, need.subjects.join(', ')),
+              ParentInfoRow(tr.wizard.subjects, namesOf(need).join(', ')),
               if (need.sessionsPerWeek != null)
                 ParentInfoRow(
                     tr.wizard.rhythm,
@@ -393,6 +397,7 @@ class _NeedSheetState extends ConsumerState<_NeedSheet> {
   Widget build(BuildContext context) {
     final draft = ref.watch(parentDraftProvider).valueOrNull;
     final references = ref.watch(parentReferencesProvider).valueOrNull;
+    final classId = ref.watch(parentChildClassIdProvider(_need.childId));
     if (draft == null || references == null) {
       return const Padding(
         padding: EdgeInsets.all(24),
@@ -404,9 +409,12 @@ class _NeedSheetState extends ConsumerState<_NeedSheet> {
         need: _need,
         draft: draft,
         subjects: references.subjectsFor(
-            ref.watch(parentChildClassIdProvider(_need.childId)),
-            Localizations.localeOf(context).languageCode,
+            classId.valueOrNull, Localizations.localeOf(context).languageCode,
             keep: widget.need.subjectIds),
+        subjectsLoading: classId.isLoading && !classId.hasValue,
+        onRetrySubjects: classId.hasError && !classId.isLoading
+            ? () => ref.invalidate(parentChildrenProvider)
+            : null,
         missing: _missing,
         onChanged: (next) => setState(() => _need = next),
       ),

@@ -41,8 +41,9 @@ class SchoolCatalog {
                       item.subsystem == subsystem)))
           .toList();
 
-  /// The subjects taught in [classId], in the order of `subjects`: those listed for the class,
-  /// else every active subject. [keep] (subjects already chosen on a sent request) stay offered.
+  /// The active subjects taught in [classId], in the order of `subjects`: those listed for the
+  /// class, else every active subject (like the server's forms). [keep] (subjects already chosen)
+  /// stay offered even when no longer taught or deactivated.
   List<SchoolSubjectRef> subjectsFor(int? classId,
       {Iterable<int> keep = const []}) {
     final taught = classById(classId)?.subjectIds;
@@ -50,11 +51,17 @@ class SchoolCatalog {
     return subjects
         .where((subject) =>
             kept.contains(subject.id) ||
-            (taught == null || taught.isEmpty
-                ? subject.active
-                : taught.contains(subject.id)))
+            (subject.active &&
+                (taught == null ||
+                    taught.isEmpty ||
+                    taught.contains(subject.id))))
         .toList();
   }
+
+  /// The name of subject [id] in the app's language, or [fallback] when it is not in the catalog.
+  String subjectLabel(int id, String languageCode,
+          {required String fallback}) =>
+      subjectById(id)?.label(languageCode) ?? fallback;
 
   /// Whether [subjectId] may be chosen for [classId] (any subject for a class with none listed).
   bool teaches(int? classId, int subjectId) {

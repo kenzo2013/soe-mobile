@@ -146,23 +146,19 @@ class _AddCourseSheetState extends ConsumerState<_AddCourseSheet> {
       _subjectIds.removeAll(dropped);
       _dropped = [
         for (final id in dropped)
-          catalog.subjectById(id)?.label(language) ??
-              refs.subjects.where((s) => s.id == id).firstOrNull?.name ??
-              '$id'
+          catalog.subjectLabel(id, language, fallback: '$id')
       ];
     });
   }
 
-  /// The subjects of the chosen class (any when none is chosen or the class lists none), in the
-  /// app's language; the older servers' plain list when the referential is missing.
+  /// The active subjects of the chosen class (any when none is chosen or the class lists none),
+  /// in the app's language; the ticked ones stay shown.
   List<({int id, String label})> _subjectsOffered(
           TutorReferences refs, String language) =>
-      refs.catalog.subjects.isEmpty
-          ? [for (final s in refs.subjects) (id: s.id, label: s.name)]
-          : [
-              for (final s in refs.catalog.subjectsFor(_classId))
-                (id: s.id, label: s.label(language))
-            ];
+      [
+        for (final s in refs.catalog.subjectsFor(_classId, keep: _subjectIds))
+          (id: s.id, label: s.label(language))
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -189,11 +185,12 @@ class _AddCourseSheetState extends ConsumerState<_AddCourseSheet> {
           SoeSchoolClassField(
             catalog: refs.catalog,
             value: _classId,
+            title: Translations.of(context).schoolCatalog.tutorPickerTitle,
             semanticLabel: trS.schoolClass,
             onChanged: (id) => _chooseClass(refs, id, language),
           ),
           if (_dropped.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             Text(
                 Translations.of(context)
                     .schoolCatalog

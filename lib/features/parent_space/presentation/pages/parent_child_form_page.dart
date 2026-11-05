@@ -334,9 +334,12 @@ class _ChildFormState extends ConsumerState<_ChildForm> {
                 value: _section,
                 onChanged: (value) => setState(() {
                   _section = value;
+                  // The class stays only if the catalog knows it and it belongs to the new
+                  // section (an unknown id is cleared, never sent hidden).
                   final current = refs.catalog.classById(_schoolClassId);
-                  if (current?.subsystem != null &&
-                      current!.subsystem != value) {
+                  if (current == null ||
+                      (current.subsystem != null &&
+                          current.subsystem != value)) {
                     _schoolClassId = null;
                   }
                 }),

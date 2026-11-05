@@ -16,6 +16,7 @@ class SoeSchoolClassField extends StatelessWidget {
     this.subsystem,
     this.errorText,
     this.semanticLabel,
+    this.title,
   });
 
   final SchoolCatalog catalog;
@@ -24,6 +25,9 @@ class SoeSchoolClassField extends StatelessWidget {
   final ValueChanged<int> onChanged;
   final String? errorText;
   final String? semanticLabel;
+
+  /// Heading of the sheet: « Classe de l'enfant » by default; the tutor's file names its own.
+  final String? title;
 
   /// Items of the sheet, in catalogue order, each under « group · sub-system ».
   static List<SoePickerItem<int>> items(
@@ -73,7 +77,7 @@ class SoeSchoolClassField extends StatelessWidget {
       onTap: () async {
         final picked = await showSoePickerSheet<int>(
           context,
-          title: tr.pickerTitle,
+          title: title ?? tr.pickerTitle,
           items:
               items(context, catalog, subsystem: subsystem, currentId: value),
           selected: value,

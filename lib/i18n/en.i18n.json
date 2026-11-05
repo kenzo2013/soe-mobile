@@ -137,7 +137,11 @@
       "anglophone": "English-speaking"
     },
     "notTaught": "Some subjects are not taught in the child’s class.",
-    "droppedSubjects": "Subjects removed, not taught in this class: {{names}}"
+    "droppedSubjects": "Subjects removed, not taught in this class: {{names}}",
+    "tutorPickerTitle": "Class you teach",
+    "subjectsLoading": "Loading the class’s subjects…",
+    "subjectsUnavailable": "Subjects unavailable: the child’s class could not be loaded.",
+    "retry": "Try again"
   },
   "widgets": {
     "password": "Password",

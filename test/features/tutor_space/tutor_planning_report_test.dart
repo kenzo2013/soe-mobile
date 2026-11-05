@@ -114,7 +114,12 @@ void main() {
 
     testWidgets('entry: the check-in times, then one question per screen',
         (tester) async {
-      final start = DateTime.now().subtract(const Duration(hours: 2));
+      // A two-hour session within one day: the correction sheet compares times of day, so a
+      // session started before midnight (the suite run at night) would read end < start.
+      final now = DateTime.now();
+      final start = now.hour < 3
+          ? DateTime(now.year, now.month, now.day - 1, 20)
+          : now.subtract(const Duration(hours: 2));
       final api = FakeTutorApi(
           detailValue: detail(
               startsAt: start,

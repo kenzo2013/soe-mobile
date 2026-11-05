@@ -137,7 +137,11 @@
       "anglophone": "anglophone"
     },
     "notTaught": "Certaines matières ne sont pas enseignées dans la classe de l’enfant.",
-    "droppedSubjects": "Matières retirées, non enseignées dans cette classe : {{names}}"
+    "droppedSubjects": "Matières retirées, non enseignées dans cette classe : {{names}}",
+    "tutorPickerTitle": "Classe enseignée",
+    "subjectsLoading": "Chargement des matières de la classe…",
+    "subjectsUnavailable": "Matières indisponibles : la classe de l’enfant n’a pas pu être chargée.",
+    "retry": "Réessayer"
   },
   "widgets": {
     "password": "Mot de passe",
