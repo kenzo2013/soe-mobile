@@ -63,7 +63,7 @@ class AuthGuard {
   }
 
   String _homeForRole(String? role) => switch (role) {
-        'tutor' => RouteNames.tutorDashboard,
-        _ => RouteNames.parentDashboard,
+        'tutor' => RouteNames.tutorHome,
+        _ => RouteNames.parentHome,
       };
 }

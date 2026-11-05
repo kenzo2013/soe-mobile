@@ -51,6 +51,40 @@ FakeApi _apiWithAddress() => FakeApi()
 
 void main() {
   group('COM-01 Mon compte', () {
+    testWidgets('« Plus » shows the links of the parent space', (tester) async {
+      await pumpAccountApp(tester, api: _apiWithAddress(), location: '/more');
+
+      for (final label in [
+        'Demandes et devis',
+        'Contrats',
+        'Avis',
+        'Co-parents',
+        'Mon conseiller SOE',
+      ]) {
+        expect(find.text(label), findsOneWidget, reason: label);
+      }
+      expect(find.text('Ma qualité'), findsNothing);
+    });
+
+    testWidgets('« Plus » shows the links of the tutor space', (tester) async {
+      await pumpAccountApp(tester,
+          api: _apiWithAddress(),
+          location: '/more',
+          role: 'tutor',
+          user: accountUser(role: UserRole.tutor));
+
+      for (final label in [
+        'Offres',
+        'Candidatures',
+        'Mon dossier',
+        'Moyens de paiement',
+        'Ma qualité',
+      ]) {
+        expect(find.text(label), findsOneWidget, reason: label);
+      }
+      expect(find.text('Demandes et devis'), findsNothing);
+    });
+
     testWidgets('the account card, the pages, help, sign-out and the language',
         (tester) async {
       await pumpAccountApp(tester, api: _apiWithAddress(), location: '/more');

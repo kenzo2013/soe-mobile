@@ -116,13 +116,14 @@ class _TutorProfile extends ConsumerWidget {
     final tr = Translations.of(context).parentSpace.tutor;
     final firstName = tutor.name.split(' ').first;
     final children = {for (final slot in tutor.slots) slot.child}.join(', ');
-    final detail = ref.watch(parentRequestDetailProvider(requestId)).valueOrNull;
+    final detail =
+        ref.watch(parentRequestDetailProvider(requestId)).valueOrNull;
     final contractId = detail?.request.contractId;
     final toSign = !tutor.contractSigned &&
         contractId != null &&
         detail?.request.contractStatus == 'sent';
-    final reviews =
-        ref.watch(parentTutorReviewsProvider((requestId: requestId, tutorId: tutor.id)));
+    final reviews = ref.watch(
+        parentTutorReviewsProvider((requestId: requestId, tutorId: tutor.id)));
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       ParentHeading(
           title: tr.heading(name: firstName),
@@ -234,15 +235,16 @@ class _TutorProfile extends ConsumerWidget {
           SoeButton(
             label: tr.confirm(name: firstName),
             fullWidth: true,
-            onPressed: () => unawaited(
-                context.push(ParentSpaceRoutes.contract(contractId))),
+            onPressed: () =>
+                unawaited(context.push(ParentSpaceRoutes.contract(contractId))),
           ),
         SoeButton(
           label: tr.replace,
           fullWidth: true,
           variant: SoeButtonVariant.tertiary,
           onPressed: () => unawaited(context.push(
-              ParentSpaceRoutes.newReplacement(requestId,
+              ParentSpaceRoutes.newReplacement(
+                  requestId,
                   slotId:
                       tutor.slots.length == 1 ? tutor.slots.first.id : null))),
         ),
@@ -278,7 +280,8 @@ class _Block extends StatelessWidget {
 /// with the timing, the parent never picks the replacement. Serious behaviour has its own
 /// emergency path (session report).
 class ParentReplacementPage extends ConsumerStatefulWidget {
-  const ParentReplacementPage({super.key, required this.requestId, this.slotId});
+  const ParentReplacementPage(
+      {super.key, required this.requestId, this.slotId});
 
   final int requestId;
   final int? slotId;
@@ -346,7 +349,10 @@ class _ParentReplacementPageState extends ConsumerState<ParentReplacementPage> {
     final slots = [
       for (final tutor in tutors)
         for (final slot in tutor.slots)
-          (id: slot.id, label: '${slot.subject} · ${slot.child} · ${tutor.name}')
+          (
+            id: slot.id,
+            label: '${slot.subject} · ${slot.child} · ${tutor.name}'
+          )
     ];
     final current = slots.where((slot) => slot.id == _slotId).firstOrNull;
     return Scaffold(
@@ -402,14 +408,14 @@ class _ParentReplacementPageState extends ConsumerState<ParentReplacementPage> {
                         const SizedBox(width: 8),
                         Expanded(
                             child: Text(tr.seriousTitle,
-                                style: AppTypography.labelSm.copyWith(
-                                    color: AppPalette.dangerText))),
+                                style: AppTypography.labelSm
+                                    .copyWith(color: AppPalette.dangerText))),
                       ]),
                       const SizedBox(height: 4),
                       Text(tr.seriousText, style: AppTypography.bodySm),
                       TextButton(
                         // The report is made from the session concerned (PAR-13).
-                        onPressed: () => context.go(RouteNames.parentSessions),
+                        onPressed: () => context.go(RouteNames.parentPlanning),
                         child: Text(tr.seriousAction),
                       ),
                     ]),
@@ -462,10 +468,7 @@ class _ReasonTile extends StatelessWidget {
                   width: 1.5),
             ),
             child: Row(children: [
-              Icon(
-                  selected
-                      ? Icons.check_circle
-                      : Icons.radio_button_unchecked,
+              Icon(selected ? Icons.check_circle : Icons.radio_button_unchecked,
                   color: selected ? AppPalette.teal700 : AppPalette.n500),
               const SizedBox(width: 12),
               Text(label, style: AppTypography.labelSm),
@@ -505,8 +508,7 @@ class ParentReplacementFollowUpPage extends ConsumerWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: SoeBadge(
-                    label: tr.replacement.inProgress,
-                    tone: SoeBadgeTone.info),
+                    label: tr.replacement.inProgress, tone: SoeBadgeTone.info),
               ),
               const SizedBox(height: 8),
               Text(tr.replacement.followText,
@@ -525,9 +527,7 @@ class ParentReplacementFollowUpPage extends ConsumerWidget {
                         subtitle: [
                           if (event.at != null)
                             ParentFormat.dateTime(context, event.at!),
-                          event.actor == 'you'
-                              ? tr.common.you
-                              : tr.common.soe,
+                          event.actor == 'you' ? tr.common.you : tr.common.soe,
                         ].join(' · '),
                         state: i == events.length - 1 ? 'current' : 'done',
                       ),
@@ -545,8 +545,8 @@ class ParentReplacementFollowUpPage extends ConsumerWidget {
               ]),
               ParentPanel(title: tr.replacement.nowTitle, children: [
                 Text(tr.replacement.next2,
-                    style: AppTypography.body
-                        .copyWith(color: AppPalette.text2)),
+                    style:
+                        AppTypography.body.copyWith(color: AppPalette.text2)),
               ]),
               const ParentAdvisorCard(),
             ],

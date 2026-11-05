@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 
-import '../env/env.dart';
 import '../storage/secure_storage.dart';
 import 'interceptors/auth_interceptor.dart';
 import 'interceptors/error_interceptor.dart';
@@ -17,11 +16,11 @@ class HttpClientFactory {
     required SecureStorage storage,
     required Logger logger,
     required Future<void> Function() onUnauthorized,
-    String? baseUrl,
+    required String baseUrl,
   }) {
     final dio = Dio(
       BaseOptions(
-        baseUrl: baseUrl ?? Env.apiBaseUrl,
+        baseUrl: baseUrl,
         connectTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(seconds: 20),
         sendTimeout: const Duration(seconds: 20),

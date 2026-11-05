@@ -46,9 +46,9 @@ List<RouteBase> shellRoutes() => [
         },
         branches: [
           // Parent space v2 (lot 3, API v2).
-          _branch(RouteNames.parentDashboard, const ParentHomePage()),
-          _branch(RouteNames.parentSessions, const ParentPlanningPage()),
-          _branch(RouteNames.parentStudents, const ParentChildrenPage()),
+          _branch(RouteNames.parentHome, const ParentHomePage()),
+          _branch(RouteNames.parentPlanning, const ParentPlanningPage()),
+          _branch(RouteNames.parentChildren, const ParentChildrenPage()),
           _branch(RouteNames.parentPayments, const ParentPaymentsPage()),
           _branch(RouteNames.parentMore, const MorePage()),
         ],
@@ -81,10 +81,10 @@ List<RouteBase> shellRoutes() => [
         },
         branches: [
           // Tutor space v2 (lot 4, API v2).
-          _branch(RouteNames.tutorDashboard, const TutorHomePage()),
-          _branch(RouteNames.tutorSessions, const TutorPlanningPage()),
-          _branch(RouteNames.tutorCourses, const TutorStudentsPage()),
-          _branch(RouteNames.tutorRemunerations, const TutorEarningsPage()),
+          _branch(RouteNames.tutorHome, const TutorHomePage()),
+          _branch(RouteNames.tutorPlanning, const TutorPlanningPage()),
+          _branch(RouteNames.tutorStudents, const TutorStudentsPage()),
+          _branch(RouteNames.tutorEarnings, const TutorEarningsPage()),
           _branch(RouteNames.tutorMore, const MorePage()),
         ],
       ),

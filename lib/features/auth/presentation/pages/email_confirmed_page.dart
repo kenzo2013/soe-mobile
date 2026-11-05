@@ -22,7 +22,7 @@ class EmailConfirmedPage extends ConsumerWidget {
   /// form (PAR-05) for a parent, the recruitment file (REP-02) for a tutor.
   static void _start(BuildContext context, {required bool tutor}) {
     final router = GoRouter.of(context)
-      ..go(tutor ? RouteNames.tutorDashboard : RouteNames.parentDashboard);
+      ..go(tutor ? RouteNames.tutorHome : RouteNames.parentHome);
     unawaited(router
         .push(tutor ? TutorSpaceRoutes.file : ParentSpaceRoutes.newChild));
   }

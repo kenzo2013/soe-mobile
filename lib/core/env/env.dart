@@ -7,10 +7,13 @@ abstract final class Env {
   static const String flavor =
       String.fromEnvironment('FLAVOR', defaultValue: 'dev');
 
-  /// API v1 base URL, e.g. `https://my-tunnel.trycloudflare.com/api/v1`.
+  /// Address of the SOE API, e.g. `https://my-tunnel.trycloudflare.com`. The app only calls
+  /// the API v2 (see [apiV2BaseUrl]); a former `…/api/v1` address is still accepted, so that the
+  /// existing env files keep working.
   static const String apiBaseUrl = String.fromEnvironment('API_BASE_URL');
 
-  /// API v2 base URL, derived from [apiBaseUrl] (same origin, `/api/v2`); empty when unusable.
+  /// API v2 base URL, the only one the app calls: [apiBaseUrl]'s origin + `/api/v2`; empty when
+  /// unusable.
   static String get apiV2BaseUrl => v2BaseUrlFrom(apiBaseUrl) ?? '';
 
   static const String oneSignalAppId =
@@ -30,16 +33,17 @@ abstract final class Env {
   static void ensureConfigured([String url = apiBaseUrl]) {
     if (url.isEmpty || v2BaseUrlFrom(url) == null) {
       throw StateError(
-        'API_BASE_URL is missing or invalid ("$url"). Expected https://<host>/api/v1. '
+        'API_BASE_URL is missing or invalid ("$url"). Expected https://<host> (or https://<host>/api/v1). '
         'Run with --dart-define-from-file=env/dev.env (see env/example.env; development uses '
         'the local server, never staging).',
       );
     }
   }
 
-  /// `https://host/api/v1` (or `https://host`) -> `https://host/api/v2`; anything else -> null.
-  static String? v2BaseUrlFrom(String v1BaseUrl) {
-    final uri = Uri.tryParse(v1BaseUrl);
+  /// `https://host` (or the former `https://host/api/v1`) -> `https://host/api/v2`; anything
+  /// else -> null.
+  static String? v2BaseUrlFrom(String apiUrl) {
+    final uri = Uri.tryParse(apiUrl);
     if (uri == null || !uri.hasScheme || uri.host.isEmpty) return null;
     final path = uri.path.replaceFirst(RegExp(r'/+$'), '');
     if (path.isNotEmpty && path != '/api/v1') return null;

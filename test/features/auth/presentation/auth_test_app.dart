@@ -126,10 +126,10 @@ Future<void> pumpAuthApp(WidgetTester tester, FakeAuthRepository repository,
     routes: [
       ...authRoutes(),
       GoRoute(
-          path: RouteNames.parentDashboard,
+          path: RouteNames.parentHome,
           builder: (_, __) => const Text('parent-home')),
       GoRoute(
-          path: RouteNames.tutorDashboard,
+          path: RouteNames.tutorHome,
           builder: (_, __) => const Text('tutor-home')),
       GoRoute(
           path: ParentSpaceRoutes.newChild,

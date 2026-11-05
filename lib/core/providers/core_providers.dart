@@ -38,9 +38,6 @@ Dio _createDio(Ref ref, String baseUrl) {
   );
 }
 
-/// Client of the API v1 (current screens).
-final dioProvider = Provider<Dio>((ref) => _createDio(ref, Env.apiBaseUrl));
-
 /// Client of the API v2 (envelope { data, meta, errors }): same interceptors, `/api/v2` base.
 final dioV2Provider = Provider<Dio>((ref) => _createDio(ref, Env.apiV2BaseUrl));
 

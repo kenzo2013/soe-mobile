@@ -84,7 +84,7 @@ class ParentHomePage extends ConsumerWidget {
                 ],
                 ParentSectionTitle(tr.home.week,
                     trailing: TextButton(
-                        onPressed: () => context.go(RouteNames.parentSessions),
+                        onPressed: () => context.go(RouteNames.parentPlanning),
                         child: Text(tr.home.seePlanning))),
                 if (home.weekSessions.isEmpty)
                   SoeCard(
