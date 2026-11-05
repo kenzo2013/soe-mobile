@@ -771,7 +771,8 @@ class _OffersCard extends StatelessWidget {
               SizedBox(width: width, child: _OfferTile(offer: offer)),
           ]);
         }),
-      if (recruiting) ...[
+      // The server's note, else ours for a file not validated yet; none for an active tutor.
+      if (home.offersNote != null || !home.active) ...[
         const SizedBox(height: 10),
         Container(
           padding: const EdgeInsets.all(14),
@@ -802,6 +803,10 @@ class _OfferTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tr = Translations.of(context).tutorSpace.home.offers;
+    final start = TutorFormat.offerStart(context,
+        label: offer.startLabel,
+        date: offer.startDate,
+        passed: offer.startPassed);
     final subject = offer.subjects.isEmpty ? null : offer.subjects.first;
     final color = SubjectColors.of(subject);
     final ink = SubjectColors.onColor(color);
@@ -848,6 +853,11 @@ class _OfferTile extends StatelessWidget {
                         AppTypography.label.copyWith(fontSize: 15, color: ink)),
               if (offer.neighborhood != null)
                 Text(offer.neighborhood!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.caption.copyWith(color: soft)),
+              if (start != null)
+                Text(start,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.caption.copyWith(color: soft)),

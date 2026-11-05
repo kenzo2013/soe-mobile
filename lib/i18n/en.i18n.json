@@ -1490,7 +1490,8 @@
       "see": "See the offer",
       "perSession": "FCFA per session",
       "applied": "Applied",
-      "starts": "Starts {{date}}",
+      "starts": "Start: {{date}}",
+      "asap": "As soon as possible",
       "detail": {
         "title": "Offer",
         "published": "Offer {{reference}} · published on {{date}}",

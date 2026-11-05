@@ -57,6 +57,7 @@ TutorSessionDetail detail({
   String state = 'planned',
   String label = 'Prévue',
   bool hasReport = false,
+  String? rateLabel,
 }) {
   final start = startsAt ?? now.add(const Duration(hours: 1, minutes: 20));
   return TutorSessionDetail.fromJson({
@@ -68,6 +69,7 @@ TutorSessionDetail detail({
     'parent_name': contact ? 'M. Tchoua' : null,
     'parent_phone': contact ? '+237690182247' : null,
     'rate': 6500,
+    if (rateLabel != null) 'rate_label': rateLabel,
     'check_in': {
       'opens_at':
           start.subtract(const Duration(hours: 2)).toUtc().toIso8601String(),

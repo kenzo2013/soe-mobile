@@ -524,10 +524,13 @@ class _TutorSessionPageState extends ConsumerState<TutorSessionPage> {
             .join(' · ')
       ),
       if (session.subject != null) (tr.subject, session.subject!),
-      if (detail.rate != null)
+      // The server's line follows the state (validated, paid, disputed); the app's own
+      // « si validée » only from an older API.
+      if (detail.rateLabel != null || detail.rate != null)
         (
           tr.pay,
-          tr.ifApproved(amount: TutorFormat.amount(context, detail.rate!))
+          detail.rateLabel ??
+              tr.ifApproved(amount: TutorFormat.amount(context, detail.rate!))
         ),
     ];
     return SoeCard(

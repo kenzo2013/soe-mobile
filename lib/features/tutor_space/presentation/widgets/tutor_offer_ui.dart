@@ -185,6 +185,10 @@ class TutorOfferCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tr = Translations.of(context).tutorSpace.offers;
     final rate = offer.sessionRate;
+    final start = TutorFormat.offerStart(context,
+        label: offer.startLabel,
+        date: offer.startDate,
+        passed: offer.startPassed);
     return SoeCard(
       onTap: onTap,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -209,9 +213,8 @@ class TutorOfferCard extends StatelessWidget {
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(offer.title(tr.and), style: AppTypography.subtitle),
-              if (offer.startDate != null)
-                Text(
-                    tr.starts(date: TutorFormat.day(context, offer.startDate!)),
+              if (start != null)
+                Text(tr.starts(date: start),
                     style:
                         AppTypography.bodySm.copyWith(color: AppPalette.text2)),
             ]),

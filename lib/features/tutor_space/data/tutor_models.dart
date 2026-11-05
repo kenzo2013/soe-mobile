@@ -2,6 +2,8 @@
 /// Plain classes: the screens only read them.
 library;
 
+import 'tutor_offer_models.dart' show tutorOfferStartPassed;
+
 DateTime? _date(Object? value) =>
     value is String ? DateTime.tryParse(value)?.toLocal() : null;
 
@@ -99,6 +101,7 @@ class TutorSessionDetail {
     required this.reportAvailableAt,
     required this.reportDueAt,
     this.canMove = false,
+    this.rateLabel,
   });
 
   factory TutorSessionDetail.fromJson(Map<String, dynamic> json) {
@@ -119,6 +122,7 @@ class TutorSessionDetail {
       reportAvailableAt: _date(json['report_available_at']) ?? session.startsAt,
       reportDueAt: _date(json['report_due_at']),
       canMove: json['can_move'] == true,
+      rateLabel: json['rate_label'] as String?,
     );
   }
 
@@ -131,6 +135,10 @@ class TutorSessionDetail {
 
   /// The tutor's pay for the session once approved (FCFA).
   final int? rate;
+
+  /// The pay line as the server words it after the session's state (« 4 500 FCFA si validée »,
+  /// « … · versée »); null from an older API.
+  final String? rateLabel;
   final DateTime checkInOpensAt;
   final DateTime? checkedInAt;
 
@@ -570,21 +578,36 @@ class TutorOfferPreview {
     required this.schoolClasses,
     required this.neighborhood,
     required this.sessionRate,
+    this.startDate,
+    this.startLabel,
+    this.startPassed = false,
   });
 
-  factory TutorOfferPreview.fromJson(Map<String, dynamic> json) =>
-      TutorOfferPreview(
-        id: _int(json['id']),
-        subjects: _strings(json['subjects']),
-        schoolClasses: _strings(json['school_classes']),
-        neighborhood: json['neighborhood'] as String?,
-        sessionRate: _intOrNull(json['session_rate']),
-      );
+  factory TutorOfferPreview.fromJson(Map<String, dynamic> json) {
+    final startDate = _day(json['start_date']);
+    return TutorOfferPreview(
+      id: _int(json['id']),
+      subjects: _strings(json['subjects']),
+      schoolClasses: _strings(json['school_classes']),
+      neighborhood: json['neighborhood'] as String?,
+      sessionRate: _intOrNull(json['session_rate']),
+      startDate: startDate,
+      startLabel: json['start_label'] as String?,
+      startPassed: json['start_passed'] is bool
+          ? json['start_passed'] as bool
+          : tutorOfferStartPassed(startDate),
+    );
+  }
 
   final int id;
   final List<String> subjects;
   final List<String> schoolClasses;
   final String? neighborhood;
+
+  /// The start, the server's words for it (null from an older API), and whether it has passed.
+  final DateTime? startDate;
+  final String? startLabel;
+  final bool startPassed;
 
   /// The tutor's indicative pay per session (FCFA).
   final int? sessionRate;

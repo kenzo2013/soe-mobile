@@ -559,7 +559,12 @@ class _RequestCard extends StatelessWidget {
               ],
             ]),
             const SizedBox(height: 12),
-            Text(request.explanation ?? _stepText(tr, request.step),
+            Text(
+                request.explanation ??
+                    (request.awaitingTutorSignature &&
+                            request.stepLabel.isNotEmpty
+                        ? request.stepLabel
+                        : _stepText(tr, request.step)),
                 style: AppTypography.bodySm.copyWith(color: AppPalette.text2)),
           ]),
         ),

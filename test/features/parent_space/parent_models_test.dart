@@ -68,6 +68,26 @@ void main() {
     expect(home.advisorName, 'Carine Ekotto');
   });
 
+  test('a request waiting for the tutor keeps the contract step, no action',
+      () {
+    final request = ParentRequest.fromJson(const {
+      'id': 8,
+      'reference': 'DEM-2610-32',
+      'step': 'contract',
+      'step_label': 'En attente de la signature du répétiteur',
+      'action': null,
+      'awaiting_tutor_signature': true,
+      'contract_id': 5,
+      'contract_status': 'sent',
+    });
+    expect(request.step, 'contract');
+    expect(request.stepLabel, 'En attente de la signature du répétiteur');
+    expect(request.action, isNull);
+    expect(request.awaitingTutorSignature, isTrue);
+    expect(ParentRequest.fromJson(const {'id': 1}).awaitingTutorSignature,
+        isFalse);
+  });
+
   test('a report keeps the free text when there is no topic', () {
     final report = ParentReport.fromJson({
       'session_id': 12,

@@ -1492,7 +1492,8 @@
       "see": "Voir l’offre",
       "perSession": "FCFA par séance",
       "applied": "Postulé",
-      "starts": "Début {{date}}",
+      "starts": "Début : {{date}}",
+      "asap": "Dès que possible",
       "detail": {
         "title": "Offre",
         "published": "Offre {{reference}} · publiée le {{date}}",
