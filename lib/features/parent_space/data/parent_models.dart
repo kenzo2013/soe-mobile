@@ -382,6 +382,7 @@ class ParentRequest {
     required this.action,
     required this.quoteAmount,
     required this.contractId,
+    this.contractStatus,
   });
 
   factory ParentRequest.fromJson(Map<String, dynamic> json) => ParentRequest(
@@ -394,6 +395,7 @@ class ParentRequest {
         action: json['action'] as String?,
         quoteAmount: (json['quote_amount'] as num?)?.toInt(),
         contractId: (json['contract_id'] as num?)?.toInt(),
+        contractStatus: json['contract_status'] as String?,
       );
 
   final int id;
@@ -406,6 +408,9 @@ class ParentRequest {
   final String? action;
   final int? quoteAmount;
   final int? contractId;
+
+  /// sent (to sign) or signed.
+  final String? contractStatus;
 }
 
 class ParentQuote {
@@ -492,6 +497,8 @@ class ParentPlanningSlot {
         canAnswer: json['can_answer'] == true,
         times: (json['times'] as List<dynamic>? ?? const [])
             .cast<Map<String, dynamic>>()
+            .where((time) =>
+                const ['proposed', 'approved'].contains(time['status']))
             .map((time) => (
                   day: time['day'] as String? ?? '',
                   from: time['from'] as String? ?? '',

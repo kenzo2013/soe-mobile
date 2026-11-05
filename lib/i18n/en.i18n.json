@@ -1403,7 +1403,8 @@
       "failureTitle": "Payment not completed",
       "failureText": "The payment did not go through. You can try again.",
       "retry": "Try again",
-      "back": "Back to payments"
+      "back": "Back to payments",
+      "checkAgain": "Check again"
     },
     "amount": "{{amount}} FCFA",
     "retry": "Try again",
@@ -1445,7 +1446,8 @@
       "comment": "Times that suit you",
       "approved": "Planning approved.",
       "changeRequested": "Request sent to the tutor.",
-      "waiting": "The tutor will propose times soon."
+      "waiting": "The tutor will propose times soon.",
+      "payFirst": "Pay the first month"
     }
   }
 }

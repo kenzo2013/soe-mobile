@@ -1403,7 +1403,8 @@
       "failureTitle": "Paiement non abouti",
       "failureText": "Le paiement n’a pas abouti. Vous pouvez réessayer.",
       "retry": "Réessayer",
-      "back": "Retour aux paiements"
+      "back": "Retour aux paiements",
+      "checkAgain": "Vérifier à nouveau"
     },
     "amount": "{{amount}} FCFA",
     "retry": "Réessayer",
@@ -1445,7 +1446,8 @@
       "comment": "Créneaux qui vous conviennent",
       "approved": "Planning validé.",
       "changeRequested": "Demande envoyée au répétiteur.",
-      "waiting": "Le répétiteur propose bientôt ses créneaux."
+      "waiting": "Le répétiteur propose bientôt ses créneaux.",
+      "payFirst": "Payer le premier mois"
     }
   }
 }

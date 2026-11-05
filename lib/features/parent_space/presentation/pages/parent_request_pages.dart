@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/error/failure.dart';
+import '../../../../core/routing/route_names.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/soe_button.dart';
@@ -25,10 +26,14 @@ void _refreshRequests(WidgetRef ref) => ref
   ..invalidate(parentHomeProvider);
 
 /// The next screen of a request for its holder action (or its contract to sign).
+/// A presented tutor is accepted by signing the contract; a signed one leads to the payment.
 String? parentRequestTarget(ParentRequest request) => switch (request.action) {
       'quote' => ParentSpaceRoutes.quote(request.id),
       'planning' => ParentSpaceRoutes.planning(request.id),
-      _ => request.contractId != null && request.step == 'contract'
+      'payment' => RouteNames.parentPayments,
+      _ => request.contractId != null &&
+              request.step == 'contract' &&
+              request.contractStatus == 'sent'
           ? ParentSpaceRoutes.contract(request.contractId!)
           : null,
     };
@@ -77,7 +82,7 @@ class _RequestCard extends StatelessWidget {
     final label = switch (request.action) {
       'quote' => tr.quote,
       'planning' => tr.planning,
-      'tutor' => tr.tutor,
+      'payment' => tr.payFirst,
       _ => target != null ? tr.contract : null,
     };
     return SoeCard(
@@ -107,7 +112,11 @@ class _RequestCard extends StatelessWidget {
               variant: target != null
                   ? SoeButtonVariant.primary
                   : SoeButtonVariant.outline,
-              onPressed: target != null ? () => context.push(target) : null,
+              onPressed: target == null
+                  ? null
+                  : () => request.action == 'payment'
+                      ? context.go(target)
+                      : context.push(target),
             ),
           ],
         ],
@@ -305,13 +314,19 @@ class _NegotiationSheetState extends State<_NegotiationSheet> {
       const SizedBox(height: 12),
       SoeTextField(controller: _message, label: tr.message, maxLines: 4),
       const SizedBox(height: 16),
-      SoeButton(
-        label: tr.send,
-        fullWidth: true,
-        onPressed: () => Navigator.of(context).pop<_Negotiation>((
-          message: _message.text.trim(),
-          amount: int.tryParse(_amount.text.replaceAll(RegExp(r'\D'), '')),
-        )),
+      ListenableBuilder(
+        listenable: _message,
+        builder: (context, _) => SoeButton(
+          label: tr.send,
+          fullWidth: true,
+          onPressed: _message.text.trim().isEmpty
+              ? null
+              : () => Navigator.of(context).pop<_Negotiation>((
+                    message: _message.text.trim(),
+                    amount: int.tryParse(
+                        _amount.text.replaceAll(RegExp(r'\D'), '')),
+                  )),
+        ),
       ),
     ]);
   }
@@ -339,11 +354,16 @@ class _ReasonSheetState extends State<_ReasonSheet> {
     return _Sheet(children: [
       SoeTextField(controller: _reason, label: tr.reason, maxLines: 4),
       const SizedBox(height: 16),
-      SoeButton(
-        label: tr.decline,
-        fullWidth: true,
-        variant: SoeButtonVariant.danger,
-        onPressed: () => Navigator.of(context).pop(_reason.text.trim()),
+      ListenableBuilder(
+        listenable: _reason,
+        builder: (context, _) => SoeButton(
+          label: tr.decline,
+          fullWidth: true,
+          variant: SoeButtonVariant.danger,
+          onPressed: _reason.text.trim().isEmpty
+              ? null
+              : () => Navigator.of(context).pop(_reason.text.trim()),
+        ),
       ),
     ]);
   }
@@ -373,30 +393,38 @@ class ParentContractPage extends ConsumerStatefulWidget {
 }
 
 class _ParentContractPageState extends ConsumerState<ParentContractPage> {
+  static const double _padHeight = 130;
+
   final _signature = SoeSignatureController();
+  final _scroll = ScrollController();
   bool _readToEnd = false;
   bool _busy = false;
 
   @override
+  void initState() {
+    super.initState();
+    _scroll.addListener(_check);
+  }
+
+  @override
   void dispose() {
+    _scroll.dispose();
     _signature.dispose();
     super.dispose();
   }
 
-  bool _onScroll(ScrollNotification notification) {
-    if (!_readToEnd &&
-        notification.metrics.extentAfter < 40 &&
-        notification.metrics.maxScrollExtent > 0) {
-      setState(() => _readToEnd = true);
-    }
-    return false;
+  // Read once the end of the text was reached, or at once when it fits on the screen.
+  void _check() {
+    if (_readToEnd || !_scroll.hasClients) return;
+    if (_scroll.position.extentAfter < 40) setState(() => _readToEnd = true);
   }
 
   Future<void> _sign() async {
     final tr = Translations.of(context).parentSpace.requests;
     setState(() => _busy = true);
     try {
-      final png = await _signature.toPng(const Size(600, 200));
+      final png = await _signature
+          .toPng(Size(MediaQuery.sizeOf(context).width - 32, _padHeight));
       if (png == null) return;
       await ref.read(parentApiProvider).signContract(widget.contractId, png);
       if (!mounted) return;
@@ -426,9 +454,12 @@ class _ParentContractPageState extends ConsumerState<ParentContractPage> {
             ref.invalidate(parentContractProvider(widget.contractId)),
         builder: (contract) => Column(children: [
           Expanded(
-            child: NotificationListener<ScrollNotification>(
-              onNotification: _onScroll,
-              child: ListView(
+            child: Builder(builder: (context) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) _check();
+              });
+              return ListView(
+                controller: _scroll,
                 padding: const EdgeInsets.all(16),
                 children: [
                   Row(children: [
@@ -452,22 +483,22 @@ class _ParentContractPageState extends ConsumerState<ParentContractPage> {
                             .copyWith(color: AppPalette.successText)),
                   ],
                 ],
-              ),
-            ),
+              );
+            }),
           ),
           if (contract.canSign)
             SafeArea(
               top: false,
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: _readToEnd || contract.text.length < 400
+                child: _readToEnd
                     ? Column(mainAxisSize: MainAxisSize.min, children: [
                         Text(tr.signHere, style: AppTypography.label),
                         const SizedBox(height: 8),
                         SoeSignaturePad(
                             controller: _signature,
                             clearLabel: tr.clear,
-                            height: 130),
+                            height: _padHeight),
                         const SizedBox(height: 10),
                         ListenableBuilder(
                           listenable: _signature,
@@ -634,10 +665,15 @@ class _CommentSheetState extends State<_CommentSheet> {
     return _Sheet(children: [
       SoeTextField(controller: _comment, label: tr.comment, maxLines: 4),
       const SizedBox(height: 16),
-      SoeButton(
-        label: tr.send,
-        fullWidth: true,
-        onPressed: () => Navigator.of(context).pop(_comment.text.trim()),
+      ListenableBuilder(
+        listenable: _comment,
+        builder: (context, _) => SoeButton(
+          label: tr.send,
+          fullWidth: true,
+          onPressed: _comment.text.trim().isEmpty
+              ? null
+              : () => Navigator.of(context).pop(_comment.text.trim()),
+        ),
       ),
     ]);
   }

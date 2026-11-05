@@ -272,8 +272,9 @@ class ParentPaymentPage extends ConsumerStatefulWidget {
 class _ParentPaymentPageState extends ConsumerState<ParentPaymentPage> {
   static const _every = Duration(seconds: 5);
   static const _limit = Duration(minutes: 15);
-  final _started = DateTime.now();
+  DateTime _started = DateTime.now();
   Timer? _timer;
+  bool _stopped = false;
 
   @override
   void initState() {
@@ -285,10 +286,15 @@ class _ParentPaymentPageState extends ConsumerState<ParentPaymentPage> {
   // follow-up stops on a final state or after a while.
   void _schedule() {
     _timer = Timer(_every, () async {
-      if (!mounted || DateTime.now().difference(_started) > _limit) return;
+      if (!mounted) return;
+      if (DateTime.now().difference(_started) > _limit) {
+        setState(() => _stopped = true);
+        return;
+      }
       try {
         final payment =
             await ref.refresh(parentPaymentProvider(widget.paymentId).future);
+        if (!mounted) return;
         if (payment.state == 'success') {
           ref
             ..invalidate(parentInvoicesProvider)
@@ -301,6 +307,15 @@ class _ParentPaymentPageState extends ConsumerState<ParentPaymentPage> {
         if (mounted) _schedule();
       }
     });
+  }
+
+  void _checkAgain() {
+    setState(() {
+      _stopped = false;
+      _started = DateTime.now();
+    });
+    ref.invalidate(parentPaymentProvider(widget.paymentId));
+    _schedule();
   }
 
   @override
@@ -355,7 +370,15 @@ class _ParentPaymentPageState extends ConsumerState<ParentPaymentPage> {
               const SizedBox(height: 8),
               Text(text,
                   style: AppTypography.body, textAlign: TextAlign.center),
-              if (payment.state == 'waiting') ...[
+              if (_stopped &&
+                  (payment.state == 'waiting' ||
+                      payment.state == 'checking')) ...[
+                const SizedBox(height: 24),
+                SoeButton(
+                    label: tr.checkAgain,
+                    fullWidth: true,
+                    onPressed: _checkAgain),
+              ] else if (payment.state == 'waiting') ...[
                 const SizedBox(height: 24),
                 const Center(child: CircularProgressIndicator()),
               ],
