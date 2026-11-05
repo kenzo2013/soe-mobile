@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -85,7 +87,7 @@ class _TutorFilePageState extends ConsumerState<TutorFilePage> {
           value: value,
           onRetry: () => ref.invalidate(tutorFileProvider),
           builder: (file) => ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+            padding: spacePagePadding(context, top: 8, bottom: 32),
             children: [
               _Header(file: file),
               if (_nextRoute(file) != null) ...[

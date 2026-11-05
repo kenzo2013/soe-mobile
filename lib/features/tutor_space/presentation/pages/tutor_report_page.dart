@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -121,7 +123,7 @@ class _NotYet extends StatelessWidget {
           Text(caption,
               style: AppTypography.caption.copyWith(color: AppPalette.text2)),
         ]);
-    return ListView(padding: const EdgeInsets.all(16), children: [
+    return ListView(padding: spacePagePadding(context), children: [
       TutorStatusCard(
         icon: Icons.timer_outlined,
         title: tr.notYetTitle(time: opens),
@@ -157,7 +159,7 @@ class _ApprovedReport extends StatelessWidget {
     final date = report.date ?? detail.session.date;
     final month =
         TutorFormat.month(context, date).split(' ').first.toLowerCase();
-    return ListView(padding: const EdgeInsets.all(16), children: [
+    return ListView(padding: spacePagePadding(context), children: [
       TutorStatusCard(
         icon: Icons.check,
         tone: SoeBadgeTone.success,
@@ -235,7 +237,7 @@ class _SentReport extends StatelessWidget {
           corrected ? AppPalette.warningText : null
         ),
     ];
-    return ListView(padding: const EdgeInsets.all(16), children: [
+    return ListView(padding: spacePagePadding(context), children: [
       Text(pupil.toUpperCase(),
           style: AppTypography.overline.copyWith(color: AppPalette.teal800)),
       const SizedBox(height: 4),
@@ -324,8 +326,7 @@ class _SoftCard extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-            color: AppPalette.gold50,
-            borderRadius: BorderRadius.circular(16)),
+            color: AppPalette.gold50, borderRadius: BorderRadius.circular(16)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(title,
               style: AppTypography.h3.copyWith(color: AppPalette.teal800)),
@@ -365,8 +366,7 @@ class _Follow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-          color: AppPalette.gold50,
-          borderRadius: BorderRadius.circular(16)),
+          color: AppPalette.gold50, borderRadius: BorderRadius.circular(16)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(tr.follow,
             style: AppTypography.h3.copyWith(color: AppPalette.teal800)),
@@ -621,7 +621,7 @@ class _ReportFormState extends ConsumerState<_ReportForm> {
     final last = _step == _steps - 1;
     return Column(children: [
       Expanded(
-        child: ListView(padding: const EdgeInsets.all(16), children: [
+        child: ListView(padding: spacePagePadding(context), children: [
           Text(
               [TutorFormat.dayLong(context, session.date), session.subject]
                   .whereType<String>()

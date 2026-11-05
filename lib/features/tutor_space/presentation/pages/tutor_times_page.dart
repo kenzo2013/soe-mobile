@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/error/failure.dart';
@@ -100,7 +102,7 @@ class _TutorTimesPageState extends ConsumerState<TutorTimesPage> {
       required String title,
       required String body,
       SoeBadgeTone tone = SoeBadgeTone.info}) {
-    return ListView(padding: const EdgeInsets.all(16), children: [
+    return ListView(padding: spacePagePadding(context), children: [
       TutorStatusCard(
         icon: icon,
         tone: tone,
@@ -140,7 +142,7 @@ class _TutorTimesPageState extends ConsumerState<TutorTimesPage> {
         planning.canPropose && count > 0 && planning.options.isNotEmpty;
     return Column(children: [
       Expanded(
-        child: ListView(padding: const EdgeInsets.all(16), children: [
+        child: ListView(padding: spacePagePadding(context), children: [
           Text(tr.heading,
               style: AppTypography.h1.copyWith(color: AppPalette.teal800)),
           const SizedBox(height: 4),

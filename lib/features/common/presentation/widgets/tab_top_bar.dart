@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -17,7 +19,7 @@ import 'notification_bell.dart';
 import 'space_app_bar.dart';
 
 /// The widest a screen's content gets on a tablet (cards, lists), centred.
-const double spaceContentMaxWidth = 880;
+const double spaceContentMaxWidth = 1100;
 
 /// From this width, a screen lays its content out on two columns (tablet portrait).
 const double spaceTwoColumnsWidth = 700;
@@ -25,6 +27,13 @@ const double spaceTwoColumnsWidth = 700;
 /// True on a tablet-sized screen (two columns, the navigation rail).
 bool spaceIsWide(BuildContext context) =>
     MediaQuery.sizeOf(context).width >= spaceTwoColumnsWidth;
+
+/// True when the navigation is the tablet rail (it carries the logo).
+bool spaceHasRail(BuildContext context) =>
+    MediaQuery.sizeOf(context).shortestSide >= 600;
+
+/// The side margin of a tab's content: wider on a tablet, aligned with the band's text.
+double spaceGutter(BuildContext context) => spaceIsWide(context) ? 20 : 16;
 
 /// The coloured band at the top of a tab's first screen (colourful direction): navy for a
 /// tutor and the account, SOE teal for a parent, rounded bottom corners. The white SOE logo
@@ -104,7 +113,7 @@ class SpaceBand extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Row(children: [
-                  if (Navigator.of(context).canPop()) ...[
+                  if (ModalRoute.of(context)?.canPop ?? false) ...[
                     IconButton(
                       tooltip:
                           MaterialLocalizations.of(context).backButtonTooltip,
@@ -117,7 +126,9 @@ class SpaceBand extends ConsumerWidget {
                     ),
                     const SizedBox(width: 12),
                   ],
-                  const SoeBrandLogo(width: 57, onDark: true),
+                  // On a tablet the logo is on the rail.
+                  if (!spaceHasRail(context))
+                    const SoeBrandLogo(width: 57, onDark: true),
                   const Spacer(),
                   trailing ?? NotificationBell(band: band),
                 ]),
@@ -295,13 +306,15 @@ class SpaceTabView extends StatelessWidget {
     required this.band,
     required this.children,
     this.onRefresh,
-    this.padding = const EdgeInsets.symmetric(horizontal: 16),
+    this.padding,
   });
 
   final SpaceBand band;
   final List<Widget> children;
   final Future<void> Function()? onRefresh;
-  final EdgeInsetsGeometry padding;
+
+  /// Null: the side gutter of the screen ([spaceGutter]).
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -313,7 +326,8 @@ class SpaceTabView extends StatelessWidget {
           overlap: band.overlap,
           top: band,
           bottom: Padding(
-            padding: padding,
+            padding: padding ??
+                EdgeInsets.symmetric(horizontal: spaceGutter(context)),
             child: _Centred(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -347,7 +361,8 @@ class _Centred extends StatelessWidget {
   Widget build(BuildContext context) => Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: spaceContentMaxWidth),
-          child: child,
+          // Full width up to the maximum: a Wrap of chips stays on the left.
+          child: SizedBox(width: double.infinity, child: child),
         ),
       );
 }
@@ -475,7 +490,7 @@ class SpaceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!Navigator.of(context).canPop()) {
+    if (!(ModalRoute.of(context)?.canPop ?? false)) {
       return SpaceTabView(
         band: SpaceBand(title: title, subtitle: subtitle),
         onRefresh: onRefresh,
@@ -483,7 +498,7 @@ class SpaceScreen extends StatelessWidget {
       );
     }
     final list = ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      padding: spacePagePadding(context, top: 16, bottom: 32),
       children: [
         for (final child in children) SpaceCentred(child: child),
       ],
@@ -500,3 +515,8 @@ class SpaceScreen extends StatelessWidget {
     );
   }
 }
+
+/// The flex of the two columns of a tablet home: equal halves in portrait (each about a phone
+/// wide), 3:2 in landscape.
+(int, int) spaceColumnFlex(BuildContext context) =>
+    MediaQuery.sizeOf(context).width >= 1100 ? (3, 2) : (1, 1);

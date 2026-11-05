@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_palette.dart';
@@ -177,7 +179,7 @@ class _TutorFileAvailabilityFormState
     return Column(children: [
       Expanded(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: spacePagePadding(context),
           children: [
             TutorFileSectionHeader(
                 data: widget.data,

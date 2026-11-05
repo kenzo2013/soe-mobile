@@ -137,8 +137,10 @@ class _NavTile extends StatelessWidget {
   }
 }
 
-/// The navigation of a tablet: a floating navy rail on the left (radius 34), the white logo
-/// on top, the tabs below with the same translucent grey pill for the active one.
+/// The navigation of a tablet: a navy rail on the left, running from the top of the screen
+/// (the status bar stays readable on it, aligned with the header bands) and floating at the
+/// bottom (radius 34), the white logo on top, the tabs below with the same translucent grey
+/// pill for the active one.
 class SoeNavRail extends StatelessWidget {
   const SoeNavRail({
     super.key,
@@ -157,19 +159,19 @@ class SoeNavRail extends StatelessWidget {
   Widget build(BuildContext context) {
     final padding = MediaQuery.paddingOf(context);
     return Padding(
-      padding: EdgeInsets.fromLTRB(
-          14 + padding.left, padding.top + 14, 0, padding.bottom + 14),
+      padding:
+          EdgeInsets.fromLTRB(14 + padding.left, 0, 0, padding.bottom + 14),
       child: Container(
         key: const Key('space-rail'),
         width: width,
         decoration: const BoxDecoration(
           color: AppPalette.navy,
-          borderRadius: BorderRadius.all(Radius.circular(34)),
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(34)),
           boxShadow: AppShadows.nav,
         ),
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const SizedBox(height: 26),
+          SizedBox(height: padding.top + 18),
           Center(
             child: SvgPicture.asset('assets/logo/logo_white.svg',
                 width: 54, semanticsLabel: 'SOE — Solution of Education'),

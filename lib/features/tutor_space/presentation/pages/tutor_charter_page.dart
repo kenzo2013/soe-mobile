@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/error/failure.dart';
@@ -302,7 +304,7 @@ class _Success extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tr = Translations.of(context).tutorSpace.charter;
-    return ListView(padding: const EdgeInsets.all(16), children: [
+    return ListView(padding: spacePagePadding(context), children: [
       SoeCard(
         padding: const EdgeInsets.all(24),
         child: Column(children: [

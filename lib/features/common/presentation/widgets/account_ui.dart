@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -69,7 +71,7 @@ class AccountScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final list = ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      padding: spacePagePadding(context, top: 16, bottom: 32),
       children: [
         for (final child in children) SpaceCentred(child: child),
       ],

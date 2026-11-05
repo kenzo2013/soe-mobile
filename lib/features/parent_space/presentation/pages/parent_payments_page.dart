@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -344,7 +346,7 @@ class _ParentPaymentsHistoryPageState
           return false;
         },
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: spacePagePadding(context),
           children: [
             if (_payments.isEmpty && _done)
               SoeEmptyState(
@@ -422,7 +424,7 @@ class _ParentPayPageState extends ConsumerState<ParentPayPage> {
           section: Translations.of(context).shell.parent.payments,
           title: tr.pay.title),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: spacePagePadding(context),
         children: [
           if (invoice != null) ...[
             Text(tr.pay.amount,

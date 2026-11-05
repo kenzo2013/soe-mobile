@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -177,7 +179,7 @@ class _ParentChildPageState extends ConsumerState<ParentChildPage> {
             _ => null,
           };
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: spacePagePadding(context),
             children: [
               Row(children: [
                 ParentChildAvatar(child: child, radius: 28),

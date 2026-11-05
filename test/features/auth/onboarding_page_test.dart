@@ -132,8 +132,9 @@ void main() {
     expect(find.text('FR'), findsNothing);
   });
 
-  testWidgets('on a tablet, the photo sits next to the text', (tester) async {
-    await _pump(tester, size: const Size(834, 1194));
+  testWidgets('on a tablet in landscape, the photo sits next to the text',
+      (tester) async {
+    await _pump(tester, size: const Size(1194, 834));
 
     expect(find.text('Un répétiteur choisi pour votre enfant'), findsOneWidget);
     expect(find.text('Répétiteurs vérifiés'), findsOneWidget);
@@ -142,5 +143,16 @@ void main() {
     final title =
         tester.getRect(find.text('Un répétiteur choisi pour votre enfant'));
     expect(photo.right, lessThan(title.left));
+  });
+
+  testWidgets('on a tablet in portrait, the text sits under the photo',
+      (tester) async {
+    await _pump(tester, size: const Size(834, 1194));
+
+    final photo =
+        tester.getRect(find.bySemanticsLabel(RegExp('sous le regard')));
+    final title =
+        tester.getRect(find.text('Un répétiteur choisi pour votre enfant'));
+    expect(photo.bottom, lessThan(title.top));
   });
 }

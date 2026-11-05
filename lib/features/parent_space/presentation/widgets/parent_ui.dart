@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -124,7 +126,7 @@ class ParentAsyncBody<T> extends StatelessWidget {
   Widget build(BuildContext context) => value.when(
         data: builder,
         loading: () => ListView(
-          padding: const EdgeInsets.all(16),
+          padding: spacePagePadding(context),
           children: const [
             SoeSkeleton(height: 28, width: 200),
             SizedBox(height: 16),

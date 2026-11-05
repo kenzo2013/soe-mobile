@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -31,7 +33,7 @@ class TutorQualityPage extends ConsumerWidget {
           value: value,
           onRetry: () => ref.invalidate(tutorQualityProvider),
           builder: (quality) => ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+            padding: spacePagePadding(context, top: 8, bottom: 32),
             children: [
               Text(tr.title,
                   style: AppTypography.h1.copyWith(color: AppPalette.teal800)),

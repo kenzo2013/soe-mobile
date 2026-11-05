@@ -102,7 +102,7 @@ class ParentHomePage extends ConsumerWidget {
             )),
       ],
     ];
-    final side = <Widget>[
+    final week = <Widget>[
       _SectionTitle(tr.home.week,
           link: tr.home.seePlanning,
           onLink: () => context.go(RouteNames.parentPlanning)),
@@ -116,6 +116,8 @@ class ParentHomePage extends ConsumerWidget {
             padding: const EdgeInsets.only(bottom: 10),
             child: _WeekSessionRow(session: session),
           ),
+    ];
+    final children = <Widget>[
       if (home.children.isNotEmpty) ...[
         _SectionTitle(tr.home.children,
             link: tr.home.seeAll,
@@ -132,37 +134,51 @@ class ParentHomePage extends ConsumerWidget {
               ),
             )),
       ],
-      if (home.invoice != null) ...[
-        const SizedBox(height: 4),
-        _InvoiceCard(invoice: home.invoice!),
-      ],
+    ];
+    final invoice = home.invoice == null
+        ? const <Widget>[]
+        : [_InvoiceCard(invoice: home.invoice!)];
+    final side = <Widget>[
+      ...week,
+      ...children,
+      if (invoice.isNotEmpty) ...[const SizedBox(height: 4), ...invoice],
       const SizedBox(height: 14),
       const ParentAdvisorCard(),
     ];
-    // A section title must not lie on the band: the content then starts below it.
-    final lead = (main.isEmpty ? side : main).first is _SectionTitle
-        ? const [SizedBox(height: SpaceBand.cardOverlap)]
-        : const <Widget>[];
     if (spaceIsWide(context)) {
+      // Tablet: what to do and the week on the left; the month's payment, the advisor and
+      // the children on the right, both columns starting on the band.
+      final left = [...main, ...week];
+      final right = [
+        ...invoice,
+        if (invoice.isNotEmpty) const SizedBox(height: 14),
+        const ParentAdvisorCard(),
+        ...children,
+      ];
+      final lead = left.first is _SectionTitle
+          ? const [SizedBox(height: SpaceBand.cardOverlap)]
+          : const <Widget>[];
       return [
         ...lead,
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(
-              flex: 1,
+              flex: spaceColumnFlex(context).$1,
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: main.isEmpty ? side : main)),
-          if (main.isNotEmpty) ...[
-            const SizedBox(width: 16),
-            Expanded(
-                flex: 1,
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: side)),
-          ],
+                  children: left)),
+          const SizedBox(width: 16),
+          Expanded(
+              flex: spaceColumnFlex(context).$2,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: right)),
         ]),
       ];
     }
+    // A section title must not lie on the band: the content then starts below it.
+    final lead = (main.isEmpty ? side : main).first is _SectionTitle
+        ? const [SizedBox(height: SpaceBand.cardOverlap)]
+        : const <Widget>[];
     return [...lead, ...main, ...side];
   }
 }

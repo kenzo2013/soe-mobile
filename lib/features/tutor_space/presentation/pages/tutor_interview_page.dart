@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -45,7 +47,7 @@ class TutorInterviewPage extends ConsumerWidget {
           value: value,
           onRetry: () => ref.invalidate(tutorInterviewProvider),
           builder: (interview) => ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+            padding: spacePagePadding(context, top: 8, bottom: 32),
             children: [
               Text(tr.title,
                   style: AppTypography.h1.copyWith(color: AppPalette.teal800)),

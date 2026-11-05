@@ -205,7 +205,10 @@ class _SlideView extends StatelessWidget {
     final texts = _texts(tr);
     final last = index == total - 1;
     final media = MediaQuery.of(context);
-    final wide = media.size.width >= OnboardingPage.tabletMinWidth;
+    final tablet = media.size.width >= OnboardingPage.tabletMinWidth;
+    // Side by side on a wide landscape screen; stacked otherwise (a tablet in portrait too).
+    final wide = media.size.width >= OnboardingPage.tabletMinWidth &&
+        media.size.width > media.size.height;
     // With a large system font the photo shrinks so the text keeps its room.
     final large = media.textScaler.scale(1) > 1.3;
 
@@ -236,8 +239,8 @@ class _SlideView extends StatelessWidget {
                   replayKey: active,
                   child: Text(texts.title,
                       style: AppTypography.h1.copyWith(
-                          fontSize: wide ? 34 : 28,
-                          height: wide ? 42 / 34 : 36 / 28,
+                          fontSize: tablet ? 34 : 28,
+                          height: tablet ? 42 / 34 : 36 / 28,
                           color: AppPalette.white)),
                 ),
                 const SizedBox(height: 12),
@@ -342,7 +345,11 @@ class _SlideView extends StatelessWidget {
           flex: large ? 6 : 9,
           child: Padding(
             padding: EdgeInsets.fromLTRB(24, 24, 24, media.padding.bottom + 16),
-            child: text,
+            child: Center(
+              child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: text),
+            ),
           ),
         ),
       ]),

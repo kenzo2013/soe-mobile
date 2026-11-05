@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -57,7 +59,7 @@ class ParentReviewsPage extends ConsumerWidget {
           final given =
               reviews.where((review) => review.status == 'active').toList();
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: spacePagePadding(context),
             children: [
               ParentHeading(
                   title: tr.title, subtitle: tr.subtitle(count: required)),
@@ -255,7 +257,7 @@ class _ParentReviewFormPageState extends ConsumerState<ParentReviewFormPage> {
           return Column(children: [
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.all(16),
+                padding: spacePagePadding(context),
                 children: [
                   ParentHeading(
                     title: tr.formTitle(name: tutor.name),
@@ -437,7 +439,7 @@ class ParentCoParentsPage extends ConsumerWidget {
         value: ref.watch(parentCoParentsProvider),
         onRetry: () => _refresh(ref),
         builder: (coParents) => ListView(
-          padding: const EdgeInsets.all(16),
+          padding: spacePagePadding(context),
           children: [
             ParentHeading(title: tr.title, subtitle: tr.subtitle),
             const SizedBox(height: 16),
@@ -761,7 +763,7 @@ class ParentAdvisorPage extends ConsumerWidget {
         value: ref.watch(parentHomeProvider),
         onRetry: () => ref.invalidate(parentHomeProvider),
         builder: (home) => ListView(
-          padding: const EdgeInsets.all(16),
+          padding: spacePagePadding(context),
           children: [
             ParentHeading(title: tr.title, subtitle: tr.text),
             const SizedBox(height: 16),

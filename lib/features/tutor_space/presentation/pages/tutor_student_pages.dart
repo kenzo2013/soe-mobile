@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -106,7 +108,7 @@ class TutorStudentPage extends ConsumerWidget {
           return RefreshIndicator(
             onRefresh: () =>
                 ref.refresh(tutorStudentProvider(studentId).future),
-            child: ListView(padding: const EdgeInsets.all(16), children: [
+            child: ListView(padding: spacePagePadding(context), children: [
               Text(
                   [file.subjects.join(', '), file.neighborhood]
                       .whereType<String>()
@@ -154,8 +156,7 @@ class _MutedCard extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-            color: AppPalette.gold50,
-            borderRadius: BorderRadius.circular(16)),
+            color: AppPalette.gold50, borderRadius: BorderRadius.circular(16)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(title,
               style: AppTypography.h3.copyWith(color: AppPalette.teal800)),

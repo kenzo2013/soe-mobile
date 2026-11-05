@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -72,7 +74,7 @@ class _ParentSessionPageState extends ConsumerState<ParentSessionPage> {
           final place = child?.address?.neighborhood;
           final end = session.endsAt;
           return ListView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+              padding: spacePagePadding(context, top: 8, bottom: 32),
               children: [
                 Text(
                     tr
@@ -353,7 +355,7 @@ class _ParentReportPageState extends ConsumerState<ParentReportPage> {
                             Text(value, style: AppTypography.body),
                           ]),
                     );
-          return ListView(padding: const EdgeInsets.all(16), children: [
+          return ListView(padding: spacePagePadding(context), children: [
             Align(
                 alignment: Alignment.centerLeft,
                 child: ParentStatusBadge(status: state.$2, label: state.$1)),

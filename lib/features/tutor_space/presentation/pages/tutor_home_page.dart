@@ -188,41 +188,44 @@ class _HomeView extends ConsumerWidget {
       ],
     ];
 
-    List<Widget> main;
-    List<Widget> side;
+    // Phone: one column. Tablet: what to do then the offers on the left, the month (or the
+    // delay) on the right, both overlapping the band.
+    var left = <Widget>[];
+    var right = <Widget>[];
+    var below = <Widget>[];
     if (recruitment != null) {
-      main = [
+      left = [
         if (!recruitment.refused) ...[
           _NextStepCard(recruitment: recruitment),
           const SizedBox(height: 14),
         ],
         _JourneyCard(recruitment: recruitment, raised: recruitment.refused),
       ];
-      side = recruitment.refused
-          ? const []
-          : [
-              _DelayCard(recruitment: recruitment),
-              const SizedBox(height: 14),
-              _OffersCard(home: home, recruiting: true),
-            ];
+      if (!recruitment.refused) {
+        right = [_DelayCard(recruitment: recruitment)];
+        below = [_OffersCard(home: home, recruiting: true)];
+      }
     } else if (home.active) {
-      final todo = <Widget>[
+      left = [
         if (home.mayTeach) ...[
           if (home.actions.isEmpty)
-            SoeCard(
-              raised: true,
-              child: Row(children: [
-                const _IconTile(
-                    icon: Icons.check_rounded,
-                    background: AppPalette.successBg,
-                    color: AppPalette.successText),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(tr.nothingToDo,
-                      style:
-                          AppTypography.label.copyWith(color: AppPalette.text)),
-                ),
-              ]),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: SoeCard(
+                raised: true,
+                child: Row(children: [
+                  const _IconTile(
+                      icon: Icons.check_rounded,
+                      background: AppPalette.successBg,
+                      color: AppPalette.successText),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(tr.nothingToDo,
+                        style: AppTypography.label
+                            .copyWith(color: AppPalette.text)),
+                  ),
+                ]),
+              ),
             )
           else
             for (var i = 0; i < home.actions.length; i++)
@@ -241,45 +244,39 @@ class _HomeView extends ConsumerWidget {
             ),
         ],
       ];
-      main = todo;
-      side = [
-        _MonthCard(month: home.month),
-        const SizedBox(height: 14),
-        _OffersCard(home: home),
-      ];
-      if (todo.isEmpty) {
-        main = side;
-        side = const [];
+      right = [_MonthCard(month: home.month)];
+      below = [_OffersCard(home: home)];
+      if (left.isEmpty) {
+        left = right;
+        right = [];
       }
-    } else {
-      main = const [];
-      side = const [];
     }
 
     final List<Widget> children;
-    if (wide && side.isNotEmpty) {
+    if (wide && left.isNotEmpty && right.isNotEmpty) {
       children = [
         ...notices,
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(
-              flex: 1,
+              flex: spaceColumnFlex(context).$1,
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: main)),
+                  children: [...left, ...below])),
           const SizedBox(width: 16),
           Expanded(
-              flex: 1,
+              flex: spaceColumnFlex(context).$2,
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: side)),
+                  children: right)),
         ]),
       ];
     } else {
       children = [
         ...notices,
-        ...main,
-        if (main.isNotEmpty && side.isNotEmpty) const SizedBox(height: 4),
-        ...side,
+        ...left,
+        if (left.isNotEmpty && right.isNotEmpty) const SizedBox(height: 14),
+        ...right,
+        if (below.isNotEmpty) ...[const SizedBox(height: 14), ...below],
       ];
     }
     return SpaceTabView(band: band, onRefresh: onRefresh, children: children);
@@ -644,25 +641,38 @@ class _MonthCard extends StatelessWidget {
             .split(' ')
             .first
             .toLowerCase();
-    Widget row(String label, String value, {Color? valueColor}) => Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Expanded(
-              flex: 2,
-              child: Text(label,
-                  style: AppTypography.bodySm
-                      .copyWith(color: AppPalette.successBg)),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              flex: 3,
-              child: Text(value,
-                  textAlign: TextAlign.right,
-                  style: AppTypography.label
-                      .copyWith(color: valueColor ?? AppPalette.white)),
-            ),
-          ]),
-        );
+    Widget row(String label, String value, {Color? valueColor}) =>
+        LayoutBuilder(builder: (context, constraints) {
+          final labelText = Text(label,
+              style:
+                  AppTypography.bodySm.copyWith(color: AppPalette.successBg));
+          final valueText = Text(value,
+              style: AppTypography.label
+                  .copyWith(color: valueColor ?? AppPalette.white));
+          // In a narrow card the label sits above its value.
+          if (constraints.maxWidth < 360) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [labelText, valueText]),
+            );
+          }
+          return Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Expanded(flex: 2, child: labelText),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 3,
+                child: Text(value,
+                    textAlign: TextAlign.right,
+                    style: AppTypography.label
+                        .copyWith(color: valueColor ?? AppPalette.white)),
+              ),
+            ]),
+          );
+        });
     return SoeCard(
       color: AppPalette.success,
       padding: const EdgeInsets.all(18),
@@ -683,7 +693,8 @@ class _MonthCard extends StatelessWidget {
           decoration: BoxDecoration(
               color: const Color(0x1FFFFFFF),
               borderRadius: BorderRadius.circular(16)),
-          child: Column(children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             row(tr.approved, '${month.approved}'),
             row(
                 tr.pending,
@@ -746,7 +757,14 @@ class _OffersCard extends StatelessWidget {
         )
       else
         LayoutBuilder(builder: (context, constraints) {
-          final columns = constraints.maxWidth >= 520 ? 3 : 2;
+          // A tablet column about a phone wide: one offer per row, so nothing is cut.
+          final columns = constraints.maxWidth >= 900
+              ? 4
+              : (constraints.maxWidth >= 600
+                  ? 3
+                  : (spaceIsWide(context) && constraints.maxWidth < 420
+                      ? 1
+                      : 2));
           final width = (constraints.maxWidth - 10 * (columns - 1)) / columns;
           return Wrap(spacing: 10, runSpacing: 10, children: [
             for (final offer in offers)
@@ -814,9 +832,8 @@ class _OfferTile extends StatelessWidget {
                   decoration: BoxDecoration(
                       color: ink.withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(999)),
-                  child: Text(offer.subjects.take(2).join(', '),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  // The whole list of subjects, on two lines if needed.
+                  child: Text(offer.subjects.join(', '),
                       style: AppTypography.labelSm.copyWith(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,

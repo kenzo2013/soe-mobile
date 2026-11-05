@@ -54,7 +54,7 @@ class SpaceAppBar extends ConsumerWidget implements PreferredSizeWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final band = color ?? AppPalette.band(ref.watch(currentRoleProvider));
     final soft = SpaceBand.softText(band);
-    final canPop = Navigator.of(context).canPop();
+    final canPop = ModalRoute.of(context)?.canPop ?? false;
     final material = MaterialLocalizations.of(context);
     final breadcrumb = crumb ?? (section == null ? null : '$section › $title');
     return AnnotatedRegion<SystemUiOverlayStyle>(

@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_spacing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -102,7 +104,7 @@ class _TutorOffersPageState extends ConsumerState<TutorOffersPage> {
             .firstOrNull;
     final first =
         ref.watch(tutorOffersPageProvider(TutorOfferPageKey(_filters, 1)));
-    final root = !Navigator.of(context).canPop();
+    final root = !(ModalRoute.of(context)?.canPop ?? false);
     return SpaceScreen(
       section: tutorMoreSection(context),
       title: tr.title,
@@ -373,7 +375,7 @@ class _TutorOfferPageState extends ConsumerState<TutorOfferPage> {
     ];
     return RefreshIndicator(
       onRefresh: () => ref.refresh(tutorOfferProvider(widget.offerId).future),
-      child: ListView(padding: const EdgeInsets.all(16), children: [
+      child: ListView(padding: spacePagePadding(context), children: [
         Text(published.toUpperCase(),
             style: AppTypography.overline.copyWith(color: AppPalette.teal500)),
         const SizedBox(height: 4),
@@ -495,7 +497,7 @@ class _SentView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tr = Translations.of(context).tutorSpace.offers.detail;
-    return ListView(padding: const EdgeInsets.all(16), children: [
+    return ListView(padding: spacePagePadding(context), children: [
       SoeCard(
         padding: const EdgeInsets.all(24),
         child: Column(children: [
