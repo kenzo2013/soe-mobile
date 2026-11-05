@@ -75,20 +75,24 @@ abstract final class RouteNames {
   // Tutor · Contrats
   static const String tutorContracts = '/tutor/contracts';
 
-  // Common · Mon compte
+  // Common · account (COM-01 to COM-10)
   static const String account = '/account';
   static const String accountProfile = '/account/profile';
-  static const String accountPassword = '/account/password';
+  static const String accountSecurity = '/account/security';
+  static const String accountDeletion = '/account/security/deletion';
   static const String accountAddress = '/account/address';
-  static const String accountRole = '/account/role';
+  static const String accountRoles = '/account/roles';
   static const String accountNotificationPrefs =
       '/account/notification-preferences';
+  static const String help = '/account/help';
+  static const String reports = '/account/reports';
+  static const String reportNew = '/account/reports/new';
+  static String reportDetail(int id) => '/account/reports/$id';
 
-  // Common · Notifications
+  // Common · notification centre (COM-07)
   static const String notifications = '/notifications';
-  static String notificationDetail(String id) => '/notifications/$id';
 
-  // Common · Contrats (détail partagé parent + tuteur)
+  // Common · legacy contract detail (v1 parent and tutor screens)
   static const String contractDetail = '/contracts/detail';
 
   /// First screens of the tabs (Q5): reached with `go` (switches tab). Any other

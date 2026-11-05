@@ -39,6 +39,7 @@ final currentUserProvider = FutureProvider<User?>((ref) async {
         lang: j['lang']?.toString(),
         photoUrl: j['photo_url']?.toString(),
         multiRole: j['multi_role'] == true,
+        hasPhoto: j['has_photo'] == true,
       );
     } catch (_) {
       // JSON corrompu → on tombe sur le fallback API

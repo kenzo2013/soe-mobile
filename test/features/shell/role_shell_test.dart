@@ -15,6 +15,8 @@ import 'package:soe/features/shell/presentation/pages/more_page.dart';
 import 'package:soe/features/shell/presentation/widgets/role_shell.dart';
 import 'package:soe/i18n/translations.g.dart';
 
+import '../../helpers/fake_api.dart';
+
 const _tabs = [
   ShellTab(icon: Icons.home_outlined, activeIcon: Icons.home, label: 'Accueil'),
   ShellTab(
@@ -70,7 +72,7 @@ Future<void> _pump(WidgetTester tester,
         ],
       ),
       GoRoute(
-          path: RouteNames.accountRole,
+          path: RouteNames.accountRoles,
           builder: (_, __) => const Text('role-switch')),
     ],
   );
@@ -78,6 +80,7 @@ Future<void> _pump(WidgetTester tester,
     ProviderScope(
       overrides: [
         preferencesStorageProvider.overrideWithValue(prefs),
+        dioV2Provider.overrideWithValue(FakeApi().dio),
         currentUserProvider.overrideWith((ref) async => user),
         currentRoleProvider.overrideWith((ref) => 'parent'),
       ],
@@ -129,15 +132,17 @@ void main() {
   });
 
   testWidgets(
-      '« Plus » lists the account and sign-out, without a switch for a single-role account',
+      '« Plus » is the account hub with sign-out, without a switch for a single-role account',
       (tester) async {
     await _pump(tester, size: const Size(390, 844), user: _user());
     await tester.tap(find.text('Plus').last);
     await tester.pumpAndSettle();
 
     expect(find.text('Awa Ngono'), findsOneWidget);
-    expect(find.text('Espace parent'), findsOneWidget);
+    expect(find.text('MODE PARENT · A@EXAMPLE.COM'), findsOneWidget);
     expect(find.text('Mon compte'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Se déconnecter'), 300,
+        scrollable: find.byType(Scrollable).last);
     expect(find.text('Se déconnecter'), findsOneWidget);
     expect(find.text('Changer d’espace'), findsNothing);
   });

@@ -9,6 +9,7 @@ import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../i18n/translations.g.dart';
 import '../../../auth/presentation/providers/current_user_provider.dart';
+import '../../../common/presentation/widgets/notification_bell.dart';
 import '../../data/parent_models.dart';
 import '../parent_space_routes.dart';
 import '../providers.dart';
@@ -36,9 +37,14 @@ class ParentHomePage extends ConsumerWidget {
             builder: (home) => ListView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
               children: [
-                Text(tr.home.hello(name: firstName),
-                    style:
-                        AppTypography.h1.copyWith(color: AppPalette.teal800)),
+                Row(children: [
+                  Expanded(
+                    child: Text(tr.home.hello(name: firstName),
+                        style: AppTypography.h1
+                            .copyWith(color: AppPalette.teal800)),
+                  ),
+                  const NotificationBell(),
+                ]),
                 Text(tr.home.subtitle,
                     style:
                         AppTypography.bodySm.copyWith(color: AppPalette.text2)),
