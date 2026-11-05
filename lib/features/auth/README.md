@@ -1,82 +1,94 @@
 # Feature `auth`
 
-Authentification SOE — onboarding, choix du rôle, login, inscription multi-étapes,
-confirmation email (deep link), mot de passe oublié + reset (deep link).
+Authentification SOE sur l'**API v2** (`/api/v2`, enveloppe `{ data, meta, errors }`) :
+accueil, choix parent ou répétiteur, inscription en quatre étapes, code à 6 chiffres reçu par
+e-mail, connexion par e-mail ou téléphone, mot de passe oublié par code, session expirée.
 
-## Endpoints API consommés
-| Méthode | Endpoint | Description |
+Contrat de référence : `soe/docs/api/v2/openapi.yml`. Chemins : `lib/core/network/api_endpoints_v2.dart`.
+
+## Écrans (Studio AUT-00 à AUT-12)
+
+| Écran | Page | Route |
 |---|---|---|
-| POST | `/users/login` | Connexion (retourne `accessToken` JWT 30 jours) |
-| POST | `/users/register` | Inscription parent ou tuteur — **pas de token** retourné |
-| POST | `/users/password` | Demande de réinitialisation (envoie un email) |
-| PATCH | `/users/password` | Réinitialise via `reset_password_token` |
-| DELETE | `/users/logout` | Déconnexion |
+| AUT-00 lancement | `SplashPage` | `/` |
+| AUT-01 accueil (4 diapositives) | `OnboardingPage` | `/onboarding` |
+| AUT-02 parent ou répétiteur | `RoleChoicePage` | `/role` |
+| AUT-03 identité | `SignupStep1Page` | `/register/identity` |
+| AUT-04 contact (+237, e-mail) | `SignupStep2Page` | `/register/contact` |
+| AUT-05 mot de passe (4 règles) | `SignupStep3Page` | `/register/password` |
+| AUT-06 adresse et consentements | `SignupStep4Page` | `/register/address` |
+| AUT-07 code de vérification | `EmailSentPage` | `/register/email-sent` |
+| AUT-08 compte activé | `EmailConfirmedPage` | `/register/email-confirmed` |
+| AUT-09 connexion | `LoginPage` | `/login` |
+| AUT-10 mot de passe oublié (identifiant, code, nouveau mot de passe) | `ForgotPasswordPage`, `ForgotPasswordSentPage`, `ResetPasswordPage` | `/password/forgot`, `/password/forgot-sent`, `/password/reset` |
+| AUT-11 session expirée | `LoginPage` (variante) | `/login` |
 
-## Formats de réponse réels (testés avec curl sur api.jeteste.site)
+Le bouton principal de chaque écran est or (`SoeButtonVariant.primary`), comme le web ;
+seul « Suivant » de l'accueil reste teal.
 
-- **Login** :
-  - 200 → `{"data": {"id":"31","type":"user","attributes":{...}}, "accessToken":"..."}`
-  - 401 (mauvais identifiants) → `{"error":"Invalid E-mail or password."}`
-  - 401 (email pas confirmé) → `{"error":"You have to confirm your email address before continuing."}`
+## Endpoints API v2 consommés
 
-- **Register** :
-  - 201 → `{"status":{"code":200,"message":"Signed up successfully."}, "data":{...user...}}`
-  - 422 → `{"status":{"code":422,"message":"<msg concaténé>"}}`
+| Méthode | Endpoint | Usage |
+|---|---|---|
+| POST | `/auth/session` | Connexion `{login, password}` : 200 → `{token, token_expires_at, user}` ; 202 → compte non vérifié, `{pending_token, …}` (AUT-07) |
+| DELETE | `/auth/session` | Déconnexion (révoque le jeton) |
+| POST | `/auth/registrations/validate` | Valide une étape `{step, sign_up}` avant la suivante |
+| POST | `/auth/registrations` | Crée le compte `{sign_up}` → `{pending_token, …}` ; aucun jeton tant que le code n'est pas saisi |
+| POST | `/auth/confirmations` | Code reçu `{pending_token, code}` → session |
+| POST | `/auth/confirmations/resend` | Renvoie le code |
+| POST | `/auth/password_resets` | Mot de passe oublié `{login}` → `{reset_token, …}` (même réponse que le compte existe ou non) |
+| POST | `/auth/password_resets/verify` | Code `{reset_token, code}` → `{verified_token}` |
+| POST | `/auth/password_resets/resend` | Renvoie le code |
+| PUT | `/auth/password_resets` | Nouveau mot de passe `{verified_token, password, password_confirmation}` → session |
+| GET | `/me` | Compte connecté : identité, langue, rôles, rôle actif |
 
-- **Password** :
-  - 200 → `{"status":{"code":200,"message":"Email envoyé."}}`
-  - 422 → `{"status":{"code":422,"message":"E-mail not found"}}`
+Les erreurs arrivent dans `errors[]` avec un `code` que `ExceptionMapper` traduit :
+`invalid_credentials`, `unconfirmed`, `unauthenticated`, `rate_limited`, `code_invalid`,
+`code_expired`, `code_locked`, `link_expired`, et `ValidationFailure` pour les champs.
 
-`ExceptionMapper` détecte les deux formats `{"error":...}` et `{"status":{...}}`.
-
-## Flow
+## Parcours
 
 ```
-Splash
-  ├─ onboarding non vu → Onboarding (3 slides) → RoleChoice
-  ├─ pas de token → Login
-  └─ token + role → Dashboard
-RoleChoice → Signup Step1 → Step2 → Step3 → Step4 → POST /register → EmailSent
-EmailSent (attente confirmation par lien email)
-   └─ Deep link soe://app/auth/email-confirmed?confirmed=true → EmailConfirmed → Login
+Lancement
+  ├─ accueil jamais vu → Accueil (4 diapositives) → Parent ou répétiteur
+  ├─ pas de session    → Connexion
+  └─ session + rôle    → espace parent (/parent) ou répétiteur (/tutor)
 
-Login
-  └─ "Mot de passe oublié" → ForgotPassword → POST /password → ForgotPasswordSent
-                                                              └─ Deep link soe://app/password/reset?reset_password_token=XXX → ResetPassword → PATCH /password → Authenticated
+Parent ou répétiteur → Identité → Contact → Mot de passe → Adresse
+  → POST /auth/registrations → Code (AUT-07) → POST /auth/confirmations → Compte activé (AUT-08)
+
+Connexion → POST /auth/session
+  ├─ 200 → espace du rôle
+  └─ 202 → Code (AUT-07), puis espace du rôle
+
+Mot de passe oublié → identifiant → code → nouveau mot de passe → espace du rôle
 ```
 
-## Deep links
+## Session expirée (AUT-11)
 
-### Schéma
-`soe://app/<path>` où `<path>` est une route go_router de l'app.
+Un 401 reçu alors qu'une session est enregistrée (jeton expiré ou révoqué, par exemple après
+un changement de mot de passe sur un autre appareil) :
 
-### Routes attendues
-| Lien email envoyé par le serveur | Path go_router |
-|---|---|
-| `soe://app/auth/email-confirmed?confirmed=true` | `/auth/email-confirmed` |
-| `soe://app/password/reset?reset_password_token=XXX` | `/password/reset` |
+1. `AuthInterceptor` appelle `onUnauthorized` (`core_providers.dart`) : le jeton est effacé,
+   `sessionExpiredProvider` passe à `true`, `authTokenProvider` à `null`.
+2. Le routeur (`routerProvider`) écoute la fin de session et relance sa garde : tout écran
+   d'un espace renvoie aussitôt à `/login`, au lieu d'afficher « Réessayer » dans les onglets.
+3. `LoginPage` affiche « Votre session a expiré » avec le compte gardé (nom, e-mail masqué) :
+   seul le mot de passe est demandé ; « Changer de compte » oublie ce compte et revient à la
+   connexion ordinaire. Une connexion réussie remet `sessionExpiredProvider` à `false`.
 
-### Configuration native
-- **iOS** : `Info.plist` contient `CFBundleURLSchemes=[soe]` et `FlutterDeepLinkingEnabled=true`.
-- **Android** : `AndroidManifest.xml` contient un `<intent-filter>` avec `<data android:scheme="soe" android:host="app"/>` et `flutter_deeplinking_enabled=true`.
-
-### Côté backend
-Le serveur doit générer ses URLs avec `soe://app` au lieu de `https://app.jeteste.site` (ou maintenir une page web qui détecte mobile et redirige).
-
-## UseCases
-
-| UseCase | Méthode | Notes |
-|---|---|---|
-| `Login` | `call({email, password})` | Validation locale email + non-vide |
-| `Register` | `call({params})` | Valide CGU, password ≥ 6, confirmation. **Retourne `User` (pas de session)** — login bloqué tant que email pas confirmé. |
-| `RequestPasswordReset` | `call({email})` | Validation email locale |
-| `ResetPassword` | `call({token, password, passwordConfirmation})` | Reconnecte automatiquement (PATCH retourne accessToken) |
-| `Logout` | `call()` | Efface tokens locaux même si serveur échoue |
-
-## i18n
-Strings dans `lib/i18n/fr.i18n.json` + `en.i18n.json` (slang). Toggle pill langue via `LangPill` (présente sur Onboarding, RoleChoice, Login).
+Un 401 sans session enregistrée (mauvais mot de passe) ne déclenche rien de tout cela.
 
 ## Sécurité
-- Tokens uniquement dans `flutter_secure_storage`.
-- Mot de passe jamais loggé (pas même en debug).
-- `AuthInterceptor` purge le token sur 401.
+
+- Jeton et compte uniquement dans `flutter_secure_storage` (`StorageKeys.authToken`,
+  `StorageKeys.currentUser`).
+- Les réponses de l'inscription (mot de passe compris) sont oubliées dès que le compte existe
+  et à chaque connexion ou déconnexion.
+- Mot de passe jamais journalisé.
+- La déconnexion efface la session locale même si le serveur ne répond pas.
+
+## Textes
+
+`lib/i18n/fr.i18n.json` et `en.i18n.json` (slang), clés `auth.*`. En français, on dit
+toujours « répétiteur ».
