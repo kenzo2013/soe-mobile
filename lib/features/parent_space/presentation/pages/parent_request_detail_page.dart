@@ -183,7 +183,7 @@ class _Detail extends ConsumerWidget {
                     height: 5,
                     decoration: BoxDecoration(
                       color: i < current
-                          ? AppPalette.teal800
+                          ? AppPalette.success
                           : (i == current
                               ? AppPalette.gold400
                               : AppPalette.teal100),

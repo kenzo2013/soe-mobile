@@ -146,14 +146,14 @@ class ParentHomePage extends ConsumerWidget {
       const ParentAdvisorCard(),
     ];
     if (spaceIsWide(context)) {
-      // Tablet: what to do and the week on the left; the month's payment, the advisor and
-      // the children on the right, both columns starting on the band.
-      final left = [...main, ...week];
+      // Tablet: what to do and the requests on the left; the month's payment, the advisor,
+      // the week and the children on the right, both columns starting on the band.
+      final left = main.isEmpty ? [...week, ...children] : main;
       final right = [
         ...invoice,
         if (invoice.isNotEmpty) const SizedBox(height: 14),
         const ParentAdvisorCard(),
-        ...children,
+        if (main.isNotEmpty) ...[...week, ...children],
       ];
       final lead = left.first is _SectionTitle
           ? const [SizedBox(height: SpaceBand.cardOverlap)]
