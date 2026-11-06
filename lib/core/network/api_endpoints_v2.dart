@@ -94,7 +94,4 @@ abstract final class ApiEndpointsV2 {
   static String report(int id) => '/reports/$id';
   static const String help = '/help';
   static const String references = '/references';
-  static const String devices = '/devices';
-  static String device(String playerId) =>
-      '/devices/${Uri.encodeComponent(playerId)}';
 }

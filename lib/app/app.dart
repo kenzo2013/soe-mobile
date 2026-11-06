@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../core/providers/locale_provider.dart';
 import '../core/routing/app_router.dart';
 import '../core/theme/app_theme.dart';
+import '../features/common/presentation/push_session.dart';
 import '../i18n/translations.g.dart';
 
 class SoeApp extends ConsumerWidget {
@@ -15,6 +16,8 @@ class SoeApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
     final router = ref.watch(routerProvider);
+    // Binds this phone to the signed-in account for push notifications (OneSignal).
+    ref.watch(pushSessionProvider);
 
     return TranslationProvider(
       child: ScreenUtilInit(

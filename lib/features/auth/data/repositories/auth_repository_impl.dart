@@ -115,6 +115,7 @@ class AuthRepositoryImpl implements AuthRepository {
       lang: json['lang'] as String?,
       multiRole: roles.length > 1,
       hasPhoto: json['has_photo'] == true,
+      pushExternalId: json['push_external_id'] as String?,
     );
   }
 
@@ -170,6 +171,7 @@ Future<void> cacheCurrentUser(SecureStorage storage, User user) async {
       if (user.lang != null) 'lang': user.lang,
       'multi_role': user.multiRole,
       'has_photo': user.hasPhoto,
+      if (user.pushExternalId != null) 'push_external_id': user.pushExternalId,
     }),
   );
 }

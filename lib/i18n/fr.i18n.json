@@ -2231,5 +2231,13 @@
       "emergencyTutor": "Incident grave au domicile d’une famille : quittez les lieux si besoin et appelez SOE immédiatement.",
       "reportEmergency": "Signaler une urgence"
     }
+  },
+  "push": {
+    "permission": {
+      "title": "Recevoir les notifications ?",
+      "message": "SOE vous prévient sur ce téléphone d’un devis à valider, d’une séance modifiée, d’un paiement ou d’un PV à relire. Vous choisissez ensuite quoi recevoir dans Mon compte.",
+      "allow": "Activer",
+      "later": "Plus tard"
+    }
   }
 }

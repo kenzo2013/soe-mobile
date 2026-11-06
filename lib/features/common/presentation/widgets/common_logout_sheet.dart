@@ -9,7 +9,6 @@ import '../../../../core/widgets/soe_toast.dart';
 import '../../../../i18n/translations.g.dart';
 import '../../../auth/presentation/providers.dart' show logoutUsecaseProvider;
 import '../../../auth/presentation/providers/current_user_provider.dart';
-import '../providers.dart';
 
 /// The sign-out confirmation sheet (COM-01).
 ///
@@ -120,8 +119,6 @@ class _LogoutSheet extends StatelessWidget {
     final router = GoRouter.of(sheetContext);
     final rootNavigator = Navigator.of(sheetContext, rootNavigator: true);
 
-    // Before the session ends: this phone stops receiving the account's push notifications.
-    await parentRef.read(pushDevicesProvider).unregister();
     final result = await parentRef.read(logoutUsecaseProvider).call();
 
     parentRef.read(authTokenProvider.notifier).state = null;

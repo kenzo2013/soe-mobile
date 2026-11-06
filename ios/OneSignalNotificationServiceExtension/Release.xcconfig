@@ -1,0 +1,4 @@
+// See Debug.xcconfig (Release and Profile).
+#include? "../Pods/Target Support Files/Pods-OneSignalNotificationServiceExtension/Pods-OneSignalNotificationServiceExtension.release.xcconfig"
+#include "../Flutter/Generated.xcconfig"
+#include "../Flutter/AppIdentity.xcconfig"

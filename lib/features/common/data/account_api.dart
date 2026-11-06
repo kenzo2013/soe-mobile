@@ -259,32 +259,6 @@ class AccountApi {
   Future<HelpContent> help() => _guard(() async => HelpContent.fromJson(
       _data(await _dio.get<Map<String, dynamic>>(ApiEndpointsV2.help))));
 
-  // ── Push devices ──────────────────────────────────────────
-
-  /// Registers this device for push notifications, by its OneSignal player id.
-  Future<void> registerDevice({
-    required String playerId,
-    required String deviceType,
-    String? deviceName,
-    String? deviceModel,
-    String? osVersion,
-    String? appVersion,
-    bool pushEnabled = true,
-  }) =>
-      _guard(() => _dio.post<void>(ApiEndpointsV2.devices, data: {
-            'onesignal_player_id': playerId,
-            'device_type': deviceType,
-            if (deviceName != null) 'device_name': deviceName,
-            if (deviceModel != null) 'device_model': deviceModel,
-            if (osVersion != null) 'os_version': osVersion,
-            if (appVersion != null) 'app_version': appVersion,
-            'push_enabled': pushEnabled,
-          }));
-
-  /// Unregisters this device (before sign-out).
-  Future<void> unregisterDevice(String playerId) =>
-      _guard(() => _dio.delete<void>(ApiEndpointsV2.device(playerId)));
-
   static Future<MultipartFile> _image(File file) {
     final name = file.path.split(Platform.pathSeparator).last;
     final png = name.toLowerCase().endsWith('.png');

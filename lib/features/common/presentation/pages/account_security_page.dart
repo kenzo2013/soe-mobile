@@ -243,7 +243,6 @@ class _AccountDeletionPageState extends ConsumerState<AccountDeletionPage> {
       StorageKeys.authToken,
       StorageKeys.currentUser,
       StorageKeys.currentRole,
-      StorageKeys.pushPlayerId,
     ]) {
       await storage.delete(key);
     }

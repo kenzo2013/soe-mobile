@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/widgets/soe_bottom_nav.dart';
+import '../../../common/presentation/widgets/push_gate.dart';
 import 'more_sheet.dart';
 
 /// One tab of a role's space.
@@ -75,7 +76,10 @@ class RoleShell extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context, WidgetRef ref) =>
+      PushGate(child: _frame(context, ref));
+
+  Widget _frame(BuildContext context, WidgetRef ref) {
     final tablet = MediaQuery.sizeOf(context).shortestSide >= railShortestSide;
     final items = [
       for (final tab in tabs)

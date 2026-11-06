@@ -8,6 +8,8 @@ import '../core/theme/app_palette.dart';
 import '../core/theme/app_spacing.dart';
 import '../core/theme/app_typography.dart';
 import '../core/providers/core_providers.dart';
+import '../core/push/onesignal_push_client.dart';
+import '../core/push/push_client.dart';
 import '../core/storage/preferences_storage.dart';
 import '../core/storage/secure_storage.dart';
 import '../core/storage/storage_keys.dart';
@@ -32,6 +34,7 @@ Future<void> bootstrap() async {
       await forgetSessionOfPreviousInstall(prefs, secure);
       final initialToken = await secure.read(StorageKeys.authToken);
       final initialRole = await secure.read(StorageKeys.currentRole);
+      final push = await startPush(Env.oneSignalAppId);
 
       FlutterError.onError = (details) {
         FlutterError.presentError(details);
@@ -44,6 +47,7 @@ Future<void> bootstrap() async {
             secureStorageProvider.overrideWithValue(secure),
             authTokenProvider.overrideWith((ref) => initialToken),
             currentRoleProvider.overrideWith((ref) => initialRole),
+            pushClientProvider.overrideWithValue(push),
           ],
           child: const SoeApp(),
         ),
@@ -78,6 +82,18 @@ class ConfigurationErrorApp extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// OneSignal when the build has an app id (`--dart-define=ONESIGNAL_APP_ID`, see
+/// scripts/build.sh); none otherwise (a development build), nor when the SDK fails to start.
+Future<PushClient> startPush(String appId) async {
+  if (appId.isEmpty) return const DisabledPushClient();
+  try {
+    return await OneSignalPushClient.start(appId);
+  } on Object catch (error) {
+    debugPrint('Push notifications disabled: $error');
+    return const DisabledPushClient();
   }
 }
 
