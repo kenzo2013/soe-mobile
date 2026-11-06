@@ -8,13 +8,14 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/data/mobile_money_operator.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/soe_empty_state.dart';
-import '../../../../core/widgets/soe_text_field.dart';
+import '../../../../core/widgets/soe_mobile_money_field.dart';
 import '../../../../core/widgets/soe_toast.dart';
 import '../../../../i18n/translations.g.dart';
 import '../../../auth/presentation/providers/current_user_provider.dart';
@@ -379,10 +380,12 @@ class ParentPayPage extends ConsumerStatefulWidget {
 }
 
 class _ParentPayPageState extends ConsumerState<ParentPayPage> {
-  String _operator = 'mtn';
   late final TextEditingController _phone = TextEditingController(
-      text: ref.read(currentUserProvider).valueOrNull?.phone ?? '');
+      text: MobileMoneyOperator.nationalDigits(
+          ref.read(currentUserProvider).valueOrNull?.phone ?? ''));
+  late MobileMoneyOperator? _operator = MobileMoneyOperator.detect(_phone.text);
   bool _sending = false;
+  bool _tried = false;
 
   @override
   void dispose() {
@@ -390,12 +393,18 @@ class _ParentPayPageState extends ConsumerState<ParentPayPage> {
     super.dispose();
   }
 
+  bool get _phoneComplete =>
+      MobileMoneyOperator.nationalDigits(_phone.text).length == 9;
+
   Future<void> _pay() async {
+    setState(() => _tried = true);
+    final operator = _operator;
+    if (operator == null || !_phoneComplete) return;
     setState(() => _sending = true);
     try {
-      final payment = await ref
-          .read(parentApiProvider)
-          .pay(widget.invoiceId, operator: _operator, phone: _phone.text);
+      final payment = await ref.read(parentApiProvider).pay(widget.invoiceId,
+          operator: operator.apiValue,
+          phone: MobileMoneyOperator.e164(_phone.text));
       ref.invalidate(parentInvoicesProvider);
       ref.invalidate(parentHomeProvider);
       if (mounted)
@@ -413,11 +422,13 @@ class _ParentPayPageState extends ConsumerState<ParentPayPage> {
   @override
   Widget build(BuildContext context) {
     final tr = Translations.of(context).parentSpace;
+    final money = Translations.of(context).mobileMoney;
     final invoice = ref
         .watch(parentInvoicesProvider)
         .valueOrNull
         ?.where((item) => item.id == widget.invoiceId)
         .firstOrNull;
+    final operator = _operator;
     return Scaffold(
       backgroundColor: AppPalette.surfacePage,
       appBar: SpaceAppBar(
@@ -427,39 +438,54 @@ class _ParentPayPageState extends ConsumerState<ParentPayPage> {
         padding: spacePagePadding(context),
         children: [
           if (invoice != null) ...[
-            Text(tr.pay.amount,
-                style: AppTypography.caption.copyWith(color: AppPalette.text2)),
-            Text(ParentFormat.amount(context, invoice.balanceDue),
-                style: AppTypography.h1),
-            const SizedBox(height: 16),
+            SoeCard(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(tr.pay.amount,
+                        style: AppTypography.caption
+                            .copyWith(color: AppPalette.text2)),
+                    Text(ParentFormat.amount(context, invoice.balanceDue),
+                        style: AppTypography.h1),
+                  ]),
+            ),
+            const SizedBox(height: AppSpacing.lg),
           ],
-          Text(tr.pay.operator, style: AppTypography.labelSm),
-          const SizedBox(height: 8),
-          SegmentedButton<String>(
-            segments: [
-              ButtonSegment(value: 'mtn', label: Text(tr.pay.mtn)),
-              ButtonSegment(value: 'orange', label: Text(tr.pay.orange)),
-            ],
-            selected: {_operator},
-            onSelectionChanged: (value) =>
-                setState(() => _operator = value.first),
+          SoeCard(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(money.title, style: AppTypography.h4),
+              const SizedBox(height: AppSpacing.xs),
+              Text(money.lead,
+                  style:
+                      AppTypography.bodySm.copyWith(color: AppPalette.text2)),
+              const SizedBox(height: AppSpacing.lg),
+              SoeMobileMoneyField(
+                controller: _phone,
+                operator: operator,
+                onOperatorChanged: (value) => setState(() => _operator = value),
+                help: money.prefilled,
+                errorText:
+                    _tried && !_phoneComplete ? money.phoneInvalid : null,
+              ),
+            ]),
           ),
-          const SizedBox(height: 16),
-          SoeTextField(
-              controller: _phone,
-              label: tr.pay.phone,
-              hint: tr.pay.phoneHint,
-              keyboardType: TextInputType.phone),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           SoeCard(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(tr.pay.howCode, style: AppTypography.bodySm),
-              const SizedBox(height: 6),
-              Text(tr.pay.howUssd, style: AppTypography.bodySm),
+              if (operator != null) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                    operator == MobileMoneyOperator.mtn
+                        ? money.ussdMtn
+                        : money.ussdOrange,
+                    style: AppTypography.bodySm),
+              ],
             ]),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.xl),
           SoeButton(
             label: tr.pay.submit(
                 amount: invoice == null
@@ -467,7 +493,7 @@ class _ParentPayPageState extends ConsumerState<ParentPayPage> {
                     : ParentFormat.amount(context, invoice.balanceDue)),
             fullWidth: true,
             loading: _sending,
-            onPressed: _pay,
+            onPressed: operator == null ? null : _pay,
           ),
         ],
       ),

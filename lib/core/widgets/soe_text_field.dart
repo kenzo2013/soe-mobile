@@ -15,6 +15,7 @@ class SoeTextField extends StatelessWidget {
     this.label,
     this.hint,
     this.leadingIcon,
+    this.prefixText,
     this.trailing,
     this.errorText,
     this.enabled = true,
@@ -37,6 +38,9 @@ class SoeTextField extends StatelessWidget {
   final String? label;
   final String? hint;
   final IconData? leadingIcon;
+
+  /// Fixed text before the value (« +237 »), not editable.
+  final String? prefixText;
   final Widget? trailing;
   final String? errorText;
   final bool enabled;
@@ -106,6 +110,9 @@ class SoeTextField extends StatelessWidget {
                         Icon(leadingIcon, size: 18, color: AppPalette.ink600),
                   ),
             prefixIconConstraints: const BoxConstraints(minWidth: 0),
+            prefixText: prefixText == null ? null : '$prefixText  ',
+            prefixStyle: AppTypography.body.copyWith(
+                color: AppPalette.teal800, fontWeight: FontWeight.w600),
             suffixIcon: trailing,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
