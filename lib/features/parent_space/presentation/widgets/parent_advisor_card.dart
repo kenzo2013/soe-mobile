@@ -78,13 +78,14 @@ class ParentAdvisorCard extends ConsumerWidget {
                 style: OutlinedButton.styleFrom(
                     foregroundColor: AppPalette.onDark,
                     minimumSize: const Size.fromHeight(44),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     side: const BorderSide(color: AppPalette.onDark),
                     shape: const StadiumBorder()),
                 onPressed: () => unawaited(launchUrl(
                     Uri(scheme: 'tel', path: digits),
                     mode: LaunchMode.externalApplication)),
                 icon: const Icon(Icons.call_outlined, size: 18),
-                label: Text(tr.home.call),
+                label: _OneLine(tr.home.call),
               ),
             ),
             const SizedBox(width: 10),
@@ -94,11 +95,12 @@ class ParentAdvisorCard extends ConsumerWidget {
                     backgroundColor: AppPalette.white,
                     foregroundColor: AppPalette.teal800,
                     minimumSize: const Size.fromHeight(44),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     shape: const StadiumBorder()),
                 onPressed: () => unawaited(
                     launchUrl(whatsapp, mode: LaunchMode.externalApplication)),
                 icon: const Icon(Icons.chat_bubble_outline, size: 18),
-                label: Text(tr.home.whatsapp),
+                label: _OneLine(tr.home.whatsapp),
               ),
             ),
           ]),
@@ -106,4 +108,18 @@ class ParentAdvisorCard extends ConsumerWidget {
       ]),
     );
   }
+}
+
+/// A button label on one line, shrunk when the column is narrow (tablet side column): « WhatsApp »
+/// never breaks into « WhatsAp / p ».
+class _OneLine extends StatelessWidget {
+  const _OneLine(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(text, maxLines: 1, softWrap: false),
+      );
 }
