@@ -25,8 +25,11 @@ abstract final class Env {
   static const String googlePlacesApiKey =
       String.fromEnvironment('GOOGLE_PLACES_API_KEY');
 
-  static bool get isProd => flavor == 'prod';
-  static bool get isStaging => flavor == 'staging';
+  /// `prd` is what scripts/build.sh passes (Doppler config name); `prod` is the former value.
+  static bool get isProd => flavor == 'prd' || flavor == 'prod';
+
+  /// `stg` is what scripts/build.sh passes (the « SOE Test » app); `staging` is the former value.
+  static bool get isStaging => flavor == 'stg' || flavor == 'staging';
   static bool get isDev => flavor == 'dev';
 
   /// Throws a [StateError] with the command to run when the API URL is missing or unusable.
