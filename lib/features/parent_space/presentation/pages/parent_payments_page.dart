@@ -12,6 +12,7 @@ import '../../../../core/data/mobile_money_operator.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/soe_adaptive_panel.dart';
 import '../../../../core/widgets/soe_button.dart';
 import '../../../../core/widgets/soe_card.dart';
 import '../../../../core/widgets/soe_empty_state.dart';
@@ -24,6 +25,7 @@ import '../parent_space_routes.dart';
 import '../providers.dart';
 import '../widgets/parent_ui.dart';
 import '../widgets/parent_widgets.dart';
+import '../widgets/payment_link_panel.dart';
 import '../../../common/presentation/widgets/tab_top_bar.dart';
 import '../../../common/presentation/widgets/space_app_bar.dart';
 
@@ -52,7 +54,8 @@ class ParentPaymentsPage extends ConsumerWidget {
           if (due.isNotEmpty) ParentSectionTitle(tr.payments.toPay),
           ...due.map((invoice) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
-                child: SoeCard(
+                child: SoeReadableWidth(
+                    child: SoeCard(
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -127,8 +130,12 @@ class ParentPaymentsPage extends ConsumerWidget {
                           onPressed: () =>
                               context.push(ParentSpaceRoutes.pay(invoice.id)),
                         ),
+                        if (invoice.canShareLink) ...[
+                          const SizedBox(height: AppSpacing.sm),
+                          PaymentLinkAction(invoice: invoice),
+                        ],
                       ]),
-                ),
+                )),
               )),
           ParentSectionTitle(tr.payments.history),
           if (receiptsValue.hasError)
@@ -437,64 +444,74 @@ class _ParentPayPageState extends ConsumerState<ParentPayPage> {
       body: ListView(
         padding: spacePagePadding(context),
         children: [
-          if (invoice != null) ...[
+          for (final child in [
+            if (invoice != null) ...[
+              SoeCard(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(tr.pay.amount,
+                          style: AppTypography.caption
+                              .copyWith(color: AppPalette.text2)),
+                      Text(ParentFormat.amount(context, invoice.balanceDue),
+                          style: AppTypography.h1),
+                    ]),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+            ],
             SoeCard(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(tr.pay.amount,
-                        style: AppTypography.caption
+                    Text(money.title, style: AppTypography.h4),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(money.lead,
+                        style: AppTypography.bodySm
                             .copyWith(color: AppPalette.text2)),
-                    Text(ParentFormat.amount(context, invoice.balanceDue),
-                        style: AppTypography.h1),
+                    const SizedBox(height: AppSpacing.lg),
+                    SoeMobileMoneyField(
+                      controller: _phone,
+                      operator: operator,
+                      onOperatorChanged: (value) =>
+                          setState(() => _operator = value),
+                      help: money.prefilled,
+                      errorText:
+                          _tried && !_phoneComplete ? money.phoneInvalid : null,
+                    ),
                   ]),
             ),
             const SizedBox(height: AppSpacing.lg),
-          ],
-          SoeCard(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(money.title, style: AppTypography.h4),
-              const SizedBox(height: AppSpacing.xs),
-              Text(money.lead,
-                  style:
-                      AppTypography.bodySm.copyWith(color: AppPalette.text2)),
-              const SizedBox(height: AppSpacing.lg),
-              SoeMobileMoneyField(
-                controller: _phone,
-                operator: operator,
-                onOperatorChanged: (value) => setState(() => _operator = value),
-                help: money.prefilled,
-                errorText:
-                    _tried && !_phoneComplete ? money.phoneInvalid : null,
-              ),
-            ]),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          SoeCard(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(tr.pay.howCode, style: AppTypography.bodySm),
-              if (operator != null) ...[
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                    operator == MobileMoneyOperator.mtn
-                        ? money.ussdMtn
-                        : money.ussdOrange,
-                    style: AppTypography.bodySm),
-              ],
-            ]),
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          SoeButton(
-            label: tr.pay.submit(
-                amount: invoice == null
-                    ? ''
-                    : ParentFormat.amount(context, invoice.balanceDue)),
-            fullWidth: true,
-            loading: _sending,
-            onPressed: operator == null ? null : _pay,
-          ),
+            SoeCard(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(tr.pay.howCode, style: AppTypography.bodySm),
+                    if (operator != null) ...[
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                          operator == MobileMoneyOperator.mtn
+                              ? money.ussdMtn
+                              : money.ussdOrange,
+                          style: AppTypography.bodySm),
+                    ],
+                  ]),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            SoeButton(
+              label: tr.pay.submit(
+                  amount: invoice == null
+                      ? ''
+                      : ParentFormat.amount(context, invoice.balanceDue)),
+              fullWidth: true,
+              loading: _sending,
+              onPressed: operator == null ? null : _pay,
+            ),
+            if (invoice != null && invoice.canShareLink) ...[
+              const SizedBox(height: AppSpacing.sm),
+              PaymentLinkAction(invoice: invoice),
+            ],
+          ])
+            SoeReadableWidth(child: child),
         ],
       ),
     );

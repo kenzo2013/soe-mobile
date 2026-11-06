@@ -29,6 +29,12 @@ abstract final class ApiEndpointsV2 {
       '/parent/sessions/$sessionId/report/answer';
   static const String parentInvoices = '/parent/invoices';
   static String parentInvoicePay(int id) => '/parent/invoices/$id/pay';
+
+  /// The link to have someone else pay the invoice (no account needed to use it).
+  static String parentInvoicePaymentLink(int id) =>
+      '/parent/invoices/$id/payment_link';
+  static String parentInvoicePaymentLinkRegenerate(int id) =>
+      '/parent/invoices/$id/payment_link/regenerate';
   static const String parentPayments = '/parent/payments';
   static String parentPayment(int id) => '/parent/payments/$id';
   static const String parentRequests = '/parent/requests';

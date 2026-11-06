@@ -51,6 +51,39 @@ final parentReportProvider = FutureProvider.autoDispose
 final parentInvoicesProvider = FutureProvider.autoDispose<List<ParentInvoice>>(
     (ref) => ref.watch(parentApiProvider).invoices());
 
+/// The payment link of an invoice: fetched, created, regenerated or deactivated from the sheet.
+final paymentLinkProvider = AsyncNotifierProvider.autoDispose
+    .family<PaymentLinkNotifier, PaymentLink?, int>(PaymentLinkNotifier.new);
+
+class PaymentLinkNotifier
+    extends AutoDisposeFamilyAsyncNotifier<PaymentLink?, int> {
+  @override
+  Future<PaymentLink?> build(int invoiceId) =>
+      ref.watch(parentApiProvider).paymentLink(invoiceId);
+
+  /// The link to send: the usable one, else a new one.
+  Future<PaymentLink> ensure() async {
+    final current = state.valueOrNull;
+    if (current != null && current.usable) return current;
+    return _replace(() => ref.read(parentApiProvider).createPaymentLink(arg));
+  }
+
+  Future<PaymentLink> regenerate() =>
+      _replace(() => ref.read(parentApiProvider).regeneratePaymentLink(arg));
+
+  Future<void> revoke() async {
+    await ref.read(parentApiProvider).revokePaymentLink(arg);
+    state = const AsyncData(null);
+    ref.invalidate(parentInvoicesProvider);
+  }
+
+  Future<PaymentLink> _replace(Future<PaymentLink> Function() call) async {
+    final link = await call();
+    state = AsyncData(link);
+    return link;
+  }
+}
+
 final parentPaymentsProvider = FutureProvider.autoDispose<List<ParentPayment>>(
     (ref) => ref.watch(parentApiProvider).payments());
 

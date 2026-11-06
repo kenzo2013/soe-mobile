@@ -931,6 +931,33 @@
       "role": "Conseiller SOE",
       "hours": "lun. – sam., 8:00 – 18:00",
       "phone": "Téléphone"
+    },
+    "paymentLink": {
+      "action": "Faire payer quelqu’un d’autre",
+      "title": "Lien de paiement",
+      "lead": "Envoyez ce lien à la personne qui va payer. Elle n’a pas besoin de compte : elle saisit son numéro Mobile Money et confirme sur son téléphone.",
+      "share": "Partager",
+      "copy": "Copier le lien",
+      "copied": "Lien copié",
+      "regenerate": "Nouveau lien",
+      "revoke": "Désactiver",
+      "regenerateTitle": "Créer un nouveau lien ?",
+      "regenerateText": "L’ancien lien ne fonctionnera plus.",
+      "revokeTitle": "Désactiver le lien ?",
+      "revokeText": "Personne ne pourra plus payer avec ce lien. Vous pourrez en créer un autre.",
+      "revoked": "Lien désactivé",
+      "create": "Créer le lien",
+      "none": "Aucun lien pour l’instant.",
+      "expires": "Valable jusqu’au {{date}}",
+      "status": {
+        "active": "Actif",
+        "opened": "Ouvert par le destinataire",
+        "paid": "Payé",
+        "expired": "Expiré",
+        "revoked": "Désactivé"
+      },
+      "message": "Bonjour, voici le lien pour régler la facture SOE de {{month}} ({{amount}}) : {{url}}",
+      "subject": "Facture SOE de {{month}}"
     }
   },
   "tutorSpace": {
