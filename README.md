@@ -21,8 +21,17 @@ projet depuis ce dossier, il utilise un autre espace : `doppler setup -p soe-mob
 ./scripts/build.sh prod            # SOE, App Bundle Android (Play)
 ./scripts/build.sh test            # SOE Test, App Bundle Android
 ./scripts/build.sh test --apk      # SOE Test, APK à installer directement
-./scripts/build.sh prod --ios      # SOE, IPA (App Store Connect)
+./scripts/build.sh prod --ios      # SOE, IPA signée, gardée dans build/ios/ipa
+./scripts/build.sh test --testflight  # SOE Test, signée et envoyée sur TestFlight
+./scripts/build.sh prod --testflight  # SOE, signée et envoyée sur TestFlight / App Store Connect
 ```
+
+iOS : la signature passe par la clé d'API App Store Connect (rôle Admin) de Doppler
+(`ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8_BASE64`), restaurée dans `keys/` si besoin ; aucun
+compte Apple n'a à être connecté dans Xcode. `xcodebuild -allowProvisioningUpdates` crée lui-même
+le certificat géré par Apple et les profils de l'équipe `6NUB622B7R`. Les App Groups
+`group.cm.soe.mobile[.test].onesignal` se créent à la main sur developer.apple.com (l'API ne le
+permet pas). Le numéro de build iOS vaut par défaut la date et l'heure (`yymmddHHMM`).
 
 Le script écrit l'identité de l'app (gitignorée) dans `android/env.properties` et
 `ios/Flutter/Env.xcconfig`, restaure la clé d'envoi Play (`keys/upload-keystore.jks` et
