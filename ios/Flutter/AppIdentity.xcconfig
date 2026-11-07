@@ -1,0 +1,8 @@
+// App identity (SOE or SOE Test). Production by default, so that a fresh clone or a plain
+// `flutter run` / `flutter build ios` builds the production app; scripts/build.sh and
+// scripts/run.sh override these values in the generated, gitignored Env.xcconfig.
+APP_BUNDLE_ID = cm.soe.mobile
+APP_DISPLAY_NAME = SOE
+APP_ICON_NAME = AppIcon
+
+#include? "Env.xcconfig"

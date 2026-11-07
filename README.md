@@ -2,24 +2,61 @@
 
 Application mobile Flutter (iOS + Android) de tutorat à domicile au Cameroun.
 
-Bundle ID : `cm.soe.mobile`.
+## Deux applications : « SOE » et « SOE Test »
 
-## Démarrage rapide
+Elles s'installent côte à côte sur un même téléphone.
+
+| App | Identifiant (iOS et Android) | API | Doppler |
+|---|---|---|---|
+| **SOE** (production) | `cm.soe.mobile` | `https://api.solutionofeducation.com` | `soe-mobile` / `prd` |
+| **SOE Test** (recette) | `cm.soe.mobile.test` | `https://api.jeteste.site` | `soe-mobile` / `stg` |
+
+Les valeurs (`API_BASE_URL`, `GOOGLE_PLACES_API_KEY`, `ONESIGNAL_APP_ID`, `SENTRY_DSN`, clé de
+signature Android) vivent dans le projet Doppler **`soe-mobile`**. Si Doppler ne trouve pas le
+projet depuis ce dossier, il utilise un autre espace : `doppler setup -p soe-mobile -c prd`.
+
+### Construire
 
 ```bash
-flutter pub get
-dart run build_runner build --delete-conflicting-outputs
+./scripts/build.sh prod            # SOE, App Bundle Android (Play)
+./scripts/build.sh test            # SOE Test, App Bundle Android
+./scripts/build.sh test --apk      # SOE Test, APK à installer directement
+./scripts/build.sh prod --ios      # SOE, IPA (App Store Connect)
 ```
 
-### Lancer en dev / staging / prod
+Le script écrit l'identité de l'app (gitignorée) dans `android/env.properties` et
+`ios/Flutter/Env.xcconfig`, restaure la clé d'envoi Play (`keys/upload-keystore.jks` et
+`android/key.properties`) depuis Doppler si elle manque, puis lance `flutter clean` et
+`flutter build` avec les `--dart-define`. Une valeur vide (OneSignal, Sentry) donne un
+avertissement, pas une erreur. Version lue dans `pubspec.yaml` (ou `BUILD_NAME=… BUILD_NUMBER=…`).
+
+Sans fichier d'identité (clone neuf, `flutter run` simple), Android et iOS construisent l'app
+**SOE** de production (`ios/Flutter/AppIdentity.xcconfig`, `android/app/build.gradle.kts`).
+
+### Lancer
 
 ```bash
-flutter run --target=lib/main_dev.dart       --dart-define-from-file=env/dev.env
-flutter run --target=lib/main_staging.dart   --dart-define-from-file=env/staging.env
-flutter run --target=lib/main_prod.dart      --dart-define-from-file=env/prod.env
+./scripts/run.sh                   # dev : identité SOE Test, serveur Rails LOCAL via env/dev.env
+./scripts/run.sh stg               # SOE Test sur la recette (vérifier une version, pas de données)
+./scripts/run.sh prd               # SOE sur la production
 ```
 
-Les fichiers `env/*.env` sont gitignorés. Voir `env/example.env` pour la liste des variables.
+En développement, l'app pointe sur le serveur **local** par un tunnel : copier
+`env/example.env` en `env/dev.env` et y mettre l'adresse du tunnel (la config Doppler `dev`
+reste vide). La commande directe marche toujours :
+`flutter run --target=lib/main_dev.dart --dart-define-from-file=env/dev.env`.
+
+### Icônes
+
+`assets/icon/app_icon.png` (carré complet, iOS et stores) et `app_icon_foreground.png` (premier
+plan adaptatif Android, fond `#01324A`). Après modification :
+
+```bash
+dart run flutter_launcher_icons && ./scripts/generate_test_icons.sh
+```
+
+Le second script dérive les icônes de SOE Test (bandeau « TEST ») : `ic_launcher_test` sur
+Android, `AppIconTest` sur iOS.
 
 ## Tests
 
