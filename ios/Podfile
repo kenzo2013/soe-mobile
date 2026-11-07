@@ -36,6 +36,13 @@ target 'Runner' do
   end
 end
 
+# OneSignal Notification Service Extension (rich pushes, delivery receipts, badges): the same
+# OneSignal iOS version as the onesignal_flutter plugin (its podspec pins OneSignalXCFramework).
+target 'OneSignalNotificationServiceExtension' do
+  use_frameworks!
+  pod 'OneSignalXCFramework', '5.8.0'
+end
+
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)

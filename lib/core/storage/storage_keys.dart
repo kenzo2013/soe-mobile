@@ -5,9 +5,6 @@ abstract final class StorageKeys {
   static const String currentUser = 'current_user';
   static const String currentRole = 'current_role';
 
-  /// The OneSignal player id registered with `POST /devices` (unregistered at sign-out).
-  static const String pushPlayerId = 'push_player_id';
-
   // Preferences (non sensible)
   static const String onboardingDone = 'onboarding_done';
   static const String preferredLang = 'preferred_lang';

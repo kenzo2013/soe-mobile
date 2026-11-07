@@ -2229,5 +2229,13 @@
       "emergencyTutor": "Serious incident at a family's home: leave if needed and call SOE at once.",
       "reportEmergency": "Report an emergency"
     }
+  },
+  "push": {
+    "permission": {
+      "title": "Get notifications?",
+      "message": "SOE lets you know on this phone about a quote to approve, a changed session, a payment or a session report to read. You then choose what to receive in My account.",
+      "allow": "Turn on",
+      "later": "Not now"
+    }
   }
 }

@@ -1,0 +1,6 @@
+// OneSignal Notification Service Extension: the pods, the Flutter version (FLUTTER_BUILD_NAME and
+// FLUTTER_BUILD_NUMBER, same as the app) and the app identity (APP_BUNDLE_ID: its bundle id is
+// $(APP_BUNDLE_ID).OneSignalNotificationServiceExtension, its App Group group.$(APP_BUNDLE_ID).onesignal).
+#include? "../Pods/Target Support Files/Pods-OneSignalNotificationServiceExtension/Pods-OneSignalNotificationServiceExtension.debug.xcconfig"
+#include "../Flutter/Generated.xcconfig"
+#include "../Flutter/AppIdentity.xcconfig"

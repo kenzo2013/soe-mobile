@@ -3,16 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/providers/core_providers.dart';
 import '../data/account_api.dart';
 import '../data/account_models.dart';
-import '../data/push_devices.dart';
 
 // ── Account and common screens (API v2) ────────────────────
 
 final accountApiProvider =
     Provider<AccountApi>((ref) => AccountApi(ref.watch(dioV2Provider)));
-
-final pushDevicesProvider = Provider<PushDevices>((ref) => PushDevices(
-    api: ref.watch(accountApiProvider),
-    storage: ref.watch(secureStorageProvider)));
 
 final accountAddressProvider = FutureProvider.autoDispose<AccountAddress>(
     (ref) => ref.watch(accountApiProvider).address());

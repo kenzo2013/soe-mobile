@@ -12,6 +12,7 @@ class User {
     this.photoUrl,
     this.multiRole = false,
     this.hasPhoto = false,
+    this.pushExternalId,
   });
 
   final String id;
@@ -30,6 +31,10 @@ class User {
 
   /// A profile photo exists (API v2: a short-lived link from `GET /me/photo`).
   final bool hasPhoto;
+
+  /// What the app passes to OneSignal.login after sign-in (GET /me `push_external_id`): a
+  /// random token of the account, never its id. Null for an account cached by an older build.
+  final String? pushExternalId;
 
   String get fullName => '$firstName $lastName';
 
