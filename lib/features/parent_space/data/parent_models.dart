@@ -394,9 +394,16 @@ class ParentInvoice {
     this.canPay,
     this.paymentMethodLabel,
     this.receiptPaymentId,
+    this.linkAllowed = false,
+    this.paymentLink,
   });
 
   factory ParentInvoice.fromJson(Map<String, dynamic> json) => ParentInvoice(
+        // The key is only sent to the holder of the reservation: a co-parent cannot share a link.
+        linkAllowed: json.containsKey('payment_link'),
+        paymentLink: json['payment_link'] is Map<String, dynamic>
+            ? PaymentLink.fromJson(json['payment_link'] as Map<String, dynamic>)
+            : null,
         monthLabel: json['month_label'] as String?,
         summary: json['summary'] as String?,
         canPay: json['can_pay'] as bool?,
@@ -447,7 +454,56 @@ class ParentInvoice {
   final String? paymentMethodLabel;
   final int? receiptPaymentId;
 
+  /// Whether the signed-in parent may share a payment link (the holder, not a co-parent).
+  final bool linkAllowed;
+
+  /// The link already shared, if any.
+  final PaymentLink? paymentLink;
+
   bool get payable => status == 'issued' || status == 'overdue';
+
+  /// « Faire payer quelqu'un d'autre » is offered.
+  bool get canShareLink => payable && linkAllowed;
+}
+
+/// A link to pay an invoice without an account: the parent (or SOE) sends it to whoever pays.
+class PaymentLink {
+  const PaymentLink(
+      {required this.url,
+      required this.status,
+      this.expiresAt,
+      this.createdAt});
+
+  factory PaymentLink.fromJson(Map<String, dynamic> json) => PaymentLink(
+        url: json['url'] as String? ?? '',
+        status: PaymentLinkStatus.parse(json['status'] as String?),
+        expiresAt: _dateTime(json['expires_at']),
+        createdAt: _dateTime(json['created_at']),
+      );
+
+  final String url;
+  final PaymentLinkStatus status;
+  final DateTime? expiresAt;
+  final DateTime? createdAt;
+
+  /// Can still be sent: the person who receives it can pay with it.
+  bool get usable =>
+      status == PaymentLinkStatus.active || status == PaymentLinkStatus.opened;
+
+  static DateTime? _dateTime(Object? value) =>
+      value is String ? DateTime.tryParse(value)?.toLocal() : null;
+}
+
+enum PaymentLinkStatus {
+  active,
+  opened,
+  paid,
+  expired,
+  revoked;
+
+  static PaymentLinkStatus parse(String? value) =>
+      PaymentLinkStatus.values.firstWhere((status) => status.name == value,
+          orElse: () => PaymentLinkStatus.expired);
 }
 
 class ParentPayment {

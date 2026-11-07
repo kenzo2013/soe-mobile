@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../core/network/api_endpoints_v2.dart';
 import '../../../core/error/exception_mapper.dart';
+import '../../../core/error/failure.dart';
 import '../../../core/network/paginated.dart';
 import 'parent_endpoints.dart';
 import 'parent_flow_models.dart';
@@ -97,6 +98,35 @@ class ParentApi {
           .post<Map<String, dynamic>>(
               ApiEndpointsV2.parentInvoicePay(invoiceId),
               data: {'operator': operator, 'phone': phone}))));
+
+  /// The invoice's payment link, null when none was created yet (404).
+  Future<PaymentLink?> paymentLink(int invoiceId) async {
+    try {
+      return await _guard(() async => PaymentLink.fromJson(_data(
+          await _dio.get<Map<String, dynamic>>(
+              ApiEndpointsV2.parentInvoicePaymentLink(invoiceId)))));
+    } on NotFoundFailure {
+      return null;
+    }
+  }
+
+  /// Creates the link, or returns the one still usable.
+  Future<PaymentLink> createPaymentLink(int invoiceId) async =>
+      _guard(() async => PaymentLink.fromJson(_data(
+          await _dio.post<Map<String, dynamic>>(
+              ApiEndpointsV2.parentInvoicePaymentLink(invoiceId)))));
+
+  /// A new link: the previous one stops working.
+  Future<PaymentLink> regeneratePaymentLink(int invoiceId) async =>
+      _guard(() async => PaymentLink.fromJson(_data(
+          await _dio.post<Map<String, dynamic>>(
+              ApiEndpointsV2.parentInvoicePaymentLinkRegenerate(invoiceId)))));
+
+  /// Deactivates the link: whoever has it can no longer pay with it.
+  Future<void> revokePaymentLink(int invoiceId) async => _guard(() async {
+        await _dio
+            .delete<void>(ApiEndpointsV2.parentInvoicePaymentLink(invoiceId));
+      });
 
   Future<ParentPayment> payment(int id) async =>
       _guard(() async => ParentPayment.fromJson(_data(await _dio

@@ -931,6 +931,33 @@
       "role": "SOE advisor",
       "hours": "Mon – Sat, 8:00 – 18:00",
       "phone": "Phone"
+    },
+    "paymentLink": {
+      "action": "Have someone else pay",
+      "title": "Payment link",
+      "lead": "Send this link to the person who will pay. They don’t need an account: they enter their Mobile Money number and confirm on their phone.",
+      "share": "Share",
+      "copy": "Copy link",
+      "copied": "Link copied",
+      "regenerate": "New link",
+      "revoke": "Deactivate",
+      "regenerateTitle": "Create a new link?",
+      "regenerateText": "The previous link will stop working.",
+      "revokeTitle": "Deactivate the link?",
+      "revokeText": "No one will be able to pay with this link any more. You can create another one.",
+      "revoked": "Link deactivated",
+      "create": "Create the link",
+      "none": "No link yet.",
+      "expires": "Valid until {{date}}",
+      "status": {
+        "active": "Active",
+        "opened": "Opened by the recipient",
+        "paid": "Paid",
+        "expired": "Expired",
+        "revoked": "Deactivated"
+      },
+      "message": "Hello, here is the link to pay the SOE invoice for {{month}} ({{amount}}): {{url}}",
+      "subject": "SOE invoice for {{month}}"
     }
   },
   "tutorSpace": {
