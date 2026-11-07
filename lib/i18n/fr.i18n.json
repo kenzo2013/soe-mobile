@@ -111,6 +111,22 @@
     "phoneTitle": "Indicatif pays",
     "addressTitle": "Choisir un pays"
   },
+  "mobileMoney": {
+    "title": "Paiement Mobile Money",
+    "lead": "Saisissez le numéro qui va payer : nous reconnaissons l’opérateur.",
+    "phone": "Numéro Mobile Money",
+    "phoneHint": "6XX XXX XXX",
+    "prefilled": "Prérempli avec votre numéro. Vous pouvez en utiliser un autre.",
+    "detected": "Opérateur détecté : {{operator}}",
+    "notRight": "Ce n’est pas le bon opérateur ?",
+    "choose": "Choisissez l’opérateur",
+    "unknown": "Opérateur non reconnu : choisissez-le ci-dessous.",
+    "mtn": "MTN Mobile Money",
+    "orange": "Orange Money",
+    "ussdMtn": "Si la demande n’apparaît pas, composez *126# (MTN).",
+    "ussdOrange": "Si la demande n’apparaît pas, composez #150# (Orange Money).",
+    "phoneInvalid": "Le numéro doit compter 9 chiffres et commencer par 6."
+  },
   "cityPicker": {
     "title": "Choisir votre ville",
     "search": "Rechercher une ville",
@@ -477,13 +493,7 @@
     "pay": {
       "title": "Payer",
       "amount": "Montant",
-      "operator": "Opérateur",
-      "mtn": "MTN MoMo",
-      "orange": "Orange Money",
-      "phone": "Numéro Mobile Money",
-      "phoneHint": "Prérempli avec votre numéro. Vous pouvez en utiliser un autre.",
       "howCode": "Vous confirmez la demande avec votre code secret Mobile Money. SOE ne le connaît jamais.",
-      "howUssd": "Si la demande n’apparaît pas, composez *126# (MTN).",
       "submit": "Payer {{amount}}"
     },
     "payment": {

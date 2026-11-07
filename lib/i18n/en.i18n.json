@@ -111,6 +111,22 @@
     "phoneTitle": "Country code",
     "addressTitle": "Choose a country"
   },
+  "mobileMoney": {
+    "title": "Mobile Money payment",
+    "lead": "Enter the number that will pay: we recognise the operator.",
+    "phone": "Mobile Money number",
+    "phoneHint": "6XX XXX XXX",
+    "prefilled": "Prefilled with your number. You can use another one.",
+    "detected": "Operator detected: {{operator}}",
+    "notRight": "Not the right operator?",
+    "choose": "Choose the operator",
+    "unknown": "Operator not recognised: choose it below.",
+    "mtn": "MTN Mobile Money",
+    "orange": "Orange Money",
+    "ussdMtn": "If the request does not show, dial *126# (MTN).",
+    "ussdOrange": "If the request does not show, dial #150# (Orange Money).",
+    "phoneInvalid": "The number must have 9 digits and start with 6."
+  },
   "cityPicker": {
     "title": "Choose your city",
     "search": "Search for a city",
@@ -477,13 +493,7 @@
     "pay": {
       "title": "Pay",
       "amount": "Amount",
-      "operator": "Operator",
-      "mtn": "MTN MoMo",
-      "orange": "Orange Money",
-      "phone": "Mobile Money number",
-      "phoneHint": "Prefilled with your number. You can use another one.",
       "howCode": "You confirm the request with your Mobile Money secret code. SOE never knows it.",
-      "howUssd": "If the request does not show, dial *126# (MTN).",
       "submit": "Pay {{amount}}"
     },
     "payment": {
